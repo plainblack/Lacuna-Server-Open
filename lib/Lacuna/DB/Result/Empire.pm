@@ -890,13 +890,16 @@ sub add_observatory_probe {
     })->insert;
     
     # send notifications
-    # this could be a performance problem in the future depending upon the number of probes in a star system
     my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
-    # Get all systems that are probed (real or virtual)
-    my $probes = Lacuna->db->resultset('Probes')->search_any({ star_id => $star_id, empire_id => {'!=', $self->id } });
-    while (my $probe = $probes->next) {
-        my $that_empire = $probe->empire;
-        next unless defined $that_empire;
+    # Get all empires to be notified that have probes (real or virtual)
+    my %to_notify = map { $_->empire_id => 1 } Lacuna->db->resultset('Probes')
+                                               ->search_any({
+                                                   star_id => $star_id,
+                                                   empire_id => {'!=', $self->id }
+                                               });
+    for my $eid (keys %to_notify) {
+        my $that_empire = Lacuna->db->resultset('Empire')->find($eid);
+        next unless $that_empire;
         if (!$that_empire->skip_probe_detected) {
             $that_empire->send_predefined_message(
                 filename    => 'probe_detected.txt',

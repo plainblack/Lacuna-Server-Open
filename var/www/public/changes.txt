@@ -1,3 +1,7 @@
+3.0909:
+ - Add: Admin UI to set alliance logo.
+ - Fix: Only one notification per empire per star on probe detection.
+
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
  - Mod: Firing BFG now requires captcha.
@@ -5,7 +9,6 @@
  - UI : Reasons for not being able to use a BHG function now always displayed for every task.
  - Fix: Instead of going via parliament, go via body or star to view_laws.  This allows everyone access to passed laws by a station.
  - UI : No more nagging if you want to spend halls.
- - Add: Admin UI to set alliance logo.
 
 3.0907:
  - Add: Timer added to colony object preventing passage into Neutral Zone.
