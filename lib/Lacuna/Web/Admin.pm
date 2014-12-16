@@ -11,6 +11,7 @@ use UUID::Tiny ':std';
 use Lacuna::Util qw(format_date);
 use List::Util qw(sum);
 use Data::Dumper;
+use LWP::UserAgent;
 
 sub www_send_test_message {
     my ($self, $request, $id) = @_;
@@ -967,6 +968,41 @@ sub www_view_empire {
     return $self->wrap($out);
 }
 
+sub www_set_alliance_logo {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($id);
+    unless (defined $alliance) {
+        confess [404, 'Alliance not found.'];
+    }
+    my $image = $request->param('logo_url');
+    unless (defined $image) {
+        confess [404, 'Logo URL not supplied' ];
+    }
+    my $out = '';
+
+    my $full_url = 'https://d16cbq0l6kkf21.cloudfront.net/assets/alliances/' . $image . '.png';
+    my $response = LWP::UserAgent->new->head($full_url);
+    if ($response->is_success)
+    {
+        $alliance->image($image);
+        $alliance->update;
+        $out .= '<h2>Success</h2>';
+        $out .= sprintf('<p>Successfully updated %s to use <a href="%s">%s</a></p>',
+                        $alliance->name, $full_url, $image);
+    }
+    else
+    {
+        $out .= '<h3>Failure</h2>';
+        $out .= sprintf('<p>Could not find an image for %s - has it been delivered yet?</p>',
+                        $image);
+    }
+    $out .= sprintf('<p>Back to <a href="/admin/view/alliance?id=%d">%s</a></p>',
+                    $alliance->id, $alliance->name);
+    return $self->wrap($out);
+
+}
+
 sub www_view_alliance {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -974,8 +1010,32 @@ sub www_view_alliance {
     unless (defined $alliance) {
         confess [404, 'Alliance not found.'];
     }
+    my $current_logo_path = $alliance->image;
+    my $num = 0;
+
+    if ($current_logo_path)
+    {
+        ($num) = $current_logo_path =~ /_(\d+)$/;
+        $current_logo_path = qq["$current_logo_path"];
+    }
+    else
+    {
+        $current_logo_path = "not set";
+    }
+
+    my $uri = URI->new(Lacuna->config->get('server_url'));
+    my ($domain) = $uri->authority =~ /^([^.]+)\./;
+    my $new_logo_path = sprintf("%s/logo_%d_%03d", $domain, $alliance->id, $num + 1);
+
     my $leader = $alliance->leader;
     my $out = '<h1>Manage Alliance</h1>';
+    $out .= '<ul>';
+    $out .= sprintf('<li><form method="post" action="/admin/set/alliance/logo?id=%d">Alliance logo image (excluding ".png"): <input name="logo_url" value="%s"> (currently %s)<input type="submit" value="set_logo"></form></li>',
+                    $alliance->id,
+                    $new_logo_path,
+                    $current_logo_path,
+                   );
+    $out .= '</ul>';
     $out .= '<table style="width: 100%">';
     $out .= '<tr><th>Id</th><th>Name</th><th>Home</th><th>Last Login</th></tr>';
     $out .= sprintf('<tr><td><b><a href="/admin/view/empire?id=%d">%d</a></b></td><td><b>%s</b></td><td><b><a href="/admin/view/body?id=%d">%s</a></b></td><td><b>%s</b></td></tr>',
