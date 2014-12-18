@@ -488,8 +488,7 @@ sub get_status {
 sub start_session {
     my ($self, $options) = @_;
     if (   $options
-        && $options->{api_key}
-        && $options->{api_key} ne 'admin_console' )
+        && !$options->{is_admin} )
     {
         $self->last_login(DateTime->now);
         $self->update;

@@ -890,7 +890,7 @@ sub www_become_empire {
     }
     my $uri = Lacuna->config->get('server_url');
     $uri .= '#session_id=%s';
-    $uri = sprintf $uri, $empire->start_session({ api_key => 'admin_console' })->id;
+    $uri = sprintf $uri, $empire->start_session({ is_admin => $request->user, api_key => 'admin:' . $request->user })->id;
     [$uri, { status => 302 } ]
 }
 

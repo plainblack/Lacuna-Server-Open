@@ -21,6 +21,7 @@ sub BUILD {
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
+        $self->is_from_admin($session_data->{is_from_admin});
     }
 }
 
@@ -34,6 +35,11 @@ has api_key => (
 );
 
 has is_sitter => (
+    is          => 'rw',
+    default     => 0,
+);
+
+has is_from_admin => (
     is          => 'rw',
     default     => 0,
 );
@@ -83,7 +89,8 @@ sub extend {
 			api_key			=> $self->api_key,
 			extended		=> $self->extended,
 			is_sitter		=> $self->is_sitter,
-		},
+			is_from_admin   	=> $self->is_from_admin,
+        },
         60 * 60 * 2,
     );
     return $self;
@@ -107,6 +114,7 @@ sub start {
     $self->empire_id($empire->id);
     $self->api_key($options->{api_key});
     $self->is_sitter($options->{is_sitter});
+    $self->is_from_admin($options->{is_from_admin});
     $empire->current_session($self);
     $self->empire($empire);
     my $ip;
@@ -120,6 +128,7 @@ sub start {
         ip_address      => $ip,
         session_id      => $self->id,
         is_sitter       => $options->{is_sitter} ? 1 : 0,
+        # is_from_admin => $options->{is_from_admin} <-- probably not needed
     })->insert;
     return $self->extend;
 }
