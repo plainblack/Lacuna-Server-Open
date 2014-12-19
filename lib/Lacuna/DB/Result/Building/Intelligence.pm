@@ -45,7 +45,7 @@ use constant waste_production => 1;
 sub max_spies {
     my ($self) = @_;
 # Just temporary until the major change
-    return ($self->level * 3);
+    return ($self->effective_level * 3);
 }
 
 has spy_count => (
@@ -110,7 +110,7 @@ has espionage_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
-        return (defined $building) ? $building->level : 0;
+        return (defined $building) ? $building->effective_level : 0;
     },
 );
 
@@ -120,7 +120,7 @@ has security_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
-        return (defined $building) ? $building->level : 0;
+        return (defined $building) ? $building->effective_level : 0;
     },
 );
 
@@ -129,7 +129,7 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-#        my $multiplier = $self->level
+#        my $multiplier = $self->effective_level
         my $multiplier = 1
             - $self->body->empire->deception_affinity
             + $self->espionage_level
@@ -208,7 +208,7 @@ sub train_spy {
         ->insert;
         $self->latest_spy($spy);
         my $count = $self->spy_count($self->spy_count + 1);
-        if ($count < $self->level) {
+        if ($count < $self->effective_level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
         }
         if ($self->is_working) {

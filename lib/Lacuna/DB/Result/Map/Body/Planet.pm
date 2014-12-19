@@ -607,7 +607,7 @@ sub _build_population {
     foreach my $building (@{$self->building_cache}) {
         next if $building->class =~ /Lacuna::DB::Result::Building::Permanent/;
         next if $building->class eq 'Lacuna::DB::Result::Building::DeployedBleeder';
-        $population += $building->level * 10_000;
+        $population += $building->effective_level * 10_000;
     }
     return $population;    
 }
@@ -835,7 +835,7 @@ sub has_room_in_build_queue {
     my $max = 1;
     my $dev_ministry = $self->development;
     if (defined $dev_ministry) {
-        $max += $dev_ministry->level;
+        $max += $dev_ministry->effective_level;
     }
     my $count = @{$self->builds};
     if ($count >= $max) {
@@ -1202,7 +1202,7 @@ sub recalc_stats {
             $food_production_hour   += $building->$method();
         }
         if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->efficiency == 100) {
-            $stats{max_berth} = $building->level if ($building->level > $stats{max_berth});
+            $stats{max_berth} = $building->effective_level if ($building->effective_level > $stats{max_berth});
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
             my $platforms = Lacuna->db->resultset('MiningPlatforms')->search({planet_id => $self->id});
@@ -1238,22 +1238,22 @@ sub recalc_stats {
             }
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform')) {
-            $gas_giant_platforms += int($building->level * $building->efficiency/100);
+            $gas_giant_platforms += int($building->effective_level * $building->effective_efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::TerraformingPlatform')) {
-            $terraforming_platforms += int($building->level * $building->efficiency/100);
+            $terraforming_platforms += int($building->effective_level * $building->effective_efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::PantheonOfHagness')) {
-            $pantheon_of_hagness += int($building->level * $building->efficiency/100);
+            $pantheon_of_hagness += int($building->effective_level * $building->effective_efficiency/100);
         }
         if ($building->isa('Lacuna::DB::Result::Building::Module::StationCommand')) {
-            $station_command += $building->level;
+            $station_command += $building->effective_level;
         }
         if ($building->isa('Lacuna::DB::Result::Building::Permanent::Fissure')) {
             # A fissure is controlled by maintenance equipment. The less efficient
             # the equipment, the more energy the Fissure will suck in.
             # Fissure affect on energy_hour is 1% per level subject to efficiency
-            $fissure_percent += $building->level * (100 - $building->efficiency) / 100;
+            $fissure_percent += $building->effective_level * (100 - $building->effective_efficiency) / 100;
         }
     }
     # Energy reduced by Fissure action
@@ -1377,8 +1377,8 @@ sub add_news {
     if ($self->restrict_coverage) {
         my $network19 = $self->network19;
         if (defined $network19) {
-            $chance += $network19->level * 2;
-            $chance = $chance / $self->command->level; 
+            $chance += $network19->effective_level * 2;
+            $chance = $chance / $self->command->effective_level; 
         }
     }
     if (randint(1,100) <= $chance) {
@@ -1548,7 +1548,7 @@ sub tick_to {
     }
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
-        if ($arch->efficiency == 100 and $arch->level > 0) {
+        if ($arch->efficiency == 100 and $arch->effective_level > 0) {
             my $dig_sec = $now->epoch - $arch->last_check->epoch;
             if ($dig_sec >= 3600) {
                 my $dig_hours = int($dig_sec/3600);
@@ -2562,7 +2562,7 @@ sub complain_about_lack_of_resources {
         my $building_name;
         Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-            foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
+            foreach my $building ( sort { $b->effective_level <=> $a->effective_level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
                     if ($others) {

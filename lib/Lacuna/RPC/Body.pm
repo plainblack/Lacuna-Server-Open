@@ -65,7 +65,7 @@ sub rename {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->level >= 3) {
+        unless ($body->parliament->effective_level >= 3) {
             confess [1013, 'You need to have a level 3 Parliament to rename a station.'];
         }
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
@@ -444,7 +444,7 @@ sub get_buildable {
     my $dev = $body->development;
     my $max_items_in_build_queue = 1;
     if (defined $dev) {
-        $max_items_in_build_queue += $dev->level;
+        $max_items_in_build_queue += $dev->effective_level;
     }
     my $items_in_build_queue = scalar @{$body->builds};
     

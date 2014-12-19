@@ -9,6 +9,8 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH);
 
 use constant controller_class => 'Lacuna::RPC::Building::SupplyPod';
 
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
+
 around can_build => sub {
     my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
@@ -45,15 +47,6 @@ after finish_work => sub {
     $body->update;
     $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
-
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    my $prod_level = $self->level;
-    my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
-    return $production;
-}
 
 # allow demolishing even when working
 sub can_demolish {

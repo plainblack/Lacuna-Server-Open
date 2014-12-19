@@ -10,7 +10,7 @@ has max_recycle => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->level * 3_500 * $self->body->empire->environmental_affinity;
+        return $self->effective_level * 3_500 * $self->body->empire->environmental_affinity;
     },
 );
 
@@ -19,7 +19,7 @@ has seconds_per_resource => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 3 * $self->time_cost_reduction_bonus($self->level * 3);
+        return 3 * $self->time_cost_reduction_bonus($self->effective_level * 3);
     },
 );
 
@@ -28,7 +28,7 @@ sub can_recycle {
     $water ||= 0;
     $ore ||= 0;
     $energy ||= 0;
-    if ($self->level < 1) {
+    if ($self->effective_level < 1) {
         confess [1010, "You can't recycle until the Recycling Center is built."];
     }
     if ($self->is_working) {

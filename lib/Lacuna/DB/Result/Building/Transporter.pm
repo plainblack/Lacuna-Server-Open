@@ -53,8 +53,8 @@ sub add_to_market {
     unless ($ask >= 0.1 && $ask <= 100 ) {
         confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
     }
-    unless ($self->level > $self->my_market->count) {
-        confess [1009, "This Subspace Transporter can only support ".$self->level." trades at one time."];
+    unless ($self->effective_level > $self->my_market->count) {
+        confess [1009, "This Subspace Transporter can only support ".$self->effective_level." trades at one time."];
     }
     my $space_used;
     ($space_used, $offer) = $self->check_payload($offer, $self->determine_available_cargo_space);
@@ -85,7 +85,7 @@ sub available_market {
 
 sub determine_available_cargo_space {
     my ($self) = @_;
-    return 12500 * $self->level * $self->body->empire->trade_affinity;
+    return 12500 * $self->effective_level * $self->body->empire->trade_affinity;
 }
 
 sub trade_one_for_one {

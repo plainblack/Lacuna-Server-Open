@@ -41,7 +41,7 @@ sub get_missions {
             date_posted             => $mission->date_posted_formatted,
         };
         $count++;
-        last if ($count >= $building->level);
+        last if ($count >= $building->effective_level);
     }
     return {
         status      => $self->format_status($empire, $building->body),

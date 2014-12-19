@@ -416,7 +416,7 @@ sub is_available {
             $tr_skill = "theft_xp";
         }
         if ($train_bld) {
-            my $max_points  = 350 + $train_bld->level * 75;
+            my $max_points  = 350 + $train_bld->effective_level * 75;
             if ($self->$tr_skill >= $max_points) {
                 $self->task('Idle');
                 $self->update_level;
@@ -431,7 +431,7 @@ sub is_available {
                                                                   on_body_id => $train_bld->body_id,
                                                                   empire_id => $train_bld->body->empire_id})->count;
                 my $boost = (time < $self->empire->spy_training_boost->epoch) ? 1.5 : 1;
-                my $points_hour = $train_bld->level * $boost;
+                my $points_hour = $train_bld->effective_level * $boost;
                 my $points_to_add = 0;
                 if ($points_hour > 0 and $train_cnt > 0) {
                     $points_to_add = int( ($points_hour * $minutes)/60/$train_cnt);
@@ -509,7 +509,7 @@ sub is_available {
                     }
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
                     if (defined $gauntlet) {
-                        my $level = $gauntlet->level;
+                        my $level = $gauntlet->effective_level;
                         $level = $uni_level if ($level > $uni_level);
                         $seconds += int(3600 * (($level * 3 * $gauntlet->efficiency)/100 + 1));
                     }
@@ -737,8 +737,8 @@ has home_field_advantage => (
         }
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
         if (defined $hq) {
-            my $bld_level = ($uni_level < $hq->level) ? $uni_level : $hq->level;
-            return $bld_level * $hq->efficiency / $div;
+            my $bld_level = $hq->effective_level;
+            return $bld_level * $hq->effective_efficiency / $div;
         }
         else {
             return 0;

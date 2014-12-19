@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Propositions';
+use List::Util qw(max);
 
 before pass => sub {
     my ($self) = @_;
@@ -19,21 +20,13 @@ before pass => sub {
         my $building = Lacuna->db->resultset('Lacuna::DB::Result::Building')->find($self->scratch->{building_id});
 
         my $leader_emp = $building->body->empire;
-        my $leader_planets = $leader_emp->planets;
-        my @planet_ids;
-        while ( my $planet = $leader_planets->next ) {
-            push @planet_ids, $planet->id;
-        }
-        my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
-            { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' },
-            { order_by => { -desc => 'level' } }
-        )->first;
-        my $max_members = ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
+        my $embassy    = $leader_emp->highest_embassy;
+        my $max_members = max($embassy->max_members(), $embassy->max_members($building->effective_level));
 
         if ($count < $max_members ) {
             my $can = eval{$alliance->send_invite($invite_empire, $self->scratch->{message})};
             unless ($can) {
-                $self->pass_extra_message('Empire has already accepted an invite, effectively wasting Parliaments time.');
+                $self->pass_extra_message(q[Empire has already accepted an invite, effectively wasting Parliaments' time.]);
             }
         }
         else {

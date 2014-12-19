@@ -149,8 +149,8 @@ sub view_foreign_ships {
     my @fleet;
     my $now = time;
     my $ships = $building->foreign_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
-    my $see_ship_type = ($building->level * 350) * ( $building->efficiency / 100 );
-    my $see_ship_path = ($building->level * 450) * ( $building->efficiency / 100 );
+    my $see_ship_type = ($building->effective_level * 350) * ( $building->effective_efficiency / 100 );
+    my $see_ship_path = ($building->effective_level * 450) * ( $building->effective_efficiency / 100 );
     my @my_planets = $empire->planets->get_column('id')->all;
     while (my $ship = $ships->next) {
         if ($ship->date_available->epoch <= $now) {
@@ -198,8 +198,8 @@ sub view_ships_orbiting {
     my @fleet;
     my $now = time;
     my $ships = $building->orbiting_ships->search({}, {rows=>25, page=>$page_number, join => 'body' });
-    my $see_ship_type = ($building->level * 350) * ( $building->efficiency / 100 );
-    my $see_ship_path = ($building->level * 450) * ( $building->efficiency / 100 );
+    my $see_ship_type = ($building->effective_level * 350) * ( $building->effective_efficiency / 100 );
+    my $see_ship_path = ($building->effective_level * 450) * ( $building->effective_efficiency / 100 );
     my @my_planets = $empire->planets->get_column('id')->all;
     while (my $ship = $ships->next) {
             if ($ship->date_available->epoch <= $now) {

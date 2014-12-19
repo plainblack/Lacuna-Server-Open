@@ -145,12 +145,12 @@ has max_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $level = $self->level;
+        my $level = $self->effective_level;
         my $body = $self->body;
         foreach my $part (qw(b c d)) {
             my $building = $body->get_building_of_class('Lacuna::DB::Result::Building::SSL'.$part);
             if (defined $building) {
-                $level = ($level > $building->level) ? $building->level : $level;
+                $level = ($level > $building->effective_level) ? $building->effective_level : $level;
             }
             else {
                 $level = 0;

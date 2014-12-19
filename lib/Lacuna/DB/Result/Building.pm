@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
-use List::Util qw(shuffle);
+use List::Util qw(shuffle min);
 use List::MoreUtils qw(first_index);
 
 use Lacuna::Util qw(format_date);
@@ -132,13 +132,44 @@ use constant waste_storage          => 0;
 
 # BASE FORMULAS
 
+has effective_level => (
+    is => 'rw',
+    lazy => 1,
+    builder => '_build_effective_level',
+    clearer => 'clear_effective_level',
+);
+
+sub _build_effective_level
+{
+    my $self = shift;
+    my $uni_prod   = ($self->body->empire) ? $self->body->empire->university_level + 1 : 1;
+    my $real_level = $self->level;
+    # take whichever one is lower.
+    my $eff_level  = min($uni_prod + 1, $real_level);
+
+    # room for objects/boosts/whatever to override this.
+
+    $eff_level;
+}
+
+has effective_efficiency => (
+    is => 'rw',
+    lazy => 1,
+    builder => '_build_effective_efficiency',
+    clearer => 'clear_effective_efficiency',
+);
+
+sub _build_effective_efficiency {
+    my $self = shift;
+    $self->efficiency; # with rare exceptions
+}
+
 sub production_hour {
     my $self = shift;
-    return 0 unless  $self->level;
-    my $uni_prod = ($self->body->empire) ? $self->body->empire->university_level + 1 : 1;
-    my $prod_level = ($self->level > $uni_prod) ?  $uni_prod : $self->level;
+    return 0 unless  $self->effective_level;
+    my $prod_level = $self->effective_level;
     my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
+    $production = ($production * $self->effective_efficiency) / 100;
     return $production;
 }
 
@@ -387,7 +418,7 @@ sub mining_production_bonus {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $refinery = $self->body->refinery;
-    my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
+    my $refinery_bonus = (defined $refinery) ? $refinery->effective_level * 5 : 0;
     my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
     return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 4) / 100;
 }
@@ -799,8 +830,7 @@ sub cost_to_upgrade {
     }
     my $oversight_reduction = 1;
     if (defined $self->body->oversight) {
-        my $om_level = ($self->body->oversight->level > $self->body->empire->university_level + 1) ?
-                          $self->body->empire->university_level + 1 : $self->body->oversight->level;
+        my $om_level = $self->body->oversight->effective_level;
         $oversight_reduction = (100 - ($om_level * 3)) / 100;
     }
     my $time_inflator = ($self->level * 2) - 1;
@@ -834,12 +864,14 @@ sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;
     $self->level($current_level + 1);
+    $self->clear_effective_level;
     my %stats;
     my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
     foreach my $resource (@list) {
         $stats{$resource} = $self->$resource;
     }
     $self->level($current_level);
+    $self->clear_effective_level;
     return \%stats;
 }
 
@@ -915,6 +947,7 @@ sub finish_upgrade {
 
         $self->reschedule_queue;
         $self->level($new_level);
+        $self->clear_effective_level();
         $self->is_upgrading(0);
         $self->update;
         
@@ -1100,7 +1133,7 @@ sub last_check_formatted {
 
 sub is_offline {
     my $self = shift;
-    if ($self->efficiency == 0) {
+    if ($self->effective_efficiency == 0) {
         confess [1013, $self->name.' is currently offline.'];
     }
 }

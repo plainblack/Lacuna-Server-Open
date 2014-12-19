@@ -63,7 +63,7 @@ after finish_work => sub {
 sub range {
     my ($self) = @_;
 
-    my $range = $self->level * 1000 * $self->efficiency / 100;
+    my $range = $self->effective_level * 1000 * $self->effective_efficiency / 100;
 
 }
 

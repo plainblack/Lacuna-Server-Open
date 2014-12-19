@@ -373,9 +373,9 @@ sub saw_stats {
     my @defending_saws;
     for my $saw (@planet_saws) {
         $cnt++;
-        next if $saw->level < 1;
-        next if $saw->efficiency < 1;
-        $planet_combat += int( (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency)/2 + 0.5);
+        next if $saw->effective_level < 1;
+        next if $saw->effective_efficiency < 1;
+        $planet_combat += int( (5 * ($saw->effective_level + 1) * ($saw->effective_level+1) * $saw->effective_efficiency)/2 + 0.5);
         push @defending_saws, $saw;
         last if $cnt >= 10;
     }
@@ -387,7 +387,7 @@ sub saw_combat {
 
   return if ($saw->efficiency == 0);
 #  printf "ship:%6d:%5d saw:%6d:%2d:%3d total:%8d ",
-#         $self->id, $self->combat, $saw->id, $saw->level, $saw->efficiency, $total_combat;
+#         $self->id, $self->combat, $saw->id, $saw->effective_level, $saw->effective_efficiency, $total_combat;
   if ($self->combat >= $total_combat) {
     $saw->spend_efficiency(100);
     $self->saw_disabled($saw);
@@ -396,7 +396,7 @@ sub saw_combat {
   else {
     my $perc_1 = int( ($self->combat * 100)/$total_combat + 0.5);
     my $perc_2 = int( $self->combat * 100/
-                       (5 * ($saw->level + 1) * ($saw->level+1) * $saw->efficiency));
+                       (5 * ($saw->effective_level + 1) * ($saw->effective_level+1) * $saw->effective_efficiency));
     $perc_2 = 100 if $perc_2 > 99;
     if ($perc_1 < 1) {
       $perc_2 = $perc_2 > 1 ? $perc_2 : 1;

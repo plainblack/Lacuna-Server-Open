@@ -77,8 +77,7 @@ sub split_plan {
         and $_->extra_build_level   == $extra_build_level
     } @{$body->plan_cache};
 
-    my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
-                           $self->body->empire->university_level + 1 : $self->level;
+    my $effective_level = $self->effective_level;
 
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
@@ -104,8 +103,7 @@ sub split_plan {
 sub make_plan {
     my ($self, $plan_class, $level) = @_;
 
-    my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
-                           $self->body->empire->university_level + 1 : $self->level;
+    my $effective_level = $self->effective_level;
     if ($level > $effective_level) {
         confess [1002, 'Your Dillon Forge or your tech level is not high enough to build that high a plan level.'];
     }
@@ -163,8 +161,7 @@ before finish_work => sub {
         $body->add_news(100, sprintf('%s used the Dillon Forge to create a %s plan level %s on %s.', $empire->name, $plan_class->name, $work->{level}, $body->name));
     }
     if ($work->{task} eq 'split_plan') {
-        my $effective_level = ($self->level > $self->body->empire->university_level + 1) ?
-                               $self->body->empire->university_level + 1 : $self->level;
+        my $effective_level = $self->effective_level;
         # calculate the probability of success
         my $success_percent = $effective_level * 3;
         my $halls = $self->equivalent_halls($work->{level}, $work->{extra_build_level});

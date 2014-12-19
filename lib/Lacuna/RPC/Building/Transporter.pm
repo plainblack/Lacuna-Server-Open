@@ -29,7 +29,7 @@ sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -69,7 +69,7 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -128,7 +128,7 @@ sub accept_from_market {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
 
     $empire->current_session->check_captcha;
 
@@ -181,7 +181,7 @@ sub trade_one_for_one {
     my ($self, $session_id, $building_id, $have, $want, $quantity) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     $building->trade_one_for_one($have, $want, $quantity);
     return {
         status      => $self->format_status($empire, $building->body),

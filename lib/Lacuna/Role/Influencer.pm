@@ -5,7 +5,7 @@ use Moose::Role;
 before demolish => sub {
     my $self = shift;
     my $station = $self->body;
-    my $influence_remaining = $station->influence_remaining - $self->level;
+    my $influence_remaining = $station->influence_remaining - $self->effective_level;
     my $laws = $station->laws->search({type => 'Jurisdiction'},{order_by => { -desc => 'date_enacted'}});
     while (my $law = $laws->next) {
         last if $influence_remaining >= 0;

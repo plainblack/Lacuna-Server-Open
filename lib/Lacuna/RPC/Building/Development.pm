@@ -29,7 +29,7 @@ sub subsidize_build_queue {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level > 0 and $building->efficiency == 100) {
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
         confess [1003, "You must have a functional development ministry!"];
     }
     my $subsidy = $building->calculate_subsidy;
@@ -56,7 +56,7 @@ sub subsidize_one_build {
     }
     my $empire              = $self->get_empire_by_session($args->{session_id});
     my $building            = $self->get_building($empire, $args->{building_id});
-    unless ($building->level > 0 and $building->efficiency == 100) {
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
         confess [1003, "You must have a functional development ministry!"];
     }
     my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});

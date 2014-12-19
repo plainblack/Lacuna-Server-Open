@@ -86,7 +86,7 @@ sub subsidize_ship {
     }
     my $empire              = $self->get_empire_by_session($args->{session_id});
     my $building            = $self->get_building($empire, $args->{building_id});
-    unless ($building->level > 0 and $building->efficiency == 100) {
+    unless ($building->effective_level > 0 and $building->efficiency == 100) {
         confess [1003, "You must have a functional Space Port!"];
     }
     my $scheduled_ship = Lacuna->db->resultset('Ships')->find({id => $args->{ship_id}});

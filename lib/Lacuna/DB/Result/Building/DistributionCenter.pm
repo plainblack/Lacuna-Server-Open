@@ -53,16 +53,16 @@ use constant max_instances_per_planet => 2;
 
 sub max_reserve_size {
     my $self = shift;
-    return int($self->level * 10000 * (10 ** ($self->level/10+1)));
+    return int($self->effective_level * 10000 * (10 ** ($self->effective_level/10+1)));
 }
 sub reserve_duration {
     my $self = shift;
-    return $self->level * 2 * 60 * 60;
+    return $self->effective_level * 2 * 60 * 60;
 }
 
 sub can_reserve {
     my ($self) = @_;
-    if ($self->level < 1) {
+    if ($self->effective_level < 1) {
         confess [1010, "You can't reserve until the Distribution Center is built."];
     }
     if ($self->is_working) {

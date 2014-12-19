@@ -82,7 +82,7 @@ sub get_possible_grafts {
 
 sub graft_odds {
     my $self = shift;
-    return $self->level + $self->body->empire->science_affinity;
+    return $self->effective_level + $self->body->empire->science_affinity;
 }
 
 sub is_graft_success {
@@ -92,7 +92,7 @@ sub is_graft_success {
 
 sub survival_odds {
     my $self = shift;
-    return ($self->level * 3) + $self->body->empire->science_affinity;
+    return ($self->effective_level * 3) + $self->body->empire->science_affinity;
 }
 
 sub is_survival_success {
@@ -120,7 +120,7 @@ sub total_grafts {
 
 sub can_experiment {
     my $self = shift;
-    if ($self->total_grafts >= $self->level) {
+    if ($self->total_grafts >= $self->effective_level) {
         confess [1013, 'You need to raise your genetics lab level to run more experiments.'];
     }
     return 1;

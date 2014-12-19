@@ -47,8 +47,7 @@ use constant waste_production => 20;
 
 sub chance_of_glyph {
     my $self = shift;
-    my $chance = ($self->level > $self->body->empire->university_level + 1) ?
-                  $self->body->empire->university_level + 1 : $self->level;
+    my $chance = $self->effective_level;
     return $chance;
 }
 
@@ -72,8 +71,7 @@ sub get_ores_available_for_processing {
 
 sub max_excavators {
   my $self = shift;
-  my $level = ($self->level > $self->body->empire->university_level + 1) ?
-               $self->body->empire->university_level + 1 : $self->level;
+  my $level = $self->effective_level;
   return 0 if ($level < 11);
   return ($level - 10);
 }
@@ -82,8 +80,7 @@ sub run_excavators {
   my $self = shift;
 
   my $results;
-  my $level = ($self->level > $self->body->empire->university_level + 1) ?
-               $self->body->empire->university_level + 1 : $self->level;
+  my $level = $self->effective_level;
   my $empire = $self->body->empire;
 # Do once for arch itself.  No chance of destroy or artifacts.
   my $result = $self->dig_it($self->body, $level, 1);
@@ -616,7 +613,7 @@ sub remove_excavator {
 
 sub can_search_for_glyph {
     my ($self, $ore) = @_;
-    unless ($self->level > 0) {
+    unless ($self->effective_level > 0) {
         confess [1010, 'The Archaeology Ministry is not finished building yet.'];
     }
     unless ($ore ~~ [ ORE_TYPES ]) {

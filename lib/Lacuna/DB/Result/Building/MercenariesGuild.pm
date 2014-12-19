@@ -74,8 +74,8 @@ sub add_to_market {
     unless (defined $ship) {
         confess [1011, "You do not have any spy pods available."];
     }
-    unless ($self->level > $self->my_market->count) {
-        confess [1009, "This Mercenaries Guild can only support ".$self->level." spies at one time."];
+    unless ($self->effective_level > $self->my_market->count) {
+        confess [1009, "This Mercenaries Guild can only support ".$self->effective_level." spies at one time."];
     }
     my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->find($spy_id);
     confess $have_exception unless (defined $spy && $self->body_id eq $spy->on_body_id && $spy->task ~~ ['Counter Espionage','Idle']);

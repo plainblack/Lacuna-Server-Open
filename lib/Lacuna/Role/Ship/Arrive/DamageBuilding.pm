@@ -19,8 +19,8 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
     my ($citadel) = grep {
             $_->class eq 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope'
-        and $_->efficiency == 100
-        and $_->level > 0
+        and $_->effective_efficiency == 100
+        and $_->effective_level > 0
         and $_->is_upgrading == 0
     } @{$body_attacked->building_cache};
 
@@ -29,7 +29,7 @@ after handle_arrival_procedures => sub {
             # Can we add one more ship?
             my $now = DateTime->now;
             my $cooldown = $citadel->work_ends->epoch - $now->epoch;
-            my $add_secs = 900 / $citadel->level;
+            my $add_secs = 900 / $citadel->effective_level;
             if ($cooldown + $add_secs > 3600) {
                 # we can't add any more time
                 undef $citadel;
@@ -136,7 +136,7 @@ after handle_arrival_procedures => sub {
         #
         $log->victory_to('defender');
         
-        my $add_secs = 900 / $citadel->level;
+        my $add_secs = 900 / $citadel->effective_level;
         if ($citadel->is_working) {
             $citadel->reschedule_work($citadel->work_ends->add( seconds => $add_secs));
         }

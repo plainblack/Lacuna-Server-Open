@@ -70,7 +70,7 @@ sub happiness_production {
 
 sub can_operate {
     my ($self) = @_;
-    if ($self->level < 1) {
+    if ($self->effective_level < 1) {
         confess [1010, "You can't operate the Theme Park until it is built."];
     }
     my $types;

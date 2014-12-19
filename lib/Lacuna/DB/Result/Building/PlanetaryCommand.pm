@@ -75,7 +75,7 @@ sub sent_a_pod
 {
     my ($self) = @_;
 
-    my $level    = $self->level;
+    my $level    = $self->effective_level;
     my $cooldown = int(
                          28.747 * $level * $level
                        - 2877.4 * $level

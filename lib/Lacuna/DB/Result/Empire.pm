@@ -1110,7 +1110,7 @@ sub highest_embassy {
             body_id         => { "!="  => $excluding_body_id },
         });
     }
-    my ($embassy) = $search_rs->search;
+    my $embassy = $search_rs->search->first;
 
     return $embassy;
 }

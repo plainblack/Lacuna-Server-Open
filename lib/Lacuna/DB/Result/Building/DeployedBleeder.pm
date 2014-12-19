@@ -7,6 +7,8 @@ extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH INFLATION);
 
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
+
 use constant controller_class => 'Lacuna::RPC::Building::DeployedBleeder';
 
 around can_build => sub {
@@ -47,15 +49,6 @@ sub finish_upgrade_news
         my %levels = (5=>'shocked',10=>'stunned into silence',15=>'bewildered',20=>'dumbfounded',25=>'depressed',30=>'in great fear');
         $self->body->add_news($new_level*4,"Standing around %s, the citizens of %s watched as their %s grew on its own.", $levels{$new_level}, $empire->name, $self->name);
     }
-}
-
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    my $prod_level = $self->level;
-    my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
-    return $production;
 }
 
 sub cost_to_upgrade {

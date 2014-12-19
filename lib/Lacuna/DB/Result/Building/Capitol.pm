@@ -80,7 +80,7 @@ after finish_upgrade => sub {
 
 sub rename_empire_cost {
     my $self = shift;
-    return 30 - $self->level;
+    return 30 - $self->effective_level;
 }
 
 

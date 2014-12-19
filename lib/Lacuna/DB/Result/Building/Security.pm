@@ -50,7 +50,7 @@ sub foreign_spies {
     return Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
-        ->search({ level => { '<=' => $self->level },
+        ->search({ level => { '<=' => $self->effective_level },
                    task => { 'not in' => [ 'Captured', 'Prisoner Transport'] },
                    on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
 }
@@ -75,7 +75,7 @@ sub prisoners {
 
 after finish_upgrade => sub {
     my $self = shift;
-    my $defense = ($self->body->empire->deception_affinity * 50) + ($self->level * 75);
+    my $defense = ($self->body->empire->deception_affinity * 50) + ($self->effective_level * 75);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
         on_body_id      => $self->body_id,
         from_body_id    => $self->body_id,

@@ -19,7 +19,7 @@ sub ships {
 
 sub max_platforms {
     my $self = shift;
-    return ceil($self->level / 2);
+    return ceil($self->effective_level / 2);
 }
 
 sub add_ship {
