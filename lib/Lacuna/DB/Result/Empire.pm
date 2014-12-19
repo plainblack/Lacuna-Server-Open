@@ -115,6 +115,37 @@ __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
 
+for my $affin (qw(
+    manufacturing_affinity
+    deception_affinity
+    research_affinity
+    management_affinity
+    farming_affinity
+    mining_affinity
+    science_affinity
+    environmental_affinity
+    political_affinity
+    trade_affinity
+    growth_affinity
+    )) 
+{
+    my $builder = "_build_effective_$affin";
+    has "effective_$affin" =>
+        is   => 'rw',
+        isa  => 'Int',
+        lazy => 1,
+        builder => $builder,
+        clearer => "clear_effective_$affin";
+
+    __PACKAGE__->meta->add_method($builder => sub {
+        my $self = shift;
+
+        # for future work, we may allow temporary affinity boosts/penalties.
+        return $self->$affin;
+    });
+}
+
+
 
 sub observatory_probes {
     my ($self,$args) = @_;
@@ -920,8 +951,8 @@ sub next_colony_cost {
         { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
         { join => 'body' }
     )->count;
-    my $inflation = 1 + INFLATION - ($self->growth_affinity * 5 / 100);
-#    my $inflation = 1 + INFLATION - ($self->growth_affinity / 100);
+    my $inflation = 1 + INFLATION - ($self->effective_growth_affinity * 5 / 100);
+#    my $inflation = 1 + INFLATION - ($self->effective_growth_affinity / 100);
     my $tally = 100_000 * ($inflation**($count-1));
     return sprintf('%.0f', $tally);
 }

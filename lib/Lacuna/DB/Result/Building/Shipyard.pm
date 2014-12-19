@@ -277,7 +277,7 @@ sub set_ship_speed {
     my $propulsion_level = (defined $self->propulsion_factory) ? $self->propulsion_factory->effective_level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->effective_level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->effective_level : 0;
-    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($propulsion_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->science_affinity * 0.03);
+    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($propulsion_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->effective_science_affinity * 0.03);
     $ship->speed(sprintf('%.0f', $ship->base_speed * $improvement));
     return $ship->speed;
 }
@@ -287,7 +287,7 @@ sub set_ship_combat {
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->effective_level : 0;
     my $munitions = (defined $self->munitions_lab) ? $self->munitions_lab->effective_level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->effective_level : 0;
-    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($munitions * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03) + ($self->body->empire->science_affinity * 0.03);
+    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($munitions * 0.05) + ($css_level * 0.05) + ($self->body->empire->effective_deception_affinity * 0.03) + ($self->body->empire->effective_science_affinity * 0.03);
     $ship->combat(sprintf('%.0f', $ship->base_combat * $improvement));
     return $ship->combat;
 }
@@ -297,7 +297,7 @@ sub set_ship_hold_size {
     my $trade_ministry_level = (defined $self->trade_ministry) ? $self->trade_ministry->effective_level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->effective_level : 0;
     my $improvement = 1 + ($self->effective_level * 0.01) + ($css_level * 0.05);
-    my $trade_bonus = $self->body->empire->trade_affinity * ( $trade_ministry_level || 0.1 );
+    my $trade_bonus = $self->body->empire->effective_trade_affinity * ( $trade_ministry_level || 0.1 );
     $ship->hold_size(sprintf('%.0f', $ship->base_hold_size * $trade_bonus * $improvement));
     return $ship->hold_size;
 }
@@ -307,7 +307,7 @@ sub set_ship_stealth {
     my $cloaking_level = (defined $self->cloaking_lab) ? $self->cloaking_lab->effective_level : 0;
     my $ptf = ($ship->pilotable && defined $self->pilot_training_facility) ? $self->pilot_training_facility->effective_level : 0;
     my $css_level = (defined $self->crashed_ship_site) ? $self->crashed_ship_site->effective_level : 0;
-    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->deception_affinity * 0.03);
+    my $improvement = 1 + ($self->effective_level * 0.01) + ($ptf * 0.03) + ($cloaking_level * 0.05) + ($css_level * 0.05) + ($self->body->empire->effective_deception_affinity * 0.03);
     $ship->stealth(sprintf('%.0f', $ship->base_stealth * $improvement ));
     return $ship->stealth;
 }

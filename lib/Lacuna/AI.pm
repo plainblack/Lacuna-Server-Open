@@ -348,7 +348,7 @@ sub train_spies {
     my $room_for  = $max_spies - $spies;
     my $train_count = 0;
     if ($subsidise) {
-        my $deception = $colony->empire->deception_affinity * 50;
+        my $deception = $colony->empire->effective_deception_affinity * 50;
         while ($train_count < $room_for) {
             $train_count++;
             next if (rand(100) < $chance);

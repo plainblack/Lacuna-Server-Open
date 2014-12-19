@@ -85,7 +85,7 @@ sub available_market {
 
 sub determine_available_cargo_space {
     my ($self) = @_;
-    return 12500 * $self->effective_level * $self->body->empire->trade_affinity;
+    return 12500 * $self->effective_level * $self->body->empire->effective_trade_affinity;
 }
 
 sub trade_one_for_one {

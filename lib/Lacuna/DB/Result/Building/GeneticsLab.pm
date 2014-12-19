@@ -82,7 +82,7 @@ sub get_possible_grafts {
 
 sub graft_odds {
     my $self = shift;
-    return $self->effective_level + $self->body->empire->science_affinity;
+    return $self->effective_level + $self->body->empire->effective_science_affinity;
 }
 
 sub is_graft_success {
@@ -92,7 +92,7 @@ sub is_graft_success {
 
 sub survival_odds {
     my $self = shift;
-    return ($self->effective_level * 3) + $self->body->empire->science_affinity;
+    return ($self->effective_level * 3) + $self->body->empire->effective_science_affinity;
 }
 
 sub is_survival_success {

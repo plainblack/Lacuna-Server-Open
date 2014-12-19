@@ -194,14 +194,14 @@ sub farming_production_bonus {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $boost = (time < $empire->food_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->farming_affinity * 4) / 100;
+    return (100 + $boost + $empire->effective_farming_affinity * 4) / 100;
 }
 
 sub manufacturing_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return (100 + $empire->manufacturing_affinity * 4) / 100;
+    return (100 + $empire->effective_manufacturing_affinity * 4) / 100;
 }
 
 sub lapis_production_hour {
@@ -391,7 +391,7 @@ sub energy_production_bonus {
     return 1 unless defined $empire;
     my $boost = (time < $empire->energy_boost->epoch) ? 25 : 0;
     my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 50 : 0;
-    return (100 + $boost + $gg_bonus + $empire->science_affinity * 4) / 100;
+    return (100 + $boost + $gg_bonus + $empire->effective_science_affinity * 4) / 100;
 }
 
 sub energy_production_hour {
@@ -420,7 +420,7 @@ sub mining_production_bonus {
     my $refinery = $self->body->refinery;
     my $refinery_bonus = (defined $refinery) ? $refinery->effective_level * 5 : 0;
     my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 4) / 100;
+    return (100 + $boost + $refinery_bonus + $empire->effective_mining_affinity * 4) / 100;
 }
 
 sub ore_production_hour {
@@ -446,7 +446,7 @@ sub water_production_bonus {
     return 1 unless defined $empire;
     my $boost = (time < $empire->water_boost->epoch) ? 25 : 0;
     my $gg_bonus = ($self->body->get_type eq 'gas giant') ? -25 : 0;
-    return (100 + $boost + $gg_bonus + $empire->environmental_affinity * 4) / 100;
+    return (100 + $boost + $gg_bonus + $empire->effective_environmental_affinity * 4) / 100;
 }
 
 sub water_production_hour {
@@ -471,7 +471,7 @@ sub waste_consumption_bonus {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
-    return (100 + $gg_bonus + $empire->environmental_affinity * 4) / 100;
+    return (100 + $gg_bonus + $empire->effective_environmental_affinity * 4) / 100;
 }
 
 sub waste_production_hour {
@@ -501,8 +501,8 @@ sub happiness_production_bonus {
         $sboost = 50;
     }
     $boost += $sboost;
-    return (100 + $boost) * (100 + $empire->political_affinity * 10)/10000;
-#    return (100 + $boost + ($empire->political_affinity * 10)) / 100; #Old Way
+    return (100 + $boost) * (100 + $empire->effective_political_affinity * 10)/10000;
+#    return (100 + $boost + ($empire->effective_political_affinity * 10)) / 100; #Old Way
 }
 
 sub happiness_production_hour {
@@ -542,7 +542,7 @@ sub food_capacity {
     return 0 if $base == 0;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->farming_affinity * 4 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_farming_affinity * 4 / 100) ));
 }
 
 sub energy_capacity {
@@ -551,7 +551,7 @@ sub energy_capacity {
     return 0 if $base == 0;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->science_affinity * 4 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_science_affinity * 4 / 100) ));
 }
 
 sub ore_capacity {
@@ -560,7 +560,7 @@ sub ore_capacity {
     return 0 if $base == 0;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->mining_affinity * 4 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_mining_affinity * 4 / 100) ));
 }
 
 sub water_capacity {
@@ -569,7 +569,7 @@ sub water_capacity {
     return 0 if $base == 0;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->environmental_affinity * 4 / 100) ));
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_environmental_affinity * 4 / 100) ));
 }
 
 sub waste_capacity {
@@ -579,7 +579,7 @@ sub waste_capacity {
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
     my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($gg_bonus + $empire->environmental_affinity * 4) / 100) );
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($gg_bonus + $empire->effective_environmental_affinity * 4) / 100) );
 }
 
 # BUILD
@@ -783,14 +783,14 @@ sub construction_cost_reduction_bonus {
     my $self = shift;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return (100 - $empire->research_affinity * 5) / 100;
+    return (100 - $empire->effective_research_affinity * 5) / 100;
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    return (100 - $empire->manufacturing_affinity * 5) / 100;
+    return (100 - $empire->effective_manufacturing_affinity * 5) / 100;
 }
 
 sub time_cost_reduction_bonus {
@@ -803,7 +803,7 @@ sub time_cost_reduction_bonus {
     if ($body->happiness < 0 ) {
         $unhappy_workers = abs($body->happiness) / 1000;
     }
-    my $base_cost_reduction = 100 - $extra - ($body->empire->management_affinity * 5);
+    my $base_cost_reduction = 100 - $extra - ($body->empire->effective_management_affinity * 5);
     if ( $base_cost_reduction < 1 ) {
         my $new_factor = (1 - $base_cost_reduction) / 30;
         $base_cost_reduction = 1 - $new_factor;

@@ -10,7 +10,7 @@ has max_recycle => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->effective_level * 3_500 * $self->body->empire->environmental_affinity;
+        return $self->effective_level * 3_500 * $self->body->empire->effective_environmental_affinity;
     },
 );
 
