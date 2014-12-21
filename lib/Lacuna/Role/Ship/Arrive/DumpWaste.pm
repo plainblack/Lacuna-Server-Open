@@ -80,19 +80,38 @@ after handle_arrival_procedures => sub {
 
 after send => sub {
     my ($self, %options ) = @_;
-    if (!$options{emptyscow})
-    {
-        my $waste_sent;
-        if ($self->body->waste_stored < $self->hold_size) {
-            $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+    my $waste_sent;
+
+    if ($self->type eq "attack_group") {
+        my $payload = $self->payload;
+        my $hold_size = $self->hold_size;
+        my $room;
+        if ($payload->{resources}->{waste}) {
+            $room = $hold_size - $payload->{resources}->{waste};
         }
         else {
-            $waste_sent = $self->hold_size;
+            $room = $hold_size;
         }
-        $self->body->spend_waste($waste_sent)->update;
-        $self->payload({ resources => { waste => $waste_sent } });
-        $self->update;
+        if ($self->body->waste_stored < $room) {
+          $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+          $waste_sent = $room;
+        }
+        $payload->{resources}->{waste} = $waste_sent;
+        $self->payload($payload);
     }
+    else {
+        if ($self->body->waste_stored < $self->hold_size) {
+          $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+          $waste_sent = $self->hold_size;
+        }
+        $self->payload({ resources => { waste => $waste_sent } });
+    }
+    $self->body->spend_waste($waste_sent)->update;
+    $self->update;
 };
 
 after can_send_to_target => sub {
