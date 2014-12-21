@@ -72,7 +72,7 @@ sub init_chat {
 	        }
         }
         $firebase->put('users/'.$empire->id.'/rooms/'.$empire->alliance_id, {
-            id      => $alliance_id,
+            id      => $empire->alliance_id,
             active  => \1, 
             name    => $aname,
         });
