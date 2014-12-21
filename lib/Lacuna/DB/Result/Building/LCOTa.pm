@@ -33,12 +33,6 @@ around produces_food_items => sub {
     return $foods;
 };
 
-has effective_efficiency => (
-    is          => 'rw',
-    lazy        => 1,
-    default     => 0,
-);
-
 has '+effective_level' => (
     predicate   => 'has_effective_level',
 );
