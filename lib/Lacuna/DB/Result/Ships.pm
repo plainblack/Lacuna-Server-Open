@@ -396,30 +396,33 @@ sub send {
     }
     $self->update;
 
-    my @ag_list = ("attack_group","sweeper","snark","snark2","snark3",
+    my @ag_list = ("sweeper","snark","snark2","snark3",
                    "observator_seeker","spaceport_seeker","security_ministry_seek",
                    "scanner","surveyor","detonator","bleeder","thud",
-                   "scow","scow_large","scow_mega","scow_fast");
+                   "scow","scow_large","scow_fast","scow_mega");
+    my $cnt = 0;
+    my %ag_hash = map { $_ => $cnt++ } @ag_list;
 
     my $now = DateTime->now;
     my $time2arrive = $now->subtract_datetime_absolute($self->date_available);
     my $seconds = $time2arrive->seconds;
-    if ($seconds > 1800 && grep { $self->type eq $_ } @ag_list) {  #Don't try to consolidate within 1/2 hour
+    if ($seconds > 1200 && grep { $self->type eq $_ } @ag_list) {  #Don't try to consolidate if ships will be hitting in 20 minutes
         my $dtf = Lacuna->db->storage->datetime_parser;
         my $ships_rs = Lacuna->db->resultset('Ships')->search({
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
             task    => 'Travelling',
             type => { 'in' => \@ag_list },
-            date_available => { '<' => $dtf->format_datetime($now->subtract(seconds => ($seconds + 900))) },
-            date_available => { '>' => $dtf->format_datetime($now->subtract(seconds => ($seconds - 900))) },
+            date_available => { '<' => $dtf->format_datetime($now->subtract(seconds => ($seconds + 900))), 
+                                '>' => $dtf->format_datetime($now->subtract(seconds => ($seconds - 900))) },
         });
         my $payload = {};
         if ($self->type eq "attack_group") { #Turn ship into attack group if not already one
             $payload = $self->payload;
         }
         else {
-            my $key = sprintf("%s:%05d:%05d:%05d:%09d",
+            my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $ag_hash{$self->type},
                               $self->type, 
                               $self->speed, 
                               $self->combat, 
@@ -476,7 +479,8 @@ sub send {
                 }
             }
             else {
-                my $key = sprintf("%s:%05d:%05d:%05d:%09d",
+                my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $ag_hash{$self->type},
                               $ship->type, 
                               $ship->speed, 
                               $ship->combat, 
