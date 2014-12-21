@@ -1,0 +1,7 @@
+Saws Engaged
+~~~
+Our fleet have engaged the saws of the following empires while attacking {Planet %s %s}.
+
+Regards,
+
+Your Humble Assistant

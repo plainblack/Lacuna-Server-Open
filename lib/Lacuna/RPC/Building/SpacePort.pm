@@ -280,9 +280,9 @@ sub send_ship_types {
     # calculate the total ships before the expense of any database operations.
     my $total_ships = 0;
     map {$total_ships += $_->{quantity}} @$type_params;
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+    my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
     if ($total_ships > $max_ships) {
-        confess [1009, 'Too many ships for a fleet.'];
+        confess [1009, sprintf("Too many ships for a fleet, number must be less than or equal to %d.", $max_ships)];
     }
 
     my $ship_ref;
@@ -296,26 +296,29 @@ sub send_ship_types {
         my $quantity    = $type_param->{quantity};
         confess [1009, "Cannot send more than one excavator"] if ($type eq 'excavator' and $quantity > 1);
 
-        # TODO Must check for valid berth levels
-        # 
+        my $max_berth = $body->max_berth;
+        unless ($max_berth) {
+            $max_berth = 1;
+        }
         my $ships_rs    = Lacuna->db->resultset('Ships')->search({
             body_id => $body->id,
             task    => 'Docked',
             type    => $type,
+            berth_level => {'<=' => $max_berth },
         });
         # handle optional parameters
         $ships_rs = $ships_rs->search({ speed => {'>=' => $type_param->{speed}}}) if defined $type_param->{speed};
         $ships_rs = $ships_rs->search({ stealth => {'>=' => $type_param->{stealth}}}) if defined $type_param->{stealth};
         $ships_rs = $ships_rs->search({ combat => {'>=' => $type_param->{combat}}}) if defined $type_param->{combat};
-
         if ($ships_rs->count < $quantity) {
             confess [1009, "Cannot find $quantity of $type ships."];
         }
-        my @ships = $ships_rs->search(undef,{rows => $quantity});
-        my $ship = $ships[0];
+        my @ships = $ships_rs->search(undef,{rows => $quantity}); #Perhaps sort by speed?
+        my $ship = $ships[0]; #Need to grab slowest ship
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
 #Check speed of ship.  If it can not make it to the target in time, fail
+#If time to target is longer than 60 days, fail.
         my $earliest = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
         if ($earliest > $arrival) {
             confess [1009, "Cannot set a speed earlier than possible arrival time."];
@@ -331,10 +334,87 @@ sub send_ship_types {
         $empire->current_session->check_captcha;
     }
     # If we get here without exceptions, then all ships can be sent
+
+# Create attack_group
+    my @ag_list = ("sweeper","snark","snark2","snark3",
+                   "observator_seeker","spaceport_seeker","security_ministry_seek",
+                   "scanner","surveyor","detonator","bleeder","thud",
+                   "scow","scow_large","scow_fast","scow_mega");
+    my $cnt = 0;
+    my %ag_hash = map { $_ => $cnt++ } @ag_list;
+    my $attack_group = {
+        speed       => 50_000,
+        stealth     => 50_000,
+        hold_size   => 0,
+        combat      => 0,
+        number_of_docks => 0,
+    };
+    my %payload;
+    $payload{fleet} = {};
+    
     foreach my $ship (values %$ship_ref) {
-        $body->add_to_neutral_entry($ship->combat);
-        $ship->fleet_speed(1);
-        $ship->send(target => $target, arrival => $arrival);
+        if (grep { $ship->type eq $_ } @ag_list) {
+            my $sort_val = $ag_hash{$ship->type};
+            if ($ship->speed < $attack_group->{speed}) {
+                $attack_group->{speed} = $ship->speed;
+            }
+            if ($ship->speed < $attack_group->{stealth}) {
+                $attack_group->{stealth} = $ship->stealth;
+            }
+            $attack_group->{combat} += $ship->combat;
+            $attack_group->{hold_size} += $ship->hold_size; #This really is only good for scows
+            $attack_group->{number_of_docks}++;
+            my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $sort_val,
+                              $ship->type, 
+                              $ship->combat, 
+                              $ship->speed, 
+                              $ship->stealth, 
+                              $ship->hold_size);
+            if ($payload{fleet}->{$key}) {
+                $payload{fleet}->{$key}->{quantity}++;
+            }
+            else {
+                $payload{fleet}->{$key} = {
+                    type      => $ship->type, 
+                    name      => $ship->name,
+                    speed     => $ship->speed, 
+                    combat    => $ship->combat, 
+                    stealth   => $ship->stealth, 
+                    hold_size => $ship->hold_size,
+                    target_building => $ship->target_building,
+                    damage_taken => 0,
+                    quantity  => 1,
+                };
+            }
+            $ship->delete;
+        }
+        else {
+            $ship->fleet_speed(1);
+            $ship->send(target => $target, arrival => $arrival);
+            $body->add_to_neutral_entry($ship->combat);
+        }
+    }
+    if ($attack_group->{number_of_docks} > 0) {
+        my $ag = $body->ships->new({
+            type        => "attack_group",
+            name        => "Attack Group",
+            speed       => $attack_group->{speed},
+            combat      => $attack_group->{combat},
+            stealth     => $attack_group->{stealth},
+            payload     => \%payload,
+            hold_size   => $attack_group->{hold_size},
+            fleet_speed => 1,
+            berth_level => 1,
+            body_id     => $body->id,
+            task        => 'Docked',
+            number_of_docks => $attack_group->{number_of_docks},
+          })->insert;
+        $ag->send(target => $target, arrival => $arrival);
+        $body->add_to_neutral_entry($attack_group->combat);
+    }
+    else {
+        $attack_group->delete;
     }
     return $self->get_fleet_for($session_id, $body_id, $target_params);
 }
@@ -374,9 +454,14 @@ sub send_fleet {
   unless ($set_speed >= 0) {
     confess [1009, 'Set speed cannot be less than zero.'];
   }
+#If time to target is longer than 60 days, fail.
   $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
   my @ret;
   my $captcha_check = 1;
+
+# Check captcha if needed
+# Create attack_group
+
   for my $ship_id (@fleet) {
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     my $body = $ship->body;

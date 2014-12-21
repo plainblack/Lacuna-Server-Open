@@ -1,0 +1,7 @@
+Attack Summary
+~~~
+Planet {Planet %s %s} has been attacked.  Attached is a summary.
+
+Regards,
+
+Your Humble Assistant
