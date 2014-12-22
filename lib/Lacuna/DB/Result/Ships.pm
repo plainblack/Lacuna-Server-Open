@@ -399,7 +399,7 @@ sub send {
     my @ag_list = ("sweeper","snark","snark2","snark3",
                    "observator_seeker","spaceport_seeker","security_ministry_seek",
                    "scanner","surveyor","detonator","bleeder","thud",
-                   "scow","scow_large","scow_fast","scow_mega");
+                   "scow","scow_large","scow_fast","scow_mega", "attack_group");
     my $cnt = 0;
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
 
@@ -408,13 +408,16 @@ sub send {
     my $seconds = $time2arrive->seconds;
     if ($seconds > 1200 && grep { $self->type eq $_ } @ag_list) {  #Don't try to consolidate if ships will be hitting in 20 minutes
         my $dtf = Lacuna->db->storage->datetime_parser;
-        my $ships_rs = Lacuna->db->resultset('Ships')->search({
+        my $start_range = DateTime->now->add(seconds => ($seconds - 900));
+        my $end_range = DateTime->now->add(seconds => ($seconds + 900));
+        my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
+            direction => 'out',
             task    => 'Travelling',
             type => { 'in' => \@ag_list },
-            date_available => { '<' => $dtf->format_datetime($now->subtract(seconds => ($seconds + 900))), 
-                                '>' => $dtf->format_datetime($now->subtract(seconds => ($seconds - 900))) },
+            date_available => { between => [ $dtf->format_datetime($start_range),
+                                             $dtf->format_datetime($end_range) ] },
         });
         my $payload = {};
         if ($self->type eq "attack_group") { #Turn ship into attack group if not already one
