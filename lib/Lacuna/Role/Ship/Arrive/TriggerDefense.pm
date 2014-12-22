@@ -138,7 +138,11 @@ sub damage_in_combat {
         }
     }
     else {
-        $return->{$self->type} = 1 if $self->combat < 1;
+        $return->{$abid}->{$self->type}->{body_id} = $abid;
+        $return->{$abid}->{$self->type}->{body_name} = $self->body->name;
+        $return->{$abid}->{$self->type}->{emp_id} = $self->body->empire_id;
+        $return->{$abid}->{$self->type}->{emp_name} = $self->body->empire->name;
+        $return->{$abid}->{$self->type}->{number} = 1;
     }
     $self->update;
     return $return;

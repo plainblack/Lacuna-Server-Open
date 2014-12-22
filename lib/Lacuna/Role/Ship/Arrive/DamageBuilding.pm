@@ -113,7 +113,7 @@ after handle_arrival_procedures => sub {
         for my $sn_type ("observatory_seeker", "security_ministry_seeker",
                       "spaceport_seeker", "snark_count") {
             my @tbuilds;
-            if (scalar @{$snarks{$sn_type}->{target}} > 0) {
+            if ($snarks{$sn_type}->{count}) {
                 for my $tb ( @{$snarks{$sn_type}->{target}}) {
                     my @temp = $body_attacked->get_buildings_of_class($tb);
                     if (@temp) {
