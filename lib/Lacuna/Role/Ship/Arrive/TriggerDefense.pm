@@ -384,6 +384,7 @@ sub system_saw_combat {
         $defense_stat->{$dbid}->{"Saws"}->{emp_name} = $dbody->empire->name;
     }
     $total_combat *= $def_cnt if $is_station;
+    return if $total_combat < 1;
     my $num_saws = scalar @saws;
     my $percent = int($self->combat * 100/$total_combat);
     my $max_eff = $percent + 1;
