@@ -1,6 +1,6 @@
-Saws Engaged
+SAWs Engaged
 ~~~
-Our fleet have engaged the saws of the following empires while attacking {Planet %s %s}.
+Our fleet have engaged the SAWs of the following empires while attacking {Planet %s %s}.
 
 Regards,
 

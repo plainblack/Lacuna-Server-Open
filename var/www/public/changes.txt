@@ -4,6 +4,7 @@
  - Fix: Only one notification per empire per star on probe detection.
  - Add: Fleet Lite
  - Mod: Sweepers adjusted for balance.
+ - Fix: Most buildings should no longer ignore uni level.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
