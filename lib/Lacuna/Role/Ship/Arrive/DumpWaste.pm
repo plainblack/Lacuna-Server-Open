@@ -74,8 +74,22 @@ after handle_arrival_procedures => sub {
     })->insert;
 
     # all pow
-    $self->delete;
-    confess [-1];
+    my $done_after = 1;
+    if ($self->type eq "attack_group") {
+        for my $key ( keys %{$payload->{fleet}}) {
+            if ( grep { $payload->{fleet}->{$key}->{type} eq $_ } ("scow", "scow_fast", "scow_large", "scow_mega")) {
+                delete $payload->{fleet}->{$key};
+            }
+        }
+        if (keys %{$payload->{fleet}}) {
+            $self->payload = $payload;
+            $done_after = 0;
+        }
+    }
+    if ($done_after) {
+        $self->delete;
+        confess [-1];
+    }
 };
 
 after send => sub {

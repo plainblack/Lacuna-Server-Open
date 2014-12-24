@@ -10,19 +10,50 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
     
-    # deploy the crater
+    my $thud_num = 0;
+    my $done_after = 1;
+    if ($self->type eq "attack_group") {
+        my $payload = $self->payload;
+        my @trim;
+        for my $fleet (keys %{$payload->{fleet}}) {
+            if ($payload->{fleet}->{$fleet}->{type} eq "thud") {
+                $thud_num += $payload->{fleet}->{$fleet}->{quantity};
+                push @trim, $fleet;
+            }  
+        }
+        for my $key (@trim) {
+            delete $payload->{fleet}->{$key};
+        }
+        if (keys %{$payload->{fleet}}) {
+            $self->payload = $payload;
+            $done_after = 0;
+        }
+    }
+    else {
+        $thud_num = 1;
+    }
+
+    # deploy the craters
     my $body_attacked = $self->foreign_body;
-    my ($x, $y) = eval{$body_attacked->find_free_space};
-    unless ($@) {
-        my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
-            class       => 'Lacuna::DB::Result::Building::Permanent::Crater',
-            x           => $x,
-            y           => $y,
-        });
-        $body_attacked->build_building($deployed, 1);
-        $deployed->start_work({},3600 * randint(24,168))->update;
-        $body_attacked->needs_surface_refresh(1);
-        $body_attacked->update;
+    my $deployed = 0;
+    for $deployed (1..$thud_num) {
+        my $body_attacked = $self->foreign_body;
+        my ($x, $y) = eval{$body_attacked->find_free_space};
+        if ($@) {
+            $deployed--;
+            last;
+        }
+        else {
+            my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+                class       => 'Lacuna::DB::Result::Building::Permanent::Crater',
+                x           => $x,
+                y           => $y,
+            });
+            $body_attacked->build_building($deployed, 1);
+            $deployed->start_work({},3600 * randint(24,168))->update;
+            $body_attacked->needs_surface_refresh(1);
+            $body_attacked->update;
+        }
     }
     
     # notify home
@@ -30,7 +61,12 @@ after handle_arrival_procedures => sub {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'thud_hit_target.txt',
-            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name],
+            params      => [
+                            $deployed,
+                            $thud_num,
+                            $body_attacked->x,
+                            $body_attacked->y,
+                            $body_attacked->name],
         );
     }
 
@@ -66,9 +102,10 @@ after handle_arrival_procedures => sub {
         victory_to              => 'attacker',
     })->insert;
 
-    # all pow
-    $self->delete;
-    confess [-1];
+    if ($done_after) {
+        $self->delete;
+        confess [-1];
+    }
 };
 
 

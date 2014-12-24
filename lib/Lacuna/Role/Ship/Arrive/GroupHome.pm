@@ -11,15 +11,15 @@ after handle_arrival_procedures => sub {
     # we're coming home
     my $payload = $self->payload;
     if ($self->direction eq 'in') {
-        for my $part (@{$payload->{fleet}}) {
-            if ($part->{type} eq "sweeper") {
-                for my $num (1..$part->{quantity}) {
+        for my $key ( sort keys %{$payload->{fleet}}) {
+            if ($payload->{fleet}->{"$key"}->{type} eq "sweeper") {
+                for my $num (1..$payload->{fleet}->{$key}->{quantity}) {
                     my $ship = Lacuna->db->resultset('Ships')->new({type => "sweeper"});
-                    $ship->name($part->{name});
+                    $ship->name($payload->{fleet}->{"$key"}->{name});
                     $ship->body_id($self->body_id);
-                    $ship->speed($part->{speed});
-                    $ship->combat($part->{combat});
-                    $ship->stealth($part->{stealth});
+                    $ship->speed($payload->{fleet}->{"$key"}->{speed});
+                    $ship->combat($payload->{fleet}->{"$key"}->{combat});
+                    $ship->stealth($payload->{fleet}->{"$key"}->{stealth});
                     $ship->hold_size(0);
                     $ship->date_available(DateTime->now);
                     $ship->date_started(DateTime->now);
@@ -32,26 +32,22 @@ after handle_arrival_procedures => sub {
     }
 
 # If not, strip all but sweepers and we'll turn around
-    my @new_fleet;
+    my $new_payload;
     my $new_combat = 0;
     my $new_quantity = 0;
     my $new_stealth = 50_000;
     my $new_speed = 50_000;
-    for my $part (@{$payload->{fleet}}) {
-        if ($part->{type} eq "sweeper") {
-            $new_quantity += $part->{quantity};
-            $new_combat += $part->{combat};
-            $new_stealth = $part->{stealth} if ($part->{stealth} < $new_stealth);
-            $new_speed = $part->{speed} if ($part->{speed} < $new_speed);
-            push @new_fleet, $part;
+    for my $key (sort keys %{$payload->{fleet}}) {
+        if ($payload->{fleet}->{"$key"}->{type} eq "sweeper") {
+            $new_quantity += $payload->{fleet}->{"$key"}->{quantity};
+            $new_combat += $payload->{fleet}->{"$key"}->{combat};
+            $new_stealth = $payload->{fleet}->{"$key"}->{stealth} if ($payload->{fleet}->{"$key"}->{stealth} < $new_stealth);
+            $new_speed = $payload->{fleet}->{"$key"}->{speed} if ($payload->{fleet}->{"$key"}->{speed} < $new_speed);
+            $new_payload->{fleet}->{"$key"} = $payload->{fleet}->{"$key"};
         }
     }
     if ($new_quantity > 0 and $new_combat > 0) {
-        $payload = {
-            fleet => \@new_fleet,
-            quantity => $new_quantity,
-            damage_taken => 0,
-        };
+        $payload = $new_payload;
         $self->combat($new_combat);
         $self->stealth($new_stealth);
         $self->speed($new_speed);

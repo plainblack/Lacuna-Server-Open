@@ -232,8 +232,8 @@ sub find_arrival {
     my ($self, $arrival_params) = @_;
 
     my $now     = DateTime->now;
-    my $year    = $now->year,
-    my $month   = $now->month;
+    my $year = $arrival_params->{year} ? $arrival_params->{year} : $now->year;
+    my $month = $arrival_params->{month} ? $arrival_params->{month} : $now->month;
     my $mon_end = DateTime->last_day_of_month(year => $year, month => $month);
     my $day     = $arrival_params->{day};
     my $hour    = $arrival_params->{hour};
@@ -252,7 +252,7 @@ sub find_arrival {
     if (not defined $second or $second != 0 and $second != 15 and $second != 30 and $second != 45) {
         confess [1002, 'Invalid second. Must be 0, 15, 30 or 45'];
     }
-    if ($day < $now->day) {
+    if ($day < $now->day and $month == $now->month) {
         # Then it must be a day next month
         $mon_end->add( days => $day);
         $year    = $mon_end->year;
@@ -349,8 +349,8 @@ sub send_ship_types {
         combat      => 0,
         number_of_docks => 0,
     };
-    my %payload;
-    $payload{fleet} = {};
+    my $payload;
+    $payload->{fleet} = {};
     
     foreach my $ship (values %$ship_ref) {
         if (grep { $ship->type eq $_ } @ag_list) {
@@ -371,11 +371,11 @@ sub send_ship_types {
                               $ship->speed, 
                               $ship->stealth, 
                               $ship->hold_size);
-            if ($payload{fleet}->{$key}) {
-                $payload{fleet}->{$key}->{quantity}++;
+            if ($payload->{fleet}->{$key}) {
+                $payload->{fleet}->{$key}->{quantity}++;
             }
             else {
-                $payload{fleet}->{$key} = {
+                $payload->{fleet}->{$key} = {
                     type      => $ship->type, 
                     name      => $ship->name,
                     speed     => $ship->speed, 
@@ -402,7 +402,7 @@ sub send_ship_types {
             speed       => $attack_group->{speed},
             combat      => $attack_group->{combat},
             stealth     => $attack_group->{stealth},
-            payload     => \%payload,
+            payload     => $payload,
             hold_size   => $attack_group->{hold_size},
             fleet_speed => 1,
             berth_level => 1,
@@ -411,7 +411,7 @@ sub send_ship_types {
             number_of_docks => $attack_group->{number_of_docks},
           })->insert;
         $ag->send(target => $target, arrival => $arrival);
-        $body->add_to_neutral_entry($attack_group->combat);
+        $body->add_to_neutral_entry($attack_group->{combat});
     }
     else {
         $attack_group->delete;

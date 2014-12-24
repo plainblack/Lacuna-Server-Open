@@ -1,6 +1,6 @@
 Bleeder Deployed
 ~~~
-Our Bleeder is now deployed on {Starmap %s %s %s}.
+We deployed %s of %s bleeders on {Starmap %s %s %s}.
 
 Regards,
 

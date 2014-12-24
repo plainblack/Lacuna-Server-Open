@@ -20,7 +20,7 @@ use constant build_tags             => ['Kludge'];
 
 with "Lacuna::Role::Ship::Arrive::TriggerDefense";
 with "Lacuna::Role::Ship::Arrive::DamageBuilding";
-# with "Lacuna::Role::Ship::Arrive::DumpWaste";   #Annoyingly clobbers payload
+with "Lacuna::Role::Ship::Arrive::DumpWaste";
 with "Lacuna::Role::Ship::Arrive::DeployBleeder";
 with "Lacuna::Role::Ship::Arrive::DeploySmolderingCrater";
 with "Lacuna::Role::Ship::Arrive::ScanSurface";

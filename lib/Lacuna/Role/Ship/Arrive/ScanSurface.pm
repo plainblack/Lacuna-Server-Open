@@ -9,18 +9,43 @@ after handle_arrival_procedures => sub {
     # we're coming home
     return if ($self->direction eq 'in');
 
+    my $do_scan = 0;
+    my $done_after = 1;
+    if ($self->type eq "attack_group") {
+        my $payload = $self->payload;
+        for my $fleet (keys %{$payload->{fleet}}) {
+            if ($payload->{fleet}->{$fleet}->{type} eq "scanner") {
+                $do_scan = 1;
+                delete $payload->{fleet}->{$fleet};
+            }
+            else {
+                $done_after = 0;
+            }
+        }
+        unless ($done_after) {
+            $self->payload($payload);
+            $self->update;
+        }
+    }
+    else {
+        $do_scan = 1;
+    }
+    return unless $do_scan;
     my $body_attacked = $self->foreign_body;
     # Found an asteroid
     if ($body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
-      $self->body->empire->send_predefined_message(
+        $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'scan_asteroid.txt',
             params      => ['Scanner', $body_attacked->x, $body_attacked->y, $body_attacked->name],
-      );
-      $self->delete;
-      confess [-1];
+        );
+        if ($done_after) {
+            $self->delete;
+            confess [-1];
+        }
+        return;
     }
-    
+
     # do the scan
     my @map;
     foreach my $building (@{$body_attacked->building_cache}) {
@@ -83,8 +108,10 @@ after handle_arrival_procedures => sub {
     })->insert;
 
     # all pow
-    $self->delete;
-    confess [-1];
+    if ($done_after) {
+        $self->delete;
+        confess [-1];
+    }
 };
 
 
