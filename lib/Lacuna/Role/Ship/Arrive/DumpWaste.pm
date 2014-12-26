@@ -104,6 +104,7 @@ after send => sub {
             $room = $hold_size - $payload->{resources}->{waste};
         }
         else {
+            $payload->{resources}->{waste} = 0;
             $room = $hold_size;
         }
         if ($self->body->waste_stored < $room) {
@@ -112,7 +113,7 @@ after send => sub {
         else {
           $waste_sent = $room;
         }
-        $payload->{resources}->{waste} = $waste_sent;
+        $payload->{resources}->{waste} += $waste_sent;
         $self->payload($payload);
     }
     else {
@@ -122,7 +123,7 @@ after send => sub {
         else {
           $waste_sent = $self->hold_size;
         }
-        $self->payload({ resources => { waste => $waste_sent } });
+        $self->payload({ resources => { waste => $waste_sent }, test => { spam => 1 }});
     }
     $self->body->spend_waste($waste_sent)->update;
     $self->update;

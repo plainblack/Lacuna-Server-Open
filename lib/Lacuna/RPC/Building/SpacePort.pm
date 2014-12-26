@@ -350,7 +350,6 @@ sub send_ship_types {
         number_of_docks => 0,
     };
     my $payload;
-    $payload->{fleet} = {};
     
     foreach my $ship (values %$ship_ref) {
         if (grep { $ship->type eq $_ } @ag_list) {

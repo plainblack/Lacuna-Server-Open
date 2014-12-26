@@ -404,12 +404,11 @@ sub send {
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
 
     my $now = DateTime->now;
-    my $time2arrive = $now->subtract_datetime_absolute($self->date_available);
-    my $seconds = $time2arrive->seconds;
-    if ($seconds > 1200 && grep { $self->type eq $_ } @ag_list) {  #Don't try to consolidate if ships will be hitting in 20 minutes
+    my $seconds2arrive = $self->seconds_remaining;
+    if ($seconds2arrive > 1200 && grep { $self->type eq $_ } @ag_list) {  # Only consolidate if ships take longer than 20 minutes
         my $dtf = Lacuna->db->storage->datetime_parser;
-        my $start_range = DateTime->now->add(seconds => ($seconds - 900));
-        my $end_range = DateTime->now->add(seconds => ($seconds + 900));
+        my $start_range = $now->add(seconds => ($seconds2arrive - 900));
+        my $end_range = $now->add(seconds => ($seconds2arrive + 900));
         my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
@@ -419,7 +418,7 @@ sub send {
             date_available => { between => [ $dtf->format_datetime($start_range),
                                              $dtf->format_datetime($end_range) ] },
         });
-        my $payload = {};
+        my $payload;
         if ($self->type eq "attack_group") { #Turn ship into attack group if not already one
             $payload = $self->payload;
         }
@@ -483,7 +482,7 @@ sub send {
             }
             else {
                 my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
-                              $ag_hash{$self->type},
+                              $ag_hash{$ship->type},
                               $ship->type, 
                               $ship->speed, 
                               $ship->combat, 
