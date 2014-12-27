@@ -404,7 +404,8 @@ sub send {
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
 
     my $now = DateTime->now;
-    my $seconds2arrive = $self->seconds_remaining;
+    my $time2arrive = $now->subtract_datetime_absolute($self->date_available);
+    my $seconds2arrive = $time2arrive->seconds;
     if ($seconds2arrive > 1200 && grep { $self->type eq $_ } @ag_list) {  # Only consolidate if ships take longer than 20 minutes
         my $dtf = Lacuna->db->storage->datetime_parser;
         my $start_range = $now->add(seconds => ($seconds2arrive - 900));
