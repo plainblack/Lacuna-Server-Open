@@ -728,7 +728,17 @@ sub has_met_upgrade_prereqs {
 sub has_no_pending_build {
     my ($self) = @_;
     if ($self->is_upgrading) {
-        confess [1010, "You must complete the pending build first."];
+        # sometimes the upgrade gets stuck, and someone has to jiggle
+        # the database.  Detect the situation and jiggle the database
+        # immediately.
+        if ($self->upgrade_ends < DateTime->now)
+        {
+            $self->finish_upgrade();
+        }
+        else
+        {
+            confess [1010, "You must complete the pending build first."];
+        }
     }
     return 1;
 }
