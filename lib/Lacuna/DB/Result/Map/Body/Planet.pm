@@ -1201,7 +1201,7 @@ sub recalc_stats {
             $stats{$method}         += $building->$method();
             $food_production_hour   += $building->$method();
         }
-        if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->efficiency == 100) {
+        if ($building->isa('Lacuna::DB::Result::Building::SpacePort') and $building->effective_efficiency == 100) {
             $stats{max_berth} = $building->effective_level if ($building->effective_level > $stats{max_berth});
         }
         if ($building->isa('Lacuna::DB::Result::Building::Ore::Ministry')) {
@@ -1219,7 +1219,7 @@ sub recalc_stats {
             while (my $waste_chain = $waste_chains->next) {
                 my $percent = $waste_chain->percent_transferred;
                 $percent = $percent > 100 ? 100 : $percent;
-                $percent *= $building->efficiency / 100;
+                $percent *= $building->effective_efficiency / 100;
                 my $waste_hour = sprintf('%.0f',$waste_chain->waste_hour * $percent / 100);
                 $stats{waste_hour} -= $waste_hour;
             }
@@ -1230,7 +1230,7 @@ sub recalc_stats {
             while (my $out_chain = $output_chains->next) {
                 my $percent = $out_chain->percent_transferred;
                 $percent    = $percent > 100 ? 100 : $percent;
-                $percent    *= $building->efficiency / 100;
+                $percent    *= $building->effective_efficiency / 100;
 
                 my $resource_hour = sprintf('%.0f',$out_chain->resource_hour * $percent / 100);
                 my $resource_name   = $self->resource_name($out_chain->resource_type);
@@ -1272,7 +1272,7 @@ sub recalc_stats {
     while (my $in_chain = $input_chains->next) {
         my $percent = $in_chain->percent_transferred;
         $percent = $percent > 100 ? 100 : $percent;
-        $percent *= $in_chain->building->efficiency / 100;
+        $percent *= $in_chain->building->effective_efficiency / 100;
         my $resource_hour = sprintf('%.0f',$in_chain->resource_hour * $percent / 100);
         my $resource_name = $self->resource_name($in_chain->resource_type);
         $stats{$resource_name} += $resource_hour;
@@ -1548,7 +1548,7 @@ sub tick_to {
     }
     # Process excavator sites
     if ( my $arch = $self->archaeology) {
-        if ($arch->efficiency == 100 and $arch->effective_level > 0) {
+        if ($arch->effective_efficiency == 100 and $arch->effective_level > 0) {
             my $dig_sec = $now->epoch - $arch->last_check->epoch;
             if ($dig_sec >= 3600) {
                 my $dig_hours = int($dig_sec/3600);
