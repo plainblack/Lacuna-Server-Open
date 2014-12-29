@@ -655,12 +655,16 @@ sub can_demolish {
 }
 
 sub demolish {
-    my ($self) = @_;
+    my ($self, $theft) = @_;
     my $body = $self->body;
-    $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
-    $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+
+    if (!$theft) {
+        $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
+        $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+    }
 
     # Remove the building from the cache
+    $self->level(0);
     my $idx = first_index {$_->id == $self->id} @{$body->building_cache};
     if (defined $idx) {
         my @blist = @{$body->building_cache};
@@ -686,7 +690,7 @@ sub downgrade {
     my ($self, $theft) = @_;
     if ($self->level == 1) {
         $self->can_demolish;
-        return $self->demolish;
+        return $self->demolish($theft);
     }
     $self->level( $self->level - 1);
     $self->efficiency(100);

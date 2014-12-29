@@ -50,7 +50,9 @@ before pass => sub {
                 }
             }
             elsif ($parl) {
-                $parl->level($parl->level - 1);
+                # to ensure it can be downgraded by this.
+                $parl->is_upgrading(0);
+                $parl->downgrade(1); # no point producing waste/unhappy
                 if ($parl->level >= 1)
                 {
                     $parl->spend_efficiency(120); # becomes 25%
@@ -59,12 +61,13 @@ before pass => sub {
                 }
                 else
                 {
-                    $parl->demolish;
+                    # this should never happen: BFGs simply cannot pass
+                    # if the parliament goes below 7 - nothing is still seized.
                     $self->station->add_news(99, sprintf('The parliament of %s suffered a critical malfunction today while trying to fire their BFG.', $self->station->name));
                 }
                 $self->station->update;
 
-                $self->pass_extra_message('Unfortunately, by the time the proposition passed, the station no longer had sufficient resources to fire with.');
+                $self->pass_extra_message('Unfortunately, by the time the proposition passed, the station no longer had sufficient resources to fire with and suffered major damage.');
             }
             else {
                 $self->pass_extra_message('Unfortunately, by the time the proposition passed, there was no parliament to enact it.');
