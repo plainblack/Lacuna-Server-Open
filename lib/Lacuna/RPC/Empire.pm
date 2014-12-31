@@ -48,6 +48,7 @@ sub is_name_valid {
         ->not_empty
         ->no_padding
         ->no_restricted_chars
+        ->no_match(qr/^#/)
         ->no_profanity;
     return 1; 
 }
@@ -71,7 +72,15 @@ sub login {
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
+    my $empire;
+    if ($name =~ /^#(-?\d+)$/)
+    {
+        $empire = Lacuna->db->resultset('Empire')->find({id=>$1});
+    }
+    else
+    {
+        $empire = Lacuna->db->resultset('Empire')->find({name=>$name});
+    }
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }

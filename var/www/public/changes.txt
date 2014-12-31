@@ -7,6 +7,8 @@
  - Fix: Most buildings should no longer ignore uni level.
  - Add: Overheating Parliament does damage.
  - Fix: Buildings should no longer get stuck in upgrading state.
+ - Add: Allow login with "#<userid>".
+ - Mod: "#" no longer permitted as leading character in empire names.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
