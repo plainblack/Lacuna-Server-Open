@@ -397,19 +397,18 @@ sub send {
     $self->update;
 
     my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observator_seeker","spaceport_seeker","security_ministry_seek",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
                    "scanner","surveyor","detonator","bleeder","thud",
                    "scow","scow_large","scow_fast","scow_mega", "attack_group");
     my $cnt = 0;
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
 
-    my $now = DateTime->now;
-    my $time2arrive = $now->subtract_datetime_absolute($self->date_available);
+    my $time2arrive = DateTime->now->subtract_datetime_absolute($arrival);
     my $seconds2arrive = $time2arrive->seconds;
     if ($seconds2arrive > 1200 && grep { $self->type eq $_ } @ag_list) {  # Only consolidate if ships take longer than 20 minutes
         my $dtf = Lacuna->db->storage->datetime_parser;
-        my $start_range = $now->add(seconds => ($seconds2arrive - 900));
-        my $end_range = $now->add(seconds => ($seconds2arrive + 900));
+        my $start_range = DateTime->now->add(seconds => ($seconds2arrive - 900));
+        my $end_range = DateTime->now->add(seconds => ($seconds2arrive + 900));
         my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
@@ -419,9 +418,17 @@ sub send {
             date_available => { between => [ $dtf->format_datetime($start_range),
                                              $dtf->format_datetime($end_range) ] },
         });
-        my $payload;
+        my $payload = $self->payload;
+#        $payload->{debug} = {
+#            old_type => $self->type,
+#            count    => $ships_rs->count,
+#            start_rng => $dtf->format_datetime($start_range),
+#            end_rng => $dtf->format_datetime($end_range),
+#            seconds => $seconds2arrive,
+#        };
         if ($self->type eq "attack_group") { #Turn ship into attack group if not already one
-            $payload = $self->payload;
+#            $payload = $self->payload;
+#            $payload->{debug}->{extra} = "already ag";
         }
         else {
             my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",

@@ -337,7 +337,7 @@ sub send_ship_types {
 
 # Create attack_group
     my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observator_seeker","spaceport_seeker","security_ministry_seek",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
                    "scanner","surveyor","detonator","bleeder","thud",
                    "scow","scow_large","scow_fast","scow_mega");
     my $cnt = 0;

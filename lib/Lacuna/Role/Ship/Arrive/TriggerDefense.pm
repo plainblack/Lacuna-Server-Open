@@ -96,41 +96,45 @@ sub damage_in_combat {
     my $abid = $self->body_id;
     if ($self->type eq "attack_group") {
         my $payload = $self->payload;
+        my %del_keys;
         for my $key (sort keys %{$payload->{fleet}}) {
             my ($sort_val, $type, $combat, $speed, $stealth, $hold_size) = split(/:/, $key);
-            if ($payload->{fleet}->{$key}->{combat} > $damage) {
-                $payload->{fleet}->{$key}->{combat} -= $damage;
+            if ($payload->{fleet}->{"$key"}->{combat} > $damage) {
+                $payload->{fleet}->{"$key"}->{combat} -= $damage;
                 my $ships_destroyed = int($damage/$combat);
-                $payload->{fleet}->{$key}->{quantity} -= $ships_destroyed;
-                $payload->{fleet}->{$key}->{number_of_docks} -= $ships_destroyed;
+                $payload->{fleet}->{"$key"}->{quantity} -= $ships_destroyed;
+                $payload->{fleet}->{"$key"}->{number_of_docks} -= $ships_destroyed;
 
-                if ($return->{$abid}->{$payload->{fleet}->{$key}->{type}}) {
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{number} += $ships_destroyed;
+                if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $ships_destroyed;
                 }
                 else {
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{body_id} = $abid;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{body_name} = $self->body->name;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{emp_id} = $self->body->empire_id;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{emp_name} = $self->body->empire->name;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{number} = $ships_destroyed;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_name} = $self->body->name;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} = $ships_destroyed;
                 }
                 $damage = 0;
             }
             else {
-                if ($return->{$abid}->{$payload->{fleet}->{$key}->{type}}) {
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{number} += $payload->{fleet}->{$key}->{quantity};
+                if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
                 }
                 else {
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{body_id} = $abid;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{body_name} = $self->body->name;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{emp_id} = $self->body->empire_id;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{emp_name} = $self->body->empire->name;
-                    $return->{$abid}->{$payload->{fleet}->{$key}->{type}}->{number} += $payload->{fleet}->{$key}->{quantity};
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_name} = $self->body->name;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
                 }
                 $damage -= $payload->{fleet}->{combat};
-                delete $payload->{fleet}->{$key};
+                $del_keys{"$key"} = 1;
             }
             last if $damage == 0;
+        }
+        for my $key (keys %del_keys) {
+            delete $payload->{fleet}->{"$key"};
         }
         if ($self->combat > 0) {
 #No need to reset payload if ship is being destroyed.
@@ -185,9 +189,6 @@ sub log_attack {
 
 sub ship_to_ship_combat {
     my ($self, $ships) = @_;
-
-#    $attack_stat = $self->damage_in_combat($total_combat);
-#    $self->notify_battle_results($defense_stat, $attack_stat);
 
     my $attack_eid = $self->body->empire_id;
     my $attack_aid = 0;
@@ -305,7 +306,9 @@ sub allied_combat {
                        });
     undef @allied_bodies;
     # initiate ship to ship combat between the attackers and the allied ships
-    $self->ship_to_ship_combat($fighters_orbit);
+    if ($fighters_orbit->count) {
+        $self->ship_to_ship_combat($fighters_orbit);
+    }
 }
 
 sub defender_combat {
@@ -320,7 +323,9 @@ sub defender_combat {
         });
 
     # initiate ship to ship combat between the attackers and the defensive ships
-    $self->ship_to_ship_combat($defense_ships);
+    if ($defense_ships->count) {
+        $self->ship_to_ship_combat($defense_ships);
+    }
 }
 
 sub system_saw_combat {
