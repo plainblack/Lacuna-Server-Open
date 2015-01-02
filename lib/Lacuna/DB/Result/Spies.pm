@@ -460,9 +460,9 @@ sub is_available {
         my $now = DateTime->now;
         my $pol_time = $now->subtract_datetime_absolute($self->started_assignment);
         my $minutes = int($pol_time->seconds/60);
-        my $mission_count_add = int($minutes/240);
+        my $mission_count_add = int($minutes/360);
         if ($mission_count_add > 0) {
-            my $remain_min = $minutes - ($mission_count_add * 240);
+            my $remain_min = $minutes - ($mission_count_add * 360);
             $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
             my $fskill = $self->politics_xp + $mission_count_add;
             $fskill = 2600 if ($fskill > 2600);

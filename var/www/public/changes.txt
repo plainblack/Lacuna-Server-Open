@@ -9,6 +9,7 @@
  - Fix: Buildings should no longer get stuck in upgrading state.
  - Add: Allow login with "#<userid>".
  - Mod: "#" no longer permitted as leading character in empire names.
+ - Mod: Propaganda doesn't count as often for missions.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
