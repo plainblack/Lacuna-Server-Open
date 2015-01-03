@@ -82,7 +82,7 @@ after handle_arrival_procedures => sub {
             }
         }
         if (keys %{$payload->{fleet}}) {
-            $self->payload = $payload;
+            $self->payload($payload);
             $done_after = 0;
         }
     }

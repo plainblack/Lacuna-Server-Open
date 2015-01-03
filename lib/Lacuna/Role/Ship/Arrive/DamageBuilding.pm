@@ -19,7 +19,7 @@ after handle_arrival_procedures => sub {
 # 1) Group of snarks?
 # 2) How many target buildings?
 # 3) See if reasonable that buildings get zeroed?
-    my %snarks = {
+    my %snarks = (
         snarks => {
             count => 0,
             target => [],
@@ -36,7 +36,7 @@ after handle_arrival_procedures => sub {
             count => 0,
             target => [],
         },
-    };
+    );
     if ($self->type eq "attack_group") {
         my $payload = $self->payload;
         for my $fleet (keys %{$payload->{fleet}}) {
@@ -111,7 +111,7 @@ after handle_arrival_procedures => sub {
     else {
         my $building;
         for my $sn_type ("observatory_seeker", "security_ministry_seeker",
-                      "spaceport_seeker", "snark_count") {
+                      "spaceport_seeker", "snarks") {
             my @tbuilds;
             if ($snarks{$sn_type}->{count}) {
                 for my $tb ( @{$snarks{$sn_type}->{target}}) {
@@ -131,8 +131,7 @@ after handle_arrival_procedures => sub {
                 }
             }
             else {
-                my $count = 0;
-                for (0..$snarks{$sn_type}->{count}) {
+                for (1..$snarks{$sn_type}->{count}) {
                     my $amount = randint(10,70);
                     ($building) = 
                         sort {

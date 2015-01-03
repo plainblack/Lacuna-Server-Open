@@ -29,7 +29,8 @@ after handle_arrival_procedures => sub {
     return if ( $is_planet && $body_attacked->empire && $body_attacked->empire_id == $ship_body->empire_id );
 
     # no defense against allies
-    return if ( $is_planet && $body_attacked->empire && $body_attacked->empire->alliance_id == $ship_body->empire->alliance_id );
+    return if ( $is_planet && $body_attacked->empire && $body_attacked->empire->alliance_id && $ship_body->empire->alliance_id &&
+               $body_attacked->empire->alliance_id == $ship_body->empire->alliance_id );
 
     # set last attack status
     $body_attacked->set_last_attacked_by($ship_body->id);
