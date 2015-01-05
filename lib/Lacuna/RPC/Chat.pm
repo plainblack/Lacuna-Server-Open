@@ -88,6 +88,7 @@ sub init_chat {
         email   => $empire->email,
         default => 'monsterid',
 	size    => 300,
+        https   => 1,
 	);
     my $ret = {
         status          => $self->format_status($empire),
