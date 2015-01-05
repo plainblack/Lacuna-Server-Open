@@ -764,7 +764,7 @@ sub run_mission {
     my $mission_skill = $mission->{skill}.'_xp';
     my $power = $self->offense + $self->$mission_skill;
     my $toughness = 0;
-    my $defender = $self->get_defender;
+    my $defender = $self->get_defender($mission);
     my $hfa = 0;
     if (defined $defender) {
         $toughness = $defender->defense + $defender->$mission_skill;
@@ -970,7 +970,7 @@ sub bugout {
     if (!$self->empire->alliance_id || $self->empire->alliance_id != $self->on_body->empire->alliance_id ) {
         my $power = $self->offense + $self->intel_xp;
         my $toughness = 0;
-        my $defender = $self->get_defender;
+        my $defender = $self->get_defender($mission);
         my $hfa = 0;
         if (defined $defender) {
             $toughness = $defender->defense + $defender->intel_xp;
@@ -1058,7 +1058,7 @@ sub get_defender {
        $member_ids[0] = $self->empire->id;
     }
     my @tasks = 'Counter Espionage';
-    if ($mission eq "Abduct Operatives" or $mission eq "Assassinate Operatives") {
+    if ($mission->{task} eq "Abduct Operatives" or $mission->{task} eq "Assassinate Operatives") {
         push @tasks, "Security Sweep", "Political Propaganda";
     }
 
@@ -1068,7 +1068,7 @@ sub get_defender {
         ->search(
             { on_body_id  => $self->on_body_id,
               task => { 'in' => \@tasks },
-              empire_id => { 'not_in' => \@member_ids } },
+              empire_id => { 'not in' => \@member_ids } },
             { order_by => 'rand()' }
         )->first;
     if (defined $defender) {
