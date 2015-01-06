@@ -11,7 +11,7 @@
  - Mod: "#" no longer permitted as leading character in empire names.
  - Mod: Propaganda doesn't count as often for missions.
  - Mod: incoming ships list ordered correctly.
- - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assasinated/Abducted
+ - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assassinated/Abducted
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
