@@ -63,7 +63,7 @@ sub send_ship {
 
 sub number_of_ships {
     my $self = shift;
-    return $self->ships->count;
+    return $self->ships->get_column('number_of_docks')->sum;
 }
 
 has max_ships => (

@@ -141,7 +141,7 @@ sub get_ships_for {
       push @available, $ship->get_status($target);
     }
     
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+    my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
 
     my %out = (
         status              => $self->format_status($empire, $body),
@@ -287,6 +287,11 @@ sub send_ship_types {
 
     my $ship_ref;
     my $do_captcha_check = 0;
+    my $ag_chk = 0;
+    my @ag_list = ("sweeper","snark","snark2","snark3",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
+                   "scanner","surveyor","detonator","bleeder","thud",
+                   "scow","scow_large","scow_fast","scow_mega");
     foreach my $type_param (@$type_params) {
         foreach my $arg (qw(speed stealth combat quantity)) {
             confess [1002, "$arg cannot be negative."] if $type_param->{$arg} < 0;
@@ -313,13 +318,22 @@ sub send_ship_types {
         if ($ships_rs->count < $quantity) {
             confess [1009, "Cannot find $quantity of $type ships."];
         }
+        if (grep { $type eq $_ } @ag_list) {
+            $ag_chk += $quantity;
+        }
         my @ships = $ships_rs->search(undef,{rows => $quantity}); #Perhaps sort by speed?
         my $ship = $ships[0]; #Need to grab slowest ship
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
+
 #Check speed of ship.  If it can not make it to the target in time, fail
 #If time to target is longer than 60 days, fail.
-        my $earliest = DateTime->now->add(seconds=>$ship->calculate_travel_time($target));
+        my $seconds_to_target = $ship->calculate_travel_time($target);
+        if ($seconds_to_target > 5184000) {
+            confess [1009, "Cannot set a speed that will take 60 days or more."];
+        }
+
+        my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
         if ($earliest > $arrival) {
             confess [1009, "Cannot set a speed earlier than possible arrival time."];
         }
@@ -336,10 +350,6 @@ sub send_ship_types {
     # If we get here without exceptions, then all ships can be sent
 
 # Create attack_group
-    my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
-                   "scanner","surveyor","detonator","bleeder","thud",
-                   "scow","scow_large","scow_fast","scow_mega");
     my $cnt = 0;
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
     my $attack_group = {
@@ -352,7 +362,7 @@ sub send_ship_types {
     my $payload;
     
     foreach my $ship (values %$ship_ref) {
-        if (grep { $ship->type eq $_ } @ag_list) {
+        if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {
             my $sort_val = $ag_hash{$ship->type};
             if ($ship->speed < $attack_group->{speed}) {
                 $attack_group->{speed} = $ship->speed;
@@ -423,7 +433,7 @@ sub send_fleet {
   $set_speed //= 0;
   my $empire = $self->get_empire_by_session($session_id);
   my $target = $self->find_target($target_params);
-  my $max_ships = Lacuna->config->get('ships_per_fleet') || 20;
+  my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
   if (@$ship_ids > $max_ships) {
     confess [1009, 'Too many ships for a fleet.'];
   }

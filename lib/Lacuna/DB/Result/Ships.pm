@@ -402,14 +402,15 @@ sub send {
                    "scow","scow_large","scow_fast","scow_mega", "attack_group");
     my $cnt = 0;
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
-
     my $time2arrive = DateTime->now->subtract_datetime_absolute($arrival);
     my $seconds2arrive = $time2arrive->seconds;
-    if ($seconds2arrive > 1200 && grep { $self->type eq $_ } @ag_list) {  # Only consolidate if ships take longer than 20 minutes
-        my $dtf = Lacuna->db->storage->datetime_parser;
-        my $start_range = DateTime->now->add(seconds => ($seconds2arrive - 900));
-        my $end_range = DateTime->now->add(seconds => ($seconds2arrive + 900));
-        my $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $start_range = DateTime->now->add(seconds => ($seconds2arrive - 900));
+    my $end_range = DateTime->now->add(seconds => ($seconds2arrive + 900));
+    my $ships_rs;
+    my $ag_chk = 0;
+    if ( grep { $self->type eq $_ } @ag_list ) {
+        $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
             direction => 'out',
@@ -418,6 +419,10 @@ sub send {
             date_available => { between => [ $dtf->format_datetime($start_range),
                                              $dtf->format_datetime($end_range) ] },
         });
+        $ag_chk += $ships_rs->count;
+    }
+
+    if ($seconds2arrive > 300 && $ag_chk > 1) {  # Only consolidate if ships take longer than 20 minutes
         my $payload = $self->payload;
 #        $payload->{debug} = {
 #            old_type => $self->type,
