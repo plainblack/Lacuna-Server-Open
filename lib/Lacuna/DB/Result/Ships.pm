@@ -397,7 +397,7 @@ sub send {
     $self->update;
 
     my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seeker",
                    "scanner","surveyor","detonator","bleeder","thud",
                    "scow","scow_large","scow_fast","scow_mega", "attack_group");
     my $cnt = 0;

@@ -38,29 +38,56 @@ after handle_arrival_procedures => sub {
         },
     );
     if ($self->type eq "attack_group") {
+        my $snarkit = 0;
         my $payload = $self->payload;
+        my %del_keys;
         for my $fleet (keys %{$payload->{fleet}}) {
             if ($payload->{fleet}->{$fleet}->{type} eq "snark") {
                 $snarks{snarks}->{count} += $payload->{fleet}->{$fleet}->{quantity};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
             elsif ($payload->{fleet}->{$fleet}->{type} eq "snark2") {
                 $snarks{snarks}->{count} += 4 * $payload->{fleet}->{$fleet}->{quantity};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
             elsif ($payload->{fleet}->{$fleet}->{type} eq "snark3") {
                 $snarks{snarks}->{count} += 9 * $payload->{fleet}->{$fleet}->{quantity};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
             elsif ($payload->{fleet}->{$fleet}->{type} eq "observatory_seeker") {
                 $snarks{observatory_seeker}->{count} += $payload->{fleet}->{$fleet}->{quantity};
                 $snarks{observatory_seeker}->{target} = $payload->{fleet}->{$fleet}->{target_building};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
             elsif ($payload->{fleet}->{$fleet}->{type} eq "security_ministry_seeker") {
                 $snarks{security_ministry_seeker}->{count} += $payload->{fleet}->{$fleet}->{quantity};
                 $snarks{security_ministry_seeker}->{target} = $payload->{fleet}->{$fleet}->{target_building};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
             elsif ($payload->{fleet}->{$fleet}->{type} eq "spaceport_seeker") {
                 $snarks{spaceport_seeker}->{count} += $payload->{fleet}->{$fleet}->{quantity};
                 $snarks{spaceport_seeker}->{target} = $payload->{fleet}->{$fleet}->{target_building};
+                $del_keys{$fleet} = $payload->{fleet}->{$fleet}->{quantity};
+                $snarkit = 1;
             }
+        }
+        if ($snarkit) {
+            my $snark_impacts = 0;
+            for my $key (keys %del_keys) {
+                delete $payload->{fleet}->{$key};
+                $snark_impacts += $del_keys{$key};
+            }
+            $self->payload($payload);
+            $self->number_of_docks($self->number_of_docks - $snark_impacts);
+            $self->update;
+        }
+        else {
+            return unless $snarkit;
         }
     }
     else {
@@ -101,10 +128,22 @@ after handle_arrival_procedures => sub {
                 ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
             } @{$body_attacked->building_cache};
 
+    my $report;
+    push @{$report}, (['Type','Number'],['Buildings', scalar @all_builds]);
+    for my $sn_type ("observatory_seeker", "security_ministry_seeker",
+                      "spaceport_seeker", "snarks") {
+        if ($snarks{$sn_type}->{count} > 0) {
+            push @{$report}, [
+                $sn_type,
+                $snarks{$sn_type}->{count},
+            ];
+        }
+    }
     if ( $snarks{snarks}->{count}/4 > scalar @all_builds) {
 #More than capable of zeroing all buildings
         for my $building (@all_builds) {
-            $building->spend_efficiency(100)->update;
+            $building->spend_efficiency(100);
+            $building->update;
         }
 #Deal with email and log results
     }
@@ -160,6 +199,7 @@ after handle_arrival_procedures => sub {
         filename    => 'ship_hit_building.txt',
         params      => [$self->type_formatted, $building_name, $body_attacked->id,
                         $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
+        attachments => { table => $report },
             );
     }
     unless ($self->body->empire->skip_attack_messages) {
@@ -168,6 +208,7 @@ after handle_arrival_procedures => sub {
             filename    => 'our_ship_hit_building.txt',
             params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y,
                             $body_attacked->name, $building_name, 100],
+            attachments => { table => $report },
             );
     }
     $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building_name, $body_attacked->name));
@@ -194,7 +235,7 @@ after handle_arrival_procedures => sub {
     });
 
     $log->insert;
-    if ($self->type ne "attack_group") {
+    if ($self->type ne "attack_group" or $self->number_of_docks < 1) {
         $self->delete;
         confess [-1];
     }

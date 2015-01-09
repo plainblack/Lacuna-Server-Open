@@ -29,6 +29,7 @@ after handle_arrival_procedures => sub {
     if (defined($payload->{resources})) {
       $waste_dumped = $payload->{resources}{waste} if defined($payload->{resources}{waste});
     }
+    return unless $waste_dumped > 0;
     $body_attacked->add_waste($waste_dumped);
     $body_attacked->update;
     $waste_dumped = commify($waste_dumped); # commify so emails look nicer

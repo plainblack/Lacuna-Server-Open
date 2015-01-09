@@ -12,14 +12,14 @@ after handle_arrival_procedures => sub {
     my $payload = $self->payload;
     if ($self->direction eq 'in') {
         for my $key ( sort keys %{$payload->{fleet}}) {
-            if ($payload->{fleet}->{"$key"}->{type} eq "sweeper") {
+            if ($payload->{fleet}->{$key}->{type} eq "sweeper") {
                 for my $num (1..$payload->{fleet}->{$key}->{quantity}) {
                     my $ship = Lacuna->db->resultset('Ships')->new({type => "sweeper"});
-                    $ship->name($payload->{fleet}->{"$key"}->{name});
+                    $ship->name($payload->{fleet}->{$key}->{name});
                     $ship->body_id($self->body_id);
-                    $ship->speed($payload->{fleet}->{"$key"}->{speed});
-                    $ship->combat($payload->{fleet}->{"$key"}->{combat});
-                    $ship->stealth($payload->{fleet}->{"$key"}->{stealth});
+                    $ship->speed($payload->{fleet}->{$key}->{speed});
+                    $ship->combat($payload->{fleet}->{$key}->{combat});
+                    $ship->stealth($payload->{fleet}->{$key}->{stealth});
                     $ship->hold_size(0);
                     $ship->date_available(DateTime->now);
                     $ship->date_started(DateTime->now);
@@ -48,6 +48,7 @@ after handle_arrival_procedures => sub {
     }
     if ($new_quantity > 0 and $new_combat > 0) {
         $payload = $new_payload;
+        $self->payload($payload);
         $self->combat($new_combat);
         $self->stealth($new_stealth);
         $self->speed($new_speed);

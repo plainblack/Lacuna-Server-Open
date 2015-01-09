@@ -289,7 +289,7 @@ sub send_ship_types {
     my $do_captcha_check = 0;
     my $ag_chk = 0;
     my @ag_list = ("sweeper","snark","snark2","snark3",
-                   "observatory_seeker","spaceport_seeker","security_ministry_seek",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seeker",
                    "scanner","surveyor","detonator","bleeder","thud",
                    "scow","scow_large","scow_fast","scow_mega");
     foreach my $type_param (@$type_params) {

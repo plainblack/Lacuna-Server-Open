@@ -100,14 +100,15 @@ sub damage_in_combat {
         my %del_keys;
         for my $key (sort keys %{$payload->{fleet}}) {
             my ($sort_val, $type, $combat, $speed, $stealth, $hold_size) = split(/:/, $key);
-            if ($payload->{fleet}->{"$key"}->{combat} > $damage) {
-                $payload->{fleet}->{"$key"}->{combat} -= $damage;
+            my $combat_part = $combat * $payload->{fleet}->{"$key"}->{quantity};
+            if ($combat_part > $damage) {
                 my $ships_destroyed = int($damage/$combat);
                 $payload->{fleet}->{"$key"}->{quantity} -= $ships_destroyed;
-                $payload->{fleet}->{"$key"}->{number_of_docks} -= $ships_destroyed;
+                $self->number_of_docks($self->number_of_docks - $ships_destroyed);
 
                 if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $ships_destroyed;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{extra} = "a".$damage;
                 }
                 else {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
@@ -115,12 +116,14 @@ sub damage_in_combat {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} = $ships_destroyed;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{extra} = "b".$damage;
                 }
                 $damage = 0;
             }
             else {
                 if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{extra} = "c".$damage;
                 }
                 else {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
@@ -128,8 +131,9 @@ sub damage_in_combat {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{extra} = "d".$damage;
                 }
-                $damage -= $payload->{fleet}->{combat};
+                $damage -= $combat_part;
                 $del_keys{"$key"} = 1;
             }
             last if $damage == 0;
@@ -137,7 +141,7 @@ sub damage_in_combat {
         for my $key (keys %del_keys) {
             delete $payload->{fleet}->{"$key"};
         }
-        if ($self->combat > 0) {
+        if ($self->combat >= 0) {
 #No need to reset payload if ship is being destroyed.
             $self->payload($payload);
         }
@@ -148,6 +152,7 @@ sub damage_in_combat {
         $return->{$abid}->{$self->type}->{emp_id} = $self->body->empire_id;
         $return->{$abid}->{$self->type}->{emp_name} = $self->body->empire->name;
         $return->{$abid}->{$self->type}->{number} = 1;
+        $return->{$abid}->{$self->type}->{extra} = $damage;
     }
     $self->update;
     return $return;
@@ -248,11 +253,11 @@ sub ship_to_ship_combat {
             }
         }
         $attack_combat -= $damage;
-        last if $attack_combat < 1;
+        last if $attack_combat < 0;
     }
     my $attack_stat = $self->damage_in_combat($self->combat - $attack_combat);
     $self->notify_battle_results($defense_stat, $attack_stat);
-    return unless $self->combat < 1;
+    return unless $self->combat < 0;
     $self->delete;
     confess [-1]
 }
@@ -392,6 +397,7 @@ sub system_saw_combat {
         $defense_stat->{$dbid}->{"Saws"}->{body_name} = $dbody->name;
         $defense_stat->{$dbid}->{"Saws"}->{emp_id} = $dbody->empire_id;
         $defense_stat->{$dbid}->{"Saws"}->{emp_name} = $dbody->empire->name;
+        $defense_stat->{$dbid}->{"Saws"}->{extra} = $combat;
     }
     $total_combat *= $def_cnt if $is_station;
     return if $total_combat < 1;
@@ -427,11 +433,12 @@ sub notify_battle_results {
                 $defense_stat->{$dbid}->{$dtype}->{emp_name},
                 $dtype,
                 $defense_stat->{$dbid}->{$dtype}->{number},
+                $defense_stat->{$dbid}->{$dtype}->{extra},
             ];
         }
     }
-    unshift @{$report}, (['Defenders','','','','',''],['ID','Planet','EID','Empire','Type','Number']);
-    push @{$report}, (['Attackers','','','','',''],['ID','Planet','EID','Empire','Type','Number']);
+    unshift @{$report}, (['Defenders','','','','',''],['ID','Planet','EID','Empire','Type','Number','Extra']);
+    push @{$report}, (['Attackers','','','','',''],['ID','Planet','EID','Empire','Type','Number','Extra']);
     for my $abid (keys %{$attack_stat}) {
         for my $atype (keys %{$attack_stat->{$abid}}) {
             push @{$report}, [
@@ -441,6 +448,7 @@ sub notify_battle_results {
                 $attack_stat->{$abid}->{$atype}->{emp_name},
                 $atype,
                 $attack_stat->{$abid}->{$atype}->{number},
+                $attack_stat->{$abid}->{$atype}->{extra},
             ];
         }
     }
