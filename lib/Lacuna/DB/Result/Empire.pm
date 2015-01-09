@@ -114,6 +114,7 @@ __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
+__PACKAGE__->has_many('bodies',             'Lacuna::DB::Result::Map::Body',    'empire_id');
 
 for my $affin (qw(
     manufacturing_affinity
