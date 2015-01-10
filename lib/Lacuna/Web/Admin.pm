@@ -8,7 +8,7 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
 use UUID::Tiny ':std';
-use Lacuna::Util qw(format_date commify);
+use Lacuna::Util qw(format_date commify kmbtq);
 use List::Util qw(sum);
 use Data::Dumper;
 use LWP::UserAgent;
@@ -326,7 +326,7 @@ sub www_search_bodies {
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
-                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, commify($body->happiness),
+                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, kmbtq($body->happiness),
                         $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
