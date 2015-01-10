@@ -365,6 +365,7 @@ sub send_ship_types {
         if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {
             my $sort_val = $ag_hash{$ship->type};
             if ($ship->speed < $attack_group->{speed}) {
+#Set speed to actual speed it would use to get there in time.
                 $attack_group->{speed} = $ship->speed;
             }
             if ($ship->speed < $attack_group->{stealth}) {
@@ -421,9 +422,6 @@ sub send_ship_types {
           })->insert;
         $ag->send(target => $target, arrival => $arrival);
         $body->add_to_neutral_entry($attack_group->{combat});
-    }
-    else {
-        $attack_group->delete;
     }
     return $self->get_fleet_for($session_id, $body_id, $target_params);
 }

@@ -13,16 +13,20 @@ after handle_arrival_procedures => sub {
     my $done_after = 1;
     if ($self->type eq "attack_group") {
         my $payload = $self->payload;
+        my @trim;
         for my $fleet (keys %{$payload->{fleet}}) {
             if ($payload->{fleet}->{$fleet}->{type} eq "scanner") {
                 $do_scan = 1;
-                delete $payload->{fleet}->{$fleet};
+                push @trim, $fleet;
             }
             else {
                 $done_after = 0;
             }
         }
-        unless ($done_after) {
+        if ($done_after == 0 and $do_scan) {
+            for my $key (@trim) {
+                delete $payload->{fleet}->{$key};
+            }
             $self->payload($payload);
             $self->update;
         }
@@ -31,6 +35,7 @@ after handle_arrival_procedures => sub {
         $do_scan = 1;
     }
     return unless $do_scan;
+
     my $body_attacked = $self->foreign_body;
     # Found an asteroid
     if ($body_attacked->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {

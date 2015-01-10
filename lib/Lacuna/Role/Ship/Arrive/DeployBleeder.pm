@@ -18,19 +18,24 @@ after handle_arrival_procedures => sub {
             if ($payload->{fleet}->{$fleet}->{type} eq "bleeder") {
                 $bleed_num += $payload->{fleet}->{$fleet}->{quantity};
                 push @trim, $fleet;
-            }  
+            }
+            else {
+                $done_after = 0;
+            }
         }
-        for my $key (@trim) {
-            delete $payload->{fleet}->{$key};
-        }
-        if (keys %{$payload->{fleet}}) {
+        if ($done_after == 0 and $bleed_num > 0) {
+            for my $key (@trim) {
+                delete $payload->{fleet}->{$key};
+            }
             $self->payload($payload);
-            $done_after = 0;
+            $self->update;
         }
     }
     else {
         $bleed_num = 1;
     }
+    return if $bleed_num  < 1;
+
     # deploy the bleeders
     my $body_attacked = $self->foreign_body;
     my $deployed = 0;

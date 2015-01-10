@@ -20,18 +20,22 @@ after handle_arrival_procedures => sub {
                 $thud_num += $payload->{fleet}->{$fleet}->{quantity};
                 push @trim, $fleet;
             }  
+            else {
+                $done_after = 0;
+            }
         }
-        for my $key (@trim) {
-            delete $payload->{fleet}->{$key};
-        }
-        if (keys %{$payload->{fleet}}) {
+        if ($done_after == 0 and $thud_num > 0) {
+            for my $key (@trim) {
+                delete $payload->{fleet}->{$key};
+            }
             $self->payload($payload);
-            $done_after = 0;
+            $self->update;
         }
     }
     else {
         $thud_num = 1;
     }
+    return if $thud_num < 1;
 
     # deploy the craters
     my $body_attacked = $self->foreign_body;

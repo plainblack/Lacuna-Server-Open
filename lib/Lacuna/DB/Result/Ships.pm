@@ -419,7 +419,7 @@ sub send {
             date_available => { between => [ $dtf->format_datetime($start_range),
                                              $dtf->format_datetime($end_range) ] },
         });
-        $ag_chk += $ships_rs->count;
+        $ag_chk += $ships_rs->get_column('number_of_docks')->sum;
     }
 
     if ($seconds2arrive > 300 && $ag_chk > 1) {  # Only consolidate if ships take longer than 20 minutes

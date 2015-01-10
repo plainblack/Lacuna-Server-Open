@@ -77,14 +77,22 @@ after handle_arrival_procedures => sub {
     # all pow
     my $done_after = 1;
     if ($self->type eq "attack_group") {
+        my @trim;
         for my $key ( keys %{$payload->{fleet}}) {
             if ( grep { $payload->{fleet}->{$key}->{type} eq $_ } ("scow", "scow_fast", "scow_large", "scow_mega")) {
-                delete $payload->{fleet}->{$key};
+                push @trim, $key;
+            }
+            else {
+                $done_after = 0;
             }
         }
-        if (keys %{$payload->{fleet}}) {
+#reset payload if needed
+        unless ($done_after) {
+            for my $key (@trim) {
+                delete $payload->{fleet}->{$key};
+            }
             $self->payload($payload);
-            $done_after = 0;
+            $self->update;
         }
     }
     if ($done_after) {
@@ -108,6 +116,7 @@ after send => sub {
             $payload->{resources}->{waste} = 0;
             $room = $hold_size;
         }
+        return if $room < 1;
         if ($self->body->waste_stored < $room) {
           $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
         }
@@ -115,6 +124,7 @@ after send => sub {
           $waste_sent = $room;
         }
         $payload->{resources}->{waste} += $waste_sent;
+        $payload->{resources}->{spam} = "spam";
         $self->payload($payload);
     }
     else {
