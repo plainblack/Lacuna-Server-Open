@@ -25,7 +25,7 @@ after handle_arrival_procedures => sub {
         }
         if ($done_after == 0 and $do_scan) {
             for my $key (@trim) {
-                delete $payload->{fleet}->{$fleet};
+                delete $payload->{fleet}->{$key};
             }
             $self->payload($payload);
             $self->update;
