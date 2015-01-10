@@ -8,7 +8,7 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
 use UUID::Tiny ':std';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date commify);
 use List::Util qw(sum);
 use Data::Dumper;
 use LWP::UserAgent;
@@ -323,9 +323,11 @@ sub www_search_bodies {
     }
     my $out = '<h1>Search Bodies</h1>';
     $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
+                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, commify($body->happiness),
+                        $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/bodies', 'name', $name, $page_number);
@@ -347,9 +349,11 @@ sub www_search_stars {
     }
     my $out = '<h1>Search Stars</h1>';
     $out .= '<form method="post" action="/admin/search/stars"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Station</th></tr>';
     while (my $star = $stars->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone);
+        $out .= sprintf('<tr><td><a href="/admin/view/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/body?id=%s">%s</a></td></tr>',
+                        $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone,
+                        $star->station_id || '', $star->station_id || '');
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/stars', 'name', $name, $page_number);
@@ -1098,6 +1102,7 @@ sub www_view_star {
     $out .= sprintf('<tr><th>Zone</th><td>%s</td><td><a href="/admin/search/stars?zone=%s">Stars In This Zone</a></td></tr>', $star->zone, $star->zone);
     $out .= sprintf('<tr><th>X</th><td>%s</td><td></td></tr>', $star->x);
     $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $star->y);
+    $out .= sprintf('<tr><th>Station</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $star->station_id || '', $star->station_id || '');
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></li>', $star->id);
     $out .= '</ul>';
