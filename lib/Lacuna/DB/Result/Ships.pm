@@ -411,6 +411,7 @@ sub send {
     my $ag_chk = 0;
     if ( grep { $self->type eq $_ } @ag_list ) {
         $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+            id      => { '!=' => $self->id },
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
             direction => 'out',
@@ -521,7 +522,7 @@ sub send {
             }
             $ship->delete;
         }
-        $self->name("Attack Group");
+        $self->name("Attack Group Ship");
         $self->speed($attack_group->{speed});
         $self->combat($attack_group->{combat});
         $self->stealth($attack_group->{stealth});

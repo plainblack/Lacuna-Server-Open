@@ -67,7 +67,7 @@ sub get_fleet_for {
         },{
             '+select'   => [{count => 'id'}],
             '+as'       => [ qw(quantity) ],
-            group_by    => [ qw(type speed stealth combat hold_size) ],
+            group_by    => [ qw(type speed stealth combat hold_size name) ],
         },
     );
     my $summary;
@@ -80,6 +80,8 @@ sub get_fleet_for {
             speed       => int($ship_group->speed),
             stealth     => int($ship_group->stealth),
             combat      => int($ship_group->combat),
+            name        => $ship_group->name,
+            hold_size   => $ship_group->hold_size,
             quantity    => $ship_group->get_column('quantity'),
             estimated_travel_time => $travel_time,
         };
@@ -321,7 +323,9 @@ sub send_ship_types {
         if (grep { $type eq $_ } @ag_list) {
             $ag_chk += $quantity;
         }
-        my @ships = $ships_rs->search(undef,{rows => $quantity}); #Perhaps sort by speed?
+        my @ships = $ships_rs->search( undef,
+                                      {order_by => 'speed', rows => $quantity }
+                                      );
         my $ship = $ships[0]; #Need to grab slowest ship
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
@@ -365,7 +369,6 @@ sub send_ship_types {
         if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {
             my $sort_val = $ag_hash{$ship->type};
             if ($ship->speed < $attack_group->{speed}) {
-#Set speed to actual speed it would use to get there in time.
                 $attack_group->{speed} = $ship->speed;
             }
             if ($ship->speed < $attack_group->{stealth}) {
@@ -400,21 +403,28 @@ sub send_ship_types {
             $ship->delete;
         }
         else {
-            $ship->fleet_speed(1);
+            my $distance = $body->calculate_distance_to_target($target);
+            my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
+            my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
+
+            $ship->fleet_speed($fleet_speed);
             $ship->send(target => $target, arrival => $arrival);
             $body->add_to_neutral_entry($ship->combat);
         }
     }
     if ($attack_group->{number_of_docks} > 0) {
+        my $distance = $body->calculate_distance_to_target($target);
+        my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
+        my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
         my $ag = $body->ships->new({
             type        => "attack_group",
-            name        => "Attack Group",
+            name        => "Attack Group SP",
             speed       => $attack_group->{speed},
             combat      => $attack_group->{combat},
             stealth     => $attack_group->{stealth},
             payload     => $payload,
             hold_size   => $attack_group->{hold_size},
-            fleet_speed => 1,
+            fleet_speed => $fleet_speed,
             berth_level => 1,
             body_id     => $body->id,
             task        => 'Docked',
