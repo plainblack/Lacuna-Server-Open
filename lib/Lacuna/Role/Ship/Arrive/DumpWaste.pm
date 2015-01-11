@@ -124,7 +124,6 @@ after send => sub {
           $waste_sent = $room;
         }
         $payload->{resources}->{waste} += $waste_sent;
-        $payload->{resources}->{spam} = "spam";
         $self->payload($payload);
     }
     else {
@@ -134,7 +133,7 @@ after send => sub {
         else {
           $waste_sent = $self->hold_size;
         }
-        $self->payload({ resources => { waste => $waste_sent }, test => { spam => 1 }});
+        $self->payload({ resources => { waste => $waste_sent }});
     }
     $self->body->spend_waste($waste_sent)->update;
     $self->update;

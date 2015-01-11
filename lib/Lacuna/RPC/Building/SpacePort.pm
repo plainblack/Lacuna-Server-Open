@@ -422,7 +422,6 @@ sub send_ship_types {
             speed       => $attack_group->{speed},
             combat      => $attack_group->{combat},
             stealth     => $attack_group->{stealth},
-            payload     => $payload,
             hold_size   => $attack_group->{hold_size},
             fleet_speed => $fleet_speed,
             berth_level => 1,
@@ -430,7 +429,7 @@ sub send_ship_types {
             task        => 'Docked',
             number_of_docks => $attack_group->{number_of_docks},
           })->insert;
-        $ag->send(target => $target, arrival => $arrival);
+        $ag->send(target => $target, arrival => $arrival, payload => $payload);
         $body->add_to_neutral_entry($attack_group->{combat});
     }
     return $self->get_fleet_for($session_id, $body_id, $target_params);
