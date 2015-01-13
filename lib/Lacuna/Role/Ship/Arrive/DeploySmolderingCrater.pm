@@ -39,12 +39,11 @@ after handle_arrival_procedures => sub {
 
     # deploy the craters
     my $body_attacked = $self->foreign_body;
-    my $deployed = 0;
-    for $deployed (1..$thud_num) {
+    my $craters = 0;
+    for (1..$thud_num) {
         my $body_attacked = $self->foreign_body;
         my ($x, $y) = eval{$body_attacked->find_free_space};
         if ($@) {
-            $deployed--;
             last;
         }
         else {
@@ -57,6 +56,7 @@ after handle_arrival_procedures => sub {
             $deployed->start_work({},3600 * randint(24,168))->update;
             $body_attacked->needs_surface_refresh(1);
             $body_attacked->update;
+            $craters++;
         }
     }
     
@@ -66,7 +66,7 @@ after handle_arrival_procedures => sub {
             tags        => ['Attack','Alert'],
             filename    => 'thud_hit_target.txt',
             params      => [
-                            $deployed,
+                            $craters,
                             $thud_num,
                             $body_attacked->x,
                             $body_attacked->y,
@@ -75,7 +75,7 @@ after handle_arrival_procedures => sub {
     }
 
     # notify attacked
-    unless ($body_attacked->empire_id && $body_attacked->empire->skip_attack_messages) {
+    unless ($craters > 0 and $body_attacked->empire_id && $body_attacked->empire->skip_attack_messages) {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'thud_hit_us.txt',

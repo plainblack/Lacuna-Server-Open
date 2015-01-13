@@ -14,16 +14,19 @@ after handle_arrival_procedures => sub {
         for my $key ( sort keys %{$payload->{fleet}}) {
             if ($payload->{fleet}->{$key}->{type} eq "sweeper") {
                 for my $num (1..$payload->{fleet}->{$key}->{quantity}) {
-                    my $ship = Lacuna->db->resultset('Ships')->new({type => "sweeper"});
-                    $ship->name($payload->{fleet}->{$key}->{name});
-                    $ship->body_id($self->body_id);
-                    $ship->speed($payload->{fleet}->{$key}->{speed});
-                    $ship->combat($payload->{fleet}->{$key}->{combat});
-                    $ship->stealth($payload->{fleet}->{$key}->{stealth});
-                    $ship->hold_size(0);
-                    $ship->date_available(DateTime->now);
-                    $ship->date_started(DateTime->now);
-                    $ship->insert;
+                    my $ship = Lacuna->db->resultset('Ships')->new({
+                        type           => "sweeper",
+                        name           => $payload->{fleet}->{$key}->{name},
+                        shipyard_id    => 42,
+                        speed          => $payload->{fleet}->{$key}->{speed},
+                        combat         => $payload->{fleet}->{$key}->{combat},
+                        stealth        => $payload->{fleet}->{$key}->{stealth},
+                        hold_size      => 0,
+                        date_available => DateTime->now,
+                        date_started   => DateTime->now,
+                        body_id        => $self->body_id,
+                        task           => "Docked",
+                    })->insert;
                 }
             }
         }

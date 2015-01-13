@@ -314,9 +314,10 @@ sub send_ship_types {
             berth_level => {'<=' => $max_berth },
         });
         # handle optional parameters
-        $ships_rs = $ships_rs->search({ speed => {'>=' => $type_param->{speed}}}) if defined $type_param->{speed};
-        $ships_rs = $ships_rs->search({ stealth => {'>=' => $type_param->{stealth}}}) if defined $type_param->{stealth};
-        $ships_rs = $ships_rs->search({ combat => {'>=' => $type_param->{combat}}}) if defined $type_param->{combat};
+        $ships_rs = $ships_rs->search({ speed =>   $type_param->{speed}}) if defined $type_param->{speed};
+        $ships_rs = $ships_rs->search({ stealth => $type_param->{stealth}}) if defined $type_param->{stealth};
+        $ships_rs = $ships_rs->search({ combat =>  $type_param->{combat}}) if defined $type_param->{combat};
+        $ships_rs = $ships_rs->search({ name =>    $type_param->{name}}) if defined $type_param->{name};
         if ($ships_rs->count < $quantity) {
             confess [1009, "Cannot find $quantity of $type ships."];
         }
@@ -417,16 +418,19 @@ sub send_ship_types {
         my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
         my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
         my $ag = $body->ships->new({
-            type        => "attack_group",
-            name        => "Attack Group SP",
-            speed       => $attack_group->{speed},
-            combat      => $attack_group->{combat},
-            stealth     => $attack_group->{stealth},
-            hold_size   => $attack_group->{hold_size},
-            fleet_speed => $fleet_speed,
-            berth_level => 1,
-            body_id     => $body->id,
-            task        => 'Docked',
+            type            => "attack_group",
+            name            => "Attack Group SP",
+            shipyard_id     => "23",
+            speed           => $attack_group->{speed},
+            combat          => $attack_group->{combat},
+            stealth         => $attack_group->{stealth},
+            hold_size       => $attack_group->{hold_size},
+            date_available  => DateTime->now,
+            date_started    => DateTime->now,
+            fleet_speed     => $fleet_speed,
+            berth_level     => 1,
+            body_id         => $body->id,
+            task            => 'Docked',
             number_of_docks => $attack_group->{number_of_docks},
           })->insert;
         $ag->send(target => $target, arrival => $arrival, payload => $payload);

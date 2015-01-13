@@ -38,12 +38,11 @@ after handle_arrival_procedures => sub {
 
     # deploy the bleeders
     my $body_attacked = $self->foreign_body;
-    my $deployed = 0;
-    for $deployed (1..$bleed_num) {
+    my $bleeders = 0;
+    for (1..$bleed_num) {
         my $body_attacked = $self->foreign_body;
         my ($x, $y) = eval{$body_attacked->find_free_space};
         if ($@) {
-            $deployed--;
             last;
         }
         else {
@@ -56,6 +55,7 @@ after handle_arrival_procedures => sub {
             $deployed->finish_upgrade;
             $body_attacked->needs_surface_refresh(1);
             $body_attacked->update;
+            $bleeders++;
         }
     }
     
@@ -65,7 +65,7 @@ after handle_arrival_procedures => sub {
             tags        => ['Attack','Alert'],
             filename    => 'bleeder_deployed.txt',
             params      => [
-                            $deployed,
+                            $bleeders,
                             $bleed_num,
                             $body_attacked->x,
                             $body_attacked->y,
