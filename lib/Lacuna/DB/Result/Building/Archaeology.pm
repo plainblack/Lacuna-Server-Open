@@ -637,7 +637,7 @@ sub search_for_glyph {
     $body->update;
     $self->start_work({
         ore_type    => $ore,
-    }, 60*60*6)->update;
+    }, 60*60*6 - 600 )->update;
 }
 
 before finish_work => sub {
