@@ -13,6 +13,7 @@
  - Mod: Propaganda doesn't count as often for missions.
  - Mod: incoming ships list ordered correctly.
  - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assassinated/Abducted.
+ - Add: Essentia veins can be drained.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
