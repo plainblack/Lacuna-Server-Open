@@ -19,7 +19,9 @@ around view => sub {
     my $building = $self->get_building($empire, $building_id);
     my $out = $orig->($self, $empire, $building);
 
-    $out->{building}{drain_capable} = int($building->work_seconds_remaining() / (30 * 24 * 60 * 60));
+    my $body = $building->body;
+    $out->{building}{drain_capable} = $body->happiness >= 0 ?
+        int($building->work_seconds_remaining() / (30 * 24 * 60 * 60)) : 0;
 
     return $out;
 };
@@ -28,6 +30,10 @@ sub drain {
     my ($self, $session_id, $building_id, $times) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
+
+    my $body = $building->body;
+    confess [1010, "Cannot drain essentia from unhappy mines."]
+        unless $body->happiness >= 0;
 
     $times ||= 1;
     my $days = $times * 30;
