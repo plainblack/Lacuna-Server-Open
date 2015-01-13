@@ -34,7 +34,7 @@ sub drain {
 
     my $work_reduction = $days * 24 * 60 * 60;
     confess [1010, "The essentia vein does not have $days days left on it."]
-        unless $building->work_ends > DateTime->now->add(seconds => $work_reduction);
+        unless $building->work_seconds_remaining > $work_reduction;
 
     $empire->add_essentia({ 
                     amount  => $days,
