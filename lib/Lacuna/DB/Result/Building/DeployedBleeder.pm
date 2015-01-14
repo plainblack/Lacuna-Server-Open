@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
+use List::Util qw(shuffle);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH INFLATION);
 
 with 'Lacuna::Role::Building::IgnoresUniversityLevel';
@@ -37,9 +38,45 @@ after finish_upgrade => sub {
     my $self = shift;
     $self->discard_changes;
 
-    if ($self->level < 30) {
-        $self->start_upgrade(undef, 1);
+    if ($self->level >= 30) {
+        my $body_mult = $self->body;
+        my ($x, $y) = eval{$body_mult->find_free_space};
+        my $place = 0;
+        if ($@) {
+            my ($building) = shuffle grep {
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Fissure') and
+                    !($_->class =~ /^Lacuna::DB::Result::Building::LCOT/) and
+                    ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Module::Parliament')
+            }
+            @{$body_mult->building_cache};
+            if ($building) {
+                $place = 1;
+                $building->downgrade(1);
+            }
+        }
+        else {
+            $place = 1;
+            my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+                class       => 'Lacuna::DB::Result::Building::DeployedBleeder',
+                x           => $x,
+                y           => $y,
+            });
+            $body_mult->build_building($deployed, 1);
+            $deployed->finish_upgrade;
+            $body_mult->needs_surface_refresh(1);
+            $body_mult->update;
+        }
+        if ($place) {
+            $self->level(29);
+            $self->update;
+        }
     }
+    $self->start_upgrade(undef, 1) if ($self->level < 30);
 };
 
 sub finish_upgrade_news

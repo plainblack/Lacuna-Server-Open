@@ -14,6 +14,8 @@
  - Mod: incoming ships list ordered correctly.
  - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assassinated/Abducted.
  - Add: Essentia veins can be drained.
+ - Mod: Archaeology searches now take 5 hours, 50 minutes to complete. (thanks tmtowtdi!)
+ - Mod: Bleeders replicate.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
