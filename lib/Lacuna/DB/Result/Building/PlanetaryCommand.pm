@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
