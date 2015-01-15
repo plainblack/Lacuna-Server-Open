@@ -43,7 +43,7 @@ after handle_arrival_procedures => sub {
     for my $key (sort keys %{$payload->{fleet}}) {
         if ($payload->{fleet}->{"$key"}->{type} eq "sweeper") {
             $new_quantity += $payload->{fleet}->{"$key"}->{quantity};
-            $new_combat += $payload->{fleet}->{"$key"}->{combat};
+            $new_combat += $payload->{fleet}->{"$key"}->{combat} * $payload->{fleet}->{"$key"}->{quantity};
             $new_stealth = $payload->{fleet}->{"$key"}->{stealth} if ($payload->{fleet}->{"$key"}->{stealth} < $new_stealth);
             $new_speed = $payload->{fleet}->{"$key"}->{speed} if ($payload->{fleet}->{"$key"}->{speed} < $new_speed);
             $new_payload->{fleet}->{"$key"} = $payload->{fleet}->{"$key"};
