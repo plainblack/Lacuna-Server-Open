@@ -391,6 +391,9 @@ sub _adjust_essentia {
                     $self->$type(0);
                 }
             }
+            if ($residual < 0) {
+                $self->essentia_free($self->essentia_free + $residual);
+            }
         }
         else {
             $self->$type($residual);
