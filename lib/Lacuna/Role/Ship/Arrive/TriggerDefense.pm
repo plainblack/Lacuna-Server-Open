@@ -3,7 +3,7 @@ package Lacuna::Role::Ship::Arrive::TriggerDefense;
 use strict;
 use Moose::Role;
 use List::Util qw(shuffle);
-use Lacuna::Util qw(randint);
+use Lacuna::Util qw(commify randint);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -108,7 +108,7 @@ sub damage_in_combat {
 
                 if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $ships_destroyed;
-                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "a".$damage;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "a".commify(int($damage));
                 }
                 else {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
@@ -116,14 +116,14 @@ sub damage_in_combat {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} = $ships_destroyed;
-                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "b".$damage;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "b".commify(int($damage));
                 }
                 $damage = 0;
             }
             else {
                 if ($return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}) {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
-                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "c".$damage;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "c".commify(int($damage));
                 }
                 else {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{body_id} = $abid;
@@ -131,7 +131,7 @@ sub damage_in_combat {
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_id} = $self->body->empire_id;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{emp_name} = $self->body->empire->name;
                     $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{number} += $payload->{fleet}->{"$key"}->{quantity};
-                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "d".$damage;
+                    $return->{$abid}->{$payload->{fleet}->{"$key"}->{type}}->{debug} = "d".commify(int($damage));
                 }
                 $damage -= $combat_part;
                 $del_keys{"$key"} = 1;
@@ -152,7 +152,7 @@ sub damage_in_combat {
         $return->{$abid}->{$self->type}->{emp_id} = $self->body->empire_id;
         $return->{$abid}->{$self->type}->{emp_name} = $self->body->empire->name;
         $return->{$abid}->{$self->type}->{number} = 1;
-        $return->{$abid}->{$self->type}->{debug} = $damage;
+        $return->{$abid}->{$self->type}->{debug} = commify(int($damage));
     }
     $self->update;
     return $return;
@@ -383,7 +383,6 @@ sub system_saw_combat {
         next unless $dbody->isa('Lacuna::DB::Result::Map::Body::Planet');
         my ($saws, $combat) = saw_stats($dbody);
         next unless $combat > 0;
-        my $bcomb = $combat;
         my $dbid = $dbody->id;
         $def_cnt++;
         $combat *= 1.55 if ($dbid == $attacked_body->id);
@@ -398,7 +397,7 @@ sub system_saw_combat {
         $defense_stat->{$dbid}->{"Saws"}->{body_name} = $dbody->name;
         $defense_stat->{$dbid}->{"Saws"}->{emp_id} = $dbody->empire_id;
         $defense_stat->{$dbid}->{"Saws"}->{emp_name} = $dbody->empire->name;
-        $defense_stat->{$dbid}->{"Saws"}->{debug} = sprintf("%d:%d",int($bcomb),int($combat));
+        $defense_stat->{$dbid}->{"Saws"}->{debug} = commify(int($combat));
     }
     $total_combat *= $def_cnt if $is_station;
     return if $total_combat < 1;
@@ -491,7 +490,8 @@ sub saw_stats {
     my @defending_saws;
     for my $saw (@planet_saws) {
         $cnt++;
-        $planet_combat += int(($saw->effective_efficiency * (1.55 ** $saw->effective_level))/10);
+        $planet_combat += int($saw->effective_level * $saw->effective_efficiency *
+                              (1.75 ** $saw->effective_level));
         push @defending_saws, $saw;
         last if $cnt >= 10;
     }

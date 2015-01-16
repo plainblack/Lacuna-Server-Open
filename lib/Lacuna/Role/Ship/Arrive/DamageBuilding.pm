@@ -23,18 +23,22 @@ after handle_arrival_procedures => sub {
         snarks => {
             count => 0,
             target => [],
+            display => "Snark Warheads",
         },
         observatory_seeker => {
             count => 0,
             target => [],
+            display => "Observatory Seekers",
         },
         spaceport_seeker => {
             count => 0,
             target => [],
+            display => "Spaceport Seekers",
         },
         security_ministry_seeker => {
             count => 0,
             target => [],
+            display => "Security Ministry Seekers",
         },
     );
     if ($self->type eq "attack_group") {
@@ -124,31 +128,36 @@ after handle_arrival_procedures => sub {
                 ($_->efficiency > 0) and
                 ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater') and
                 ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
-                ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge') and
-                ($_->class ne 'Lacuna::DB::Result::Building::Permanent::CitadelOfKnope')
+                ($_->class ne 'Lacuna::DB::Result::Building::TheDillonForge')
             } @{$body_attacked->building_cache};
 
     my $report;
-    push @{$report}, (['Type','Number'],['Buildings', scalar @all_builds]);
+  
+    push @{$report}, (['Type','Number']);
     for my $sn_type ("observatory_seeker", "security_ministry_seeker",
                       "spaceport_seeker", "snarks") {
         if ($snarks{$sn_type}->{count} > 0) {
             push @{$report}, [
-                $sn_type,
+                $snarks{$sn_type}->{display},
                 $snarks{$sn_type}->{count},
             ];
         }
     }
+    push @{$report}, (['Buildings', scalar @all_builds]);
+
     if ( $snarks{snarks}->{count}/4 > scalar @all_builds) {
-#More than capable of zeroing all buildings
         for my $building (@all_builds) {
             $building->spend_efficiency(100);
             $building->update;
+            push @{$report}, [
+                $building->name,
+                100,
+            ];
         }
-#Deal with email and log results
     }
     else {
         my $building;
+        my %treport;
         for my $sn_type ("observatory_seeker", "security_ministry_seeker",
                       "spaceport_seeker", "snarks") {
             my @tbuilds;
@@ -166,11 +175,11 @@ after handle_arrival_procedures => sub {
             if ($snarks{$sn_type}->{count}/4 > scalar @tbuilds) {
                 for $building (@tbuilds) {
                     $building->spend_efficiency(100)->update;
-#Deal with email and log results
+                    $treport{"$building->name"} = 100;
                 }
             }
             else {
-                for (1..$snarks{$sn_type}->{count}) {
+                BOOM: for (1..$snarks{$sn_type}->{count}) {
                     my $amount = randint(10,70);
                     ($building) = 
                         sort {
@@ -182,22 +191,31 @@ after handle_arrival_procedures => sub {
                         } @tbuilds;
                     if ($building) {
                         $building->spend_efficiency($amount)->update;
-#Deal with email and log results
+                        $treport{"$building->name"} = 100 - $building->efficiency;
+                    }
+                    else {
+                        last BOOM;
                     }
                 }
             }
+        }
+        for my $key (sort keys %treport) {
+            push @{$report}, [
+                $key,
+                $treport{"$key"},
+            ];
+            
         }
     }
 
     
 #Send email, n19 and battle log
     # let everyone know what's going on
-    my $building_name = "Trash";
     unless ($body_attacked->empire->skip_attack_messages) {
         $body_attacked->empire->send_predefined_message(
         tags        => ['Attack','Alert'],
         filename    => 'ship_hit_building.txt',
-        params      => [$self->type_formatted, $building_name, $body_attacked->id,
+        params      => [$self->type_formatted, $body_attacked->id,
                         $body_attacked->name, $self->body->empire_id, $self->body->empire->name],
         attachments => { table => $report },
             );
@@ -207,11 +225,11 @@ after handle_arrival_procedures => sub {
             tags        => ['Attack','Alert'],
             filename    => 'our_ship_hit_building.txt',
             params      => [$self->type_formatted, $body_attacked->x, $body_attacked->y,
-                            $body_attacked->name, $building_name, 100],
+                            $body_attacked->name ],
             attachments => { table => $report },
             );
     }
-    $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged the %s on %s.',$building_name, $body_attacked->name));
+    $body_attacked->add_news(70, sprintf('An attack ship screamed out of the sky and damaged buildings on %s.', $body_attacked->name));
 
     my $log = Lacuna->db->resultset('Log::Battles')->new({
         date_stamp => DateTime->now,
@@ -225,8 +243,8 @@ after handle_arrival_procedures => sub {
         defending_empire_name   => $body_attacked->empire->name,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
-        defending_unit_name     => sprintf("%s (%d,%d)", $building_name, 0, 0),
-        defending_type          => $building_name,
+        defending_unit_name     => sprintf("%s (%d,%d)", "ouch", 0, 0),
+        defending_type          => "building_name",
         attacked_empire_id      => $body_attacked->empire_id,
         attacked_empire_name    => $body_attacked->empire->name,
         attacked_body_id        => $body_attacked->id,

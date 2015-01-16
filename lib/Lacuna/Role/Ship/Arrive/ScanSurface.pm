@@ -65,7 +65,7 @@ after handle_arrival_procedures => sub {
     $self->body->empire->send_predefined_message(
         tags        => ['Attack','Alert'],
         filename    => 'scanner_data.txt',
-        params      => [$self->type_formatted, $self->type_formatted, $self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
+        params      => ["Scanner", "Scanner", $self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name],
         attachments  => {
             map => {
                 surface         => $body_attacked->surface,
@@ -80,7 +80,7 @@ after handle_arrival_procedures => sub {
             $body_attacked->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
                 filename    => 'we_were_scanned.txt',
-                params      => [$body_attacked->id, $body_attacked->name, $self->type_formatted, $self->body->empire_id, $self->body->empire->name],
+                params      => [$body_attacked->id, $body_attacked->name, "Scanner", $self->body->empire_id, $self->body->empire->name],
             );
         }
         $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));

@@ -283,13 +283,13 @@ start with "BFG" will not be deleted.
 
 Keys are:
 
-=head5 tags
+=head4 tags
 
 An array reference of tags.  Messages with any of these tags will be
 eligible for deletion.  Default is any and all tags (no tag evaluation).
 Tags are given as a set, so are automatically "or"ed together.
 
-=head5 subject
+=head4 subject
 
 A subject line to match.  Use C<%> to represent zero or more characters
 in that position, such as "Pass:%" to select all messages whose subject
@@ -299,7 +299,7 @@ evaluation).
 The subject may also be passed in as an array object, in which case it
 is treated as tags above: a set to exactly match as a set of "or"ed values.
 
-=head5 from
+=head4 from
 
 An array reference of from empire names.  Full names are required.
 

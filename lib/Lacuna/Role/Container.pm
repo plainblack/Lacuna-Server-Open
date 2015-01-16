@@ -134,7 +134,7 @@ sub format_description_of_payload {
     #fleets
     undef $scratch;
     foreach my $fleet (sort keys %{$payload->{fleet}}) {
-        my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, combat: %s #: %d)' ;
+        my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, combat: %s #: %s)' ;
         push @{$scratch},
             sprintf($pattern,
                 $payload->{fleet}->{$fleet}->{type},
