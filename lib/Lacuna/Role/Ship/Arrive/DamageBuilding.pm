@@ -145,19 +145,16 @@ after handle_arrival_procedures => sub {
     }
     push @{$report}, (['Buildings', scalar @all_builds]);
 
+    my %treport;
     if ( $snarks{snarks}->{count}/4 > scalar @all_builds) {
         for my $building (@all_builds) {
             $building->spend_efficiency(100);
             $building->update;
-            push @{$report}, [
-                $building->name,
-                100,
-            ];
+            $treport{"$building->name"} = 100;
         }
     }
     else {
         my $building;
-        my %treport;
         for my $sn_type ("observatory_seeker", "security_ministry_seeker",
                       "spaceport_seeker", "snarks") {
             my @tbuilds;
@@ -199,13 +196,12 @@ after handle_arrival_procedures => sub {
                 }
             }
         }
-        for my $key (sort keys %treport) {
-            push @{$report}, [
-                $key,
-                $treport{"$key"},
-            ];
-            
-        }
+    }
+    for my $key (sort keys %treport) {
+        push @{$report}, [
+            $key,
+            $treport{"$key"},
+        ];
     }
 
     

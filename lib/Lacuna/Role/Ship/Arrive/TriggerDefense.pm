@@ -462,6 +462,7 @@ sub notify_battle_results {
                            ],
             attachments => { table => $report },
         );
+# Send an email to defender as well
 
     if ($self->foreign_body->empire) {
         $self->foreign_body->add_news(20,
@@ -491,7 +492,7 @@ sub saw_stats {
     for my $saw (@planet_saws) {
         $cnt++;
         $planet_combat += int($saw->effective_level * $saw->effective_efficiency *
-                              (1.75 ** $saw->effective_level));
+                              (1.75 ** ($saw->effective_level/2)) + 0.5);
         push @defending_saws, $saw;
         last if $cnt >= 10;
     }
