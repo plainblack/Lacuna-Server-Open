@@ -377,7 +377,19 @@ sub send {
     $self->roundtrip($options{roundtrip} || 0);
     $self->direction($options{direction} || 'out');
     my $arrival = $options{arrival} || DateTime->now->add(seconds=>$self->calculate_travel_time($options{target}));
+
+    my $five_minute = DateTime->now->add(minutes=>5);
+    if ($arrival < $five_minute) {
+        $arrival = $five_minute;
+    }
+
+    my $two_months  = DateTime->now->add(days=>60);
+    if ($arrival > $two_months) {
+        confess [1009, "Cannot set a speed that will take over 60 days."];
+    }
+
     $self->date_available($arrival);
+
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
         $self->foreign_body_id($options{target}->id);
         $self->foreign_body($options{target});
@@ -423,7 +435,7 @@ sub send {
         $ag_chk += $ships_rs->get_column('number_of_docks')->sum;
     }
 
-    if ($seconds2arrive > 300 && $ag_chk > 1) {  # Only consolidate if ships take longer than 20 minutes
+    if ($seconds2arrive > 180 && $ag_chk > 1) {  # Only consolidate if ships take longer than 20 minutes
         my $payload = $self->payload;
 #        $payload->{debug} = {
 #            old_type => $self->type,

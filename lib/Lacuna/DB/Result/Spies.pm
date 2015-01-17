@@ -1972,9 +1972,13 @@ sub steal_planet {
                (grep { $ship->type eq $_ }
                      @{[ 'colony_ship',
                          'short_range_colony_ship',
+                         'space_station',
                        ]})) {
             # Colony ships show from capitol.
             $ship->body_id($defender_capitol_id);
+            my $payload = $ship->payload;
+            $payload->{colony_cost} = 0;
+            $ship->payload($payload);
             $ship->update;
         }
         else {

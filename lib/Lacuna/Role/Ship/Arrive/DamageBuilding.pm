@@ -3,6 +3,7 @@ package Lacuna::Role::Ship::Arrive::DamageBuilding;
 use strict;
 use Moose::Role;
 use Lacuna::Util qw(randint);
+use List::Util qw(shuffle);
 use DateTime;
 
 after handle_arrival_procedures => sub {
@@ -144,21 +145,22 @@ after handle_arrival_procedures => sub {
         }
     }
     push @{$report}, (['Buildings', scalar @all_builds]);
+    push @{$report}, (['Name', '% Done']);
 
     my %treport;
     if ( $snarks{snarks}->{count}/4 > scalar @all_builds) {
         for my $building (@all_builds) {
             $building->spend_efficiency(100);
             $building->update;
-            $treport{"$building->name"} = 100;
+            my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
+            $treport{"$hash_id"} = 100;
         }
     }
     else {
-        my $building;
         for my $sn_type ("observatory_seeker", "security_ministry_seeker",
                       "spaceport_seeker", "snarks") {
             my @tbuilds;
-            if ($snarks{$sn_type}->{count}) {
+            if (@{$snarks{$sn_type}->{target}}) {
                 for my $tb ( @{$snarks{$sn_type}->{target}}) {
                     my @temp = $body_attacked->get_buildings_of_class($tb);
                     if (@temp) {
@@ -170,27 +172,26 @@ after handle_arrival_procedures => sub {
                 @tbuilds = @all_builds;
             }
             if ($snarks{$sn_type}->{count}/4 > scalar @tbuilds) {
-                for $building (@tbuilds) {
+                for my $building (@tbuilds) {
                     $building->spend_efficiency(100)->update;
-                    $treport{"$building->name"} = 100;
+                    my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
+                    $treport{"$hash_id"} = 100;
                 }
             }
             else {
-                BOOM: for (1..$snarks{$sn_type}->{count}) {
+                BOOM: for my $cnt (1..$snarks{$sn_type}->{count}) {
                     my $amount = randint(10,70);
-                    ($building) = 
-                        sort {
-                            $b->efficiency <=> $a->efficiency ||
-                            rand() <=> rand()
-                        }
+                    my ($building) = shuffle
                         grep {
                             ($_->efficiency > 0)
                         } @tbuilds;
                     if ($building) {
                         $building->spend_efficiency($amount)->update;
-                        $treport{"$building->name"} = 100 - $building->efficiency;
+                        my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
+                        $treport{"$hash_id"} = 100 - $building->efficiency;
                     }
                     else {
+                        $treport{"ZZcnt"} = $cnt;
                         last BOOM;
                     }
                 }

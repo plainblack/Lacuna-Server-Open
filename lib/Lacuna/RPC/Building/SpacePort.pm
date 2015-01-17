@@ -222,8 +222,8 @@ sub send_ship {
     if ($ship->hostile_action) {
         $empire->current_session->check_captcha;
     }
-    $body->add_to_neutral_entry($ship->combat);
     $ship->send(target => $target);
+    $body->add_to_neutral_entry($ship->combat);
     return {
         ship    => $ship->get_status,
         status  => $self->format_status($empire),
@@ -278,6 +278,18 @@ sub send_ship_types {
     my $body    = $self->get_body($empire, $body_id);
     my $target  = $self->find_target($target_params);
     my $arrival = $self->find_arrival($arrival_params);
+
+    my $five_minute = DateTime->now->add(minutes=>5);
+    if ($arrival < $five_minute) {
+        $arrival = $five_minute;
+#        confess [1009, "Cannot set a speed that will take less than five minutes."];
+    }
+
+    my $two_months  = DateTime->now->add(days=>60);
+    if ($arrival > $two_months) {
+        confess [1009, "Cannot set a speed that will take over 60 days."];
+    }
+
 
     # calculate the total ships before the expense of any database operations.
     my $total_ships = 0;
@@ -334,10 +346,6 @@ sub send_ship_types {
 #Check speed of ship.  If it can not make it to the target in time, fail
 #If time to target is longer than 60 days, fail.
         my $seconds_to_target = $ship->calculate_travel_time($target);
-        if ($seconds_to_target > 5184000) {
-            confess [1009, "Cannot set a speed that will take 60 days or more."];
-        }
-
         my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
         if ($earliest > $arrival) {
             confess [1009, "Cannot set a speed earlier than possible arrival time."];
@@ -450,6 +458,11 @@ sub send_fleet {
   }
   my @fleet;
   my $speed = 999999999;
+  my $distance = $self->body->calculate_distance_to_target($target);
+  my $max_speed = $distance  * 12;  # Minimum time to arrive is five minutes
+  my $min_speed = int($distance/1440 + 0.5); # Max time to arrive is two months
+  $min_speed = 1 if $min_speed < 1;
+
   my $excavator = 0;
   for my $ship_id (@$ship_ids) {
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
@@ -474,8 +487,12 @@ sub send_fleet {
   unless ($set_speed >= 0) {
     confess [1009, 'Set speed cannot be less than zero.'];
   }
+  unless ($set_speed >= $min_speed) {
+    confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
+  }
 #If time to target is longer than 60 days, fail.
   $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
+  $speed = $max_speed if ($speed > $max_speed);
   my @ret;
   my $captcha_check = 1;
 

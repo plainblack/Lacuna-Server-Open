@@ -454,7 +454,8 @@ sub notify_battle_results {
         }
     }
 
-    $self->body->empire->send_predefined_message(
+    unless ($self->foreign_body->empire_id && $self->foreign_body->empire->skip_attack_messages) {
+        $self->foreign_body->empire->send_predefined_message(
             tags        => ['Attack'],
             filename    => 'attack_summary.txt',
             params      => [$self->foreign_body->id,
@@ -462,7 +463,17 @@ sub notify_battle_results {
                            ],
             attachments => { table => $report },
         );
-# Send an email to defender as well
+    }
+    unless ($self->body->empire_id && $self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack'],
+            filename    => 'attack_summary.txt',
+            params      => [$self->foreign_body->id,
+                            $self->foreign_body->name,
+                           ],
+            attachments => { table => $report },
+        );
+    }
 
     if ($self->foreign_body->empire) {
         $self->foreign_body->add_news(20,
