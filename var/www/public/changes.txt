@@ -17,6 +17,7 @@
  - Mod: Archaeology searches now take 5 hours, 50 minutes to complete. (thanks tmtowtdi!)
  - Mod: Bleeders replicate.
  - Mod: Disable chat for sitters.
+ - Add: pod_delay returned as part of PCC view
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.

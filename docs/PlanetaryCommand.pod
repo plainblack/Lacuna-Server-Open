@@ -28,6 +28,7 @@ Command extends the view method to include a C<planet> section.
       "bauxite_stored" : 1235,
       ...
     },
+    "pod_delay" : 70515,  # seconds between supply pod sendings
     "planet" : {
         "id" : "id-goes-here",
         "x" : -4,

@@ -72,18 +72,23 @@ sub incoming_supply_chains {
     return Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->search({ target_id => $self->body_id });
 }
 
+sub pod_delay {
+    my ($self, $level) = @_;
+
+    $level    //= $self->effective_level;
+    my $delay   = int(
+                      28.747 * $level * $level
+                      - 2877.4 * $level
+                      + 89249.
+                     );
+
+    return $delay;
+}
+
 sub sent_a_pod
 {
-    my ($self) = @_;
-
-    my $level    = $self->effective_level;
-    my $cooldown = int(
-                         28.747 * $level * $level
-                       - 2877.4 * $level
-                       + 89249.
-                      );
-
-    $self->start_work({}, $cooldown);
+    my $self = shift;
+    $self->start_work({}, $self->pod_delay);
 }
 
 sub can_send_pod
