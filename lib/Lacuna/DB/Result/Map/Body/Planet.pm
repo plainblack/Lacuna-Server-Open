@@ -512,6 +512,8 @@ around get_status => sub {
                 $out->{empire}{alignment} = 'self';
                 $out->{plots_available} = $self->plots_available;
                 $out->{building_count}  = $self->building_count;
+                $out->{build_queue_size}= $self->build_queue_size;
+                $out->{build_queue_len} = $self->build_queue_length;
                 $out->{population}      = $self->population;
                 $out->{water_capacity}  = $self->water_capacity;
                 $out->{water_stored}    = $self->water_stored;
@@ -830,14 +832,27 @@ sub can_build_building {
     return $self;
 }
 
+has build_queue_size => (
+                         is => 'ro',
+                         lazy => 1,
+                         default => sub {
+                             my $self = shift;
+                             my $max = 1;
+                             my $dev_min = $self->development;
+                             $max += $dev_min->effective_level if $dev_min;
+                             $max;
+                         }
+                        );
+
+sub build_queue_length {
+    my $self = shift;
+    scalar @{$self->builds};
+}
+
 sub has_room_in_build_queue {
     my ($self) = shift;
-    my $max = 1;
-    my $dev_ministry = $self->development;
-    if (defined $dev_ministry) {
-        $max += $dev_ministry->effective_level;
-    }
-    my $count = @{$self->builds};
+    my $max = $self->build_queue_size;
+    my $count = $self->build_queue_length;
     if ($count >= $max) {
         confess [1009, "There's no room left in the build queue.", $max];
     }

@@ -19,6 +19,7 @@
  - Mod: Disable chat for sitters.
  - Add: pod_delay returned as part of PCC view
  - Mod: Minimum flight time: 5 Minutes, Maximum is 2 months.
+ - Add: Build queue stats (size, len) returned as part of body status.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
