@@ -75,7 +75,7 @@ after handle_arrival_procedures => sub {
     }
 
     # notify attacked
-    unless ($craters > 0 and $body_attacked->empire_id && $body_attacked->empire->skip_attack_messages) {
+    if ($craters > 0 and $body_attacked->empire_id && !$body_attacked->empire->skip_attack_messages) {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'thud_hit_us.txt',
@@ -91,16 +91,17 @@ after handle_arrival_procedures => sub {
         attacking_empire_name   => $self->body->empire->name,
         attacking_body_id       => $self->body_id,
         attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
+        attacking_unit_name     => "Thuds",
         attacking_type          => $self->type_formatted,
-        defending_empire_id     => $body_attacked->empire_id,
-        defending_empire_name   => $body_attacked->empire->name,
+        attacking_number        => $craters,
+        defending_empire_id     => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+        defending_empire_name   => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
         defending_unit_name     => '',
         defending_type          => '',
-        attacked_empire_id      => $body_attacked->empire_id,
-        attacked_empire_name    => $body_attacked->empire->name,
+        attacked_empire_id      => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+        attacked_empire_name    => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
         attacked_body_id        => $body_attacked->id,
         attacked_body_name      => $body_attacked->name,
         victory_to              => 'attacker',

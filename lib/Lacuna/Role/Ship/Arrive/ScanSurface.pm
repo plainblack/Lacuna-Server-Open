@@ -93,8 +93,9 @@ after handle_arrival_procedures => sub {
         attacking_empire_name   => $self->body->empire->name,
         attacking_body_id       => $self->body_id,
         attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
+        attacking_unit_name     => "Scanner",
         attacking_type          => $self->type_formatted,
+        attacking_number        => 1,
         defending_empire_id     => $body_attacked->empire_id &&
                                      defined $body_attacked->empire ? $body_attacked->empire_id : undef,
         defending_empire_name   => $body_attacked->empire_id &&
@@ -103,6 +104,7 @@ after handle_arrival_procedures => sub {
         defending_body_name     => $body_attacked->name,
         defending_unit_name     => '',
         defending_type          => '',
+        defending_number        => 0,
         attacked_empire_id     => $body_attacked->empire_id &&
                                      defined $body_attacked->empire ? $body_attacked->empire_id : undef,
         attacked_empire_name   => $body_attacked->empire_id &&

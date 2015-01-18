@@ -458,10 +458,6 @@ sub send_fleet {
   }
   my @fleet;
   my $speed = 999999999;
-  my $distance = $self->body->calculate_distance_to_target($target);
-  my $max_speed = $distance  * 12;  # Minimum time to arrive is five minutes
-  my $min_speed = int($distance/1440 + 0.5); # Max time to arrive is two months
-  $min_speed = 1 if $min_speed < 1;
 
   my $excavator = 0;
   for my $ship_id (@$ship_ids) {
@@ -478,6 +474,14 @@ sub send_fleet {
     $speed = $ship->speed if ( $speed > $ship->speed );
     push @fleet, $ship_id;
   }
+
+  my $tmp_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($fleet[0]);
+  my $body = $tmp_ship->body;
+  my $distance = $body->calculate_distance_to_target($target);
+  my $max_speed = $distance  * 12;  # Minimum time to arrive is five minutes
+  my $min_speed = int($distance/1440 + 0.5); # Max time to arrive is two months
+  $min_speed = 1 if $min_speed < 1;
+
   unless ($excavator <= 1) {
     confess [1010, 'Only one Excavator may be sent to a body by this empire.'];
   }
@@ -487,12 +491,14 @@ sub send_fleet {
   unless ($set_speed >= 0) {
     confess [1009, 'Set speed cannot be less than zero.'];
   }
-  unless ($set_speed >= $min_speed) {
-    confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
-  }
 #If time to target is longer than 60 days, fail.
   $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
   $speed = $max_speed if ($speed > $max_speed);
+
+  unless ($speed >= $min_speed) {
+    confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
+  }
+
   my @ret;
   my $captcha_check = 1;
 

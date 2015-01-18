@@ -17,9 +17,7 @@ after handle_arrival_procedures => sub {
 #   check if reasonable to assume zero out everything on planet (depends on type, etc...)
 #   if not, go thru an attack for each.
 # else return and go to next step
-# 1) Group of snarks?
-# 2) How many target buildings?
-# 3) See if reasonable that buildings get zeroed?
+
     my %snarks = (
         snarks => {
             count => 0,
@@ -82,17 +80,17 @@ after handle_arrival_procedures => sub {
             }
         }
         if ($snarkit) {
-            my $snark_impacts = 0;
+            my $snark_ships = 0;
             for my $key (keys %del_keys) {
                 delete $payload->{fleet}->{$key};
-                $snark_impacts += $del_keys{$key};
+                $snark_ships += $del_keys{$key};
             }
             $self->payload($payload);
-            $self->number_of_docks($self->number_of_docks - $snark_impacts);
+            $self->number_of_docks($self->number_of_docks - $snark_ships);
             $self->update;
         }
         else {
-            return unless $snarkit;
+            return;
         }
     }
     else {
@@ -232,21 +230,23 @@ after handle_arrival_procedures => sub {
         date_stamp => DateTime->now,
         attacking_empire_id     => $self->body->empire_id,
         attacking_empire_name   => $self->body->empire->name,
-        attacking_body_id       => $self->body_id,
+        attacking_body_id       => $self->body->id,
         attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
-        attacking_type          => $self->type_formatted,
-        defending_empire_id     => $body_attacked->empire_id,
-        defending_empire_name   => $body_attacked->empire->name,
+        attacking_unit_name     => "Snarks",
+        attacking_type          => $self->type,
+        attacking_number        => $snarks{snarks}->{count} + $snarks{security_ministry_seeker} + $snarks{observatory_seeker} + $snarks{spaceport_seeker},
+        defending_empire_id     => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+        defending_empire_name   => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
-        defending_unit_name     => sprintf("%s (%d,%d)", "ouch", 0, 0),
-        defending_type          => "building_name",
-        attacked_empire_id      => $body_attacked->empire_id,
-        attacked_empire_name    => $body_attacked->empire->name,
+        defending_unit_name     => "Buildings",
+        defending_type          => "building",
+        defending_number        => scalar @all_builds,
+        victory_to              => "attacker",
+        attacked_empire_id      => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+        attacked_empire_name    => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
         attacked_body_id        => $body_attacked->id,
         attacked_body_name      => $body_attacked->name,
-        victory_to              => 'attacker',
     });
 
     $log->insert;

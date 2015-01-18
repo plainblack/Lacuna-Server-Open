@@ -72,8 +72,8 @@ sub citadel_interaction {
         }
     }
     my $max_add = 3600 - $cooldown;
-    my $max_mult = 1 + ($max_add * $citadel->effective_efficiency * $citadel->effective_level)/3_600_000;
-    # Mult will between 1 and 4
+    my $max_mult = 1 + ($max_add * $citadel->effective_efficiency * $citadel->effective_level)/5_400_000;
+    # Mult will between 1 and 3
     return ($max_mult * $combat_def) if $no_add;
     
     my $threshold = $combat_att/10;
@@ -159,38 +159,58 @@ sub damage_in_combat {
 }
 
 sub log_attack {
-  my ($attacker, $defender, $victor) = @_;
-  my $body_attacked = $attacker->foreign_body;
-  my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
-  $logs->new({
-     date_stamp => DateTime->now,
-     attacking_empire_id     => $attacker->body->empire_id,
-     attacking_empire_name   => $attacker->body->empire->name,
-     attacking_body_id       => $attacker->body_id,
-     attacking_body_name     => $attacker->body->name,
-     attacking_unit_name     =>
-       $attacker->isa('Lacuna::DB::Result::Building') ?
-         sprintf("%s (%d,%d)", $attacker->name, $attacker->x, $attacker->y) :
-         $attacker->name,
-     attacking_type          => 
-       $attacker->isa('Lacuna::DB::Result::Building') ?
-         $attacker->name : $attacker->type_formatted,
-     defending_empire_id     => $defender->body->empire_id,
-     defending_empire_name   => $defender->body->empire->name,
-     defending_body_id       => $defender->body->id,
-     defending_body_name     => $defender->body->name,
-     defending_unit_name     => $defender->isa('Lacuna::DB::Result::Building') ?
-       sprintf("%s (%d,%d)", $defender->name, $defender->x, $defender->y) :
-       $defender->name,
-     defending_type          => 
-       $defender->isa('Lacuna::DB::Result::Building') ?
-         $defender->name : $defender->type_formatted,
-     victory_to              => $victor,
-     attacked_empire_id     => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
-     attacked_empire_name   => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
-     attacked_body_id       => $body_attacked->id,
-     attacked_body_name     => $body_attacked->name,
-  })->insert;
+    my ($self, $defense_stat, $attack_stat) = @_;
+
+    my $body_attacked = $self->foreign_body;
+
+    my $bare_hash = {
+        date_stamp              => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body->id,
+        attacking_body_name     => $self->body->name,
+
+        attacked_empire_id      => defined($body_attacked->empire) ? $body_attacked->empire_id : 0,
+        attacked_empire_name    => defined($body_attacked->empire) ? $body_attacked->empire->name : "",
+        attacked_body_id        => $body_attacked->id,
+        attacked_body_name      => $body_attacked->name,
+        victory_to              => "defender",
+    };
+
+    for my $dbid (keys %{$defense_stat}) {
+        for my $dtype (keys %{$defense_stat->{$dbid}}) {
+            my $new_hash = {};
+            %{$new_hash} = %{$bare_hash};
+            $new_hash->{attacking_unit_name}     = "";
+            $new_hash->{attacking_type}          = "";
+            $new_hash->{attacking_number}        = "";
+            $new_hash->{defending_empire_id}     = $defense_stat->{$dbid}->{$dtype}->{emp_id},
+            $new_hash->{defending_empire_name}   = $defense_stat->{$dbid}->{$dtype}->{emp_name},
+            $new_hash->{defending_body_id}       = $dbid,
+            $new_hash->{defending_body_name}     = $defense_stat->{$dbid}->{$dtype}->{body_name},
+            $new_hash->{defending_unit_name}     = $dtype,
+            $new_hash->{defending_type}          = $dtype,
+            $new_hash->{defending_number}        = $defense_stat->{$dbid}->{$dtype}->{number},
+            my $log = Lacuna->db->resultset('Log::Battles')->new($new_hash)->insert;
+        }
+    }
+    for my $abid (keys %{$attack_stat}) {
+        for my $atype (keys %{$attack_stat->{$abid}}) {
+            my $new_hash = {};
+            %{$new_hash} = %{$bare_hash};
+            $new_hash->{attacking_unit_name}     = $atype,
+            $new_hash->{attacking_type}          = $atype,
+            $new_hash->{attacking_number}        = $attack_stat->{$abid}->{$atype}->{number},
+            $new_hash->{defending_empire_id}     = "",
+            $new_hash->{defending_empire_name}   = "",
+            $new_hash->{defending_body_id}       = 0,
+            $new_hash->{defending_body_name}     = "",
+            $new_hash->{defending_unit_name}     = "",
+            $new_hash->{defending_type}          = "",
+            $new_hash->{defending_number}        = 0,
+            my $log = Lacuna->db->resultset('Log::Battles')->new($new_hash)->insert;
+        }
+    }
 }
 
 sub ship_to_ship_combat {
@@ -365,11 +385,7 @@ sub system_saw_combat {
 
     my $defending_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
                             ->search({
-                                'me.star_id' => $attacked_body->star_id,
-                                'empire.alliance_id' => { '!=' => $ship_aid },
-                            },
-                            {
-                                join => 'empire',
+                                star_id => $attacked_body->star_id,
                             });
 # Here's where we get total number of defending SAWs
 # 1) Get all Saws and total combat value
@@ -380,13 +396,17 @@ sub system_saw_combat {
 
     my $defense_stat;
     while (my $dbody = $defending_bodies->next) {
+        next unless $dbody->empire;
         next unless $dbody->isa('Lacuna::DB::Result::Map::Body::Planet');
+        if ($attack_aid) {
+            next if ($dbody->empire->alliance_id && $dbody->empire->alliance_id == $attack_aid);
+        }
         my ($saws, $combat) = saw_stats($dbody);
         next unless $combat > 0;
         my $dbid = $dbody->id;
         $def_cnt++;
         $combat *= 1.55 if ($dbid == $attacked_body->id);
-        $combat *= 1.55 if ($dbody->empire_id == $attacked_body->empire_id);
+        $combat *= 1.55 if ($dbody->empire_id == $defend_eid);
         $combat *= 1.55 if (($dbody->empire->alliance and $defend_aid != 0) and
                             ($dbody->empire->alliance_id == $defend_aid));
         $combat = citadel_interaction($dbody, $combat, $self->combat, 0);
@@ -425,6 +445,7 @@ sub notify_battle_results {
     my ($self, $defense_stat, $attack_stat) = @_;
 
     my $report;
+    my %def_eid;
     for my $dbid (keys %{$defense_stat}) {
         for my $dtype (keys %{$defense_stat->{$dbid}}) {
             push @{$report}, [
@@ -436,6 +457,7 @@ sub notify_battle_results {
                 $defense_stat->{$dbid}->{$dtype}->{number},
                 $defense_stat->{$dbid}->{$dtype}->{debug},
             ];
+            $def_eid{$defense_stat->{$dbid}->{$dtype}->{emp_id}} = 1;
         }
     }
     unshift @{$report}, (['Defenders','','','','',''],['ID','Planet','EID','Empire','Type','Number','Debug']);
@@ -453,16 +475,21 @@ sub notify_battle_results {
             ];
         }
     }
+    $self->log_attack($defense_stat, $attack_stat);
 
-    unless ($self->foreign_body->empire_id && $self->foreign_body->empire->skip_attack_messages) {
-        $self->foreign_body->empire->send_predefined_message(
-            tags        => ['Attack'],
-            filename    => 'attack_summary.txt',
-            params      => [$self->foreign_body->id,
-                            $self->foreign_body->name,
-                           ],
-            attachments => { table => $report },
-        );
+    for my $deid (keys %def_eid) {
+        my $empire = Lacuna->db->resultset('Empire')->find($deid);
+        next unless $empire;
+        unless ($empire->skip_attack_messages) {
+            $empire->send_predefined_message(
+                tags        => ['Attack'],
+                filename    => 'attack_summary.txt',
+                params      => [$self->foreign_body->id,
+                                $self->foreign_body->name,
+                               ],
+                attachments => { table => $report },
+            );
+        }
     }
     unless ($self->body->empire_id && $self->body->empire->skip_attack_messages) {
         $self->body->empire->send_predefined_message(
@@ -503,7 +530,7 @@ sub saw_stats {
     for my $saw (@planet_saws) {
         $cnt++;
         $planet_combat += int($saw->effective_level * $saw->effective_efficiency *
-                              (1.75 ** ($saw->effective_level/2)) + 0.5);
+                              (1.55 ** ($saw->effective_level/2)) + 0.5);
         push @defending_saws, $saw;
         last if $cnt >= 10;
     }

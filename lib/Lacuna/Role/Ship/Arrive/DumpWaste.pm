@@ -52,35 +52,15 @@ after handle_arrival_procedures => sub {
 
     $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
     
-    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
-    $logs->new({
-        date_stamp => DateTime->now,
-        attacking_empire_id     => $self->body->empire_id,
-        attacking_empire_name   => $self->body->empire->name,
-        attacking_body_id       => $self->body_id,
-        attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
-        attacking_type          => $self->type_formatted,
-        defending_empire_id     => $body_attacked->empire_id,
-        defending_empire_name   => $body_attacked->empire->name,
-        defending_body_id       => $body_attacked->id,
-        defending_body_name     => $body_attacked->name,
-        defending_unit_name     => '',
-        defending_type          => '',
-        attacked_empire_id      => $body_attacked->empire_id,
-        attacked_empire_name    => $body_attacked->empire->name,
-        attacked_body_id        => $body_attacked->id,
-        attacked_body_name      => $body_attacked->name,
-        victory_to              => 'attacker',
-    })->insert;
-
     # all pow
     my $done_after = 1;
+    my $number_of_scows = 0;
     if ($self->type eq "attack_group") {
         my @trim;
         for my $key ( keys %{$payload->{fleet}}) {
             if ( grep { $payload->{fleet}->{$key}->{type} eq $_ } ("scow", "scow_fast", "scow_large", "scow_mega")) {
                 push @trim, $key;
+                $number_of_scows += $payload->{fleet}->{$key}->{quantity};
             }
             else {
                 $done_after = 0;
@@ -91,10 +71,38 @@ after handle_arrival_procedures => sub {
             for my $key (@trim) {
                 delete $payload->{fleet}->{$key};
             }
+            $self->number_of_docks($self->number_of_docks - $number_of_scows);
             $self->payload($payload);
             $self->update;
         }
     }
+    else {
+        $number_of_scows = 1;
+    }
+    my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
+    $logs->new({
+        date_stamp => DateTime->now,
+        attacking_empire_id     => $self->body->empire_id,
+        attacking_empire_name   => $self->body->empire->name,
+        attacking_body_id       => $self->body_id,
+        attacking_body_name     => $self->body->name,
+        attacking_unit_name     => "Scows",
+        attacking_type          => $self->type_formatted,
+        attacking_number        => $number_of_scows,
+        defending_empire_id     => $body_attacked->empire_id,
+        defending_empire_name   => $body_attacked->empire->name,
+        defending_body_id       => $body_attacked->id,
+        defending_body_name     => $body_attacked->name,
+        defending_unit_name     => '',
+        defending_type          => '',
+        defending_type          => 0,
+        attacked_empire_id      => $body_attacked->empire_id,
+        attacked_empire_name    => $body_attacked->empire->name,
+        attacked_body_id        => $body_attacked->id,
+        attacked_body_name      => $body_attacked->name,
+        victory_to              => 'attacker',
+    })->insert;
+
     if ($done_after) {
         $self->delete;
         confess [-1];
