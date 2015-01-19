@@ -225,11 +225,10 @@ Trashes a list of messages. Returns:
 
  {
     "success" : ["id-goes-here","id-goes-here"],
-    "failure" : ["id-goes-here","id-goes-here"],
     "status" : { ... }
  }
 
-B<NOTE:> You cannot trash sent messages. You'll get a failure if the message is either already trashed, or it's a message that cannot be trashed, like a message in your sent folder.
+B<NOTE:> You cannot trash messages sent to others.  Only messages sent to you.
 
 =head3 session_id
 
