@@ -366,7 +366,6 @@ sub system_saw_combat {
 
     my $defend_eid = 0;
     my $defend_aid = 0;
-    my $attack_aid = 0;
     if ($attacked_body->empire) {
         $defend_eid = $attacked_body->empire_id;
         $defend_aid = $attacked_body->empire->alliance_id if ($attacked_body->empire->alliance_id);
@@ -398,8 +397,11 @@ sub system_saw_combat {
     while (my $dbody = $defending_bodies->next) {
         next unless $dbody->empire;
         next unless $dbody->isa('Lacuna::DB::Result::Map::Body::Planet');
-        if ($attack_aid) {
-            next if ($dbody->empire->alliance_id && $dbody->empire->alliance_id == $attack_aid);
+        if ($ship_aid != 0) {
+            next if ($dbody->empire->alliance_id && $dbody->empire->alliance_id == $ship_aid);
+        }
+        if ($dbody->empire_id) {
+            next if ($dbody->empire_id == $ship_eid);
         }
         my ($saws, $combat) = saw_stats($dbody);
         next unless $combat > 0;

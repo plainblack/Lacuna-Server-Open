@@ -228,7 +228,18 @@ sub handle_arrival_procedures {
 
 sub note_arrival {
     my $self = shift;
-    Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
+
+    my $type = $self->type;
+    if ($type eq "attack_group") {
+        my $payload = $self->payload;
+        for my $key (keys %{$payload->{fleet}}) {
+            Lacuna->cache->increment($payload->{fleet}->{$key}->{type}.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id,
+                                     $self->body->empire_id,1, 60*60*24*30);
+        }
+    }
+    else {
+        Lacuna->cache->increment($type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
+    }
 }
 
 sub is_available {
@@ -698,7 +709,8 @@ sub travel_time {
     $speed ||= 1;
     my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
-    $seconds = 1 if $seconds < 1;
+#    $seconds = 1 if $seconds < 1;
+    $seconds = 300 if $seconds < 300; #minimum time for flights
     return sprintf('%.0f', $seconds);
 }
 
