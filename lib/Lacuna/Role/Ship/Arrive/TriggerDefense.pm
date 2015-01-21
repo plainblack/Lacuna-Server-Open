@@ -428,10 +428,20 @@ sub system_saw_combat {
     my $max_eff = $percent + 1;
     my $min_eff = int($max_eff/2);
     for my $saw (shuffle @saws) {
-        my $effect = randint($min_eff,$max_eff);
+        my $effect;
+        my $time = 60 * 15;
+        if ($saw->body_id == $attacked_body->id) {
+            $effect = randint($min_eff,$max_eff);
+        }
+        else {
+            my $min = int($min_eff/2);
+            my $max = int($max_eff/2);
+            $effect = randint($min,$max);
+            $time = $time/2;
+        }
         $saw->spend_efficiency($effect);
         unless ($saw->is_working) {
-            $saw->start_work({}, 60 * 15);
+            $saw->start_work({}, $time);
         }
         $saw->update;
         last unless randint(0,$percent);
