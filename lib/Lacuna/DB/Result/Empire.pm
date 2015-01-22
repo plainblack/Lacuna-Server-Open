@@ -517,6 +517,7 @@ sub get_status {
         self_destruct_date  => $self->self_destruct_date_formatted,
         primary_embassy_id  => $embassy_id,
     };
+    $status->{alliance_id} = $self->alliance_id if $self->alliance_id;
     return $status;
 }
 
