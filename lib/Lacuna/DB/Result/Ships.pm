@@ -598,6 +598,16 @@ sub finish_construction {
     return $self;
 }
 
+sub cancel_build {
+    my ($self) = @_;
+
+    if ($self->task eq 'Building') {
+        $self->reschedule_queue;
+        $self->delete;
+    }
+    return;
+}
+
 
 # Remove one ship from the build queue, reschedule all other following ships
 #

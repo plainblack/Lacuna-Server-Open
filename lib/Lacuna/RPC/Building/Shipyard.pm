@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
+use List::Util qw(none);
 
 sub app_url {
     return '/shipyard';
@@ -75,6 +76,43 @@ sub subsidize_build_queue {
     $building->finish_work->update;
  
     return $self->view($empire, $building);
+}
+
+sub delete_build {
+    my ($self, $session_id, $building_id, $ship_id) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    if (!ref $ship_id)
+    {
+        $ship_id = [ $ship_id ];
+    }
+    elsif (ref $ship_id eq 'ARRAY' )
+    {
+        confess [1000, 'Invalid ship ID.' ]
+            unless none { ref $_ } @$ship_id;
+    }
+    else
+    {
+        confess [1000, 'Invalid ship ID reference.' ];
+    }
+
+    my $ships = Lacuna->db->resultset('Ships')->search({
+            id => $ship_id,
+            task => 'Building',
+    });
+    my $cancelled_count = 0;
+    while (my $ship = $ships->next)
+    {
+        $ship->cancel_build;
+        ++$cancelled_count;
+    }
+
+    return {
+        status          => $self->format_status($empire, $building->body),
+        cancelled_count => $cancelled_count,
+    };
 }
 
 
