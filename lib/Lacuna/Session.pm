@@ -119,7 +119,8 @@ sub start {
     $self->empire($empire);
     my $ip;
     if (exists $options->{request}) {
-        $ip = $options->{request}->address;
+        $ip = $options->{request}->headers->header('X-Real-IP') //
+            $options->{request}->address;
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->new({
         empire_id       => $empire->id,

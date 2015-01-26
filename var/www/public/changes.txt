@@ -20,8 +20,9 @@
  - Add: pod_delay returned as part of PCC view
  - Mod: Minimum flight time: 5 Minutes, Maximum is 2 months.
  - Add: Build queue stats (size, len) returned as part of body status.
- - UI : Body, building, star, user, and alliance IDs are available in the UI.
+ - UI : most IDs are available in the UI.
  - Fix: If alliance member self destructs, station passed to leader.
+ - Fix: log real IPs in login log.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
