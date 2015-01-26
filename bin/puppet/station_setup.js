@@ -1,0 +1,23 @@
+[
+    { "class" : "Lacuna::DB::Result::Building::Module::StationCommand",   "level" :  "7", "x" :  "0", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Parliament",       "level" :  "7", "x" : "-1", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::ArtMuseum",        "level" :  "7", "x" : "-3", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::CulinaryInstitute","level" :  "7", "x" : "-5", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::IBS",              "level" :  "7", "x" : "-1", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::OperaHouse",       "level" :  "7", "x" : "-4", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::PoliceStation",    "level" :  "7", "x" :  "0", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-5", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-4", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-3", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-2", "y" :  "0" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-5", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-4", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-3", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-2", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-1", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "0", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "1", "y" : "-1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "0", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "1", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-5", "y" : "-2" }
+]

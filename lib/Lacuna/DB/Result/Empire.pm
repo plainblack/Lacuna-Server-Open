@@ -1007,10 +1007,15 @@ before delete => sub {
     Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
-        if (defined $alliance && $alliance->leader_id == $self->id) {
-            my @members = $alliance->members;
-            if (scalar @members == 1) {
-                $alliance->delete;
+        if (defined $alliance) {
+            if ( $alliance->leader_id == $self->id) {
+                my @members = $alliance->members;
+                if (scalar @members == 1) {
+                    $alliance->delete;
+                }
+                else {
+                  $alliance->remove_member($self, 1);
+                }
             }
             else {
                 $alliance->remove_member($self, 1);
@@ -1022,7 +1027,7 @@ before delete => sub {
     $self->medals->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
-        $planet->sanitize;
+        $planet->sanitize if ($planet->empire_id == $self->id); #In case of a cached space station
     }
     my $essentia_log = Lacuna->db->resultset('Log::Essentia');
     my $essentia_code;
