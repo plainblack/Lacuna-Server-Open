@@ -17,7 +17,7 @@ sub init_chat {
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');
     return undef unless $firebase_config;
-    return undef if $empire->current_session->is_sitter; 
+    return undef if $empire->current_session->is_sitter && $empire->id > 1;
     my $chat_auth = Firebase::Auth->new(
         secret  => $firebase_config->{auth}{secret},
 #        debug   => \1,
