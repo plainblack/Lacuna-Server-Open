@@ -131,12 +131,13 @@ for my $affin (qw(
     )) 
 {
     my $builder = "_build_effective_$affin";
+    my $clearer = "clear_effective_$affin";
     has "effective_$affin" =>
         is   => 'rw',
         isa  => 'Int',
         lazy => 1,
         builder => $builder,
-        clearer => "clear_effective_$affin";
+        clearer => $clearer;
 
     __PACKAGE__->meta->add_method($builder => sub {
         my $self = shift;
@@ -144,6 +145,21 @@ for my $affin (qw(
         # for future work, we may allow temporary affinity boosts/penalties.
         return $self->$affin;
     });
+
+    around $affin => sub {
+        my ($orig, $self) = (shift, shift);
+        if (@_)
+        {
+            # if we're setting the affinity, clear the effective affinity
+            # to force a recalc of the affinity.
+            $self->$orig(@_);
+            $self->$clearer();
+        }
+        else
+        {
+            $self->$orig;
+        }
+    };
 }
 
 
