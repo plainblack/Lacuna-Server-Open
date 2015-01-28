@@ -15,7 +15,7 @@ sub credits {
             { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
             { 'Geology Consultant'  => ['Geofuels, LLC / geofuelsllc.com']},
             { 'Play Testers'        => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair','Bev Smith','Mike Vrbsky']},
-            { 'Game Support'        => ['Plain Black Corporation / plainblack.com','Mary Hoerr', 'United Federation', 'RedOrion', 'Infinate Ones']},
+            { 'Game Support'        => ['Plain Black Corporation / plainblack.com','Mary Hoerr', 'Daniel Collins (United Federation)', 'RedOrion', 'Infinate Ones']},
             { 'Lost City of Tyleon' => ['Steven Binns','Owen Ferguson','Garloo','Mark Lemming (Norway)','Saint','Shadow','JT Smith','Noel Sorensen','James T']},
             { 'AI Design'           => ['JT Smith','Iain C Docherty (icydee)', 'Mark Lemming (Norway)']},
             ];
