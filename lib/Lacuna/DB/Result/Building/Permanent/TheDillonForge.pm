@@ -97,6 +97,8 @@ sub split_plan {
 
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
     my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
+    $build_secs = 15 if ($build_secs < 15);
+    $build_secs = 31_536_000 if ($build_secs > 31_536_000);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
