@@ -380,6 +380,7 @@ use constant MEDALS => {
     TrelDefeated                    => 'Won the Four Trel Colonies tournament',
     TournamentVictory               => 'Won a tournament',
     '20Stars'                       => 'Won the Twenty Stars tournament',
+    'flipped'                       => 'Ran a successful insurrection',
 };
 
 sub name {

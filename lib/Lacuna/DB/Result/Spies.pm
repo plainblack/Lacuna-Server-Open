@@ -1869,6 +1869,7 @@ sub steal_planet {
                                 $self->on_body->y,
                                 $self->on_body->name],
         );
+        $self->empire->add_medal('flipped');
         $self->on_body->add_news(100,
                                   'Led by %s, the citizens of %s have overthrown %s!',
                                    $self->name,
