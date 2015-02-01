@@ -935,17 +935,17 @@ sub www_view_empire {
 <input name="description" value="Administrative Privilege">
 <input type="submit" value="add essentia"></form></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
-    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a> (%s)</td><td></td></tr>', $empire->home_planet_id, $empire->home_planet->name, $empire->home_planet_id);
     $out .= sprintf('<tr><th>Alliance</th><td>');
     if ( my $alliance = $empire->alliance ) {
-        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a>', $alliance->id, $alliance->name);
+        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a> (%s)', $alliance->id, $alliance->name, $alliance->id);
     }
     $out .= sprintf('</td></tr>');
     $out .= '<tr><th>Invites Sent To</th><td>';
     my $invites_sent = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({inviter_id => $empire->id});
     $out .= join ' ; ',
         map {
-            sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $_->id, $_->name )
+            sprintf('<a href="/admin/view/empire?id=%d">%s</a> (%s)', $_->id, $_->name, $_->id )
         }
         map  { $_->invitee }
         grep { $_->invitee_id } 
@@ -955,7 +955,7 @@ sub www_view_empire {
     my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id})->first;
     if ( $invite_accepted && $invite_accepted->inviter_id ) {
         my $inviter = $invite_accepted->inviter;
-        $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $inviter->id, $inviter->name);
+        $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a> (%s)', $inviter->id, $inviter->name, $inviter->id);
     }
     $out .= '</td></tr>';
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
@@ -1070,8 +1070,8 @@ sub www_view_body {
     $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $body->y);
     $out .= sprintf('<tr><th>Orbit</th><td>%s</td><td></td></tr>', $body->orbit);
     $out .= sprintf('<tr><th>Happiness</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/happiness"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input type="submit" value="add happiness"></form></td></tr>', $body->happiness, $body->id);
-    $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a></td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star_id, $body->star_id);
-    $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a></td><td></td></tr>', $body->empire_id, $body->empire_id);
+    $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a> (%s)</td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star->name, $body->star_id, $body->star_id);
+    $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a> (%s)</td><td></td></tr>', $body->empire_id, $body->empire->name, $body->empire_id);
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
