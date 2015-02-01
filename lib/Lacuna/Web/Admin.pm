@@ -1071,7 +1071,12 @@ sub www_view_body {
     $out .= sprintf('<tr><th>Orbit</th><td>%s</td><td></td></tr>', $body->orbit);
     $out .= sprintf('<tr><th>Happiness</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/happiness"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input type="submit" value="add happiness"></form></td></tr>', $body->happiness, $body->id);
     $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a> (%s)</td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star->name, $body->star_id, $body->star_id);
-    $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a> (%s)</td><td></td></tr>', $body->empire_id, $body->empire->name, $body->empire_id);
+    if ($body->empire) {
+        $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a> (%s)</td><td></td></tr>', $body->empire_id, $body->empire->name, $body->empire_id);
+    }
+    else {
+        $out .= sprintf('<tr><th>Empire</th><td><i>Unowned</i></td><td></td></tr>');
+    }
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
@@ -1101,8 +1106,13 @@ sub www_view_star {
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $star->name);
     $out .= sprintf('<tr><th>Zone</th><td>%s</td><td><a href="/admin/search/stars?zone=%s">Stars In This Zone</a></td></tr>', $star->zone, $star->zone);
     $out .= sprintf('<tr><th>X</th><td>%s</td><td></td></tr>', $star->x);
-    $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $star->y);
-    $out .= sprintf('<tr><th>Station</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $star->station_id || '', $star->station_id || '');
+    $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $star->y);#))
+    if ($star->station_id) {
+        $out .= sprintf('<tr><th>Station</th><td><a href="/admin/view/body?id=%s">%s</a> (%s)</td><td></td></tr>', $star->station_id, $star->station->name, $star->station_id);
+    }
+    else {
+        $out .= sprintf('<tr><th>Station</th><td><i>Unowned</i></td><td></td></tr>');
+    }
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></li>', $star->id);
     $out .= '</ul>';
