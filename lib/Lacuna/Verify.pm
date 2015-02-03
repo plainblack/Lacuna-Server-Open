@@ -3,7 +3,7 @@ package Lacuna::Verify;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Regexp::Common qw(RE_profanity);
+use Regexp::Common;
 use Email::Valid;
 
 has content => (
@@ -14,6 +14,7 @@ has content => (
 has throws => (
     is          => 'ro',
     required    => 1,
+    writer      => '_throws',
 );
 
 sub ok {
@@ -51,7 +52,22 @@ sub not_empty {
 
 sub no_profanity {
     my $self = shift;
-    return $self->ok(lc(${$self->content}) !~ RE_profanity());
+    my @bad_words = lc(${$self->content}) =~ /$RE{profanity}{-keep}/g;
+    if (@bad_words)
+    {
+        my %word_count;
+        $word_count{$_}++ for @bad_words;
+        my $throws = $self->throws;
+        my $msg    = $throws->[1] . ' (';
+        $msg      .= join ', ', map {
+            my $s = $_;
+            $s   .= " (x$word_count{$_})" if $word_count{$_} != 1;
+            $s;
+        } sort keys %word_count;
+        $msg      .= ')';
+        $throws->[1] = $msg
+    }
+    return $self->ok(@bad_words == 0);
 }
 
 sub no_restricted_chars {
