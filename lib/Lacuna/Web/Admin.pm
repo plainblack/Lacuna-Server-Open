@@ -963,12 +963,57 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
     $out .= sprintf('<tr><th>Admin</th><td>%s</td></tr>', $empire->is_admin);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
+
+    my $notes = Lacuna->db->resultset('Log::EmpireAdminNotes')->find({empire_id => $empire->id},{order_by => { -desc => 'id' }, limit => 1 });
+    $out .= sprintf('<tr><th>Admin Notes</th><td colspan="2"><form method="post" style="display: inline" action="/admin/set/admin/notes"><input type="hidden" name="id" value="%s"><textarea name="notes" rows="4" cols="80">%s</textarea><input type="submit"></form></td><td>Last set by: %s<br/>Last set on: %s<br/><a href="/admin/view/admin/note/log?id=%s">View Log</a></td></tr>',
+                    $empire->id,
+                    $notes ? $notes->notes : '',
+                    $notes ? $notes->creator : '<i>not set yet</i>',
+                    $notes ? $notes->date_stamp : '<i>not set yet</i>',
+                    $empire->id
+                   );
+
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
     #$out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
+    return $self->wrap($out);
+}
+
+sub www_set_admin_notes {
+    my ($self, $request) = @_;
+
+    my $id = $request->param('id');
+    my $empire = Lacuna->db->empire($id);
+    my $notes = $request->param('notes');
+
+    my $note = Lacuna->db->resultset('Log::EmpireAdminNotes')->new({
+                       empire_id   => $empire->id,
+                       empire_name => $empire->name,
+                       date_stamp  => DateTime->now,
+                       notes       => $notes,
+                       creator     => $request->user,
+                   })->insert;
+
+    return $self->www_view_empire($request);
+}
+
+sub www_view_admin_note_log {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $empire = Lacuna->db->empire($id);
+
+    my $history = Lacuna->db->resultset('Log::EmpireAdminNotes')->search({empire_id => $empire->id},{order_by => { -desc => 'date_stamp' }});
+    my $out = sprintf '<h1>"%s" Empire notes log</h1>', $empire->name;
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire->id);
+    $out .= '<table style="width:100%;"><tr><th>Date</t><th>Creator</th><th>Notes</th></tr>';
+    while (my $log = $history->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td><pre>%s</pre></td></tr>',
+                        $log->date_stamp, $log->creator, Plack::Util::encode_html($log->notes));
+    }
+    $out .= '</table>';
     return $self->wrap($out);
 }
 
