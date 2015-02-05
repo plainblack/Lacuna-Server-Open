@@ -26,6 +26,8 @@
  - Fix: Speed up N19 news display.
  - Add: Added flip medal.
  - Mod: Profanity filtering is more clear.
+ - Add: Shared admin notes on empires
+ - Mod: Oracle cooldown on BHG movement shortened to a flat 5 minutes.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
