@@ -23,7 +23,7 @@ around 'view' => sub {
     my $body = $building->body;
     
     my $throw = 0; my $reason = '';
-    ($throw, $reason) = check_bhg_neutralized($body);
+    ($throw, $reason) = check_bhg_neutralized($body, $empire);
     if ($throw > 0) {
         $out->{tasks} = [ {
             can          => 0,
@@ -185,7 +185,6 @@ sub find_target {
             @stations = $db->resultset('Map::Body')->search( 
                 {
                     'me.alliance_id' => $empire->alliance_id,
-                    'laws.type' => { "!=" => 'BHGNeutralized' },
                 },
                 {
                     join  => 'laws',
@@ -225,9 +224,6 @@ sub find_target {
         );
         if (@bodies > 0) {
             foreach my $candidate (@bodies) {
-                if ($candidate->star->station_id) {
-                    next if ($candidate->star->station->laws->search({type => 'BHGNeutralized'})->count);
-                }
                 next if ($candidate->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure'));
                 $target = $candidate;
                 last;
@@ -301,11 +297,11 @@ sub task_chance {
         throw     => 0,
         reason    => '',
     };
-    ($return->{throw}, $return->{reason}) = check_bhg_neutralized($body);
+    ($return->{throw}, $return->{reason}) = check_bhg_neutralized($body, $body->empire);
     if ($return->{throw} > 0) {
         return $return;
     }
-    ($return->{throw}, $return->{reason}) = check_bhg_neutralized($target);
+    ($return->{throw}, $return->{reason}) = check_bhg_neutralized($target, $body->empire);
     if ($return->{throw} > 0) {
         return $return;
     }
@@ -386,7 +382,7 @@ sub task_chance {
 }
 
 sub check_bhg_neutralized {
-    my ($check) = @_;
+    my ($check, $empire) = @_;
     my $tstar; my $tname;
     if (ref $check eq 'HASH') {
         $tstar = $check->{star};
@@ -402,9 +398,16 @@ sub check_bhg_neutralized {
             $tname = $check->name;
         }
     }
+    my $alliance_check = 0;
+    if ($empire) {
+        $alliance_check = $empire->alliance_id if ($empire->alliance_id);
+    }
     my $sname = $tstar->name;
     my $throw; my $reason;
     if ($tstar->station_id) {
+        if ($tstar->station->alliance_id == $alliance_check) {
+            return 0, "";
+        }
         if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
             my $ss_name = $tstar->station->name;
             $throw = 1009;
@@ -712,11 +715,6 @@ sub generate_singularity {
                 && ($body->empire->alliance_id == $tempire->alliance_id)
             ) {
                 $allowed = 1;
-            }
-            elsif ($tstar->station_id) {
-                if ($body->empire->alliance_id && $tstar->station->alliance_id == $body->empire->alliance_id) {
-                    $allowed = 1;
-                }
             }
         }
         else {
