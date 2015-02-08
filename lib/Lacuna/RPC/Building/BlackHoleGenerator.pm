@@ -1353,12 +1353,11 @@ sub bhg_swap {
         my $boracle = $body->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
         if ($boracle) {
             if ($boracle->is_working) {
-                my $work_ends = $boracle->work_ends->clone;
-                $work_ends = $work_ends->add(seconds => 60 * 15);
-                $boracle->reschedule_work($work_ends);
+                my $work_ends = DateTime->now->add(seconds => 60 * 5);
+                $toracle->reschedule_work($work_ends);
             }
             else {
-                $boracle->start_work({}, 60 * 15);
+                $boracle->start_work({}, 60 * 5);
             }
             $boracle->update;
         }
