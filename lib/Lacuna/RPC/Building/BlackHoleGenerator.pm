@@ -1354,7 +1354,7 @@ sub bhg_swap {
         if ($boracle) {
             if ($boracle->is_working) {
                 my $work_ends = DateTime->now->add(seconds => 60 * 5);
-                $toracle->reschedule_work($work_ends);
+                $boracle->reschedule_work($work_ends);
             }
             else {
                 $boracle->start_work({}, 60 * 5);
