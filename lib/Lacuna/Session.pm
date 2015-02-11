@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 use UUID::Tiny ':std';
-
+use Lacuna::Util qw(real_ip_address);
 
 has id => (
     is      => 'ro',
@@ -119,8 +119,7 @@ sub start {
     $self->empire($empire);
     my $ip;
     if (exists $options->{request}) {
-        $ip = $options->{request}->headers->header('X-Real-IP') //
-            $options->{request}->address;
+        $ip = real_ip_address($options->{request});
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->new({
         empire_id       => $empire->id,

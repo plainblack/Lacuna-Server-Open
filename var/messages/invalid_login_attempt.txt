@@ -1,0 +1,14 @@
+WARNING: Invalid login attempt.
+~~~
+An invalid login attempt was detected from IP address %s.  If this was you accidentally typing your password incorrectly, you can ignore this message and delete it.
+
+Other possibilities include:
+
+1. You've changed your sitter password, and not told people running scripts on your behalf.  Ensure everyone who has your sitter has it updated.
+2. You've forgotten to change your own scripts to use a recently updated password.  Ensure your scripts are using an up-to-date password.
+3. Someone is trying to hack your account.
+
+If the first two options do not resolve the issue, please contact an administrator for assistance.
+
+Lacuna Expanse Corp
+Fraud Division.

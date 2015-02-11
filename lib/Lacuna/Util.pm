@@ -6,7 +6,15 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(randint format_date random_element commify consolidate_items kmbtq);
+@EXPORT_OK = qw(
+    randint
+    format_date
+    random_element
+    commify
+    consolidate_items
+    kmbtq
+    real_ip_address
+    );
 
 
 sub format_date {
@@ -97,6 +105,12 @@ sub consolidate_items {
         push @{$item_arr}, sprintf("%5s %s", commify($item_hash->{$item}), $item);
     }
     return $item_arr;
+}
+
+sub real_ip_address {
+    my ($plack_request) = @_;
+    $plack_request->headers->header('X-Real-IP') //
+            $plack_request->address;
 }
 
 1;
