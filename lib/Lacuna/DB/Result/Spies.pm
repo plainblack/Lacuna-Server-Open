@@ -1861,6 +1861,7 @@ sub steal_planet {
         )->id;
     }
     else { # win
+        $self->on_body->add_to_neutral_entry(24 * 60 * 60);
         $self->on_body->empire->send_predefined_message(
                 tags        => ['Spies','Alert'],
                 filename    => 'lost_planet_to_insurrection.txt',

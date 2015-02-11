@@ -16,7 +16,7 @@ after handle_arrival_procedures => sub {
                 for my $num (1..$payload->{fleet}->{$key}->{quantity}) {
                     my $ship = Lacuna->db->resultset('Ships')->new({
                         type           => "sweeper",
-                        name           => $payload->{fleet}->{$key}->{name},
+                        name           => "Sweeper",
                         shipyard_id    => 42,
                         speed          => $payload->{fleet}->{$key}->{speed},
                         combat         => $payload->{fleet}->{$key}->{combat},
