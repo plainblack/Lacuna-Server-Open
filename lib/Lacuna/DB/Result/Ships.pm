@@ -719,6 +719,7 @@ sub travel_time {
     $speed ||= 1;
     my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
+    $seconds += 300;
 #    $seconds = 1 if $seconds < 1;
     $seconds = 300 if $seconds < 300; #minimum time for flights
     return sprintf('%.0f', $seconds);

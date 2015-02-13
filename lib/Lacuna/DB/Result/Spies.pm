@@ -772,7 +772,7 @@ sub run_mission {
     }
     my $breakthru = ($power - $toughness - $hfa) + $self->luck;
 
-    $self->from_body->add_to_neutral_entry($mission->{recovery});
+    $self->from_body->add_to_neutral_entry(60 * 24 * 60 * 60);
     $self->on_body->subtract_from_neutral_entry(int($mission->{recovery}/2));
     
     $breakthru = ( randint(0,99) < 5) ? $breakthru * -1 : $breakthru;
