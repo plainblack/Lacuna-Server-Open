@@ -72,6 +72,9 @@ sub get_fleet_for {
     );
     my $summary;
     while (my $ship_group = $ships->next) {
+        eval{ $ship_group->can_send_to_target($target) };
+        my $reason = $@;
+        next if $reason;
         my $travel_time = Lacuna::DB::Result::Ships->travel_time($body,$target,$ship_group->speed);
         my $type_human  = Lacuna::DB::Result::Ships->type_human($ship_group->type);
         my $summation = {
