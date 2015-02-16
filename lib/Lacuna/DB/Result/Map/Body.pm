@@ -422,7 +422,7 @@ sub add_to_neutral_entry {
 sub subtract_from_neutral_entry {
     my ($self, $seconds) = @_;
 
-    my $day = DateTime->now->add(hours => 24);
+    my $day = DateTime->now->add(hours => 24 * 7);
     return 1 if ($self->neutral_entry < $day);
 
     my $time_ends = $self->neutral_entry->clone->subtract(seconds => $seconds);

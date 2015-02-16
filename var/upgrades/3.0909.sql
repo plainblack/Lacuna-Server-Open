@@ -2,6 +2,10 @@ alter table ships add column number_of_docks int default 1;
 alter table ships modify hold_size bigint;
 alter table battle_log add column attacking_number int default 1;
 alter table battle_log add column defending_number int default 1;
+alter table empire add column in_statis int default 0;
+alter table empire add column timeout int default 0;
+alter table empire add column outlaw int default 0;
+alter table empire add column outlaw_date int default '2010-10-03 18:17:26';
 
 CREATE TABLE empire_admin_notes (
   id integer(11) NOT NULL auto_increment,
