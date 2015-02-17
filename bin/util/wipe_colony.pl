@@ -29,8 +29,10 @@ our $quiet;
     my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     printf "Found %d, %s at %d/%d in zone %s\n", $body_id, $body->name, $body->x, $body->y, $body->zone;
     unless ($body) {
-      die "Cannot find body id $body_id\n";
+      print "Cannot find body id $body_id\n";
+      next;
     }
+    next if ($body->get_type eq 'asteroid');
     my @all_buildings = @{$body->building_cache};
     $body->delete_buildings(\@all_buildings);
     $body->sanitize;
