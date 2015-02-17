@@ -4,7 +4,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use List::Util qw(shuffle);
-use Lacuna::Util qw(randint random_element);
+use Lacuna::Util qw(randint random_element commify);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 
 sub app_url {
@@ -369,8 +369,8 @@ sub task_chance {
     unless ($building->body->waste_stored >= $task->{waste_cost}) {
         $return->{throw}  = 1011;
         $return->{reason} = sprintf(
-            "You need at least %d waste to run that function of the Black Hole Generator.",
-            $task->{waste_cost}
+            "You need at least %s waste to run that function of the Black Hole Generator.",
+            commify($task->{waste_cost})
         );
         $return->{success} = 0;
         return $return;
