@@ -90,6 +90,10 @@ __PACKAGE__->add_columns(
     latest_message_id       => { data_type => 'int',  is_nullable => 1 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
     chat_admin              => { data_type => 'int', default_value => 0 },
+    in_statis               => { data_type => 'tinyint', default_value => 0 },
+    timeout                 => { data_type => 'tinyint', default_value => 0 },
+    outlaw                  => { data_type => 'tinyint', default_value => 0 },
+    outlaw_date             => { data_type => 'datetime', is_nullable => 0, default_value => "2010-10-03 18:17:26" },
 );
 
 sub sqlt_deploy_hook {
