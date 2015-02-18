@@ -399,7 +399,7 @@ sub www_send_meteor_shower {
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
-        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
+#        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
         $building->level(1);
         $building->is_upgrading(0);
@@ -431,6 +431,8 @@ sub www_send_pestilence {
         body        => "Derni Pestilence has broken out on ".$body->name.". The colony is lost.\n\nRegards,\n\nYour Humble Assistant",
         tag         => 'Alert',
     );
+    my @all_buildings = @{$body->building_cache};
+    $body->delete_buildings(\@all_buildings);
     $body->sanitize;
     return $self->wrap('Pestilence sent!');
 }
