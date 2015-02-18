@@ -7,7 +7,7 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
 use List::Util qw(shuffle max min);
-use Lacuna::Util qw(randint format_date);
+use Lacuna::Util qw(randint format_date random_element);
 use DateTime;
 use Data::Dumper;
 use Scalar::Util qw(weaken);
@@ -757,29 +757,99 @@ sub is_space_free {
     return 1;
 }
 
-sub find_free_space {
+sub find_free_spaces
+{
     my $self = shift;
-    my $x = randint(-5,5);
-    my $y = randint(-5,5);
+    my $args = shift // {};
+    my $size = $args->{size} // 1; # 4 = SSL (want top-left), 9 = LCOT (want middle)
 
-    if ($self->is_space_free($x, $y)) {
-        return ($x, $y);
-    }
-    else {
-        for (1..121) {
-            if (++$x > 5) {
-                $x = -5;
-                if (++$y > 5) {
-                    $y = -5;
+    # this option is not yet well-tested.
+    my $col6 = $args->{outer};
+    die "Incorrect usage (size must be one with outer set to true)"
+        if $col6 && $size > 1;
+
+    # I have no idea how to make this query in DBIC, so resort to direct
+    # SQL calls.
+    my $dbh = Lacuna->db->storage->dbh();
+
+    my $gen_tmp = sub {
+        my $col = shift;
+        my $first = shift;
+        join ' ', "select '$first' as $col", map { "union all select '$_'" } @_;
+    };
+    my $tmp_x = $gen_tmp->('x', $col6 ? (6) : (-5..5));
+    my $tmp_y = $gen_tmp->('y', -5..5);
+
+    my $sql = <<"EOSQL";
+select v.x,w.y
+  from 
+   ($tmp_x) as v
+  join
+   ($tmp_y) as w
+  left join
+   (select x,y,id from building where body_id = ?) as b
+    on 
+      b.x = v.x and b.y = w.y
+  where
+   b.id is null
+EOSQL
+
+    my $sth = $dbh->prepare_cached($sql);
+    $sth->execute($self->id);
+
+    my $o = $sth->fetchall_arrayref;
+
+    if ($size > 1)
+    {
+        my (@x_offsets,@y_offsets);
+
+        if ($size == 9)
+        {
+            @x_offsets = @y_offsets = (-1..1);
+        }
+        elsif ($size == 4)
+        {
+            @x_offsets = (-1..0);
+            @y_offsets = (0..1);
+        }
+        else
+        {
+            die "Unexpected size: $size";
+        }
+
+        # put them all in a hash for easier tracking.
+        my %free;
+        for my $c (@$o)
+        {
+            for my $x_off (@x_offsets)
+            {
+                for my $y_off (@y_offsets)
+                {
+                    my $x = $c->[0] + $x_off;
+                    my $y = $c->[1] + $y_off;
+                    $free{"$x,$y"}++;
                 }
             }
-            next if $y == 0 && $x == 0;
-            if ($self->is_space_free($x, $y)) {
-                return ($x, $y);
-            }
         }
+
+        # sort it for easier debugging.
+        return sort {
+            $a->[0] <=> $b->[0] ||
+            $a->[1] <=> $b->[1]
+        } map {
+            [ split ',', $_ ]
+        } grep {$free{$_} == $size} keys %free;
     }
-    confess [1009, 'No free space found.'];
+    return $o;
+}
+
+sub find_free_space {
+    my $self = shift;
+    my $open_spaces = $self->find_free_spaces();
+
+    confess [1009, 'No free space found.'] unless @$open_spaces;
+
+    return random_element($open_spaces);
 }
 
 sub has_outgoing_ships {
