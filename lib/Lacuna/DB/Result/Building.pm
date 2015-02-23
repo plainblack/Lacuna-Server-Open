@@ -917,7 +917,7 @@ sub start_upgrade {
         $time_to_add = 60 * 60 * 72;
     }
     else {
-        $cost->{time};
+        $time_to_add = $cost->{time};
     }
     $upgrade_ends->add(seconds=>$time_to_add);
     # add to queue
