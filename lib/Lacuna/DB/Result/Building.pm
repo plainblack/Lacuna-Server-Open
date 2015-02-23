@@ -913,8 +913,13 @@ sub start_upgrade {
     }
 
     my $time_to_add;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') and $self->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') {
-        $time_to_add = 60 * 60 * 72;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ) {
+        if ($self->class eq 'Lacuna::DB::Result::Building::DeployedBleeder') {
+            $time_to_add = $cost->{time};
+        }
+        else {
+            $time_to_add = 60 * 60 * 72;
+        }
     }
     else {
         $time_to_add = $cost->{time};
