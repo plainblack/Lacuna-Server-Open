@@ -849,7 +849,7 @@ sub find_free_space {
 
     confess [1009, 'No free space found.'] unless @$open_spaces;
 
-    return random_element($open_spaces);
+    return @{random_element($open_spaces)};
 }
 
 sub has_outgoing_ships {
