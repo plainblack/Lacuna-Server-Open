@@ -33,7 +33,6 @@ sub sortable_name {
 
 around spend_efficiency => sub {
     my ($orig, $self, $amount) = @_;
-    $amount = int($amount/5) + 1;
     if ($self->efficiency <= $amount) {
         if ($self->level <= 1 && eval{$self->can_demolish}) {
             $self->demolish;
@@ -41,7 +40,7 @@ around spend_efficiency => sub {
         elsif ($self->level > 1 && eval{$self->can_downgrade}) {
             if (!Lacuna->cache->get('downgrade',$self->id)) {
                 $self->downgrade;
-                Lacuna->cache->set('downgrade',$self->id, 1, 15 * 60);
+                Lacuna->cache->set('downgrade',$self->id, 1, 5 * 60);
             }
             else {
                 $amount = $self->efficiency - 1;

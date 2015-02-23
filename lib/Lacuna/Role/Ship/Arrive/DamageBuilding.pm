@@ -118,6 +118,11 @@ after handle_arrival_procedures => sub {
         }
     }
     my $body_attacked = $self->foreign_body;
+    my $station = 0;
+    if ($body_attacked->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        $station = 1;
+    }
+    my $warhead_zero = $station ? 20 : 4; #Number of warheads to zero out a building.
     my @all_builds =
             sort {
                 $b->efficiency <=> $a->efficiency ||
@@ -146,7 +151,7 @@ after handle_arrival_procedures => sub {
     push @{$report}, (['Name', '% Done']);
 
     my %treport;
-    if ( $snarks{snarks}->{count}/4 > scalar @all_builds) {
+    if ( $snarks{snarks}->{count}/$warhead_zero > scalar @all_builds) {
         for my $building (@all_builds) {
             $building->spend_efficiency(100);
             $building->update;
@@ -179,6 +184,7 @@ after handle_arrival_procedures => sub {
             else {
                 BOOM: for my $cnt (1..$snarks{$sn_type}->{count}) {
                     my $amount = randint(10,70);
+                    $amount = $amount/5 if $station;
                     my ($building) = shuffle
                         grep {
                             ($_->efficiency > 0)
