@@ -912,7 +912,13 @@ sub start_upgrade {
         $upgrade_ends = $now;
     }
 
-    my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
+    my $time_to_add;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') and $self->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') {
+        $time_to_add = 60 * 60 * 72;
+    }
+    else {
+        $cost->{time};
+    }
     $upgrade_ends->add(seconds=>$time_to_add);
     # add to queue
     $self->update({
