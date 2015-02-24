@@ -1798,9 +1798,13 @@ ATTACKER:
 
     return $self->wrap($out);
 }
-
+                                    #"
 sub wrap {
     my ($self, $content) = @_;
+
+    my $uri = URI->new(Lacuna->config->get('server_url'));
+    my ($domain) = $uri->authority =~ /^([^.]+)\./;
+
     return $self->wrapper('<div style="width: 150px;">
     <ul class="admin_menu">
     <li><a href="/admin/search/empires">Empires</a></li>
@@ -1816,7 +1820,7 @@ sub wrap {
     </div>
     <div style="position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
     <div>'. $content .' </div></div>',
-    { title => 'Admin Console'}
+    { title => "Admin Console ($domain)"}
     );
 }
 
