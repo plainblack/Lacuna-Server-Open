@@ -2649,7 +2649,7 @@ sub complain_about_lack_of_resources {
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             foreach my $building ( sort { $b->effective_level <=> $a->effective_level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
-                    my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
+                    my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$|DeployedBleeder$/} @{$self->building_cache};
                     if ($others) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
