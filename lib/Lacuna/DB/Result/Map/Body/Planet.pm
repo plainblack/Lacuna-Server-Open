@@ -2647,9 +2647,21 @@ sub complain_about_lack_of_resources {
         my $building_name;
         Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
         if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-            foreach my $building ( sort { $b->effective_level <=> $a->effective_level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
+            foreach my $building ( sort {
+                                          $b->effective_level <=> $a->effective_level ||
+                                          $b->efficiency <=> $a->efficiency ||
+                                          rand() <=> rand()
+                                        }
+                                   grep {
+                                       $_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder' and
+                                       $_->class ne 'Lacuna::DB::Result::Building::Permanent::Crater'
+                                   }
+                                   @{$self->building_cache} ) {
                 if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
-                    my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$|DeployedBleeder$/} @{$self->building_cache};
+                    my $others = grep {
+                        $_->class ne 'Lacuna::DB::Result::Building::Module::Parliament' and
+                        $_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand'
+                    } @{$self->building_cache};
                     if ($others) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
@@ -2659,50 +2671,58 @@ sub complain_about_lack_of_resources {
                         my $sc = $self->get_building_of_class('Lacuna::DB::Result::Building::Module::StationCommand');
                         if ($sc && $par) {
                             if ($sc->level == $par->level) {
-                                if ($sc->level == 1 && $sc->efficiency <= 25 && $par->efficiency <= 25) {
+                                if ($sc->level == 1 && $sc->efficiency <= 50 && $par->efficiency <= 50) {
                                     # They go out together with a big bang
-                                    $sc->spend_efficiency(25)->update;
                                     $building_name = $par->name;
-                                    $par->spend_efficiency(25)->update;
+                                    $sc->spend_efficiency(60);
+                                    $par->spend_efficiency(60);
                                     last;
                                 }
                                 elsif ($sc->efficiency <= $par->efficiency) {
                                     $building_name = $par->name;
-                                    $par->spend_efficiency(25)->update;
+                                    $par->spend_efficiency(50)->update;
                                     last;
                                 }
                                 else {
                                     $building_name = $sc->name;
-                                    $sc->spend_efficiency(25)->update;
+                                    $sc->spend_efficiency(50)->update;
                                     last;
                                 }
                             }
                             elsif ($sc->level < $par->level) {
                                 $building_name = $par->name;
-                                $par->spend_efficiency(25)->update;
+                                $par->spend_efficiency(50)->update;
                                 last;
                             }
                             else {
                                 $building_name = $sc->name;
-                                $sc->spend_efficiency(25)->update;
+                                $sc->spend_efficiency(50)->update;
                                 last;
                             }
                         }
                         elsif ($sc) {
                             $building_name = $sc->name;
-                            $sc->spend_efficiency(25)->update;
+                            my $eff = $sc->efficiency;
+                            $sc->spend_efficiency(50);
+                            $sc->update if $eff > 50;
                             last;
                         }
                         elsif ($par) {
                             $building_name = $par->name;
-                            $par->spend_efficiency(25)->update;
+                            my $eff = $par->efficiency;
+                            $par->spend_efficiency(50);
+                            $par->update if $eff > 50;
                             last;
                         }
                     }
                 }
                 else {
+                    next if ($building->class eq 'Lacuna::DB::Result::Building::Permanent::Crater' or
+                             $building->class eq 'Lacuna::DB::Result::Building::DeployedBleeder');
                     $building_name = $building->name;
-                    $building->spend_efficiency(25)->update;
+                    my $eff = $building->efficiency;
+                    $building->spend_efficiency(50);
+                    $building->update if $eff > 50;
                     last;
                 }
             }

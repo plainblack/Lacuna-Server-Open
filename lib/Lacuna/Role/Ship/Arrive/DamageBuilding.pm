@@ -184,7 +184,7 @@ after handle_arrival_procedures => sub {
             else {
                 BOOM: for my $cnt (1..$snarks{$sn_type}->{count}) {
                     my $amount = randint(10,70);
-                    $amount = $amount/5 if $station;
+                    $amount = int($amount/5) if $station;
                     my ($building) = shuffle
                         grep {
                             ($_->efficiency > 0)
