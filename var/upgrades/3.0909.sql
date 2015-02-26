@@ -6,6 +6,7 @@ alter table empire add column in_stasis tinyint default 0;
 alter table empire add column timeout tinyint default 0;
 alter table empire add column outlaw tinyint default 0;
 alter table empire add column outlaw_date datetime default '2010-10-03 18:17:26';
+alter table essentia_log modify transaction_id varchar(36);
 
 CREATE TABLE empire_admin_notes (
   id integer(11) NOT NULL auto_increment,
