@@ -153,10 +153,9 @@ after handle_arrival_procedures => sub {
     my %treport;
     if ( $snarks{snarks}->{count}/$warhead_zero > scalar @all_builds) {
         for my $building (@all_builds) {
-            $building->spend_efficiency(100);
-            $building->update;
             my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
             $treport{"$hash_id"} = 100;
+            eval { $building->spend_efficiency(100)->update };
         }
     }
     else {
@@ -176,9 +175,9 @@ after handle_arrival_procedures => sub {
             }
             if ($snarks{$sn_type}->{count}/4 > scalar @tbuilds) {
                 for my $building (@tbuilds) {
-                    $building->spend_efficiency(100)->update;
                     my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
                     $treport{"$hash_id"} = 100;
+                    eval { $building->spend_efficiency(100)->update };
                 }
             }
             else {
@@ -190,9 +189,9 @@ after handle_arrival_procedures => sub {
                             ($_->efficiency > 0)
                         } @tbuilds;
                     if ($building) {
-                        $building->spend_efficiency($amount)->update;
                         my $hash_id = sprintf("%s:%2d/%2d", $building->name, $building->x, $building->y);
                         $treport{"$hash_id"} = 100 - $building->efficiency;
+                        eval { $building->spend_efficiency($amount)->update; }
                     }
                     else {
                         $treport{"ZZcnt"} = $cnt;

@@ -2674,44 +2674,40 @@ sub complain_about_lack_of_resources {
                                 if ($sc->level == 1 && $sc->efficiency <= 50 && $par->efficiency <= 50) {
                                     # They go out together with a big bang
                                     $building_name = $par->name;
-                                    $sc->spend_efficiency(60);
-                                    $par->spend_efficiency(60);
+                                    eval { $sc->spend_efficiency(60) };
+                                    eval { $par->spend_efficiency(60) };
                                     last;
                                 }
                                 elsif ($sc->efficiency <= $par->efficiency) {
                                     $building_name = $par->name;
-                                    $par->spend_efficiency(50)->update;
+                                    eval { $par->spend_efficiency(50)->update };
                                     last;
                                 }
                                 else {
                                     $building_name = $sc->name;
-                                    $sc->spend_efficiency(50)->update;
+                                    eval {$sc->spend_efficiency(50)->update };
                                     last;
                                 }
                             }
                             elsif ($sc->level < $par->level) {
                                 $building_name = $par->name;
-                                $par->spend_efficiency(50)->update;
+                                eval {$par->spend_efficiency(50)->update };
                                 last;
                             }
                             else {
                                 $building_name = $sc->name;
-                                $sc->spend_efficiency(50)->update;
+                                eval {$sc->spend_efficiency(50)->update };
                                 last;
                             }
                         }
                         elsif ($sc) {
                             $building_name = $sc->name;
-                            my $eff = $sc->efficiency;
-                            $sc->spend_efficiency(50);
-                            $sc->update if $eff > 50;
+                            eval { $sc->spend_efficiency(50)->update };
                             last;
                         }
                         elsif ($par) {
                             $building_name = $par->name;
-                            my $eff = $par->efficiency;
-                            $par->spend_efficiency(50);
-                            $par->update if $eff > 50;
+                            eval { $par->spend_efficiency(50)->update };
                             last;
                         }
                     }
@@ -2720,9 +2716,7 @@ sub complain_about_lack_of_resources {
                     next if ($building->class eq 'Lacuna::DB::Result::Building::Permanent::Crater' or
                              $building->class eq 'Lacuna::DB::Result::Building::DeployedBleeder');
                     $building_name = $building->name;
-                    my $eff = $building->efficiency;
-                    $building->spend_efficiency(50);
-                    $building->update if $eff > 50;
+                    eval { $building->spend_efficiency(50)->update };
                     last;
                 }
             }
