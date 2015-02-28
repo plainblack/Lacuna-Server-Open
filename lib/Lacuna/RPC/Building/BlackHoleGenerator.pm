@@ -1725,9 +1725,11 @@ sub bhg_random_fissure {
             });
             my %already;
             my $max_alert = $level*5;
-            $max_alert = 100 if ($max_alert > 100);
-            $max_alert = 20 if ($max_alert < 20);
+            $max_alert = 120 if ($max_alert > 120);
+            $max_alert = 25 if ($max_alert < 25);
+            my $number_to_alert = 0;
             while (my $to_alert = $alert->next) {
+                last if ($number_to_alert++ > 25);
                 my $distance = $to_alert->get_column('distance');
                 last if ($distance > $max_alert);
                 my $eid = $to_alert->empire_id;
