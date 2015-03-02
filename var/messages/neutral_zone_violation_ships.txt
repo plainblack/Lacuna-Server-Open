@@ -1,0 +1,10 @@
+Neutral Zone Violation with Ships
+~~~
+EMERGENCY BROADCAST:
+{Empire %s %s} has violated the neutral zone accords by launching an surprise attack on the peace-loving residents of planet {Planet %s %s}.
+All empires receiving this message are urged to fulfill their moral obligation to fight the aggression. Please help keep the neutrality
+of the zone sacred
+
+With great urgency,
+
+Lacuna Expanse Corporation
