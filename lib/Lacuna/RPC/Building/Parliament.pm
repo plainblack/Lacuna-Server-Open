@@ -18,7 +18,7 @@ sub max_members {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $leader_emp = $building->body->empire;
+    my $leader_emp = $building->body->alliance->leader;
     my $leader_planets = $leader_emp->planets;
     my @planet_ids;
     while ( my $planet = $leader_planets->next ) {
@@ -27,7 +27,7 @@ sub max_members {
     my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' }, 
         { order_by => { -desc => 'level' } }
-    )->single;
+    )->first;
     return ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
 }
 
@@ -119,16 +119,25 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
-    my @out;
-    my $laws = $body->laws;
-    while (my $law = $laws->next) {
-        push @out, $law->get_status($empire);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body_id);
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @out;
+        my $laws = $body->laws;
+        while (my $law = $laws->next) {
+            push @out, $law->get_status($empire);
+        }
+        return {
+            status          => $self->format_status($empire, $body),
+            laws            => \@out,
+        };
     }
-    return {
-        status          => $self->format_status($empire, $body),
-        laws            => \@out,
-    };
+    else {
+        return {
+            status => "Not a station",
+            laws   => [],
+        },
+    }
 }
 
 sub cast_vote {
@@ -147,6 +156,10 @@ sub cast_vote {
     unless (defined $proposition) {
         confess [1002, 'Proposition not found.'];
     }
+    if ($proposition->station->alliance_id != $empire->alliance_id) {
+        confess [1003, 'You cannot vote for another alliances propositions!'];
+    }
+
     $proposition->cast_vote($empire, $vote);
     return {
         status      => $self->format_status($empire, $building->body),
@@ -160,6 +173,7 @@ sub propose_fire_bfg {
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
+    $empire->current_session->check_captcha;
     my $building = $self->get_building($empire, $building_id);
     unless ($building->level >= 25) {
         confess [1013, 'Parliament must be level 25 to propose using the BFG.',25];

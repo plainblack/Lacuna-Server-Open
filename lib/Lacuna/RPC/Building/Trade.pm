@@ -123,7 +123,7 @@ sub remove_supply_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
+    my $supply_chain = $building->supply_chains->search({})->first;
     if (defined $supply_chain) {
         my $from = $supply_chain->target;
         $building->send_supply_ship_home($from, $ship);
@@ -155,7 +155,7 @@ sub remove_waste_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $waste_chain = $building->waste_chains->search({},{rows => 1})->single;
+    my $waste_chain = $building->waste_chains->search({})->first;
     if (defined $waste_chain) {
         my $from = $building->body->star;
         $building->send_waste_ship_home($from, $ship);
@@ -499,7 +499,8 @@ sub accept_from_market {
         from_reason => 'Trade Price',
         to_empire   => $trade->body->empire,
         to_reason   => 'Trade Income',
-    })->update;
+    });
+    $empire->update;
 
     $offer_ship->send(
         target  => $body,
@@ -564,9 +565,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     get_ships 
     get_ship_summary
     get_prisoners 
-    get_plans 
     get_plan_summary 
-    get_glyphs 
     get_glyph_summary
 ));
 

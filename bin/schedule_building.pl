@@ -136,9 +136,10 @@ eval {
     local $SIG{ALRM} = sub { die "alarm\n" };
     alarm $timeout;
     
-    do {
+    LOOP: do {
         my $job     = $queue->consume('default');
         my $args    = $job->args;
+        $job->delete, next unless ref $args eq 'HASH';
         my $task    = $args->{task};
         my $task_args = $args->{args};
     

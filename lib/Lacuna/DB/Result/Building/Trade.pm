@@ -160,6 +160,7 @@ sub send_waste_ship_home {
         target      => $star,
         direction   => 'in',
         task        => 'Travelling',
+        emptyscow   => 1,
     );
     $self->recalc_waste_production;
     return $self;
@@ -208,8 +209,11 @@ sub remove_supply_chain {
             $self->send_supply_ship_home($supply_chain->target, $ship);
         }
     }
+    my $target = $supply_chain->target;
     $supply_chain->delete;
     $self->recalc_supply_production;
+    $target->needs_recalc(1);
+    $target->update;
     return $self;
 }
 
@@ -396,7 +400,7 @@ sub next_available_trade_ship {
         return $self->trade_ships->find($ship_id);
     }
     else {
-        return $self->trade_ships->search(undef, {rows => 1})->single;
+        return $self->trade_ships->search(undef)->first;
     }
 }
 

@@ -10,6 +10,8 @@ use String::Random qw(random_string);
 use UUID::Tiny ':std';
 use Time::HiRes;
 use Text::CSV_XS;
+use Firebase::Auth;
+use Gravatar::URL;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -17,7 +19,7 @@ sub find {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
     my $empire = $self->get_empire_by_session($session_id);
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
+    my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
     while (my $empire = $empires->next) {
@@ -52,7 +54,7 @@ sub is_name_valid {
 
 sub is_name_unique {
     my ($self, $name) = @_;
-    if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->count) {
+    if (Lacuna->db->resultset('Empire')->search({name=>$name})->count) {
         confess [1000, 'Empire name is in use by another player.', 'name'];
     }
     return 1;
@@ -69,40 +71,58 @@ sub login {
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
     unless (defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
     my $throttle = Lacuna->config->get('rpc_throttle') || 30;
     if ($empire->rpc_rate > $throttle) {
-        Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
+        Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
         confess [1010, 'Slow down, '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
     }
     my $max = Lacuna->config->get('rpc_limit') || 2500;
     if ($empire->rpc_count > $max) {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
-    #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
-    #   empire_id    => $empire->id,
-    #   empire_name  => $empire->name,
-    #   module       => ref $self,
-    #   api_key      => $api_key,
-    #})->insert;
+    my $config = Lacuna->config;
+    my $firebase_config = $config->get('firebase');
+    if ($firebase_config)
+    {
+        my $auth_code = Firebase::Auth->new( 
+            secret  => $firebase_config->{auth}{secret}, 
+            data    => {
+                uid          => $empire->id,
+                isModerator => $empire->chat_admin ? \1 : \0,
+                isStaff => $empire->is_admin ? \1 : \0,
+            }
+         #   data   => $data,
+        )->create_token;
+    }
+
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
             confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
         }
-        else {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
-        }
+        return { 
+            session_id  => $empire->start_session({ 
+                api_key     => $api_key, 
+                request     => $plack_request,
+            })->id, 
+            status          => $self->format_status($empire),
+        };
+    }
+    elsif ($password ne '' && $empire->sitter_password eq $password) {
+        return {
+            session_id  => $empire->start_session({ 
+                api_key     => $api_key, 
+                request     => $plack_request, 
+                is_sitter   => 1,
+            })->id, 
+            status          => $self->format_status($empire),
+        };
     }
     else {
-        if ($password ne '' && $empire->sitter_password eq $password) {
-            return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request, is_sitter => 1 })->id, status => $self->format_status($empire) };
-        }
-        else {
-            confess [1004, 'Password incorrect.', $password];            
-        }
+        confess [1004, 'Password incorrect.', $password];            
     }
 }
 
@@ -115,7 +135,7 @@ sub benchmark {
 
     my %out;
     my $t = [Time::HiRes::gettimeofday];
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$name})->next;
+    my $empire = Lacuna->db->resultset('Empire')->search({name=>$name})->next;
     $out{empire} = Time::HiRes::tv_interval($t);
 
     $t = [Time::HiRes::gettimeofday];
@@ -157,7 +177,7 @@ sub benchmark {
 sub fetch_captcha {
     my ($self, $plack_request) = @_;
     my $ip = $plack_request->address;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,65664));
+    my $captcha = Lacuna->db->resultset('Captcha')->find(randint(1,Lacuna->config->get('captcha/total')));
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
     return {
         guid    => $captcha->guid,
@@ -181,7 +201,7 @@ sub change_password {
         ->eq($password2);
 
     my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify the main account password.'];
     }
     
@@ -194,15 +214,15 @@ sub change_password {
 sub send_password_reset_message {
     my ($self, %options) = @_;
     my $empire;
-    my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire');
+    my $empires = Lacuna->db->resultset('Empire');
     if (exists $options{empire_id} && $options{empire_id} ne '') {
         $empire = $empires->find($options{empire_id});
     }
     elsif (exists $options{empire_name}) {
-        $empire = $empires->search({ name => $options{empire_name} }, { rows => 1 })->single;
+        $empire = $empires->search({ name => $options{empire_name} })->first;
     }
     elsif (exists $options{email}) {
-        $empire = $empires->search({ email => $options{email} }, { rows => 1 })->single;
+        $empire = $empires->search({ email => $options{email} })->first;
     }
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
@@ -231,7 +251,7 @@ sub reset_password {
     unless (defined $key && $key ne '') {
         confess [1002, 'You need a key to reset a password.'];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({password_recovery_key => $key}, { rows=>1 })->single;
+    my $empire = Lacuna->db->resultset('Empire')->search({password_recovery_key => $key})->first;
     unless (defined $empire) {
         confess [1002, 'The key you provided is invalid. Password not reset.'];
     }
@@ -278,7 +298,7 @@ sub create {
     # verify username
     eval { $self->is_name_unique($account{name}) };
     if ($@) { # maybe they're trying to finish an incomplete empire
-        my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$account{name}})->next;
+        my $empire = Lacuna->db->resultset('Empire')->search({name=>$account{name}})->next;
         if (defined $empire) {
             if ($empire->stage eq 'new') {
                 if ($empire->is_password_valid($account{password})) {
@@ -303,14 +323,14 @@ sub create {
     if (exists $account{email} && $account{email} ne '') {
         Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email;
-        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$account{email}})->count > 0) {
+        if (Lacuna->db->resultset('Empire')->search({email=>$account{email}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
         $params{email} = $account{email};
     }
 
     # create account
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new(\%params)->insert;
+    my $empire = Lacuna->db->resultset('Empire')->new(\%params)->insert;
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
 
     # handle invitation
@@ -343,7 +363,7 @@ sub found {
     if ($empire_id eq '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Invalid empire.", $empire_id];
     }
@@ -370,7 +390,7 @@ sub get_status {
 sub view_profile {
     my ($self, $session_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
     my $medals = $empire->medals;
@@ -422,7 +442,7 @@ sub edit_profile {
     my $empire = $self->get_empire_by_session($session_id);
     
     # preferences
-    if ($empire->current_session->is_sitter) {
+    if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
     if (exists $profile->{description}) {
@@ -591,7 +611,7 @@ sub edit_profile {
     if (exists $profile->{email} && $profile->{email} ne '') {
         Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email if ($profile->{email});
-        if (Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
+        if (Lacuna->db->resultset('Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
         $empire->email($profile->{email});
@@ -635,7 +655,7 @@ sub set_status_message {
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $viewer_empire = $self->get_empire_by_session($session_id);
-    my $viewed_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $viewed_empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
     }
@@ -672,7 +692,7 @@ sub view_public_profile {
         };
     }
     my @colonies;
-    my $probes = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $viewer_empire->id});
+    my $probes = Lacuna->db->resultset('Probes')->search_any({empire_id => $viewer_empire->id});
     my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
     while (my $colony = $planets->next) {
         if ($colony->id == $viewed_empire->home_planet_id || $probes->search({star_id=>$colony->star_id})->count) {
@@ -719,6 +739,11 @@ sub boost_building {
     return $self->boost($session_id, 'building_boost');
 }
 
+sub boost_spy_training {
+    my ($self, $session_id) = @_;
+    return $self->boost($session_id, 'spy_training_boost');
+}
+
 sub boost {
     my ($self, $session_id, $type) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -747,13 +772,14 @@ sub view_boosts {
     return {
         status  => $self->format_status($empire),
         boosts  => {
-            food        => format_date($empire->food_boost),
-            happiness   => format_date($empire->happiness_boost),
-            water       => format_date($empire->water_boost),
-            ore         => format_date($empire->ore_boost),
-            energy      => format_date($empire->energy_boost),
-            storage     => format_date($empire->storage_boost),
-            building    => format_date($empire->building_boost),
+            food         => format_date($empire->food_boost),
+            happiness    => format_date($empire->happiness_boost),
+            water        => format_date($empire->water_boost),
+            ore          => format_date($empire->ore_boost),
+            energy       => format_date($empire->energy_boost),
+            storage      => format_date($empire->storage_boost),
+            building     => format_date($empire->building_boost),
+            spy_training => format_date($empire->spy_training_boost),
         }
     };
 }
@@ -922,7 +948,7 @@ sub update_species {
     unless ($empire_id ne '') {
         confess [1002, "You must specify an empire id."];
     }
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $empire) {
         confess [1002, "Not a valid empire.",'empire_id'];
     }
@@ -1078,7 +1104,7 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness view_boosts),
+    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness boost_spy_training view_boosts),
 );
 
 

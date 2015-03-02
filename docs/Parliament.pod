@@ -7,22 +7,7 @@ The list of methods below represents changes and additions to the methods that a
 
 =head2 view_laws (session_id, body_id )
 
-B<NOTE:> Pass in a the id of the station, not the id of the parliament building. This is because anyone that wants to should be able to view the laws in this jurisdiction.
-
-Returns a list of the laws.
-
- {
-    "status" : { ... },
-    "laws" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Centure of Jamie Vrbsky",
-            "description" : "Jamie Vrbsky is bad at playing Lacuna!",
-            "date_enacted" : "01 31 2010 13:09:05 +0600"
-        },
-        ...
-    ]
- }
+While still usable, replaced by a body call instead of via the station. See Body for details.
  
 =head3 session_id
 
@@ -31,8 +16,6 @@ A session id.
 =head3 body_id
 
 The unique id of the space station.
-
-
 
 
 
@@ -255,7 +238,7 @@ B<NOTE:> See the C<writ_templates> section of C<resources.json>. These should be
     "status" : { ... },
     "proposition" : {
         "id" : "id-goes-here",
-        "name" : "Centure of Jamie Vrbsky",
+        "name" : "Censure of Jamie Vrbsky",
         "description" : "Jamie Vrbsky is bad at playing Lacuna!",
         "votes_needed" : 7,
         "votes_yes" : 0,
@@ -295,7 +278,7 @@ Repeal an existing law. Usable at parliament level 5.
     "status" : { ... },
     "proposition" : {
         "id" : "id-goes-here",
-        "name" : "Repeal Writ of Centure",
+        "name" : "Repeal Writ of Censure",
         "description" : "Repeal this law: Jamie Vrbsky is bad at playing Lacuna!",
         "votes_needed" : 7,
         "votes_yes" : 0,
@@ -860,6 +843,35 @@ A session id.
 
 The unique id of the parliament.
 
+=head2 propose_members_only_excavation ( session_id, building_id )
+
+If passed, only members of the alliance would be able to set up new colonies on planets in this station's jurisdiction. Usable at parliament level 18.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Excavation",
+        "description" : "Only members of The Federation of Planets should be allowed to excavate planets in the jurisdiction of this station.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
 
 =head2 propose_neutralize_bhg ( session_id, building_id )
 

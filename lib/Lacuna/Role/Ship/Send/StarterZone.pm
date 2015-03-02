@@ -18,7 +18,17 @@ after can_send_to_target => sub {
             while (my $planet = $planets->next) {
                 $sz_colonies++ if $planet->in_starter_zone;
             }
-            confess [1009, 'You already have the maximum allowed colonies in starter zones.'] if ($sz_colonies >= $sz_param->{max_colonies});
+            my $in_transit = Lacuna->db->resultset('Ships')->search(
+                             { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]},
+                               task=>'travelling', direction=>'out', 'body.empire_id' => $self->body->empire->id},
+                             { join => 'body' }
+                             );
+            while (my $ship = $in_transit->next) {
+                $sz_colonies++ if $ship->foreign_body->in_starter_zone;
+            }
+            confess [1009, 
+                sprintf("You either have the maximum allowed colonies (%s) in starter zones or will, when in transit colony ships arrive.", $sz_param->{max_colonies})]
+                    if ($sz_colonies >= $sz_param->{max_colonies});
         }
     }
     return 1;

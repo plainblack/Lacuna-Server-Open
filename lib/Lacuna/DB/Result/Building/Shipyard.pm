@@ -70,7 +70,7 @@ has max_ships => (
             class       => $self->class, 
             body_id     => $self->body_id,
             efficiency  => 100,
-        } )->get_column('level')->sum;
+        } )->get_column('level')->sum + 0;
     },
 );
 
@@ -148,7 +148,7 @@ sub spend_resources_to_build_ship {
 sub build_ship {
     my ($self, $ship, $time) = @_;
     $ship->task('Building');
-    my $name = $ship->type_formatted . ' '. $self->level;
+    my $name = $ship->type_formatted;
     $ship->name($name);
     $ship->body_id($self->body_id);
     $ship->shipyard_id($self->id);
@@ -158,7 +158,7 @@ sub build_ship {
     $ship->berth_level($ship->base_berth_level);
     $self->set_ship_stealth($ship);
     $time ||= $self->get_ship_costs($ship)->{seconds};
-    my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }, rows => 1})->single;
+    my $latest = $self->building_ships->search(undef, { order_by    => { -desc => 'date_available' }})->first;
     my $date_completed;
     my $is_working;
     if (defined $latest) {

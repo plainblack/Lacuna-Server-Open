@@ -109,7 +109,7 @@ B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 5
 
 =head2 RPC Limit
 
-You may only make a number of calls up to the RPC Limit in a given 24 hour period. The current limit is 10,000. They are also rate limited to 75 calls per minute. The counter resets roughly (give or take 60 minutes) at midnight GMT. Your RPC calls are counted across all clients you use and your own programs.
+You may only make a number of calls up to the RPC Limit in a given 24 hour period. The current limit is 10,000 on us1. They are also rate limited to 60 calls per minute on us1. The counter resets roughly (give or take 60 minutes) at midnight GMT. Your RPC calls are counted across all clients you use and your own programs.
 
 If you find yourself needing more RPC calls than the limit allows then you are likely making a lot of redundant requests. For example body.get_buildings() returns the entire list of buildings, and a time as to when their stats will change. So instead of calling every building on every planet every time your program looks something up, cache it until it changes.
 

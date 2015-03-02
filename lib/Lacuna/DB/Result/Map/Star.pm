@@ -25,6 +25,44 @@ sub send_predefined_message {
     }
 }
 
+sub get_status_lite {
+    my ($self, $empire, $override_probe) = @_;
+
+    my $out = {
+        color   => $self->color,
+        id      => $self->id,
+        name    => $self->name,
+        x       => $self->x,
+        y       => $self->y,
+        zone    => $self->zone,
+    };
+    if ($self->station_id) {
+        my $station     = $self->station;
+        my $alliance    = $station->alliance;
+        $out->{station} = {
+            id      => $station->id,
+            x       => $station->x,
+            y       => $station->y,
+            name    => $station->name,
+            alliance => {
+                id      => $alliance->id,
+                name    => $alliance->name,
+            },
+        };
+    }
+    if (defined $empire) {
+        if ($override_probe or $self->id ~~ $empire->probed_stars) {
+            my @orbits;
+            my $bodies = $self->bodies;
+            while (my $body = $bodies->next) {
+                push @orbits, $body->get_status_lite($empire);
+            }
+            $out->{bodies} = \@orbits;
+        }
+    }
+    return $out;
+}
+
 sub get_status {
     my ($self, $empire, $override_probe) = @_;
     my $out = {

@@ -9,7 +9,7 @@ my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body');
 for (my $y = 15; $y > -15; $y--) {
     foreach (my $x = 15; $x > -15; $x--) {
         my $star = $stars->search({x=>$x, y=>$y})->count;
-        my $body = $bodies->search({x=>$x, y=>$y},{rows=>1})->single;
+        my $body = $bodies->search({x=>$x, y=>$y})->first;
         if ($star) {
             print "*";
         }

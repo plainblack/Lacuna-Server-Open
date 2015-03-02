@@ -183,7 +183,7 @@ sub get_status {
         },
     };
     if (defined $empire) {
-        my $vote = $self->votes->search({ empire_id => $empire->id},{rows=>1})->single;
+        my $vote = $self->votes->search({ empire_id => $empire->id})->first;
         if (defined $vote) {
             $out->{my_vote} = $vote->vote;
         }

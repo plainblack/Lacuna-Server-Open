@@ -1,1 +1,11 @@
+bin/schedule_building.pid
+bin/schedule_ship_arrival.pid
+bin/setup/server/*.gz
+bin/setup/server/*.rpm
+bin/setup/server/*/
+etc/lacuna.conf
+etc/log4perl.conf
+etc/mime.types
+etc/nginx.conf
+var/www/public/index.html
 var/www/public/api

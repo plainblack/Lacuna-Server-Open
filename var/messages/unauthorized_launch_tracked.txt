@@ -1,0 +1,9 @@
+Launch Tracked
+~~~
+A launch was seen leaving the atmosphere just now from {Planet %s %s}.
+We managed to track it long enough to see that it is headed for {Starmap %s %s %s}.
+
+Regards,
+
+Your Humble Assistant
+

@@ -1,6 +1,6 @@
 Cult Memberships Grows
 ~~~
-We have heard reports of members of the populace on {Starmap %s %s %s} becoming despondant and joining up with The Cult of the Fissure.  Even hardened members of our intelligence community have been listening to their arguments.
+We have heard reports of members of the populace on {Starmap %s %s %s} becoming despondent and joining up with The Cult of the Fissure.  Even hardened members of our intelligence community have been listening to their arguments.
 
 Regards,
 

@@ -7,6 +7,7 @@ use UUID::Tiny ':std';
 use File::Path qw(remove_tree make_path);
 
 my $db = Lacuna->db;
+my $config = Lacuna->config;
 my $captchas = $db->resultset('Lacuna::DB::Result::Captcha');
 
 say "Generating Riddles";
@@ -125,7 +126,7 @@ make_path('/data/captcha');
 say "Generating Captchas...";
 my $counter = 0;
 foreach my $riddle (keys %riddles) {
-    foreach my $font (qw(Ayuthaya Chalkduster HeadlineA Kai)) {
+    foreach my $font (@{ $config->get('captcha/fonts') || [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ] }) {
         foreach my $style (qw(default rect circle ellipse ec blank)) {
             foreach my $bg_color (qw(#666600 #660066 #006666)) {
                 foreach my $fg_color (qw(#ddffff #ffddff #ffffdd)) {
@@ -134,7 +135,7 @@ foreach my $riddle (keys %riddles) {
                             width   => 300,
                             height  => 80,
                             lines   => 20,
-                            font    => '/Library/Fonts/'.$font.'.ttf',
+                            font    => ($config->get('captcha/fontpath')||"/Library/Fonts").'/'.$font.'.ttf',
                             bgcolor => $bg_color,
                             ptsize  => 32,
                             rndmax  => 3,

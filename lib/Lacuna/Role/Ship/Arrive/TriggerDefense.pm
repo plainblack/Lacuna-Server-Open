@@ -31,6 +31,9 @@ after handle_arrival_procedures => sub {
     # set last attack status
     $body_attacked->set_last_attacked_by($ship_body->id);
 
+    # subtract from time being able to jump to neutral area
+    $body_attacked->subtract_from_neutral_entry(int($self->combat/5));
+
     # get SAWs
     $self->system_saw_combat;
 

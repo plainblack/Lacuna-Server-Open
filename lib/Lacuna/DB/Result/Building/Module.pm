@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(GROWTH);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -24,14 +25,26 @@ use constant food_to_build => 100;
 use constant ore_to_build => 500;
 use constant water_to_build => 150;
 
+sub sortable_name {
+    '75'.shift->name
+}
+
 around spend_efficiency => sub {
     my ($orig, $self, $amount) = @_;
+    $amount = int($amount/5) + 1;
     if ($self->efficiency <= $amount) {
         if ($self->level <= 1 && eval{$self->can_demolish}) {
             $self->demolish;
         }
         elsif ($self->level > 1 && eval{$self->can_downgrade}) {
-            $self->downgrade;
+            if (!Lacuna->cache->get('downgrade',$self->id)) {
+                $self->downgrade;
+                Lacuna->cache->set('downgrade',$self->id, 1, 15 * 60);
+            }
+            else {
+                $amount = $self->efficiency - 1;
+                $orig->($self, $amount);
+            }
         }
         else {
             $orig->($self, $amount);
@@ -42,6 +55,14 @@ around spend_efficiency => sub {
     }
     return $self;
 };
+
+sub production_hour {
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $production = (GROWTH ** (  $self->level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
+}
 
 sub cost_to_upgrade {
     return {

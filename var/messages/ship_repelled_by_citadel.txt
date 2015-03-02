@@ -1,0 +1,7 @@
+Ship Repelled by Citadel
+~~~
+Our %s reached {Starmap %s %s %s}, but was repelled by their Citadel of Knope.
+
+Regards,
+
+Your Humble Assistant

@@ -87,7 +87,7 @@ sub www_search_essentia_codes {
     my $toggle_used = $used ? '0' : 1;
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= sprintf('<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
+    $out .= sprintf('<table style="width: 100%%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
@@ -671,6 +671,7 @@ sub www_view_glyphs {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
+    $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add glyph"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
@@ -683,7 +684,7 @@ sub www_add_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_glyph($request->param('type'));
+    $body->add_glyph($request->param('type'), $request->param('quantity'));
     return $self->www_view_glyphs($request, $body->id);
 }
 
@@ -693,7 +694,7 @@ sub www_delete_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->glyphs->find($request->param('glyph_id'))->delete;
+    $body->glyph->find($request->param('glyph_id'))->delete;
     return $self->www_view_glyphs($request, $body->id);
 }
 
@@ -803,6 +804,10 @@ sub format_complex_paginator {
     return $out;
 }
 
+=for later
+
+MUCH later.
+
 sub www_delete_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('empire_id');
@@ -818,6 +823,8 @@ sub www_delete_empire {
     $empire->delete;
     return $self->www_search_empires($request);
 }
+
+=cut
 
 sub www_toggle_isolationist {
     my ($self, $request, $id) = @_;
@@ -835,6 +842,10 @@ sub www_toggle_isolationist {
     return $self->www_view_empire($request, $id);
 }
 
+=for probably never
+
+Admins are added/removed so rarely, it shouldn't be done so trivially
+
 sub www_toggle_admin {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -850,6 +861,8 @@ sub www_toggle_admin {
     }
     return $self->www_view_empire($request, $id);
 }
+
+=cut
 
 sub www_toggle_mission_curator {
     my ($self, $request, $id) = @_;
@@ -934,7 +947,7 @@ sub www_view_empire {
             $invites_sent->all;
     $out .= '</td></tr>';
     $out .= '<tr><th>Invite Accepted From</th><td>';
-    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id})->first;
     if ( $invite_accepted && $invite_accepted->inviter_id ) {
         my $inviter = $invite_accepted->inviter;
         $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $inviter->id, $inviter->name);
@@ -943,13 +956,13 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
-    $out .= sprintf('<tr><th>Admin</th><td>%s</td><td><a href="/admin/toggle/admin?id=%s">Toggle</a></td></tr>', $empire->is_admin, $empire->id);
+    $out .= sprintf('<tr><th>Admin</th><td>%s</td></tr>', $empire->is_admin);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
-    $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
+    #$out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
     return $self->wrap($out);
 }

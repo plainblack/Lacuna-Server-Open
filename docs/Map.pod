@@ -12,6 +12,93 @@ So if the server name is "us-east-1", then the the URL would be
 
 These methods are accessible via the C</map> URL.
 
+=head2 get_star_map
+
+This takes a hashref of named arguments.
+
+ {
+   "session_id" : "session-id-here",
+   "left" : -900,
+   "top" : 50,
+   "right" : -850,
+   "bottom" : 30
+ }
+
+This is the preferred call to obtain star data. It is a 'lite' version of B<get_stars> which just returns 
+enough data to draw the starmap.
+
+Where B<left>, B<top>, B<right>, B<bottom> represent the sides of the bounding rectangle.
+
+The maximum area that can be returned is 1001 units (e.g 50 x 20 or 1001 x 1)
+
+Returns a chunk of the map as an array of hashes. 
+
+ {
+   "stars" : [
+     {
+       "name"       : "Sol",
+       "color"      : "yellow",
+       "x"          : -41,
+       "y"          : 27,
+       "id"         : 99,
+       "station" : {
+         "id"       : 2001,
+         "x"        : 143,
+         "y"        : -27,
+         "name"     : "The Death Star",
+         "alliance" : {
+           "name"     : "The Borg Collective",
+           "id"       : 23,
+           "image"    : 'my_logo_v001',
+         }
+       }
+       "bodies" : [
+         {
+           "name"   : "Mercury",
+           "id"     : 345,
+           "orbit"  : 1,
+           "x"      : -40,
+           "y"      : 29,
+           "type"   : "habitable planet",
+           "image"  : "p13",
+           "size"   : 58,
+           "empire" {
+             "id"     : 945,
+             "name"   : "Earthlings",
+             "alignment"  : "ally",
+             "is_isolationist" : 1
+           }
+         },
+         {
+           "name"   : "Vesta",
+           "id"     : 346,
+           "orbit"  : 2,
+           "x"      : -39,
+           "y"      : 28,
+           "type"   : "asteroid",
+           "image"  : "p33",
+           "size"   : 3,
+           "body_has_fissure"  : 1,
+         },
+         ...
+       ]
+     },
+     {
+       ...
+     }
+     ...
+   ]
+ }
+
+Note. This data is a cut-down version of that returned by get_stars, in particular it does not
+return most of the data for planets you occupy (ore, water etc.), does not return the 'station' 
+data if the planet in under the influence of a space-station and does not return the water or
+ore for the planet. You can make separate calls to the /body get_status for that information.
+
+The B<station> section is only returned if the star is under the influence of a Space station.
+
+The B<empire> section is only returned if the body is occupied by an empire.
+
 =head2 get_stars ( session_id, x1, y1, x2, y2 )
 
 Retrieves a chunk of the map and returns it as an array of hashes. B<Note:> Coordinates without a star will not be returned in the results.
@@ -260,6 +347,79 @@ A session id.
 
 A partial name of a star. Case insensitive. Must be at least 3 characters.
 
+
+=head2 probe_summary_fissures
+
+Obtain a summary of all bodies with fissures, known to yours, or your alliances probes within a specified zone.
+
+This takes named arguments only
+
+ {
+   "session_id" : "1234-0A34-333F-21",
+   "zone"       : "0|0",
+ }
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 zone (optional)
+
+A string defining the zone, e.g "-1|0", "5|-5" or "0|0"
+
+If not specified, all zones are searched.
+
+=head3 RESPONSE
+
+ {
+   "fissures" : {
+     "345" : {
+       "name"   : "Mercury",
+       "id"     : 345,
+       "orbit"  : 1,
+       "x"      : -40,
+       "y"      : 29,
+       "type"   : "habitable planet",
+       "image"  : "p13",
+       "size"   : 58,
+      },
+    "735" : {
+       ...
+      }
+    }
+ }
+     
+This returns a hash of body-ids and for each one a brief description of the body on which is at least
+one fissure;
+
+If there are no fissures on any of the bodies which you have probed then an empty list is returned;
+
+=head2 view_laws (session_id, star_id )
+
+B<NOTE:> Pass in a the id of a star and the laws enacted by the controlling station will be returned.
+
+Returns a list of the laws.
+
+ {
+    "status" : { ... },
+    "laws" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Censure of Jamie Vrbsky",
+            "description" : "Jamie Vrbsky is bad at playing Lacuna!",
+            "date_enacted" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The unique id of the star
 
 
 =head1 FAQ

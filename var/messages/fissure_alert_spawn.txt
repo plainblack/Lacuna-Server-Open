@@ -1,0 +1,9 @@
+Fissure Spawns in neighborhood
+~~~
+Our astronomers have detected a fissure forming on {Starmap %s %s %s}.
+If that is an uninhabited planet, we should send Fissure Sealers as soon as possible.
+
+Regards,
+
+Your Humble Assistant
+

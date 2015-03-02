@@ -4,38 +4,108 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
-use Chat::Envolve;
+use Firebase::Auth;
+use Firebase;
+use Gravatar::URL;
+use Ouch;
 
-
-sub get_commands {
+sub init_chat {
     my ($self, $session_id) = @_;
+
     my $empire = $self->get_empire_by_session($session_id);
-    my $api_key = Lacuna->config->get('envolve/api_key');
-    unless ($api_key) {
-        return { login_command => 'noapikey', logout_command => 'noapikey', status => $self->format_status($empire) }
-    }
-    my $chat = Chat::Envolve->new(
-        api_key     => $api_key,
-        client_ip   => 'none',
+
+    my $config = Lacuna->config;
+    my $firebase_config = $config->get('firebase');
+    return undef unless $firebase_config;
+    my $chat_auth = Firebase::Auth->new(
+        secret  => $firebase_config->{auth}{secret},
+#        debug   => \1,
+        data    => {
+            uid          => $empire->id,
+            isModerator => $empire->chat_admin ? \1 : \0,
+            isStaff => $empire->is_admin ? \1 : \0,
+        }
+     #   data   => $data,
     );
-    my %params;
+    my $firebase = Firebase->new(
+        firebase    => $firebase_config->{firebase},
+        authobj     => $chat_auth,
+    );
+    my $chat_name = $empire->name;
+    my $aname;
+    $chat_name =~ s/[^0-9a-zA-Z_ ]/_/g;
+    $chat_name =~ s/__*/_/g;
     if ($empire->alliance_id) {
-        my $alliance = $empire->alliance;
-        if (defined $alliance) {
-            $params{last_name} = '('.$alliance->name.')';
+        $aname = $empire->alliance->name;
+        $aname =~ s/[^0-9a-zA-Z_ ]/_/g;
+        $aname =~ s/__*/_/g;
+        $chat_name .= " (".$aname.")";
+    }
+    if (0) {
+#    if ($empire->alliance_id) {
+    	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
+        if ($@) {
+  	     warn bleep;
+        }
+        elsif (defined $room) {
+             eval {
+            	$firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
+                	$empire->id => \1
+           	});
+	     };
+             if ($@) {
+                warn bleep;
+             }
+        }
+        else {
+            eval { 
+	            $firebase->put('room-metadata/'.$empire->alliance_id, {
+        	        id              => $empire->alliance_id,
+#                	name            => $empire->alliance->name,
+                	name            => $aname,
+	                type            => 'private',
+        	        createdByUserId => $empire->id,
+                	'.priority'     => {'.sv' => 'timestamp'},
+	                authorizedUsers => {$empire->id => \1},
+        	    });
+	    };
+	    if ($@) {
+		warn bleep;
+	    }
         }
     }
-    if ($empire->is_admin) {
-        $params{is_admin} = 1;
+#    if ($empire->is_admin) {
+#        $chat_name .= " <ADMIN>";
+#    }
+#    elsif ($empire->chat_admin) {
+#        $chat_name .= " <MOD>";
+#    }
+    my $gravatar_id = gravatar_id($empire->email);
+    my $gravatar_url = gravatar_url(
+        email   => $empire->email,
+        default => 'monsterid',
+	size    => 300,
+	);
+    my $ret = {
+        status          => $self->format_status($empire),
+        gravatar_url    => $gravatar_url,
+        chat_name       => $chat_name,
+        chat_auth       => $chat_auth->create_token,
+        isStaff         => $empire->is_admin   ? \1 : \0,
+        isModerator     => $empire->chat_admin ? \1 : \0,
+    };
+    if (0) {
+#    if ($empire->alliance_id) {
+        $ret->{private_room} = {
+            id          => $empire->alliance_id,
+            name        => $aname,
+        };
     }
-    my $login = $chat->get_login_command($empire->name, %params);
-    my $logout = $chat->get_logout_command;
-    return { login_command => $login, logout_command => $logout, status => $self->format_status($empire) };
-}
-
+    return $ret;
+}    
 
 __PACKAGE__->register_rpc_method_names(
-    qw(get_commands),
+    qw(init_chat),
 );
 
 

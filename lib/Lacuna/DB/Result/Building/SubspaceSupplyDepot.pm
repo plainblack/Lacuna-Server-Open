@@ -121,7 +121,7 @@ after finish_work => sub {
             body_id => $body->id,
             type    => 'short_range_colony_ship',
             name    => 'The Gift',
-            speed   => 1500,
+            speed   => 5500,
             task    => 'Docked',
         })->insert;
         $body->empire->send_predefined_message(

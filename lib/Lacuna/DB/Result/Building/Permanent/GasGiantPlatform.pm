@@ -3,6 +3,7 @@ package Lacuna::DB::Result::Building::Permanent::GasGiantPlatform;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
+use Lacuna::Constants qw(GROWTH);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
@@ -73,6 +74,15 @@ before has_special_resources => sub {
     }
   }
 };
+
+sub production_hour {
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $prod_level = $self->level;
+    my $production = (GROWTH ** (  $prod_level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
+}
 
 use constant name => 'Gas Giant Settlement Platform';
 

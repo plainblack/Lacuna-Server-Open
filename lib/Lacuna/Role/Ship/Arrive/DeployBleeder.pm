@@ -19,6 +19,7 @@ after handle_arrival_procedures => sub {
             y           => $y,
         });
         $body_attacked->build_building($deployed, 1);
+        $deployed->finish_upgrade;
         $body_attacked->needs_surface_refresh(1);
         $body_attacked->update;
     }

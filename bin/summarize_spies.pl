@@ -61,17 +61,37 @@ sub generate_overview {
             highest_politics                => $spies->get_column('politics_xp')->max,
             average_theft                   => $spies->get_column('theft_xp')->func('avg'),
             highest_theft                   => $spies->get_column('theft_xp')->max,
-            gathering_intelligence_count    => $spies->search({task => 'Gather Intelligence'})->count,
-            hacking_networks_count          => $spies->search({task => 'Hack Networks'})->count,
-            countering_espionage_count      => $spies->search({task => 'Counter Espionage'})->count,
-            inciting_rebellion_count        => $spies->search({task => 'Incite Rebellion'})->count,
-            sabotaging_infrastructure_count => $spies->search({task => 'Sabotage Infrastructure'})->count,
-            appropriating_technology_count  => $spies->search({task => 'Appropriate Technology'})->count,
-            travelling_count                => $spies->search({task => 'Travelling'})->count,
-            training_count                  => $spies->search({task => 'Training'})->count,
-            in_prison_count                 => $spies->search({task => 'Captured'})->count,
-            unconscious_count               => $spies->search({task => 'Unconscious'})->count,
             idle_count                      => $spies->search({task => 'Idle'})->count,
+            countering_espionage_count      => $spies->search({task => 'Counter Espionage'})->count +
+                                               $spies->search({task => 'Debriefing'})->count,
+            security_count                  => $spies->search({task => 'Security Sweep'})->count,
+            propaganda_count                => $spies->search({task => 'Political Propaganda'})->count,
+            gathering_intelligence_count    => $spies->search({task => 'Gather Empire Intelligence'})->count +
+                                               $spies->search({task => 'Gather Operative Intelligence'})->count +
+                                               $spies->search({task => 'Gather Resource Intelligence'})->count,
+            hacking_networks_count          => $spies->search({task => 'Hack Network 19'})->count,
+            inciting_count                  => $spies->search({task => 'Incite Rebellion'})->count +
+                                               $spies->search({task => 'Incite Mutiny'})->count +
+                                               $spies->search({task => 'Incite Insurrection'})->count,
+            sabotaging_count                => $spies->search({task => 'Sabotage BHG'})->count +
+                                               $spies->search({task => 'Sabotage Infrastructure'})->count +
+                                               $spies->search({task => 'Sabotage Probes'})->count +
+                                               $spies->search({task => 'Sabotage Resource'})->count,
+            stealing_count                  => $spies->search({task => 'Appropriate Technology'})->count +
+                                               $spies->search({task => 'Appropriate Resources'})->count,
+            training_count                  => $spies->search({task => 'Training'})->count,
+            extra_training_count            => $spies->search({task => 'Intel Training'})->count +
+                                               $spies->search({task => 'Mayhem Training'})->count +
+                                               $spies->search({task => 'Politics Training'})->count +
+                                               $spies->search({task => 'Theft Training'})->count,
+            extraction_count                => $spies->search({task => 'Rescue Comrades'})->count,
+            antipersonal_count              => $spies->search({task => 'Abduct Operatives'})->count +
+                                               $spies->search({task => 'Assassinate Operatives'})->count,
+            for_sale_count                  => $spies->search({task => 'Mercenary Transport'})->count,
+            travelling_count                => $spies->search({task => 'Travelling'})->count,
+            infiltrating_count              => $spies->search({task => 'Infiltrating'})->count,
+            in_prison_count                 => $spies->search({task => 'Captured'})->count + $spies->search({task => 'Prisoner Transport'})->count,
+            unconscious_count               => $spies->search({task => 'Unconscious'})->count,
         },
     );
 
@@ -85,6 +105,12 @@ sub generate_overview {
     # replace old spies data with new
     $stats->{spies} = $out{spies};
     # save updated data
+#XXX
+#  my $spy_txt = JSON->new->pretty->canonical->utf8->encode($stats);
+#  open(OUT, ">:utf8:", "spies.json");
+#  print OUT $spy_txt;
+#  close(OUT);
+#XXX
     my $object = $bucket->putobject('server_overview.json', to_json($stats), { 'Content-Type' => 'application/json' });
     $object->acl('public');
 }
@@ -115,8 +141,8 @@ sub summarize_spies {
     my $spies = $db->resultset('Lacuna::DB::Result::Spies')->search({ empire_id   => {'>' => 1} });
     my $logs = $db->resultset('Lacuna::DB::Result::Log::Spies');
     while (my $spy = $spies->next) {
-        out($spy->name);
-        my $log = $logs->search({ spy_id => $spy->id },{ rows => 1 } )->single;
+        out($spy->id.":".$spy->name);
+        my $log = $logs->search({ spy_id => $spy->id } )->first;
         my $offense_success_rate = ($spy->offense_mission_count) ? 100 * $spy->offense_mission_successes / $spy->offense_mission_count : 0;
         my $defense_success_rate = ($spy->defense_mission_count) ? 100 * $spy->defense_mission_successes / $spy->defense_mission_count : 0;
         my $success_rate = $offense_success_rate + $defense_success_rate;

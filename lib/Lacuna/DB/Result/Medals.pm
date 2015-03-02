@@ -28,6 +28,7 @@ use constant MEDALS => {
     supply_pod2                     => 'Built Supply Pod II',
     supply_pod3                     => 'Built Supply Pod III',
     supply_pod4                     => 'Built Supply Pod IV',
+    supply_pod5                     => 'Built Supply Pod V',
     probe                           => 'Built Probe',
     short_range_colony_ship         => 'Built Short Range Colony Ship',
     colony_ship                     => 'Built Colony Ship',

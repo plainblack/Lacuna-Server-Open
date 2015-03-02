@@ -1,6 +1,6 @@
 Dillon Forge Failure
 ~~~
-The Dillon Forge on {Planet %s %s} failed to split a level %s %s plan, perhaps your scientists need to do further research into its operation?
+The Dillon Forge on {Planet %s %s} failed to split %s level %s+%s %s plan%s, perhaps your scientists need to do further research into its operation?
 
 Regards,
 

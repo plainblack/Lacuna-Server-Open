@@ -39,7 +39,7 @@ ok $empire->alliance_id, 'empire has alliance';
 $friend->empire->alliance_id($empire->alliance_id);
 $friend->empire->update;
 
-my $station = Lacuna->db->resultset('Map::Body')->search({class => {like => 'Lacuna::DB::Result::Map::Body::Planet::P%'}, empire_id => undef},{rows=>1})->single;
+my $station = Lacuna->db->resultset('Map::Body')->search({class => {like => 'Lacuna::DB::Result::Map::Body::Planet::P%'}, empire_id => undef})->first;
 $station->convert_to_station($empire);
 $station->discard_changes; # just in case
 

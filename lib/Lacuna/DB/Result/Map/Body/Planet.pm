@@ -44,9 +44,9 @@ sub sorted_plans {
     my ($self) = @_;
 
     my @sorted_plans = sort {
-            $a->class->name cmp $b->class->name 
-        ||  $a->level cmp $b->level 
-        ||  $b->extra_build_level cmp $a->extra_build_level 
+            $a->class->sortable_name cmp $b->class->sortable_name 
+        ||  $a->level <=> $b->level
+        ||  $a->extra_build_level <=> $b->extra_build_level
         } @{$self->plan_cache};
     return \@sorted_plans;
 }
@@ -183,7 +183,7 @@ sub add_glyph {
   my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                  type    => $type,
                  body_id => $self->id,
-               })->single;
+               })->first;
   if (defined($glyph)) {
     my $sum = $num_add + $glyph->quantity;
     $glyph->quantity($sum);
@@ -205,7 +205,7 @@ sub use_glyph {
   my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
                  type    => $type,
                  body_id => $self->id,
-               })->single;
+               })->first;
   return 0 unless defined($glyph);
   if ($glyph->quantity > $num_used) {
     my $sum = $glyph->quantity - $num_used;
@@ -296,12 +296,14 @@ sub sanitize {
     my $enemy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $self->id});
     while (my $spy = $enemy->next) {
         $spy->on_body_id($spy->from_body_id);
+        $spy->task("Idle");
         $spy->update;
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({body_id => $self->id})->delete_all;
     Lacuna->db->resultset('Lacuna::DB::Result::MercenaryMarket')->search({body_id => $self->id})->delete_all;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({body_id => $self->id})->delete;
+    # We will delete all probes (observatory or oracle), note, must recreate oracle probes if the planet is recolonised
+    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search_any({body_id => $self->id})->delete;
     $self->empire_id(undef);
     if ($self->get_type eq 'habitable planet' &&
         $self->size >= 40 && $self->size <= 50 &&
@@ -347,6 +349,32 @@ sub get_food_status {
     return $out;
 }
 
+around get_status_lite => sub {
+    my ($orig, $self, $empire) = @_;
+
+    my $out = $self->$orig;
+
+    if ($self->empire_id) {
+        $out->{empire} = {
+            name            => $self->empire->name,
+            id              => $self->empire_id,
+            alignment       => $self->empire->is_isolationist ? 'hostile-isolationist' : 'hostile',
+            is_isolationist => $self->empire->is_isolationist,
+        };
+        if (defined $empire) {
+            if ($empire->id eq $self->empire_id or (
+                $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') and
+                $empire->alliance_id and $self->empire->alliance_id == $empire->alliance_id )) {
+                $out->{empire}{alignment} = 'self',
+            }
+            elsif ($empire->alliance_id and $self->empire->alliance_id == $empire->alliance_id) {
+                $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
+            }
+        }
+    }
+    return $out;
+};
+
 around get_status => sub {
     my ($orig, $self, $empire) = @_;
     my $out = $orig->($self);
@@ -377,12 +405,6 @@ around get_status => sub {
                 my $dt_parser = Lacuna->db->storage->datetime_parser;
                 my $now = $dt_parser->format_datetime( DateTime->now );
 
-
-
-
-
-
-
                 # TODO: Can we do a 'distinct' on the foreign_body_id and just get that column rather
                 # than reading all ship records?
                 #
@@ -401,10 +423,6 @@ around get_status => sub {
                         $body->tick;
                     }
                 }
-
-
-
-
 
                 my $num_incoming_ally = 0;
                 my @incoming_ally;
@@ -512,6 +530,15 @@ around get_status => sub {
                 $out->{waste_hour}      = $self->waste_hour;
                 $out->{happiness}       = $self->happiness;
                 $out->{happiness_hour}  = $self->happiness_hour;
+                if ($self->unhappy) {
+                    $out->{unhappy_date} = format_date($self->unhappy_date);
+                    $out->{propaganda_boost} = $self->propaganda_boost;
+                }
+                else {
+                    $out->{propaganda_boost} = $self->propaganda_boost;
+                    $out->{propaganda_boost} = 50 if ($out->{propaganda_boost} > 50);
+                }
+                $out->{neutral_entry} = format_date($self->neutral_entry);
             }
             elsif ($empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id) {
                 $out->{empire}{alignment} = $self->empire->is_isolationist ? 'ally-isolationist' : 'ally';
@@ -709,6 +736,16 @@ has embassy => (
         },
         );    
 
+has oracle => (
+    is      => 'rw',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
+        return $building;
+    },
+);
+
 sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
@@ -741,6 +778,17 @@ sub find_free_space {
         }
     }
     confess [1009, 'No free space found.'];
+}
+
+sub has_outgoing_ships {
+    my ($self, $min) = @_;
+    my $ships = Lacuna->db->resultset('Ships')->search({
+            body_id         => $self->id,
+            task            => 'Travelling',
+    });
+    my $count = $ships->count;
+    return 1 if $count >= $min;
+    return 0;
 }
 
 sub check_for_available_build_space {
@@ -839,7 +887,7 @@ sub has_resources_to_operate {
         if ($delta < 0 && $future->{$method} + $delta < 0) {
             my $resource = $method;
             $resource =~ s/(\w+)_hour/$1/;
-            confess [1012, "Unsustainable. Not enough resources being produced to build this.", $resource];
+            confess [1012, "Unsustainable given the current and planned resource consumption. Not enough resources being produced to build this.", $resource];
         }
     }
     return 1;
@@ -900,8 +948,6 @@ sub builds {
 sub get_existing_build_queue_time {
     my $self = shift;
     my ($building) = @{$self->builds(1)};
-
-#print STDERR "GET_EXISTING_BUILD_QUEUE_TIME: building=[$building]\n";
 
     return (defined $building) ? $building->upgrade_ends : DateTime->now;
 }
@@ -1004,6 +1050,8 @@ sub convert_to_station {
     # clean it
     my @all_buildings = @{$self->building_cache};
     $self->delete_buildings(\@all_buildings);
+    $self->_plans->delete;
+    $self->glyph->delete;
 
     # add command building
     my $command = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
@@ -1116,8 +1164,24 @@ sub recalc_stats {
         $stats{$type.'_hour'} = 0;
     }
     $stats{max_berth} = 1;
+    #calculate propaganda bonus
+    my $propaganda = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
+                       ->search({ on_body_id => $self->id,
+                                  task => 'Political Propaganda',
+                                  empire_id => $self->empire_id},
+                                  {rows => 250},
+                               );
+    my $spy_boost = 0;
+    while (my $spy = $propaganda->next) {
+        my $oratory = int( ($spy->defense + $spy->politics_xp)/250 + 0.5);
+        $spy_boost += $oratory;
+    }
+    $self->propaganda_boost($spy_boost);
+    $self->update;
     #calculate building production
-    my ($gas_giant_platforms, $terraforming_platforms, $station_command, $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour, $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
+    my ($gas_giant_platforms, $terraforming_platforms, $station_command,
+        $pantheon_of_hagness, $ore_production_hour, $ore_consumption_hour,
+        $food_production_hour, $food_consumption_hour, $fissure_percent) = 0;
     foreach my $building (@{$self->building_cache}) {
         $stats{waste_capacity}  += $building->waste_capacity;
         $stats{water_capacity}  += $building->water_capacity;
@@ -1256,10 +1320,30 @@ sub recalc_stats {
         $max_plots = $stats{size} = $station_command * 3;
     }
     elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {
-        if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
-            $max_plots = min($terraforming_platforms, $max_plots);
+        if ($self->empire) {
+            if ($self->orbit > $self->empire->max_orbit || $self->orbit < $self->empire->min_orbit) {
+                $max_plots = min($terraforming_platforms, $max_plots);
+            }
         }
     }
+    # Adjust happiness_hour to maximum of 30 days from where body went negative. Different max for positive happiness.
+    # If using spies to boost happiness rate, best rate can be a bit variable.
+    if ($self->unhappy == 1) {
+        my $happy = $self->happiness;
+        my $max_rate =    150_000_000_000;
+        if ($happy < -1 * (120 * $max_rate)) {
+            my $div = 1;
+            my $unhappy_time = DateTime->now->subtract_datetime_absolute($self->unhappy_date);
+            my $unh_hours = $unhappy_time->seconds/(3600);
+            if ($unh_hours < 720) {
+                $div = 720 - $unh_hours;
+            }
+            my $new_rate = int(abs($self->happiness)/$div);
+            $max_rate = $new_rate if $new_rate > $max_rate;
+        }
+        $stats{happiness_hour} = $max_rate if ($stats{happiness_hour} > $max_rate);
+    }
+
     $stats{plots_available} = $max_plots - $self->building_count;
     # Decrease happiness production if short on plots.
     if ($stats{plots_available} < 0) {
@@ -1403,7 +1487,7 @@ sub tick {
         my $empire = $self->empire;
         if ($empire) {
             my $still_enabled = 0;
-            foreach my $resource (qw(energy water ore happiness food storage building)) {
+            foreach my $resource (qw(energy water ore happiness food storage building spy_training)) {
                 my $boost = $resource.'_boost';
                 if ($now_epoch > $empire->$boost->epoch) {
                     $self->needs_recalc(1);
@@ -1428,7 +1512,7 @@ sub tick {
     $self->tick_to($now);
 
     # advance tutorial
-    if ($self->empire->tutorial_stage ne 'turing') {
+    if ($self->empire and $self->empire->tutorial_stage ne 'turing') {
         Lacuna::Tutorial->new(empire=>$self->empire)->finish;
     }
     # clear caches
@@ -1441,20 +1525,24 @@ sub tick_to {
     my $seconds  = $now->epoch - $self->last_tick->epoch;
     my $tick_rate = $seconds / 3600;
     $self->last_tick($now);
+#If we crossed zero happiness, either way, we need to recalc.
     if ($self->happiness < 0) {
-        $self->needs_recalc if ($self->happiness_hour < -20_000);
         if ($self->unhappy) {
 # Nothing for now...
         }
         else {
+            $self->needs_recalc(1);
             $self->unhappy(1);
             $self->unhappy_date($now);
         }
     }
     else {
-        $self->unhappy(0);
+        if ($self->unhappy) {
+            $self->unhappy(0);
+            $self->needs_recalc(1);
+        }
+        $self->needs_recalc(1) if ($self->propaganda_boost > 50);
     }
-    # Check to see if downward spiral still happening in happiness from negative plots.
     if ($self->needs_recalc) {
         $self->recalc_stats;    
     }
@@ -1638,6 +1726,14 @@ sub tick_to {
         }
         else {
             $self->toggle_supply_chain(\@supply_chains, $type, 0);
+        }
+    }
+    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @buildings = grep {
+            $_->efficiency == 0
+        } @{$self->building_cache};
+        foreach my $building (@buildings) {
+            $building->downgrade;
         }
     }
     $self->update;
@@ -2409,6 +2505,7 @@ sub add_waste {
     }
     else {
         my $empire = $self->empire;
+        return $self unless $empire;
         $self->waste_stored( $storage );
         $self->spend_happiness( $store - $storage ); # pollution
         if (!$empire->skip_pollution_warnings && $empire->university_level > 2 && !$empire->check_for_repeat_message('complaint_pollution'.$self->id)) {
@@ -2432,8 +2529,9 @@ sub spend_waste {
         $self->spend_happiness($value - $self->waste_stored);
         $self->waste_stored(0);
         my $empire = $self->empire;
-        if (!$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
+        if (!Lacuna->cache->get('lack_of_waste',$self->id)) {
             my $building_name;
+            Lacuna->cache->set('lack_of_waste',$self->id, 1, 60 * 60 * 2);
             foreach my $class (qw(Lacuna::DB::Result::Building::Energy::Waste Lacuna::DB::Result::Building::Waste::Treatment Lacuna::DB::Result::Building::Waste::Digester Lacuna::DB::Result::Building::Water::Reclamation Lacuna::DB::Result::Building::Waste::Exchanger)) {
                 my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
                 if (defined $building) {
@@ -2442,7 +2540,7 @@ sub spend_waste {
                     last;
                 }
             }
-            if ($building_name && !$empire->skip_resource_warnings) {
+            if ($building_name && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('complaint_lack_of_waste'.$self->id)) {
                 $empire->send_predefined_message(
                     filename    => 'complaint_lack_of_waste.txt',
                     params      => [$building_name, $self->id, $self->name, $building_name],
@@ -2455,20 +2553,19 @@ sub spend_waste {
     return $self;
 }
 
+#Checks for damage need to be seperated from email warnings.
 sub complain_about_lack_of_resources {
     my ($self, $resource) = @_;
     my $empire = $self->empire;
     # if they run out of resources in storage, then the citizens start bitching
-    if (!$empire->check_for_repeat_message('complaint_lack_of_'.$resource.$self->id)) {
+    if (!Lacuna->cache->get('lack_of_'.$resource,$self->id)) {
         my $building_name;
-        foreach my $rpcclass (shuffle (BUILDABLE_CLASSES,SPACE_STATION_MODULES)) {
-            my $class = $rpcclass->model_class;
-            next unless ('Infrastructure' ~~ [$class->build_tags]);
-            # Special conditions for space stations
-            if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-                if ($class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
+        Lacuna->cache->set('lack_of_'.$resource,$self->id, 1, 60 * 60 * 2);
+        if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+            foreach my $building ( sort { $b->level <=> $a->level || $b->efficiency <=> $a->efficiency || rand() <=> rand() } @{$self->building_cache} ) {
+                if ($building->class eq 'Lacuna::DB::Result::Building::Module::Parliament' || $building->class eq 'Lacuna::DB::Result::Building::Module::StationCommand') {
                     my $others = grep {$_->class !~ /Parliament$|StationCommand$|Crater$/} @{$self->building_cache};
-                    if ( $others ) {
+                    if ($others) {
                         # If there are other buildings, divert power from them to keep Parliament and Station Command running as long as possible
                         next;
                     }
@@ -2518,15 +2615,26 @@ sub complain_about_lack_of_resources {
                         }
                     }
                 }
+                else {
+                    $building_name = $building->name;
+                    $building->spend_efficiency(25)->update;
+                    last;
+                }
+            }
+        }
+        else {
+             my $class;
+            foreach my $rpcclass (shuffle (BUILDABLE_CLASSES)) {
+                $class = $rpcclass->model_class;
+                next unless ('Infrastructure' ~~ [$class->build_tags]);
             }
             my ($building) = grep {$_->efficiency > 0} $self->get_buildings_of_class($class);
             if (defined $building) {
                 $building_name = $building->name;
                 $building->spend_efficiency(25)->update;
-                last;
             }
         }
-        if ($building_name && !$empire->skip_resource_warnings) {
+        if ($building_name && !$empire->skip_resource_warnings && !$empire->check_for_repeat_message('lack_of_'.$resource.$self->id)) {
             $empire->send_predefined_message(
                 filename    => 'complaint_lack_of_'.$resource.'.txt',
                 params      => [$self->id, $self->name, $building_name],
@@ -2536,7 +2644,6 @@ sub complain_about_lack_of_resources {
         }
     }
 }
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

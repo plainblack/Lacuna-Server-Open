@@ -1,0 +1,8 @@
+Unauthorized Launch
+~~~
+A launch was seen leaving the atmosphere just now from {Planet %s %s}.
+
+Regards,
+
+Your Humble Assistant
+

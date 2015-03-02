@@ -11,7 +11,7 @@ after handle_arrival_procedures => sub {
     
     # deploy probe
     my $empire = $self->body->empire;
-    $empire->add_probe($self->foreign_star_id, $self->body_id);
+    $empire->add_observatory_probe($self->foreign_star_id, $self->body_id);
 
     # all pow
     $self->delete;
@@ -22,7 +22,7 @@ after handle_arrival_procedures => sub {
 after can_send_to_target => sub {
     my ($self, $target) = @_;
     my $body = $self->body;
-    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({ body_id => $body->id })->count;
+    my $count = Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search_observatory({ body_id => $body->id })->count;
     $count += Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ body_id => $body->id, type=>'probe', task=>'Travelling' })->count;
     my $max_probes = 0;
     my ($observatory) = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Observatory');

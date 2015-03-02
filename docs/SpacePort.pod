@@ -134,7 +134,7 @@ Optional. A hash reference that contains the filter criteria. Valid filter optio
 
 =head4 task
 
-Optional. An array reference or string with the task(s) to filter on. Valid tasks include Docked, Building, Mining, Travelling, and Defend.
+Optional. An array reference or string with the task(s) to filter on. Valid tasks include Building, Defend, Docked, Mining, Orbiting, Supply Chain, Travelling, Waiting on Trade, and Waste Chain
 
 =head4 type
 
@@ -840,6 +840,24 @@ The unique id for the space port.
 =head3 ship_id
 
 The unique id of the ship you want to destroy.
+
+
+
+=head2 mass_scuttle_ship ( session_id, building_id, ship_ids )
+
+Destroy a ship that you no longer need. It must be docked to scuttle it.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the space port.
+
+=head3 ship_ids
+
+Reference to an array of ship ids
 
 
  

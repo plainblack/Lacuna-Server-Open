@@ -17,6 +17,7 @@ __PACKAGE__->add_columns(
     announcements           => { data_type => 'text', is_nullable => 1 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     stash                   => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
+    image                   => { data_type => 'varchar', size => 255, is_nullable => 0, default => 'default' },
 ); 
 
 __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { on_delete => 'set null' });
@@ -169,7 +170,7 @@ sub send_invite {
     elsif ($empire->alliance_id == $self->id) {
         confess [1010, 'Already a member of this alliance.']
     }
-    my $invite = Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->new({
+    my $invite = Lacuna->db->resultset('AllianceInvite')->new({
         alliance_id => $self->id,
         empire_id   => $empire->id,
     })->insert;
@@ -213,8 +214,9 @@ sub add_member {
     }
     $empire->alliance_id($self->id);
     $empire->update;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $empire->id})->update({alliance_id => $self->id});
-    Lacuna->db->resultset('Lacuna::DB::Result::AllianceInvite')->search({empire_id => $empire->id})->delete;
+    # I has your probes!
+    Lacuna->db->resultset('Probes')->search({empire_id => $empire->id})->update({alliance_id => $self->id});
+    Lacuna->db->resultset('AllianceInvite')->search({empire_id => $empire->id})->delete;
     return $self;
 }
 
@@ -229,12 +231,38 @@ sub remove_member {
     elsif ($empire->id == $self->leader_id && !$delete_leader) {
         confess [1010, 'The leader of the alliance cannot be removed from the alliance.'];
     }
-    elsif ($empire->planets->search({ class => 'Lacuna::DB::Result::Map::Body::Planet::Station'})->count) {
-        confess [1010, 'A member who owns a space station cannot leave an alliance.'];
+    elsif ($empire->id == $self->leader_id) {
+# Leader is probably self destructing, choose another leader.
+        my $members = $self->members;
+        my $last_log = DateTime->now->subtract( years => 5 );
+        my $new_lead = $empire;
+        while (my $member = $members->next) {
+            if ($member->id != $self->leader_id and $member->last_login > $last_log) {
+                $new_lead = $member;
+                $last_log = $member->last_login;
+            }
+        }
+        $self->leader_id($new_lead->id);
+        $self->update;
+#Send email to all alliance members notifying them of change in leadership.
     }
+
+    my $stations = $self->stations;
+    while (my $station = $stations->next) {
+        if ($station->empire_id == $empire->id) {
+            $station->empire_id($self->leader_id);
+        }
+        foreach my $chain ($station->in_supply_chains) {
+            if ($chain->planet->empire_id == $empire->id) {
+                $chain->delete;
+            }
+        }
+        $station->update;
+    }
+
     $empire->alliance_id(undef);
     $empire->update;
-    Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});
+    Lacuna->db->resultset('Probes')->search({empire_id => $empire->id})->update({alliance_id => undef});
     return $self;
 }
 

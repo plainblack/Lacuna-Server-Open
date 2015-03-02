@@ -243,6 +243,80 @@ An array reference of message ids.
 
 
 
+=head2 trash_messages_where ( session_id, { spec => [ options, options, ... ] } )
+
+Trashed messages are marked as read.
+
+Trashes all messages matching the options. Returns:
+
+ {
+    "deleted" : ["id-goes-here","id-goes-here"],
+    "deleted_count" : 17340,
+    "status" : { ... }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 named parameters
+
+The named parameter list takes the following keys:
+
+=head4 spec
+
+A list of specifications for deletion.  Each specification is another
+object (hash).  A message must match all keys provided to be deleted ("AND").  
+It is an error to specify no options.  To delete all non-archived messages,
+simply use C<subject> of C<%>.
+
+Compounding multiple delete requests can be done by passing in additional
+hash references.
+
+Example:
+
+    { tags => [ 'Attack', 'Alert' ], subject => 'BFG%' }
+
+This will delete any message with either the C<Attack> or C<Alert> tags,
+if the subject starts with I<BFG>.  Attack and alert messages that do not
+start with "BFG" will not be deleted.
+
+Keys are:
+
+=head5 tags
+
+An array reference of tags.  Messages with any of these tags will be
+eligible for deletion.  Default is any and all tags (no tag evaluation).
+Tags are given as a set, so are automatically "or"ed together.
+
+=head5 subject
+
+A subject line to match.  Use C<%> to represent zero or more characters
+in that position, such as "Pass:%" to select all messages whose subject
+starts with "Pass:".  Default is essentially any subject (no subject
+evaluation).
+
+The subject may also be passed in as an array object, in which case it
+is treated as tags above: a set to exactly match as a set of "or"ed values.
+
+=head5 from
+
+An array reference of from empire names.  Full names are required.
+
+=head4 return_ids
+
+If this is present and set to a true value, all deleted message IDs will
+be saved and returned.  Gathering the IDs can, for large deletions, result
+in extra server work, and also increase the size of the returned JSON
+dramatically.  This should only be set if you need the IDs for deleting from
+an off-site message store, such as a local database, or an active message
+view (UI).
+
+If this is not set, the C<deleted> key will not be returned at all.
+
+The C<deleted_count> key will still be present either way.
+
+
 =head2 send_message ( session_id, recipients, subject, body, [ options ] )
 
 Sends a message to other players. 

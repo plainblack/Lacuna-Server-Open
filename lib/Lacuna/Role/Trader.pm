@@ -50,10 +50,14 @@ sub check_payload {
         my $glyph = Lacuna->db->resultset('Lacuna::DB::Result::Glyph')->search({
             type    => $item->{name},
             body_id => $self->body_id,
-            })->single;
+            })->first;
+        my $gquant = 0;
+        if (defined $glyph) {
+            $gquant = $glyph->quantity;
+        }
         confess [1002, "You don't have ".$item->{quantity}." glyphs of type ".
-                        $item->{name}." you only have ".$glyph->quantity]
-                      unless $glyph->quantity >= $item->{quantity};
+                        $item->{name}." you only have ".$gquant]
+                      unless $gquant >= $item->{quantity};
         push @expanded_items, $item;
         $space_used += 100 * $item->{quantity};
       }

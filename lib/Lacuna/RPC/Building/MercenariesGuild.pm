@@ -102,6 +102,7 @@ sub accept_from_market {
             to_empire   => $trade->body->empire,
             to_reason   => 'Mercenary Income',
         });
+        $empire->update;
     }
     
     $offer_ship->send(
@@ -219,7 +220,12 @@ sub get_spies {
     my $building = $self->get_building($empire, $building_id);
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
         { empire_id => $empire->id, on_body_id => $building->body_id, task => { in => ['Counter Espionage','Idle'] } },
-        { order_by => 'name' }
+        {
+            # match the order_by in L::RPC::B::Intelligence::view_spies
+            order_by => {
+                -asc => [ qw/name id/ ],
+            }
+        },
     );
     my @out;
     while (my $spy = $spies->next) {

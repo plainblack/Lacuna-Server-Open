@@ -40,7 +40,7 @@ has scratch     => (
 
 sub next_viable_colony {
     my $self = shift;
-    return $self->viable_colonies->search(undef, { rows => 1, order_by => 'rand()' })->single;
+    return $self->viable_colonies->search(undef, { order_by => 'rand()' })->first;
 }
 
 sub create_empire {
@@ -56,8 +56,9 @@ sub create_empire {
     );
     my $db      = Lacuna->db;
     my $empire  = $db->resultset('Lacuna::DB::Result::Empire')->new(\%attributes)->insert;
-    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
-    my $home    = $self->viable_colonies->search({zone => $zone},{rows=>1})->single;
+#    my $zone    = $db->resultset('Lacuna::DB::Result::Map::Body')->get_column('zone')->max;
+#    my $home    = $self->viable_colonies->search({zone => $zone})->first;
+    my $home    = $self->viable_colonies->search(undef,{ order_by => 'rand()'})->first;
     my @to_demolish = @{$home->building_cache};
     $home->delete_buildings(\@to_demolish);
     $empire->found($home);
@@ -72,17 +73,43 @@ sub build_colony {
     my $pcc = $body->command;
     $pcc->level(15);
     $pcc->update;
+    my $decor   = [qw(
+        Lacuna::DB::Result::Building::Permanent::Beach1
+        Lacuna::DB::Result::Building::Permanent::Beach2
+        Lacuna::DB::Result::Building::Permanent::Beach3
+        Lacuna::DB::Result::Building::Permanent::Beach4
+        Lacuna::DB::Result::Building::Permanent::Beach5
+        Lacuna::DB::Result::Building::Permanent::Beach6
+        Lacuna::DB::Result::Building::Permanent::Beach7
+        Lacuna::DB::Result::Building::Permanent::Beach8
+        Lacuna::DB::Result::Building::Permanent::Beach9
+        Lacuna::DB::Result::Building::Permanent::Beach10
+        Lacuna::DB::Result::Building::Permanent::Beach11
+        Lacuna::DB::Result::Building::Permanent::Beach12
+        Lacuna::DB::Result::Building::Permanent::Beach13
+        Lacuna::DB::Result::Building::Permanent::Crater
+        Lacuna::DB::Result::Building::Permanent::Grove
+        Lacuna::DB::Result::Building::Permanent::Lagoon
+        Lacuna::DB::Result::Building::Permanent::Lake
+        Lacuna::DB::Result::Building::Permanent::RockyOutcrop
+        Lacuna::DB::Result::Building::Permanent::Sand
+        Lacuna::DB::Result::Building::PlanetaryCommand
+    )];
+    foreach my $building (@{$body->building_cache}) {
+        unless ( grep { $building->class eq $_ } @{$decor}) {
+            $building->delete;
+        }
+    }
 
     say 'Placing structures on '.$body->name;
     my @plans = $self->colony_structures;
     
-    my @findable;
-    foreach my $module (findallmod Lacuna::DB::Result::Building::Permanent) {
-        push @findable, $module unless $module =~ m/Platform$/ || $module =~ m/Beach/;
-    }
-    
     my $extras = $self->extra_glyph_buildings;
+
+    my @findable;
+    
     if ($extras->{quantity}) {
+        push @findable, @{$extras->{findable}};
         foreach (1..$extras->{quantity}) {
             push @plans, [$findable[rand @findable], randint($extras->{min_level}, $extras->{max_level})];
         }
@@ -160,6 +187,7 @@ sub add_colonies {
                          },{
                            join       => 'stars',
                            rows       => 100,
+                           order_by => 'rand()'
                    });
                 my $body = random_element(\@bodies);
 
@@ -187,10 +215,19 @@ sub run_missions {
     my $mission = $missions[rand @missions];
     my $infiltrated_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => {'!=', $colony->id}});
     while (my $spy = $infiltrated_spies->next) {
+        next if $spy->task eq "Sabotage BHG";
         if ($spy->is_available) {
-            say "    Spy ID: ".$spy->id." running mission...";
-            my $result = eval{$spy->assign($mission)};
-            say "        ".$result->{result};
+            if ($spy->on_body->id != $spy->from_body->id and $spy->on_body->in_neutral_area ) {
+# Check if spy is in neutral zone, if it is, send someone to fetch?
+                say "    Spy ID: ".$spy->id." escaping from neutral zone...";
+                my $result = eval{$spy->assign("Bugout")};
+                say "        ".$result->{result};
+            }
+            else {
+                say "    Spy ID: ".$spy->id." running mission...";
+                my $result = eval{$spy->assign($mission)};
+                say "        ".$result->{result};
+            }
         }
         else {
             say "    Spy ID: ".$spy->id." not available";
@@ -224,7 +261,7 @@ sub demolish_bleeders {
   say 'DEMOLISH BLEEDERS';
   my @bleeders = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::DeployedBleeder');
   foreach my $bleeder (@bleeders) {
-    if (randint(0,9) < 2) {
+    if (randint(0,9) < 5) {
       say '    missed bleeder';
     }
     else {
@@ -265,7 +302,8 @@ sub pod_check {
     else {
       my @craters = $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Crater');
       if (@craters) {
-        my $crater =  random_element @craters;
+        my $crater =  random_element \@craters;
+        say 'DEMOLISH CRATER';
         $crater->demolish;
       }
     }
@@ -294,12 +332,8 @@ sub pod_check {
   $colony->update;
 }
 
-# empires can have more spies now than their intelligence ministry could
-# normally supply. Put a limit of 3 times the level of the Intelligence ministry
-# if 'subsidise' is set
-#
 sub train_spies {
-    my ($self, $colony, $subsidise) = @_;
+    my ($self, $colony, $chance, $subsidise ) = @_;
     say 'TRAIN SPIES';
 
     my $intelligence = $colony->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
@@ -307,13 +341,17 @@ sub train_spies {
     return unless defined $intelligence;
 
     my $costs = $intelligence->training_costs;
-    if ($subsidise) {
-        my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
+    my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({
             from_body_id => $colony->id,
         })->count;
-        my $max_spies = $intelligence->level;
+    my $max_spies = $intelligence->level * 3;
+    my $room_for  = $max_spies - $spies;
+    my $train_count = 0;
+    if ($subsidise) {
         my $deception = $colony->empire->deception_affinity * 50;
-        while ($spies < $max_spies * 3) {
+        while ($train_count < $room_for) {
+            $train_count++;
+            next if (rand(100) < $chance);
             # bypass everything and just create the spy
             my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
                 from_body_id    => $colony->id,
@@ -324,10 +362,10 @@ sub train_spies {
                 empire_id       => $colony->empire_id,
                 offense         => ($intelligence->espionage_level * 75) + $deception,
                 defense         => ($intelligence->security_level * 75) + $deception,
-                intel_xp        => randint(10,40),
-                mayhem_xp       => randint(10,40),
-                politics_xp     => randint(10,40),
-                theft_xp        => randint(10,40),
+                intel_xp        => randint(10,400),
+                mayhem_xp       => randint(10,400),
+                politics_xp     => randint(10,400),
+                theft_xp        => randint(10,400),
             })
             ->update_level
             ->insert;
@@ -339,7 +377,9 @@ sub train_spies {
     else {
         my $can_train = 1;
 
-        while ($can_train) {
+        while ($can_train and $train_count < $room_for) {
+            $train_count++;
+            next if (rand(100) < $chance);
             my $can = eval{$intelligence->can_train_spy($costs)};
             my $reason = $@;
             if ($can) {
@@ -359,6 +399,10 @@ sub train_spies {
 sub build_ships {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
+    if ($colony->happiness < -1_000_000) {
+        say "Too unhappy to build ships.";
+        return;
+    }
     my @shipyards = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my @priorities = $self->ship_building_priorities($colony);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
@@ -392,6 +436,10 @@ sub build_ships {
 sub build_ships_max {
     my ($self, $colony) = @_;
     say 'BUILD SHIPS';
+    if ($colony->happiness < -1_000_000) {
+        say "Too unhappy to build ships.";
+        return;
+    }
     my @ship_yards  = sort {$a->work_ends cmp $b->work_ends} $colony->get_buildings_of_class('Lacuna::DB::Result::Building::Shipyard');
     my $ships 	    = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     my $ship_yard   = shift @ship_yards;
@@ -441,9 +489,30 @@ sub set_defenders {
     my ($self, $colony) = @_;
     say 'SET DEFENDERS';
     my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
+    my $on_sweep = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id, task => "Security Sweep"})->count;
+    my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $colony->id, task => { '!=' => 'Captured'}, empire_id => { '!=' => $self->empire_id }})->count;
+    $on_sweep = 10 if ($enemies == 0);
     while (my $spy = $local_spies->next) {
         if ($spy->is_available) {
-            if ($spy->task ne 'Counter Espionage') {
+            if ($spy->task eq 'Security Sweep' or $on_sweep < 10) {
+                say "    Spy ID: ".$spy->id." sweeping";
+                my $spy_result = $spy->assign('Security Sweep');
+                $spy->update;
+                if ($spy_result->{message_id}) {
+                    my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($spy_result->{message_id});
+                    say "message: ".$message->subject;
+                    if ($message && $message->subject eq "Spy Report") {
+                        $on_sweep += 10; #No spies to find
+                        say "        spy report, no more sweeps.";
+                    }
+                    elsif ($message && $message->subject eq "Enemy Captured") {
+                        $on_sweep--;
+                        say "        caught someone, more sweeps.";
+                    }
+                }
+                $on_sweep++;
+            }
+            elsif ($spy->task ne 'Counter Espionage') {
                 say "    Spy ID: ".$spy->id." setting to defend";
                 $spy->task('Counter Espionage');
                 $spy->update;
@@ -453,6 +522,31 @@ sub set_defenders {
             say "    Spy ID: ".$spy->id." is currently unavailable";
         }
     }
+}
+
+sub kill_prisoners {
+    my ($self, $colony, $when) = @_;
+#When is in hours from prisoner being released.
+
+    say 'KILL PRISONERS';
+    my $prisoners = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $colony->id, task => 'Captured', empire_id => { '!=' => $self->empire_id }});
+    my $now = DateTime->now;
+    my $prisoner_cnt = 0;
+    while (my $prisoner = $prisoners->next) {
+        my $sentence = $now->subtract_datetime_absolute($prisoner->available_on);
+        my $hours = int($sentence->seconds/(60*60));
+        if ($hours < $when) {
+            $prisoner->empire->send_predefined_message(
+                from        => $colony->empire,
+                tags        => ['Spies','Alert'],
+                filename    => 'spy_executed.txt',
+                params      => [$prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name, $colony->x, $colony->y, $colony->name, $colony->empire->id, $colony->empire->name],
+            );
+            $prisoner->delete;
+            $prisoner_cnt++;
+        }
+    }
+    say $prisoner_cnt." prisoners executed.";
 }
 
 sub start_attack {
@@ -466,7 +560,7 @@ sub start_attack {
         say '    Has one at star already...';
         $seconds = 1;
     }
-    my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
+    my $probe = $db->resultset('Lacuna::DB::Result::Ships')->search({body_id => $attacking_colony->id, type => 'probe', task=>'Docked'})->first;
     if (defined $probe and $seconds == 0) {
         say '    Has a probe to launch for '.$target_colony->name.'...';
         $probe->send(target => $target_colony->star);

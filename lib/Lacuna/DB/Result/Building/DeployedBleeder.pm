@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
-use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH INFLATION);
 
 use constant controller_class => 'Lacuna::RPC::Building::DeployedBleeder';
 
@@ -40,11 +40,50 @@ after finish_upgrade => sub {
     }
 };
 
-use constant food_consumption => 125;
-use constant energy_consumption => 125;
-use constant ore_consumption => 125;
-use constant water_consumption => 125;
-use constant waste_production => 500;
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'shocked',10=>'stunned into silence',15=>'bewildered',20=>'dumbfounded',25=>'depressed',30=>'in great fear');
+        $self->body->add_news($new_level*4,"Standing around %s, the citizens of %s watched as their %s grew on its own.", $levels{$new_level}, $empire->name, $self->name);
+    }
+}
+
+sub production_hour {
+    my $self = shift;
+    return 0 unless  $self->level;
+    my $prod_level = $self->level;
+    my $production = (GROWTH ** (  $prod_level - 1));
+    $production = ($production * $self->efficiency) / 100;
+    return $production;
+}
+
+sub cost_to_upgrade {
+    my ($self) = @_;
+    my $upgrade_cost = $self->upgrade_cost;
+    my $upgrade_cost_reduction = $self->construction_cost_reduction_bonus;
+    my $time_inflator = ($self->level * 2) - 1;
+    $time_inflator = 1 if ($time_inflator < 1);
+    my $throttle = Lacuna->config->get('building_build_speed') || 6;
+    my $time_cost = (( $self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION);
+    $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
+    $time_cost = 15 if ($time_cost < 15);
+
+    return {
+        food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
+        time    => sprintf('%.0f',$time_cost),
+    };
+}
+
+use constant food_consumption => 250;
+use constant energy_consumption => 250;
+use constant ore_consumption => 250;
+use constant water_consumption => 250;
+use constant waste_production => 1000;
 
 
 no Moose;

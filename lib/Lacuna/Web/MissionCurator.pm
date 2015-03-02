@@ -19,7 +19,7 @@ sub www_add_essentia {
     unless (defined $empire) {
         confess [404, 'Empire not found.'];
     }
-    my $curator = $empires->search({name=>$request->user},{rows=>1})->single;
+    my $curator = $empires->search({name=>$request->user})->first;
     my $jt = $empires->find(2);
     $empire->add_essentia({
         amount  => 100, 

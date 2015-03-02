@@ -30,7 +30,7 @@ has empire_password => (
 has empire => (
     is  => 'rw',
     lazy => 1,
-    default => sub { my $self = shift; return Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name}, {rows=>1})->single; },
+    default => sub { my $self = shift; return Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name=>$self->empire_name})->first; },
 );
 
 has session => (

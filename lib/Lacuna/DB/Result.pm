@@ -26,7 +26,7 @@ sub new {
 
 sub random {
     my $self = shift;
-    return $self->search( undef, { rows => 1, order_by => 'rand()' })->single;
+    return $self->search( undef, { order_by => 'rand()' })->first;
 }
 
 

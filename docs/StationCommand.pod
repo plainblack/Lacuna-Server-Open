@@ -86,7 +86,7 @@ Returns a list of all incoming supply chains feeding this planet.
 
  {
     "status" : { ... },
-    "incoming_supply_chains" : [
+    "supply_chains" : [
         {
             "id" : "id-goes-here",
             "from_body" : {
