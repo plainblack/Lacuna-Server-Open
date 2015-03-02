@@ -141,6 +141,7 @@ our @EXPORT_OK = qw(
     SHIP_TYPES
     SHIP_TRADE_TYPES
     SHIP_WASTE_TYPES
+    SHIP_SINGLE_USE_TYPES
 );
 
 our %EXPORT_TAGS = (
@@ -155,6 +156,7 @@ our %EXPORT_TAGS = (
         SHIP_TYPES
         SHIP_TRADE_TYPES
         SHIP_WASTE_TYPES
+        SHIP_SINGLE_USE_TYPES
         )],
 );
 
