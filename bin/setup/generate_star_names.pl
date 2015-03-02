@@ -20,7 +20,7 @@ say "Generating new...";
 my $rs = String::Random->new;
 $rs->{e} = [qw(a e i o u ea ee oa oo io ia ae ou ie oe ai ui eu ow)];
 $rs->{E} = [qw(A E I O U Ea Ee Oa Oo Io Ia Ae Ou)];
-$rs->(f) = [qw(b d f g k l m n p r s t v w x y z bb be ce ch ck dd de ff fe ge gh gg je jj ke kk le lk ll lm lp lt ls lz me mm mn mp nch nd ne ng nk nn nt pe ph pp rb rd re rf rg rk rl rm rn rp rr rs rsh rt rth rv rz se sh ss st sy tch te th tt ve zy zz)];
+$rs->{f} = [qw(b d f g k l m n p r s t v w x y z bb be ce ch ck dd de ff fe ge gh gg je jj ke kk le lk ll lm lp lt ls lz me mm mn mp nch nd ne ng nk nn nt pe ph pp rb rd re rf rg rk rl rm rn rp rr rs rsh rt rth rv rz se sh ss st sy tch te th tt ve zy zz)];
 $rs->{b} = [qw(b c d f g h j k l m n p qu r s t v w x y z ch sh dr fl fr bl sl st gr gw th xy tr tw tch sch shr sn pl pr sph spl ph str ly gl gh ll nd rv gg mb ck hl ckl pp ss mp nt nd rn ng tt ss dd cc ndl zz rn)];
 $rs->{B} = [qw(B C D F G H J K L M N P Qu R S T V W X Y Z Ch Sh Dr Fl Fr Bl Sl St Gr GW Th Xy Tr Tw Sch Shr Sn Pl Pr Sph Spl Ph Str Ly Gl Gh Ll Rh Kl Cl Vl Kn)];
 $rs->{' '} = [' '];
