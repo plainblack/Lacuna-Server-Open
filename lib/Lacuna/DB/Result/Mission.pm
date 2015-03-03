@@ -317,7 +317,7 @@ sub check_objectives {
                     $target = $stars->find($movement->{target_star_id});
                 }
                 next unless defined $target;
-                confess [1013, 'Have not sent '.$ship->type_formatted.' to '.$target->name.' ('.$target->x.','.$target->y.').'];
+                confess [1013, 'No '.$ship->type_formatted.' has arrived at '.$target->name.' ('.$target->x.','.$target->y.') recently.'];
             }
         }
     }
