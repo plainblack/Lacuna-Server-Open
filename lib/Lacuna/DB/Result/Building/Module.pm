@@ -4,6 +4,9 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(GROWTH);
+
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -24,6 +27,10 @@ use constant food_to_build => 100;
 use constant ore_to_build => 500;
 use constant water_to_build => 150;
 
+sub sortable_name {
+    '75'.shift->name
+}
+
 around spend_efficiency => sub {
     my ($orig, $self, $amount) = @_;
     if ($self->efficiency <= $amount) {
@@ -31,7 +38,14 @@ around spend_efficiency => sub {
             $self->demolish;
         }
         elsif ($self->level > 1 && eval{$self->can_downgrade}) {
-            $self->downgrade;
+            if (!Lacuna->cache->get('downgrade',$self->id)) {
+                $self->downgrade;
+                Lacuna->cache->set('downgrade',$self->id, 1, 5 * 60);
+            }
+            else {
+                $amount = $self->efficiency - 1;
+                $orig->($self, $amount);
+            }
         }
         else {
             $orig->($self, $amount);

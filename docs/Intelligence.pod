@@ -137,15 +137,11 @@ The unique id of your Intelligence Ministry.
 
 =head3 page_number
 
-Defaults to 1. An integer representing which page to view. Shows 25 spies per page.
+Defaults to 1. An integer representing which page to view. Shows 30 spies per page.
 
 =head2 view_all_spies ( session_id, building_id )
 
 Returns the list of spies you have on your roster from that Intelligence Ministy. Otherwise identical to view_spies.
-
-=head2 view_empire_spies ( session_id, building_id )
-
-Returns the list of spies you have on your roster from your empire. Otherwise identical to view_spies.
 
 =head2 subsidize_training ( session_id, building_id )
 
@@ -313,13 +309,37 @@ A string containing the new assignment name. These are the possible assignments:
 
 Don't do anything.
 
+=item Bugout
+
+Only visible on non-home planets.  Immediately has agent go to their home base via spypod.
+
 =item Counter Espionage.
 
 Passively defend against all attackers.
 
 =item Security Sweep
 
-Round up all attackers.
+Round up attackers.
+
+=item Intel Training
+
+Train in Intelligence skill
+
+=item Mayhem Training
+
+Train in Mayhem skill
+
+=item Politics Training
+
+Train in Politics skill
+
+=item Theft Training
+
+Train in Theft skill
+
+=item Political Propaganda
+
+Give happiness generation a boost.  Especially effective on unhappy colonies, but hastens an agent toward retirement. Only usuable on owned planets.
 
 =item Gather Resource Intelligence
 
@@ -360,6 +380,14 @@ Kill spies.
 =item Sabotage Infrastructure
 
 Destroy buildings.
+
+=item Sabotage Defenses
+
+Destroy buildings that are used in defense.
+
+=item Sabotage BHG
+
+Prevent enemy planet from using Black Hole Generator.
 
 =item Incite Mutiny
 

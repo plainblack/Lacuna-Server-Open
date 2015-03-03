@@ -21,9 +21,7 @@ my $result;
 my $space_port = Lacuna->db->resultset('Building')->search({
     class => 'Lacuna::DB::Result::Building::SpacePort',
     body_id => $home->id,
-    },{
-    rows => 1,
-})->single;
+    })->first;
 
 $result = $tester->post('spaceport','get_fleet_for', [$session_id, $home->id, {body_name => 'DeLambert-5-28'}]);
 

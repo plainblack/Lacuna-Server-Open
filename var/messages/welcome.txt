@@ -2,9 +2,10 @@ Welcome
 ~~~
 Allow me to introduce myself. I am Tou Re Ell, diplomat for {Empire 1 Lacuna Expanse Corp}. We welcome %s to The Lacuna Expanse! We are the original inhabitants of the Expanse, but we are so happy to see it growing. 
 
-Since you are new I'd like to offer you an arrangment to help get your empire started. In return for completing some simple tasks, I will assist you in building the necessary components to ensure your survival.
+Since you are new I'd like to offer you an arrangement to help get your empire started. In return for completing some simple tasks, I will assist you in building the necessary components to ensure your survival.
 
-I'll assume you want my help. If that's true, your first task is to gather some information for me about your star system. Locate your planet in the star map and rename it. You'll note that your planet is size 45.
+I'll assume you want my help. If that's true, your first task is to rename your planet.  You can do this via the Planetary Command Center rename tab.
+You can also find out about your home system by going into the starmap. You'll note that your planet is size 45 as are any starting planets.
 
 Regards,
 

@@ -7,6 +7,7 @@ extends 'Lacuna::RPC';
 use DateTime;
 use Lacuna::Verify;
 use Lacuna::Util qw(format_date);
+use List::Util qw(none);
 
 
 sub read_message {
@@ -48,45 +49,156 @@ sub read_message {
 sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
-    my @failure;
-    my @success;
-    foreach my $id (@{$message_ids}) {
-        my $message = $messages->find($id);
-        if (defined $message && $empire->id eq $message->to_id && !$message->has_archived) {
-            $message->has_read(1);
-            $message->has_archived(1);
-            $message->has_trashed(0);
-            $message->update;
-            push @success, $id;
-        }
-        else {
-            push @failure, $id;
-        }
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
+        ->search(
+                 {
+                     id => [ 'in', $message_ids ],
+                     to_id => $empire->id,
+                     has_archived => 0,
+                 });
+
+    my @updating = map { $_->id } $messages->search(undef, { columns => [ 'id' ]})->all;
+    if (@updating)
+    {
+        $messages->update(
+                          {
+                              has_read => 1,
+                              has_archived => 1,
+                              has_trashed => 0
+                          });
+        $empire->recalc_messages;
     }
-    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
+
+    return { success=>\@updating, status=>$self->format_status($empire) };
 }
 
 sub trash_messages {
     my ($self, $session_id, $message_ids) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message');
-    my @failure;
-    my @success;
-    foreach my $id (@{$message_ids}) {
-        my $message = $messages->find($id);
-        if (defined $message && $empire->id eq $message->to_id && !$message->has_trashed) {
-            $message->has_read(1);
-            $message->has_archived(0);
-            $message->has_trashed(1);
-            $message->update;
-            push @success, $id;
+    my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
+        ->search(
+                 {
+                     id => [ 'in', $message_ids ],
+                     to_id => $empire->id,
+                     has_trashed => 0,
+                 });
+
+    my @updating = map { $_->id } $messages->search(undef, { columns => [ 'id' ]})->all;
+    if (@updating)
+    {
+        $messages->update(
+                          {
+                              has_read => 1,
+                              has_archived => 0,
+                              has_trashed => 1,
+                          });
+        $empire->recalc_messages;
+    }
+
+    return { success=>\@updating, status=>$self->format_status($empire) };
+}
+
+sub trash_messages_where {
+    my ($self, $session_id, $opts) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    if (!$opts->{spec})
+    {
+        $opts = { spec => [ @_[2..$#_] ] };
+    }
+
+    # initialise deleted_count to ensure it gets set on return
+    my %return = (deleted_count => 0);
+
+    # if we're saving returns, same thing, ensure there's an empty
+    # list even if nothing is deleted.
+    $return{deleted} = [] if $opts->{save_ids};
+
+    my $count = -1;
+
+    for my $spec (@{$opts->{spec}})
+    {
+        ++$count;
+        my %where;
+        $where{tag}       = $spec->{tags}     if $spec->{tags} &&  ref $spec->{tags} eq 'ARRAY';
+        $where{tag}     ||= $spec->{tag}      if $spec->{tag}  && !ref $spec->{tag};
+        $where{from_name} = [ $spec->{from} ] if $spec->{from} && !ref $spec->{from};
+
+        if ($spec->{subject})
+        {
+            # some variation allowed, but need to ensure sanity.
+
+            # only allow lists of subjects as explicit items, and each one
+            # must be a string only - no nested objects, because DBIx::Class
+            # will do more stuff down lower, and we really don't want to ensure
+            # its security.
+            if (ref $spec->{subject} &&
+                ref $spec->{subject} eq 'ARRAY' &&
+                none { ref $_ } @{$spec->{subject}})
+            {
+                $where{subject} = $spec->{subject};
+            }
+            # single string, with % or _, use like
+            elsif ($spec->{subject} =~ /[%_]/)
+            {
+                $where{subject} = { like => $spec->{subject} };
+            }
+            # otherwise, just match directly.
+            elsif (not ref $spec->{subject})
+            {
+                $where{subject} = $spec->{subject};
+            }
+            # if we got some other sort of ref, craok instead of trying
+            # to ensure security.
+            else
+            {
+                confess [ 1009, 'Invalid subject specified for mass delete' ];
+            }
         }
-        else {
-            push @failure, $id;
+
+        confess [ 1009, 'No options specified for mass delete spec #' . $count ]
+            unless keys %where;
+
+        # the parts the caller can't override:
+        $where{has_archived} = 0;
+        $where{to_id}        = $empire->id;
+        $where{has_trashed}  = 0; # only look at ones not already trashed
+
+        use Data::Dump; ddx \%where;
+
+        my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(\%where);
+
+        # check if we have anything to delete
+        my $count;
+        if ($opts->{save_ids})
+        {
+            my @deleting = map { $_->id } $messages->search(undef, { columns => [ 'id' ] })->all;
+            if (@deleting)
+            {
+                $count = @deleting;
+                push @{$return{deleted}}, @deleting;
+            }
+        }
+        else
+        {
+            $count = $messages->count;
+        }
+
+        # delete it
+        if ($count)
+        {
+            $return{deleted_count} += $count;
+            $messages->update(
+                              {
+                                  has_read => 1,
+                                  has_trashed => 1,
+                              });
         }
     }
-    return { success=>\@success, failure=>\@failure, status=>$self->format_status($empire) };
+
+    $empire->recalc_messages if $return{deleted_count};
+
+    $return{status} = $self->format_status($empire);
+    return \%return;
 }
 
 sub send_message {
@@ -94,10 +206,8 @@ sub send_message {
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot be empty.',$subject])->not_empty;
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot contain any of these characters: (){}<>&;@',$subject])->no_restricted_chars;
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject must be less than 100 characters.',$subject])->length_lt(100);
-    Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject cannot contain profanity.',$subject])->no_profanity;
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot be empty.',$body])->not_empty;
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot contain HTML tags or entities.',$body])->no_tags;
-    Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot contain profanity.',$body])->no_profanity;
     my $empire = $self->get_empire_by_session($session_id);
     if ($options->{in_reply_to}) {
         my $reply_to = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{in_reply_to});
@@ -135,7 +245,7 @@ sub send_message {
             }
         }
         else {
-            my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name},{rows => 1})->single;
+            my $user = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search({name => $name})->first;
             if (defined $user) {
                 push @sent, $user->name;
                 push @to, $user;
@@ -260,7 +370,7 @@ sub view_messages {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages));
+__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages trash_messages_where));
 
 
 no Moose;

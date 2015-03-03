@@ -1,6 +1,6 @@
 Thud Hit Us
 ~~~
-A Thud, launched by {Empire %s %s}, has devastated a plot on {Planet %s %s}.
+Thuds, launched by {Empire %s %s}, have devastated plots on {Planet %s %s}.
 
 Regards,
 

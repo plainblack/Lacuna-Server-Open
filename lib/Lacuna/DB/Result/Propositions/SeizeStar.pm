@@ -9,7 +9,13 @@ before pass => sub {
     my ($self) = @_;
     my $station = $self->station;
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($self->scratch->{star_id});
-    if (!$star->station_id) {
+    if ($star->in_starter_zone) {
+        $self->pass_extra_message('This star is in a starter zone and cannot be seized.');
+    }
+    elsif ($star->in_neutral_area) {
+        $self->pass_extra_message('This star is in the neutral area and cannot be seized.');
+    }
+    elsif (!$star->station_id) {
         my $influence_remaining = $station->influence_remaining;
         if ( $influence_remaining >= 1 ) {
             my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({

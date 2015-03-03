@@ -20,7 +20,7 @@ after handle_arrival_procedures => sub {
     # Turn around if occupied
     if ($self->foreign_body->empire_id) {
         $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Fissure', 'Alert'],
             filename    => 'occupied_fissure.txt',
             params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
         );
@@ -32,7 +32,7 @@ after handle_arrival_procedures => sub {
     my ($fissure) = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::Fissure'} @{$body_hit->building_cache};
     if (not defined($fissure)) {
         $self->body->empire->send_predefined_message(
-            tags        => ['Alert'],
+            tags        => ['Fissure', 'Alert'],
             filename    => 'no_fissure_found.txt',
             params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
         );
@@ -66,7 +66,7 @@ after handle_arrival_procedures => sub {
         if ($curr_lev < 1) {
             $fissure->delete;
             $self->body->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'we_destroyed_a_fissure.txt',
                 params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
             );
@@ -76,7 +76,7 @@ after handle_arrival_procedures => sub {
             $fissure->efficiency($curr_eff);
             $fissure->update;
             $self->body->empire->send_predefined_message(
-                tags        => ['Alert'],
+                tags        => ['Fissure', 'Alert'],
                 filename    => 'our_ship_hit_fissure.txt',
                 params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name, $curr_lev, $curr_eff ],
             );

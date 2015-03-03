@@ -13,6 +13,7 @@ __PACKAGE__->add_columns(
     star_id                 => { data_type => 'int', is_nullable => 0 },
     body_id                 => { data_type => 'int', is_nullable => 0 },
     alliance_id             => { data_type => 'int', is_nullable => 1 },
+    virtual                 => { data_type => 'int', is_nullable => 1, default_value => 0 },
 );
 
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');

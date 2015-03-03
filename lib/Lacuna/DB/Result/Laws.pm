@@ -24,6 +24,7 @@ __PACKAGE__->typecast_map(type => {
     Jurisdiction            => 'Lacuna::DB::Result::Laws::Jurisdiction',
     MembersOnlyColonization => 'Lacuna::DB::Result::Laws::MembersOnlyColonization',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Laws::MembersOnlyMiningRights',
+    MembersOnlyExcavation   => 'Lacuna::DB::Result::Laws::MembersOnlyExcavation',
     Taxation                => 'Lacuna::DB::Result::Laws::Taxation',
     Writ                    => 'Lacuna::DB::Result::Laws::Writ',
 });

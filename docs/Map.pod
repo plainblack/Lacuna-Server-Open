@@ -49,6 +49,7 @@ Returns a chunk of the map as an array of hashes.
          "alliance" : {
            "name"     : "The Borg Collective",
            "id"       : 23,
+           "image"    : 'my_logo_v001',
          }
        }
        "bodies" : [
@@ -58,6 +59,7 @@ Returns a chunk of the map as an array of hashes.
            "orbit"  : 1,
            "x"      : -40,
            "y"      : 29,
+           "type"   : "habitable planet",
            "image"  : "p13",
            "size"   : 58,
            "empire" {
@@ -68,13 +70,15 @@ Returns a chunk of the map as an array of hashes.
            }
          },
          {
-           "name"   : "Venus",
+           "name"   : "Vesta",
            "id"     : 346,
            "orbit"  : 2,
            "x"      : -39,
            "y"      : 28,
+           "type"   : "asteroid",
            "image"  : "p33",
-           "size"   : 34
+           "size"   : 3,
+           "body_has_fissure"  : 1,
          },
          ...
        ]
@@ -343,6 +347,79 @@ A session id.
 
 A partial name of a star. Case insensitive. Must be at least 3 characters.
 
+
+=head2 probe_summary_fissures
+
+Obtain a summary of all bodies with fissures, known to yours, or your alliances probes within a specified zone.
+
+This takes named arguments only
+
+ {
+   "session_id" : "1234-0A34-333F-21",
+   "zone"       : "0|0",
+ }
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 zone (optional)
+
+A string defining the zone, e.g "-1|0", "5|-5" or "0|0"
+
+If not specified, all zones are searched.
+
+=head3 RESPONSE
+
+ {
+   "fissures" : {
+     "345" : {
+       "name"   : "Mercury",
+       "id"     : 345,
+       "orbit"  : 1,
+       "x"      : -40,
+       "y"      : 29,
+       "type"   : "habitable planet",
+       "image"  : "p13",
+       "size"   : 58,
+      },
+    "735" : {
+       ...
+      }
+    }
+ }
+     
+This returns a hash of body-ids and for each one a brief description of the body on which is at least
+one fissure;
+
+If there are no fissures on any of the bodies which you have probed then an empty list is returned;
+
+=head2 view_laws (session_id, star_id )
+
+B<NOTE:> Pass in a the id of a star and the laws enacted by the controlling station will be returned.
+
+Returns a list of the laws.
+
+ {
+    "status" : { ... },
+    "laws" : [
+        {
+            "id" : "id-goes-here",
+            "name" : "Censure of Jamie Vrbsky",
+            "description" : "Jamie Vrbsky is bad at playing Lacuna!",
+            "date_enacted" : "01 31 2010 13:09:05 +0600"
+        },
+        ...
+    ]
+ }
+ 
+=head3 session_id
+
+A session id.
+
+=head3 star_id
+
+The unique id of the star
 
 
 =head1 FAQ

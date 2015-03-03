@@ -19,7 +19,7 @@ before pass => sub {
     else {
         $star->name($name);
         $star->update;
-        my $elaw = $station->laws->search({type => 'Jurisdiction', star_id => $star->id})->single;
+        my $elaw = $station->laws->search({type => 'Jurisdiction', star_id => $star->id})->first;
         if ($elaw) {
             $elaw->name('Seize '.$name);
             $elaw->description('Seize control of {Starmap '.$star->x.' '.$star->y.' '.$name.'} by {Planet '.$station->id.' '.

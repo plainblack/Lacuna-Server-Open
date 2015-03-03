@@ -135,7 +135,7 @@ sub all_waste_ships {
 
 sub max_chains {
     my $self = shift;
-    return ceil($self->level);
+    return ceil($self->effective_level);
 }
 
 sub add_waste_ship {
@@ -160,6 +160,7 @@ sub send_waste_ship_home {
         target      => $star,
         direction   => 'in',
         task        => 'Travelling',
+        emptyscow   => 1,
     );
     $self->recalc_waste_production;
     return $self;
@@ -319,8 +320,8 @@ sub add_to_market {
     unless ($ask >= 0.1 && $ask <= 100 ) {
         confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
     }
-    unless ($self->level > $self->my_market->count) {
-        confess [1009, "This Trade Ministry can only support ".$self->level." trades at one time."];
+    unless ($self->effective_level > $self->my_market->count) {
+        confess [1009, "This Trade Ministry can only support ".$self->effective_level." trades at one time."];
     }
     my $space_used;
     ($space_used, $offer ) = $self->check_payload($offer, $ship->hold_size, undef, $ship);
@@ -338,7 +339,7 @@ sub add_to_market {
         x               => $body->x,
         y               => $body->y,
         speed           => $ship->speed,
-        trade_range     => int(450 + (15 * $self->level)),
+        trade_range     => int(450 + (15 * $self->effective_level)),
     );
     return Lacuna->db->resultset('Market')->new(\%trade)->insert;
 }
@@ -399,7 +400,7 @@ sub next_available_trade_ship {
         return $self->trade_ships->find($ship_id);
     }
     else {
-        return $self->trade_ships->search(undef, {rows => 1})->single;
+        return $self->trade_ships->search(undef)->first;
     }
 }
 

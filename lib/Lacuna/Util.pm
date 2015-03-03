@@ -6,7 +6,15 @@ use DateTime::Format::Duration;
 use DateTime::Format::Strptime;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(randint format_date random_element commify consolidate_items);
+@EXPORT_OK = qw(
+    randint
+    format_date
+    random_element
+    commify
+    consolidate_items
+    kmbtq
+    real_ip_address
+    );
 
 
 sub format_date {
@@ -36,6 +44,55 @@ sub commify {
     return scalar reverse $text;
 }
 
+sub kmbtq {
+    my ($numb) = @_;
+
+    $numb =~ tr/0-9//cd;
+
+    if ($numb >= 100_000_000_000_000_000 || $numb <= -100_000_000_000_000_000) {
+# 101Q
+        return int($numb/1_000_000_000_000_000).'Q';
+    }
+    elsif ($numb >= 1_000_000_000_000_000 || $numb <= -1_000_000_000_000_000) {
+# 83.4Q
+        return (int($numb/100_000_000_000_000) / 10).'Q';
+    }
+    elsif ($numb >= 100_000_000_000_000 ||  $numb <= -100_000_000_000_000) {
+# 101T
+        return int( $numb/1_000_000_000_000).'T';
+    }
+    elsif ( $numb >= 1_000_000_000_000 ||  $numb <= -1_000_000_000_000) {
+# 75.3T
+        return (int( $numb/100_000_000_000) / 10).'T';
+    }
+    elsif ( $numb >= 100_000_000_000 ||  $numb <= -100_000_000_000) {
+# 101B
+        return int( $numb/1_000_000_000).'B';
+    }
+    elsif ( $numb >= 1_000_000_000 ||  $numb <= -1_000_000_000) {
+# 75.3B
+        return (int( $numb/100_000_000) / 10).'B';
+    }
+    elsif ( $numb >= 100_000_000 ||  $numb <= -100_000_000) {
+# 101M
+                return int( $numb/1000000).'M';
+    }
+    elsif ( $numb >= 1_000_000 ||  $numb <= -1_000_000) {
+# 75.3M
+                return (int( $numb/100_000) / 10).'M';
+    }
+    elsif ( $numb >= 10_000 ||  $numb <= -10_000) {
+# 123k
+        return int( $numb/1_000).'k';
+    }
+    else {
+# 8765
+        return int( $numb);
+    }
+
+  return $numb;
+}
+
 sub consolidate_items {
     my ($item_arr) = @_;
 
@@ -48,6 +105,12 @@ sub consolidate_items {
         push @{$item_arr}, sprintf("%5s %s", commify($item_hash->{$item}), $item);
     }
     return $item_arr;
+}
+
+sub real_ip_address {
+    my ($plack_request) = @_;
+    $plack_request->headers->header('X-Real-IP') //
+            $plack_request->address;
 }
 
 1;

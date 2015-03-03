@@ -26,7 +26,7 @@ sub view_planet {
     unless ($planet->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, 'The Temple can only view nearby planets.'];
     }
-    unless ($building->body->calculate_distance_to_target($planet) < $building->level * 1000) {
+    unless ($building->body->calculate_distance_to_target($planet) < $building->effective_level * 1000) {
         confess [1009, 'That planet is too far away.'];
     }
     
@@ -62,7 +62,7 @@ sub list_planets {
     else {
         $star = $building->body->star;
     }
-    unless ($building->body->calculate_distance_to_target($star) < $building->level * 1000) {
+    unless ($building->body->calculate_distance_to_target($star) < $building->effective_level * 1000) {
         confess [1009, 'That star is too far away.'];
     }    
     my @planets;

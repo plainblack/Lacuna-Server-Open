@@ -8,8 +8,8 @@ use Lacuna::Util;
 
 __PACKAGE__->table('empire_rpc_log');
 __PACKAGE__->add_columns(
-    rpc     => { data_type => 'int', size => 11, is_nullable => 0, default => 0 },
-    limits  => { data_type => 'int', size => 11, is_nullable => 0, default => 0 },
+    rpc     => { data_type => 'int', size => 11, is_nullable => 0, default_value => 0 },
+    limits  => { data_type => 'int', size => 11, is_nullable => 0, default_value => 0 },
 );
 
 no Moose;

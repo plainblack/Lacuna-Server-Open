@@ -45,7 +45,7 @@ use constant waste_production => 1;
 sub max_spies {
     my ($self) = @_;
 # Just temporary until the major change
-    return ($self->level * 3);
+    return ($self->effective_level * 3);
 }
 
 has spy_count => (
@@ -76,10 +76,9 @@ has latest_spy => (
                 task            => 'Training',
             },
             {
-                order_by    => { -desc => 'available_on' },
-                rows        => 1,
+                order_by    => { -desc => 'available_on' }
             }
-        )->single;
+        )->first;
     },
 );
 
@@ -111,7 +110,7 @@ has espionage_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Espionage');
-        return (defined $building) ? $building->level : 0;
+        return (defined $building) ? $building->effective_level : 0;
     },
 );
 
@@ -121,7 +120,7 @@ has security_level => (
     default => sub {
         my $self = shift;
         my $building = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Security');   
-        return (defined $building) ? $building->level : 0;
+        return (defined $building) ? $building->effective_level : 0;
     },
 );
 
@@ -130,9 +129,9 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-#        my $multiplier = $self->level
+#        my $multiplier = $self->effective_level
         my $multiplier = 1
-            - $self->body->empire->deception_affinity
+            - $self->body->empire->effective_deception_affinity
             + $self->espionage_level
             + $self->security_level;
         $multiplier = 1 if $multiplier < 1;
@@ -143,7 +142,7 @@ has training_multiplier => (
 sub training_costs {
     my $self = shift;
     my $multiplier = $self->training_multiplier;
-    my $time_to_train = sprintf('%.0f', 2060 * $multiplier / $self->body->empire->management_affinity);
+    my $time_to_train = sprintf('%.0f', 2060 * $multiplier / $self->body->empire->effective_management_affinity);
     if ($self->body->happiness < 0) {
       my $unhappy_workers = abs($self->body->happiness)/100_000;
       $time_to_train = int($time_to_train * $unhappy_workers);
@@ -194,7 +193,7 @@ sub train_spy {
         my $latest = $self->latest_spy;
         my $available_on = (defined $latest) ? $latest->available_on->clone : DateTime->now;
         $available_on->add(seconds => $time_to_train );
-        my $deception = $empire->deception_affinity * 50;
+        my $deception = $empire->effective_deception_affinity * 50;
         my $spy = Lacuna->db->resultset('Spies')->new({
             from_body_id    => $self->body_id,
             on_body_id      => $self->body_id,
@@ -209,7 +208,7 @@ sub train_spy {
         ->insert;
         $self->latest_spy($spy);
         my $count = $self->spy_count($self->spy_count + 1);
-        if ($count < $self->level) {
+        if ($count < $self->effective_level) {
             $self->body->add_news(20,'A source inside %s admitted that they are underprepared for the threats they face.', $empire->name);
         }
         if ($self->is_working) {

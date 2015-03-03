@@ -21,7 +21,7 @@ sub view_news {
     my $body = $building->body;
     my @all = ($body->zone, $body->adjacent_zones);
     my @zones;
-    foreach (1..(($building->level + 1) / 2)) {
+    foreach (1..(($building->effective_level + 1) / 2)) {
         last if !@all;
         push @zones, shift @all;
     }

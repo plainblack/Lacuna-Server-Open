@@ -36,7 +36,7 @@ after handle_arrival_procedures => sub {
     return unless defined $security && $security->efficiency > 0;
     
     # lets see if we can detect the ship
-    my $security_detection = ($security->level * 700) * ( $security->efficiency / 100 );
+    my $security_detection = ($security->effective_level * 700) * ( $security->effective_efficiency / 100 );
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         $security_detection *= 1.5;
     }

@@ -26,9 +26,9 @@ unless (flock(DATA, LOCK_EX|LOCK_NB)) {
 out('Started');
 my $start = time;
 
-if ($randomize) {
-    sleep randint(0, 60*60*12); # attack anytime in the next 12 hours.
-}
+#if ($randomize) {
+#    sleep randint(0, 60*60*12); # attack anytime in the next 12 hours.
+#}
 
 
 out('Loading DB');
@@ -44,11 +44,21 @@ my @attacks;
 while (my $attacking_colony = $colonies->next) {
     out('Found colony to attack from named '.$attacking_colony->name);
 
-    $ai->destroy_world($attacking_colony);
+    if ($cache->get('saben_attack',$attacking_colony->id)) {
+        out('Attacked recently from '.$attacking_colony->name);
+        next;
+    }
 
+    if ($attacking_colony->in_neutral_area or $attacking_colony->in_starter_zone) {
+        out($attacking_colony->name." in Neutral Area or a Starting Zone, skipping.");
+        next;
+    }
+    $ai->destroy_world($attacking_colony);
     out('Finding target body to attack...');
+
     my $targets = $db->resultset('Lacuna::DB::Result::Map::Body')->search({
         empire_id                   => { '>' => 1 },
+        is_isolationist             => 0,
         university_level            => { '>=' => 16 },
         zone                        => $attacking_colony->zone,
     },
@@ -58,17 +68,19 @@ while (my $attacking_colony = $colonies->next) {
         rows        => 2,
     });
     my $target_colony = $targets->next;
-    if (defined $target_colony && !$cache->get('saben'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
+    if (defined $target_colony && !$cache->get('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id)) {
         out('Attacking '.$target_colony->name.' with scanners and scows');
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [qw(scanner scow)]);
-        $cache->set('saben'.$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 48);
+        $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 48);
     }
     $target_colony = $targets->next;
-    if (defined $target_colony && !$cache->get('saben'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
+    if (defined $target_colony && !$cache->get('saben_attack'.$attacking_colony->id.'-'.$target_colony->empire_id)) {
         out('Attacking '.$target_colony->name.' with sweepers and bleeders and snarks');
         push @attacks, $ai->start_attack($attacking_colony, $target_colony, [qw(sweeper bleeder snark1 snark2 snark3)]);
-        $cache->set('saben'.$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 48);
+        $cache->set('saben_attack',$attacking_colony->id.'-'.$target_colony->empire_id, 1, 60 * 60 * 72);
     }
+    my $rest = randint(18,36);
+    $cache->set('saben_attack',$attacking_colony->id, 1, 60 * 60 * $rest);
 }
 
 out("Waiting on attacks...");

@@ -40,11 +40,11 @@ sub colonies {
     my $colonies = $db->resultset('Lacuna::DB::Result::Log::Colony');
     
     # fastest growing
-    my $colony = $colonies->search(undef, {order_by => { -desc => 'population_delta'}, rows => 1})->single;
+    my $colony = $colonies->search(undef, {order_by => [{ -desc => 'population_delta'},'rand()']})->first;
     add_medal($colony->empire_id,'fastest_growing_colony');
 
     # largest
-    $colony = $colonies->search(undef, {order_by => { -desc => 'population'}, rows => 1})->single;
+    $colony = $colonies->search(undef, {order_by => [{ -desc => 'population'},'rand()']})->first;
     add_medal($colony->empire_id,'largest_colony');
 
     # reset deltas
@@ -57,35 +57,35 @@ sub empires {
     my $empires = $db->resultset('Lacuna::DB::Result::Log::Empire');
     
     # best attacker in the game 
-    my $empire_log = $empires->search(undef, {order_by => { -desc => 'offense_success_rate'}, rows => 1})->single;
+    my $empire_log = $empires->search(undef, {order_by => [{ -desc => 'offense_success_rate'},'rand()']})->first;
     add_medal($empire_log->empire_id,'best_attacker_in_the_game');
     
     # best attacker of the week 
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'offense_success_rate_delta'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'offense_success_rate_delta'},'rand()']})->first;
     add_medal($empire_log->empire_id, 'best_attacker_of_the_week');
 
     # best defender in the game 
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'defense_success_rate'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'defense_success_rate'},'rand()']})->first;
     add_medal($empire_log->empire_id, 'best_defender_in_the_game');
     
     # best defender of the week 
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'defense_success_rate_delta'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'defense_success_rate_delta'},'rand()']})->first;
     add_medal($empire_log->empire_id,'best_defender_of_the_week');
 
     # dirtiest player in the game 
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'dirtiest'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'dirtiest'},'rand()']})->first;
     add_medal($empire_log->empire_id,'dirtiest_empire_in_the_game');
     
     # dirtiest player of the week 
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'dirtiest_delta'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'dirtiest_delta'},'rand()']})->first;
     add_medal($empire_log->empire_id,'dirtiest_empire_of_the_week');
 
     # fastest growing empire
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'empire_size_delta'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'empire_size_delta'},'rand()']})->first;
     add_medal($empire_log->empire_id,'fastest_growing_empire');
 
     # largest empire
-    $empire_log = $empires->search(undef, {order_by => { -desc => 'empire_size'}, rows => 1})->single;
+    $empire_log = $empires->search(undef, {order_by => [{ -desc => 'empire_size'},'rand()']})->first;
     add_medal($empire_log->empire_id,'largest_empire');
 
     # reset deltas
@@ -98,39 +98,39 @@ sub spies {
     my $spies = $db->resultset('Lacuna::DB::Result::Log::Spies');
     
     # best in the game
-    my $spy = $spies->search(undef,{order_by => { -desc => 'success_rate'}, rows=>1})->single;
+    my $spy = $spies->search(undef,{order_by => [{ -desc => 'success_rate'}, 'rand()']})->first;
     add_medal($spy->empire_id,'best_spy_in_the_game');
     
     # best of the week
-    $spy = $spies->search(undef,{order_by => { -desc => 'success_rate_delta'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'success_rate_delta'},'rand()']})->first;
     add_medal($spy->empire_id,'best_spy_of_the_week');
 
     # best offender in the game
-    $spy = $spies->search(undef,{order_by => { -desc => 'offense_success_rate'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'offense_success_rate'},'rand()']})->first;
     add_medal($spy->empire_id,'best_offensive_spy_in_the_game');
     
     # best offender of the week
-    $spy = $spies->search(undef,{order_by => { -desc => 'offense_success_rate_delta'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'offense_success_rate_delta'},'rand()']})->first;
     add_medal($spy->empire_id,'best_offensive_spy_of_the_week');
 
     # best defender in the game
-    $spy = $spies->search(undef,{order_by => { -desc => 'defense_success_rate'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'defense_success_rate'},'rand()']})->first;
     add_medal($spy->empire_id,'best_defensive_spy_in_the_game');
     
     # best defender of the week
-    $spy = $spies->search(undef,{order_by => { -desc => 'defense_success_rate_delta'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'defense_success_rate_delta'},'rand()']})->first;
     add_medal($spy->empire_id,'best_defensive_spy_of_the_week');
 
     # dirtiest in the game
-    $spy = $spies->search(undef,{order_by => { -desc => 'dirtiest'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'dirtiest'},'rand()']})->first;
     add_medal($spy->empire_id,'dirtiest_spy_in_the_game');
 
     # dirtiest of the week
-    $spy = $spies->search(undef,{order_by => { -desc => 'dirtiest_delta'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'dirtiest_delta'},'rand()']})->first;
     add_medal($spy->empire_id,'dirtiest_spy_of_the_week');
 
     # most improved of the week
-    $spy = $spies->search(undef,{order_by => { -desc => 'level_delta'}, rows=>1})->single;
+    $spy = $spies->search(undef,{order_by => [{ -desc => 'level_delta'},'rand()']})->first;
     add_medal($spy->empire_id,'most_improved_spy_of_the_week');
 
     # reset deltas 
@@ -146,7 +146,9 @@ sub spies {
 
 sub add_medal {
     my ($empire_id, $medal_name) = @_;
+    printf "%s -> %s\n", $empire_id, $medal_name;
     my $empire = $db->resultset('Lacuna::DB::Result::Empire')->find($empire_id);
+    return 0 unless $empire;
     my $medal = $empire->add_medal($medal_name, 1);
     $winners->new({
         empire_id   => $empire->id,

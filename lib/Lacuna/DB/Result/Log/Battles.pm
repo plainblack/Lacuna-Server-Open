@@ -14,12 +14,14 @@ __PACKAGE__->add_columns(
     attacking_body_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
     attacking_unit_name     => { data_type => 'varchar', size => 60, is_nullable => 0 },
     attacking_type          => { data_type => 'varchar', size => 60, is_nullable => 0 },
+    attacking_number        => { data_type => 'int', size => 11, is_nullable => 0 },
     defending_empire_id     => { data_type => 'int', size => 11, is_nullable => 1 },
     defending_empire_name   => { data_type => 'varchar', size => 30, is_nullable => 1 },
     defending_body_id       => { data_type => 'int', size => 11, is_nullable => 0 },
     defending_body_name     => { data_type => 'varchar', size => 30, is_nullable => 0 },
     defending_unit_name     => { data_type => 'varchar', size => 60, is_nullable => 0 },
     defending_type          => { data_type => 'varchar', size => 60, is_nullable => 0 },
+    defending_number        => { data_type => 'int', size => 11, is_nullable => 0 },
     victory_to              => { data_type => 'varchar', size => 8, is_nullable => 0 },
     attacked_body_id        => { data_type => 'int', size => 11, is_nullable => 0 },
     attacked_body_name      => { data_type => 'varchar', size => 30, is_nullable => 0 },
@@ -50,10 +52,7 @@ after insert => sub {
     my $ai_battle_summary = $summary_rs->search({
         attacking_empire_id     => $self->attacking_empire_id,
         defending_empire_id     => $self->defending_empire_id,
-    },
-    {
-        rows => 1,
-    })->single;
+    })->first;
     if (not $ai_battle_summary) {
         $ai_battle_summary = $summary_rs->create({
             attacking_empire_id => $self->attacking_empire_id,
@@ -62,8 +61,10 @@ after insert => sub {
             defense_victories   => 0,
         });
     }
-    $ai_battle_summary->attack_victories($ai_battle_summary->attack_victories + 1) if $self->victory_to eq 'attacker';
-    $ai_battle_summary->defense_victories($ai_battle_summary->defense_victories + 1) if $self->victory_to eq 'defender';
+    $ai_battle_summary->attack_victories($ai_battle_summary->attack_victories + $self->attacking_number)
+        if $self->victory_to eq 'attacker';
+    $ai_battle_summary->defense_victories($ai_battle_summary->defense_victories + $self->defending_number)
+        if $self->victory_to eq 'defender';
     $ai_battle_summary->update;
 };
 

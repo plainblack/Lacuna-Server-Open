@@ -5,9 +5,11 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
-use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH);
 
 use constant controller_class => 'Lacuna::RPC::Building::SupplyPod';
+
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;
@@ -37,6 +39,15 @@ after finish_upgrade => sub {
     $self->start_work({}, 60 * 60 * 24)->update;
 };
 
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'a small',10=>'a',15=>'a large',20=>'a huge',25=>'a gigantic',30=>'a Tardis-branded');
+        $self->body->add_news($new_level*4,"The citizens of %s cheered as %s supply pod full of supplies survived a crash landing today.", $empire->name, $levels{$new_level});
+    }
+}
+
 after finish_work => sub {
     my $self = shift;
     my $body = $self->body;
@@ -51,10 +62,10 @@ sub can_demolish {
     return 1;
 }
 
-use constant food_storage => 1000;
-use constant energy_storage => 1000;
-use constant ore_storage => 1000;
-use constant water_storage => 1000;
+use constant food_storage => 2000;
+use constant energy_storage => 2000;
+use constant ore_storage => 2000;
+use constant water_storage => 2000;
 
 
 no Moose;

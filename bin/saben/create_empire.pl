@@ -49,7 +49,7 @@ my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
 out('Find home planet...');
 my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
 my $zone = $bodies->get_column('zone')->max;
-my $home = $bodies->search({size => 35, zone => $zone },{rows=>1})->single;
+my $home = $bodies->search({size => 35, zone => $zone })->first;
 $empire->insert;
 $empire->found($home);
 

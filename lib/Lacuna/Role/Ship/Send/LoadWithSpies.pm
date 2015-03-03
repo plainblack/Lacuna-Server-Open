@@ -8,6 +8,7 @@ after send => sub {
     return if ( $self->direction eq 'in' && $self->type ne 'spy_shuttle' ); # load outbound ships and inbound spy shuttles
     return if ( $self->payload->{mercenary} ); # Mercenary already loaded
     return if ( $self->payload->{spies} ); # Spies already loaded
+    return if ( $self->payload->{fetch_spies} ); # Don't send spies if we are fetching
     my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
     my $to_body = $self->direction eq 'out' ? $self->foreign_body : $self->body;

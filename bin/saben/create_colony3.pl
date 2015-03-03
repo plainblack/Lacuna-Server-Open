@@ -36,9 +36,8 @@ out('Finding colony...');
 my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
 my $target_home = $target_player->home_planet;
 my $body = $bodies->search(
-    { x => {between => [ $target_home->x - 25, $target_home->x + 25 ]}, y => { between => [ $target_home->y - 25, $target_home->y + 25 ]  }, empire_id => undef, size => { between => [30,35]}},
-    { rows => 1 }
-    )->single;
+    { x => {between => [ $target_home->x - 25, $target_home->x + 25 ]}, y => { between => [ $target_home->y - 25, $target_home->y + 25 ]  }, empire_id => undef, size => { between => [30,35]}}
+    )->first;
 die 'Could not find a colony to occupy.' unless defined $body;
 say $body->name;
 

@@ -34,10 +34,10 @@ if ($randomize) {
 
 out('Loading DB');
 our $db = Lacuna->db;
-our $empires = $db->resultset('Lacuna::DB::Result::Empire');
-our $spies = $db->resultset('Lacuna::DB::Result::Spies');
-our $ships = $db->resultset('Lacuna::DB::Result::Ships');
-our $targets = $db->resultset('Lacuna::DB::Result::SabenTarget');
+our $empires = $db->resultset('Empire');
+our $spies = $db->resultset('Spies');
+our $ships = $db->resultset('Ships');
+our $targets = $db->resultset('SabenTarget');
 my $config = Lacuna->config;
 
 out('getting empires...');
@@ -46,7 +46,7 @@ my $lec = $empires->find(1);
 
 unless ($skipnews) {
     out('Send Network 19 messages....');
-    my $news = $db->resultset('Lacuna::DB::Result::News');
+    my $news = $db->resultset('News');
     my @messages = (
         'We are Sābēn. We have penetrated your defenses, and found them lacking. Goodbye.',
         'We are Sābēn. We have studied you, and found your weaknesses. You do not have long.',
@@ -118,7 +118,7 @@ sub start_attack {
     my ($saben_colony, $target_colony) = @_;
     out('Looking for probes...');
     my $attack = AnyEvent->condvar;
-    my $count = $db->resultset('Lacuna::DB::Result::Probes')->search({ empire_id => -1, star_id => $target_colony->star_id })->count;
+    my $count = $db->resultset('Probes')->search_any({ empire_id => -1, star_id => $target_colony->star_id })->count;
     if ($count) {
         out('Has one at star already...');
         my $timer = AnyEvent->timer(
@@ -130,7 +130,7 @@ sub start_attack {
         );
         return $attack, $timer;
     }
-    my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'},{rows => 1})->single;
+    my $probe = $ships->search({body_id => $saben_colony->id, type => 'probe', task=>'Docked'})->first;
     if (defined $probe) {
         out('Has a probe to launch for '.$target_colony->name.'...');
         $probe->send(target => $target_colony->star);

@@ -1,5 +1,5 @@
 I'm Back!
 ~~~
-I managed to break out of the {Starmap %s %s %s} prison. I'm ready for duty, put me to work.
+I managed to break out of the {Starmap %s %s %s} prison. I'll be ready for duty soon.
 
 %s of {Planet %s %s}

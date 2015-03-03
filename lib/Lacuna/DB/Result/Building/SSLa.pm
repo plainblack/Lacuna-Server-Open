@@ -113,7 +113,7 @@ has plan_resource_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 40000 * ((100 - (5 * $self->body->empire->research_affinity)) / 100);
+        return 40000 * ((100 - (5 * $self->body->empire->effective_research_affinity)) / 100);
     }
 );
 
@@ -122,7 +122,7 @@ has plan_time_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 1200 * ((100 - (5 * $self->body->empire->management_affinity)) / 100);
+        return 1200 * ((100 - (5 * $self->body->empire->effective_management_affinity)) / 100);
     }
 );
 
@@ -145,12 +145,12 @@ has max_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $level = $self->level;
+        my $level = $self->effective_level;
         my $body = $self->body;
         foreach my $part (qw(b c d)) {
             my $building = $body->get_building_of_class('Lacuna::DB::Result::Building::SSL'.$part);
             if (defined $building) {
-                $level = ($level > $building->level) ? $building->level : $level;
+                $level = ($level > $building->effective_level) ? $building->effective_level : $level;
             }
             else {
                 $level = 0;

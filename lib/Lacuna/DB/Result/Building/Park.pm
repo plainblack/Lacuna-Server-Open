@@ -15,7 +15,7 @@ around 'build_tags' => sub {
 
 sub can_throw_a_party {
     my ($self) = @_;
-    if ($self->level < 1) {
+    if ($self->effective_level < 1) {
         confess [1010, "You can't throw a party until the park is built."];
     }
     if ($self->is_working) {
@@ -33,7 +33,7 @@ sub throw_a_party {
     
     my $body = $self->body;
     my $eat = 10_000;
-    my $food_multiplier = $self->level * 0.3;
+    my $food_multiplier = $self->effective_level * 0.3;
     foreach my $food (FOOD_TYPES) {
         if ($body->type_stored($food) >= 500) {
             $food_multiplier++;

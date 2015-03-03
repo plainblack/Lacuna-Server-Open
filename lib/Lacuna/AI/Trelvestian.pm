@@ -12,7 +12,7 @@ has viable_colonies => (
     lazy        => 1,
     default     => sub {
         return Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(
-            { empire_id => undef, orbit => { between => [5,6] }, size => { between => [50,60]}},
+            { empire_id => undef, orbit => { between => [5,6] }, size => { between => [50,75]}},
             );
     }
 );
@@ -44,31 +44,35 @@ sub empire_defaults {
 sub colony_structures {
     return (
         ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',1],
-        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',21],
-        ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',12],
-        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',21],
-        ['Lacuna::DB::Result::Building::Permanent::Volcano',21],
-        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',21],
-        ['Lacuna::DB::Result::Building::Permanent::BeeldebanNest',21],
-        ['Lacuna::DB::Result::Building::Permanent::MalcudField',21],
+        ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',25],
+        ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',16],
+        ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',25],
+        ['Lacuna::DB::Result::Building::Permanent::Volcano',25],
+        ['Lacuna::DB::Result::Building::Permanent::AlgaePond',25],
+        ['Lacuna::DB::Result::Building::Permanent::BeeldebanNest',25],
+        ['Lacuna::DB::Result::Building::Permanent::MalcudField',25],
         ['Lacuna::DB::Result::Building::Permanent::GreatBallOfJunk',11],
         ['Lacuna::DB::Result::Building::Permanent::JunkHengeSculpture',12],
         ['Lacuna::DB::Result::Building::Permanent::MetalJunkArches',9],
-        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',14],
+        ['Lacuna::DB::Result::Building::Permanent::KalavianRuins',18],
+        ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',10],
         ['Lacuna::DB::Result::Building::Intelligence', 25],
         ['Lacuna::DB::Result::Building::Security', 30],
         ['Lacuna::DB::Result::Building::MunitionsLab', 25],
-        ['Lacuna::DB::Result::Building::Shipyard',14],
-        ['Lacuna::DB::Result::Building::Shipyard',14],
-        ['Lacuna::DB::Result::Building::Shipyard',14],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::SpacePort', 20],
-        ['Lacuna::DB::Result::Building::Observatory',15],
-        ['Lacuna::DB::Result::Building::PilotTraining',10],
+        ['Lacuna::DB::Result::Building::Shipyard',22],
+        ['Lacuna::DB::Result::Building::Shipyard',22],
+        ['Lacuna::DB::Result::Building::Shipyard',22],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::SpacePort', 25],
+        ['Lacuna::DB::Result::Building::PilotTraining',25],
         ['Lacuna::DB::Result::Building::Energy::Reserve', 30],
         ['Lacuna::DB::Result::Building::Food::Reserve', 30],
         ['Lacuna::DB::Result::Building::Ore::Storage', 30],
@@ -77,8 +81,6 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Waste::Exchanger', 20],
         ['Lacuna::DB::Result::Building::Waste::Exchanger', 20],
         ['Lacuna::DB::Result::Building::Food::Beeldeban',20],
-        ['Lacuna::DB::Result::Building::Food::Malcud',20],
-        ['Lacuna::DB::Result::Building::Food::Algae',20],
         ['Lacuna::DB::Result::Building::Food::Root',20],
         ['Lacuna::DB::Result::Building::Food::Beeldeban',20],
         ['Lacuna::DB::Result::Building::Food::Root',20],
@@ -95,15 +97,19 @@ sub colony_structures {
         ['Lacuna::DB::Result::Building::Water::Production',20],
         ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',20],
         ['Lacuna::DB::Result::Building::Water::AtmosphericEvaporator',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
-        ['Lacuna::DB::Result::Building::SAW',20],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::SAW',25],
+        ['Lacuna::DB::Result::Building::Observatory', 10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
+        ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
     );
 }
 
@@ -118,28 +124,30 @@ sub extra_glyph_buildings {
 sub spy_missions {
     return (
         'Appropriate Resources',
+        'Sabotage Infrastructure',
     );
 }
 
 sub ship_building_priorities {
     return (
-        ['drone', 35],
-        ['fighter', 25],
-        ['probe', 1],
-        ['sweeper', 25],
-        ['snark', 25],
-        ['snark2', 6],
-        ['snark3', 3],
+        ['drone', 50],
+        ['fighter', 50],
+        ['probe', 5],
+        ['sweeper', 50],
+        ['snark',  5],
+        ['snark2',15],
+        ['snark3',50],
     );
 }
 
 sub run_hourly_colony_updates {
     my ($self, $colony) = @_;
     $self->demolish_bleeders($colony);
+    $self->kill_prisoners($colony, 96);
     $self->set_defenders($colony);
-    $self->pod_check($colony, 20);
+    $self->pod_check($colony, 25);
     $self->repair_buildings($colony);
-    $self->train_spies($colony);
+    $self->train_spies($colony, 100, 1);
     $self->build_ships($colony);
     $self->run_missions($colony);
 }

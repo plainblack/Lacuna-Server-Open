@@ -131,6 +131,21 @@ sub format_description_of_payload {
     }
     push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
 
+    #fleets
+    undef $scratch;
+    foreach my $fleet (sort keys %{$payload->{fleet}}) {
+        my $pattern = '%s (speed: %s, stealth: %s, hold size: %s, combat: %s #: %s)' ;
+        push @{$scratch},
+            sprintf($pattern,
+                $payload->{fleet}->{$fleet}->{type},
+                commify($payload->{fleet}->{$fleet}->{speed}),
+                commify($payload->{fleet}->{$fleet}->{stealth}),
+                commify($payload->{fleet}->{$fleet}->{hold_size}),
+                commify($payload->{fleet}->{$fleet}->{combat}),
+                commify($payload->{fleet}->{$fleet}->{quantity}));
+    }
+    push @{$item_arr}, @{consolidate_items($scratch)} if (defined($scratch));
+
     # plans
     undef $scratch;
     foreach my $stats (@{ $payload->{plans}}) {

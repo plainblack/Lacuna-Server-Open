@@ -11,7 +11,7 @@ after handle_arrival_procedures => sub {
     
     # add plan
     my $lab = $self->body->get_building_of_class('Lacuna::DB::Result::Building::GasGiantLab');
-    $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, (defined $lab) ? $lab->level : 0);
+    $self->foreign_body->add_plan('Lacuna::DB::Result::Building::Permanent::GasGiantPlatform', 1, (defined $lab) ? $lab->effective_level : 0);
     
     # all pow
     $self->delete;

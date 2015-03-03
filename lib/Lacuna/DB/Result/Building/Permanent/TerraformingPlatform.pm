@@ -3,9 +3,11 @@ package Lacuna::DB::Result::Building::Permanent::TerraformingPlatform;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
+use Lacuna::Constants qw(GROWTH);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 around 'build_tags' => sub {
   my ($orig, $class) = @_;
@@ -25,7 +27,7 @@ before 'can_demolish' => sub {
   my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform'} @{$body->building_cache};
   foreach my $tp_bld (@buildings) {
     $tp_cnt++;
-    $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
+    $tp_plots += int($tp_bld->effective_level * $tp_bld->effective_efficiency/100);
   }
   return if ($tp_cnt <= 1); # If we only have the one platform, they can destroy it.
   my $bld_count = $body->building_count;
@@ -33,7 +35,7 @@ before 'can_demolish' => sub {
   if ($excess_plots < 0) {
     confess [1013, 'Your planet shows that you are at negative plots.'];
   }
-  if ($excess_plots < int($self->level * $self->efficiency/100) ) {
+  if ($excess_plots < int($self->effective_level * $self->effective_efficiency/100) ) {
     confess [1013, 'You need to demolish a building before you can demolish this Terraforming Platform.'];
   }
 };
@@ -49,7 +51,7 @@ before 'can_downgrade' => sub {
   my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::TerraformingPlatform'} @{$body->building_cache};
   foreach my $tp_bld (@buildings) {
     $tp_cnt++;
-    $tp_plots += int($tp_bld->level * $tp_bld->efficiency/100);
+    $tp_plots += int($tp_bld->effective_level * $tp_bld->effective_efficiency/100);
   }
   return if ($tp_cnt <= 1); # If we only have the one platform, they can destroy it.
   my $bld_count = $body->building_count;

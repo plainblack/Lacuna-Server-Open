@@ -19,7 +19,7 @@ sub foreign_spies {
     return Lacuna
         ->db
         ->resultset('Lacuna::DB::Result::Spies')
-        ->search({ level => { '<=' => int($self->level * 1.25)},
+        ->search({ level => { '<=' => int($self->effective_level * 1.25)},
                    task => { 'not in' => [ 'Captured', 'Prisoner Transport' ] },
                    on_body_id => $self->body_id, empire_id => { '!=' => $self->body->empire_id } });
 }
@@ -69,6 +69,32 @@ sub orbiting_ships {
         }
     );
 }
+
+before 'repair' => sub {
+    my $self = shift;
+    my $db = Lacuna->db;
+    my $now = DateTime->now;
+    my $dtf = $db->storage->datetime_parser;
+    my $i_spies = $db->resultset('Spies')
+                    ->search( { on_body_id => $self->body->id,
+                                empire_id  => { '!=' => $self->body->empire_id },
+                                available_on  => { '<' => $dtf->format_datetime($now) },
+                                task => 'Travelling',
+                              });
+    while (my $spy = $i_spies->next) {
+        my $starting_task = $spy->task;
+        $spy->is_available;
+        if ($spy->task eq 'Idle' && $starting_task ne 'Idle') {
+            if (!$spy->empire->skip_spy_recovery) {
+                $spy->empire->send_predefined_message(
+                    tags        => ['Intelligence'],
+                    filename    => 'ready_for_assignment.txt',
+                    params      => [$spy->name, $spy->from_body->id, $spy->from_body->name],
+                );
+            }
+        }
+    }
+};
 
 
 no Moose;

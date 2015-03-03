@@ -65,7 +65,7 @@ sub rename {
     my $empire = $self->get_empire_by_session($session_id);
     my $body = $self->get_body($empire, $body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->level >= 3) {
+        unless ($body->parliament->effective_level >= 3) {
             confess [1013, 'You need to have a level 3 Parliament to rename a station.'];
         }
         my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
@@ -122,9 +122,64 @@ sub get_buildings {
                 end                 => $building->work_ends_formatted,
             };
         }
+        if ($building->efficiency < 100) {
+            $out{$building->id}{repair_costs} = $building->get_repair_costs;
+        }
     }
     
     return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
+}
+
+sub repair_list {
+    my ($self, $session_id, $body_id, $building_ids) = @_;
+
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = $self->get_body($empire, $body_id);
+
+    if (scalar @$building_ids > 121) {
+        confess [1002, 'Invalid number of buildings in argument.'];
+    }
+    
+    if ($body->needs_surface_refresh) {
+        $body->needs_surface_refresh(0);
+        $body->update;
+    }
+    my @buildings = @{$body->building_cache};
+
+    my %out;
+    for my $bld_id (@{$building_ids}) {
+        my ( $building ) = grep { $_->id == $bld_id } @buildings;
+        next unless $building;
+        next unless $building->efficiency < 100;
+        my $return;
+        my $ok = eval { $return = $building->repair };
+        $out{$building->id} = {
+            url     => $building->controller_class->app_url,
+            image   => $building->image_level,
+            name    => $building->name,
+            x       => $building->x,
+            y       => $building->y,
+            level   => $building->level,
+            efficiency => $building->efficiency,
+        };
+        if ($building->is_upgrading) {
+            $out{$building->id}{pending_build} = $building->upgrade_status;
+        }
+        if ($building->is_working) {
+            $out{$building->id}{work} = {
+                seconds_remaining   => $building->work_seconds_remaining,
+                start               => $building->work_started_formatted,
+                end                 => $building->work_ends_formatted,
+            };
+        }
+        if ($building->efficiency < 100) {
+            $out{$building->id}{repair_costs} = $building->get_repair_costs;
+        }
+    }
+    return {
+        buildings=>\%out,
+        status=>$self->format_status($empire, $body)
+    };
 }
 
 sub rearrange_buildings {
@@ -389,7 +444,7 @@ sub get_buildable {
     my $dev = $body->development;
     my $max_items_in_build_queue = 1;
     if (defined $dev) {
-        $max_items_in_build_queue += $dev->level;
+        $max_items_in_build_queue += $dev->effective_level;
     }
     my $items_in_build_queue = scalar @{$body->builds};
     
@@ -455,9 +510,35 @@ sub get_buildable {
 
     return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($empire, $body)};
 }
+sub view_laws {
+    my ($self, $session_id, $body_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body_id);
+    if ($body and $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @out;
+        my $laws = $body->laws;
+        while (my $law = $laws->next) {
+            push @out, $law->get_status($empire);
+        }
+        return {
+            status          => $self->format_status($empire, $body),
+            laws            => \@out,
+        };
+    }
+    else {
+        return {
+            status => $self->format_status($empire, $body),
+            laws   => [ { name => "Not a Station",
+                          descripition => "Not a Station",
+                          date_enacted => "00 00 0000 00:00:00 +0000",
+                          id => 0
+                        } ],
+        },
+    }
+}
 
-
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status rearrange_buildings));
+__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status repair_list rearrange_buildings view_laws));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

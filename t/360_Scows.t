@@ -92,7 +92,7 @@ Lacuna->cache->set('captcha', $session_id, { guid => 1111, solution => 1111 }, 6
 
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $scow->id, { star_id => $home->star_id } ] );
 ok($result->{result}{ship}{date_arrives}, "scow sent to star id " . $home_star_id);
-$scow = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow->id},{rows=>1})->single; # pull the latest data on this ship
+$scow = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow->id})->first; # pull the latest data on this ship
 
 is( $scow->foreign_star_id, $home->star_id, 'scow is headed to the correct foreign star id' );
 is( $scow->foreign_body_id, undef, 'scow does not have a foreign body id' );
@@ -101,7 +101,7 @@ $scow->arrive;
 is( $scow->task, 'Travelling', 'scow is travelling' );
 is( $scow->direction, 'in', 'scow is headed home' );
 
-$scow = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow->id},{rows=>1})->single; # pull the latest data on this ship
+$scow = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow->id})->first; # pull the latest data on this ship
 $scow->arrive;
 is( $scow->task, 'Docked', 'scow is docked' );
 cmp_deeply( $scow->payload, {}, 'no payload' );
@@ -111,13 +111,13 @@ is($result->{result}, 1, 'Solved captcha');
 
 $result = $tester->post('spaceport', 'send_ship', [$session_id, $scow2->id, { body_id => $enemy->empire->home_planet->id } ] );
 ok($result->{result}{ship}{date_arrives}, "scow sent to planet id " . $enemy->empire->home_planet->id);
-$scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id},{rows=>1})->single; # pull the latest data on this ship
+$scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id})->first; # pull the latest data on this ship
 
 is( $scow2->foreign_star_id, undef, 'scow2 does not have a foreign star id' );
 is( $scow2->foreign_body_id, $enemy->empire->home_planet->id, 'scow2 is headed to the correct foreign body id' );
 
 $scow2->arrive;
-$scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id},{rows=>1})->single; # pull the latest data on this ship
+$scow2 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow2->id})->first; # pull the latest data on this ship
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 is( $result->{result}{status}{empire}{most_recent_message}{subject}, "Ship Shot Down", 'Ship Shot Down' );
@@ -136,8 +136,8 @@ Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({shipyard_id=>$shipya
 
 $result = $tester->post('spaceport', 'view', [$session_id, $spaceport->id]);
 
-$scow3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow3->id},{rows=>1})->single; # pull the latest data on this ship
-$scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow4->id},{rows=>1})->single; # pull the latest data on this ship
+$scow3 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow3->id})->first; # pull the latest data on this ship
+$scow4 = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({id=>$scow4->id})->first; # pull the latest data on this ship
 
 $result = $tester->post('spaceport', 'send_fleet', [$session_id, [$scow3->id, $scow4->id], { star_id => $home->star_id }]);
 is(scalar @{$result->{result}{fleet}}, 2, 'fleet sent');

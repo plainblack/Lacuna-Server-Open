@@ -66,6 +66,13 @@ after can_send_to_target => sub {
     confess [1009, 'Your species cannot survive on that planet.' ] if ($empire->university_level < 18 && ($target->orbit > $empire->max_orbit || $target->orbit < $empire->min_orbit));
     my $stake = Lacuna->cache->get('stake', $self->body->empire->id);
     confess [1010, 'You have already sent 3 stakes in a short period of time. Wait 24 hours since the last stake and send again.'] if (defined $stake && $stake >= 3);
+    if ($target->star->station_id) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
+            unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
+                confess [1010, 'Only '.$target->star->station->alliance->name.' members can colonize or stake planets in the jurisdiction of the space station.'];
+            }
+        }
+    }
     return 1;
 };
 

@@ -2,7 +2,7 @@ Fissure causes destruction
 ~~~
 The collapse of the Fissure Containment System on %s sent out a sub-ether shock-wave resulting in damage to many planets including %s.
 
-Local empires are investigating who is responsible for this outrage.
+%s
 
 Regards,
 

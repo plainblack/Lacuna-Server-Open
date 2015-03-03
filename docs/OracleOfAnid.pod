@@ -11,7 +11,7 @@ Retrieves info on a single star. Works like L<Map/"get_star"> except that you ca
 
 There is a range to the Oracle based upon it's level. A 10 map unit radius per level. A 1009 exception will be thrown if you request a star that its outside that range.
 
-B<NOTE:> Use L<Map/"search_stars"> to look up the id of a star by name.
+B<NOTE: Use L<Map/"search_stars"> to look up the id of a star by name.>
 
 
  { 
@@ -41,5 +41,54 @@ The unique id of the Oracle.
 =head3 star_id
 
 The unique id of the star.
+
+
+=head2 get_probed_stars
+
+Returns all stars that are within distance of the Oracle
+
+Uses named arguments call
+
+ {
+   "session_id" : "session-goes-here",
+   "building_id" : "building-id-goes-here",
+   "page_number" : 1,
+ }
+
+=head3 session_id (required)
+
+The session ID
+
+=head3 building_id (required)
+
+The ID of the Oracle building
+
+=head3 page_number (optional)
+
+The page number of the results, defaults to page 1 where each page contains B<page_size> records.
+
+=head3 page_size (optional)
+
+Defaults to a page size of 25, can have any value from 1 to 200
+
+=head3 RESPONSE
+
+ {
+    "status" : { ... },
+    "stars" : [
+        "id" : "id-goes-here",
+        "color" : "yellow",
+        "name" : "Sol",
+        "x" : 17,
+        "y" : 4,
+        "z" : -3,
+        "bodies" : [
+            { See get_status() in Body },
+            ...
+        ]
+    ,
+    "star_count" : 5,
+    "max_distance" : 10,
+ }
 
 =cut

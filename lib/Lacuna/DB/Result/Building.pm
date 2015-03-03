@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use Lacuna::Constants ':all';
-use List::Util qw(shuffle);
+use List::Util qw(shuffle min);
 use List::MoreUtils qw(first_index);
 
 use Lacuna::Util qw(format_date);
@@ -21,10 +21,10 @@ __PACKAGE__->add_columns(
     class           => { data_type => 'varchar', size => 255, is_nullable => 0 },
     upgrade_started => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     upgrade_ends    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    is_upgrading    => { data_type => 'bit', default => 0 },
+    is_upgrading    => { data_type => 'bit', default_value => 0 },
     work_started    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     work_ends       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    is_working      => { data_type => 'bit', default => 0 },
+    is_working      => { data_type => 'bit', default_value => 0 },
     work            => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
     efficiency      => { data_type => 'int', default_value => 100, is_nullable => 0 },
     last_check      => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
@@ -61,6 +61,10 @@ use constant max_orbit => 8;
 use constant building_prereq => {};
 
 use constant name => 'Building';
+
+sub sortable_name {
+    '50'.shift->name
+}
 
 sub image {
     confess 'override me';
@@ -128,11 +132,44 @@ use constant waste_storage          => 0;
 
 # BASE FORMULAS
 
+has effective_level => (
+    is => 'rw',
+    lazy => 1,
+    builder => '_build_effective_level',
+    clearer => 'clear_effective_level',
+);
+
+sub _build_effective_level
+{
+    my $self = shift;
+    my $uni_prod   = ($self->body->empire) ? $self->body->empire->university_level + 1 : 1;
+    my $real_level = $self->level;
+    # take whichever one is lower.
+    my $eff_level  = min($uni_prod + 1, $real_level);
+
+    # room for objects/boosts/whatever to override this.
+
+    $eff_level;
+}
+
+has effective_efficiency => (
+    is => 'rw',
+    lazy => 1,
+    builder => '_build_effective_efficiency',
+    clearer => 'clear_effective_efficiency',
+);
+
+sub _build_effective_efficiency {
+    my $self = shift;
+    $self->efficiency; # with rare exceptions
+}
+
 sub production_hour {
     my $self = shift;
-    return 0 unless  $self->level;
-    my $production = (GROWTH ** (  $self->level - 1));
-    $production = ($production * $self->efficiency) / 100;
+    return 0 unless  $self->effective_level;
+    my $prod_level = $self->effective_level;
+    my $production = (GROWTH ** (  $prod_level - 1));
+    $production = ($production * $self->effective_efficiency) / 100;
     return $production;
 }
 
@@ -155,14 +192,16 @@ sub consumption_hour {
 sub farming_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->food_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->farming_affinity * 4) / 100;
+    return (100 + $boost + $empire->effective_farming_affinity * 4) / 100;
 }
 
 sub manufacturing_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
-    return (100 + $empire->manufacturing_affinity * 4) / 100;
+    return 1 unless defined $empire;
+    return (100 + $empire->effective_manufacturing_affinity * 4) / 100;
 }
 
 sub lapis_production_hour {
@@ -342,14 +381,17 @@ sub food_hour {
 sub building_reduction_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     return (time < $empire->building_boost->epoch) ? 0.75 : 1;
 }
  
 sub energy_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->energy_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->science_affinity * 4) / 100;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 50 : 0;
+    return (100 + $boost + $gg_bonus + $empire->effective_science_affinity * 4) / 100;
 }
 
 sub energy_production_hour {
@@ -361,7 +403,9 @@ sub energy_production_hour {
 
 sub energy_consumption_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->energy_consumption * $self->consumption_hour);
+    my $gg_perc = ($self->body->get_type eq 'gas giant') ? 75 : 100;
+    my $consumption = ($gg_perc * $self->energy_consumption)/100;
+    return sprintf('%.0f',$consumption * $self->consumption_hour);
 }
 
 sub energy_hour {
@@ -371,11 +415,12 @@ sub energy_hour {
 
 sub mining_production_bonus {
     my ($self) = @_;
-    my $refinery = $self->body->refinery;
-    my $refinery_bonus = (defined $refinery) ? $refinery->level * 5 : 0;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    my $refinery = $self->body->refinery;
+    my $refinery_bonus = (defined $refinery) ? $refinery->effective_level * 5 : 0;
     my $boost = (time < $empire->ore_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $refinery_bonus + $empire->mining_affinity * 4) / 100;
+    return (100 + $boost + $refinery_bonus + $empire->effective_mining_affinity * 4) / 100;
 }
 
 sub ore_production_hour {
@@ -398,8 +443,10 @@ sub ore_hour {
 sub water_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->water_boost->epoch) ? 25 : 0;
-    return (100 + $boost + $empire->environmental_affinity * 4) / 100;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? -25 : 0;
+    return (100 + $boost + $gg_bonus + $empire->effective_environmental_affinity * 4) / 100;
 }
 
 sub water_production_hour {
@@ -421,7 +468,10 @@ sub water_hour {
 
 sub waste_consumption_bonus {
     my ($self) = @_;
-    return (100 + $self->body->empire->environmental_affinity * 4) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
+    return (100 + $gg_bonus + $empire->effective_environmental_affinity * 4) / 100;
 }
 
 sub waste_production_hour {
@@ -444,8 +494,15 @@ sub waste_hour {
 sub happiness_production_bonus {
     my ($self) = @_;
     my $empire = $self->body->empire;
+    return 1 unless defined $empire;
     my $boost = (time < $empire->happiness_boost->epoch) ? 25 : 0;
-    return (100 + $boost + ($empire->political_affinity * 10)) / 100;
+    my $sboost = $self->body->propaganda_boost;
+    if ($self->body->happiness > 0 and $sboost > 50) {
+        $sboost = 50;
+    }
+    $boost += $sboost;
+    return (100 + $boost) * (100 + $empire->effective_political_affinity * 10)/10000;
+#    return (100 + $boost + ($empire->effective_political_affinity * 10)) / 100; #Old Way
 }
 
 sub happiness_production_hour {
@@ -473,6 +530,7 @@ has storage_bonus => (
     default => sub {
         my ($self) = @_;
         my $empire = $self->body->empire;
+        return 1 unless defined $empire;
         my $boost = (time < $empire->storage_boost->epoch) ? 25 : 0;
         return (100 + $boost) / 100;
     },
@@ -482,35 +540,46 @@ sub food_capacity {
     my ($self) = @_;
     my $base = $self->food_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->farming_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_farming_affinity * 4 / 100) ));
 }
 
 sub energy_capacity {
     my ($self) = @_;
     my $base = $self->energy_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->science_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_science_affinity * 4 / 100) ));
 }
 
 sub ore_capacity {
     my ($self) = @_;
     my $base = $self->ore_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->mining_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_mining_affinity * 4 / 100) ));
 }
 
 sub water_capacity {
     my ($self) = @_;
     my $base = $self->water_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($empire->effective_environmental_affinity * 4 / 100) ));
 }
 
 sub waste_capacity {
     my ($self) = @_;
     my $base = $self->waste_storage * $self->production_hour;
     return 0 if $base == 0;
-    return sprintf('%.0f', $base * ($self->storage_bonus + ($self->body->empire->environmental_affinity * 4 / 100) ));
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
+    return sprintf('%.0f', $base * ($self->storage_bonus + ($gg_bonus + $empire->effective_environmental_affinity * 4) / 100) );
 }
 
 # BUILD
@@ -586,12 +655,16 @@ sub can_demolish {
 }
 
 sub demolish {
-    my ($self) = @_;
+    my ($self, $theft) = @_;
     my $body = $self->body;
-    $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
-    $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+
+    if (!$theft) {
+        $body->add_waste(sprintf('%.0f',$self->ore_to_build * $self->upgrade_cost));
+        $body->spend_happiness(sprintf('%.0f',$self->food_to_build * $self->upgrade_cost));
+    }
 
     # Remove the building from the cache
+    $self->level(0);
     my $idx = first_index {$_->id == $self->id} @{$body->building_cache};
     if (defined $idx) {
         my @blist = @{$body->building_cache};
@@ -617,9 +690,10 @@ sub downgrade {
     my ($self, $theft) = @_;
     if ($self->level == 1) {
         $self->can_demolish;
-        return $self->demolish;
+        return $self->demolish($theft);
     }
     $self->level( $self->level - 1);
+    $self->efficiency(100);
     $self->update;
     my $body = $self->body;
     if (!$theft) {
@@ -650,7 +724,7 @@ sub has_met_upgrade_prereqs {
     my ($self) = @_;
 #    if (!$self->isa('Lacuna::DB::Result::Building::University') && $self->level >= $self->body->empire->university_level + 1) {
     if ($self->level >= $self->body->empire->university_level + 1) {
-        confess [1013, "You cannot upgrade a building past your university level."];
+        confess [1013, sprintf("You cannot upgrade a building past level %s (university level + 1).",$self->body->empire->university_level+1)];
     }
     return 1;
 }
@@ -658,7 +732,17 @@ sub has_met_upgrade_prereqs {
 sub has_no_pending_build {
     my ($self) = @_;
     if ($self->is_upgrading) {
-        confess [1010, "You must complete the pending build first."];
+        # sometimes the upgrade gets stuck, and someone has to jiggle
+        # the database.  Detect the situation and jiggle the database
+        # immediately.
+        if ($self->upgrade_ends < DateTime->now)
+        {
+            $self->finish_upgrade();
+        }
+        else
+        {
+            confess [1010, "You must complete the pending build first."];
+        }
     }
     return 1;
 }
@@ -711,23 +795,29 @@ sub can_upgrade {
 
 sub construction_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->research_affinity * 5) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return (100 - $empire->effective_research_affinity * 5) / 100;
 }
 
 sub manufacturing_cost_reduction_bonus {
     my $self = shift;
-    return (100 - $self->body->empire->manufacturing_affinity * 5) / 100;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return (100 - $empire->effective_manufacturing_affinity * 5) / 100;
 }
 
 sub time_cost_reduction_bonus {
     my ($self, $extra) = @_;
     $extra ||= 0;
     my $body = $self->body;
+    my $empire = $body->empire;
+    return 1 unless defined $empire;
     my $unhappy_workers = 0;
     if ($body->happiness < 0 ) {
         $unhappy_workers = abs($body->happiness) / 1000;
     }
-    my $base_cost_reduction = 100 - $extra - ($body->empire->management_affinity * 5);
+    my $base_cost_reduction = 100 - $extra - ($body->empire->effective_management_affinity * 5);
     if ( $base_cost_reduction < 1 ) {
         my $new_factor = (1 - $base_cost_reduction) / 30;
         $base_cost_reduction = 1 - $new_factor;
@@ -754,7 +844,8 @@ sub cost_to_upgrade {
     }
     my $oversight_reduction = 1;
     if (defined $self->body->oversight) {
-        $oversight_reduction = (100 - ($self->body->oversight->level * 3)) / 100;
+        my $om_level = $self->body->oversight->effective_level;
+        $oversight_reduction = (100 - ($om_level * 3)) / 100;
     }
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
@@ -787,12 +878,14 @@ sub stats_after_upgrade {
     my ($self) = @_;
     my $current_level = $self->level;
     $self->level($current_level + 1);
+    $self->clear_effective_level;
     my %stats;
     my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
     foreach my $resource (@list) {
         $stats{$resource} = $self->$resource;
     }
     $self->level($current_level);
+    $self->clear_effective_level;
     return \%stats;
 }
 
@@ -813,12 +906,24 @@ sub start_upgrade {
     
     # set time to build, plus what's in the queue
     my $now = DateTime->now;
-    my $upgrade_ends = $in_parallel ? $now : $body->get_existing_build_queue_time;
+    my $upgrade_ends = $in_parallel || $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')
+        ? $now : $body->get_existing_build_queue_time;
     if ($upgrade_ends < $now) {
         $upgrade_ends = $now;
     }
 
-    my $time_to_add = $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ? 60 * 60 * 72 : $cost->{time};
+    my $time_to_add;
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ) {
+        if ($self->class eq 'Lacuna::DB::Result::Building::DeployedBleeder') {
+            $time_to_add = $cost->{time};
+        }
+        else {
+            $time_to_add = 60 * 60 * 72;
+        }
+    }
+    else {
+        $time_to_add = $cost->{time};
+    }
     $upgrade_ends->add(seconds=>$time_to_add);
     # add to queue
     $self->update({
@@ -848,21 +953,26 @@ sub finish_upgrade {
 
     if ($self->is_upgrading) {
         my $body = $self->body;
+        my $empire = $body->empire;
         my $new_level = $self->level+1;
 
-        my $empire = $body->empire; 
-        # 31 is the actual Max level for the Terra & Gas Platforms.
-        if ($new_level >= 1 and $new_level <= 31) {
-            $empire->add_medal('building'.$new_level);
+        if ($empire) {
+            # 31 is the actual Max level for the Terra & Gas Platforms.
+            if ($new_level >= 1 and $new_level <= 31) {
+                $empire->add_medal('building'.$new_level);
+            }
+            elsif ($new_level > 31) {
+                $empire->add_medal('buildingX');
+            }
+            my $type = $self->controller_class;
+            $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
+            $empire->add_medal($type);
+            $self->finish_upgrade_news($new_level, $empire);
         }
-        elsif ($new_level > 31) {
-            $empire->add_medal('buildingX');
-        }
-        my $type = $self->controller_class;
-        $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
 
         $self->reschedule_queue;
         $self->level($new_level);
+        $self->clear_effective_level();
         $self->is_upgrading(0);
         $self->update;
         
@@ -870,15 +980,19 @@ sub finish_upgrade {
         $body->needs_surface_refresh(1);
         $body->update;
 
-        $empire->add_medal($type);
-        if ($new_level % 5 == 0) {
-            my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-            $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
-        }
     }
     Lacuna->cache->delete('upgrade_contention_lock', $self->id);
 
     return $self;
+}
+
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
+        $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
+    }
 }
 
 # Cancel the upgrade of any one build on the build queue
@@ -979,14 +1093,16 @@ sub reschedule_work {
     $self->work_ends($new_work_ends);
     $self->update;
 
-    my ($schedule) = Lacuna->db->resultset('Schedule')->search({
+    my $schedules = Lacuna->db->resultset('Schedule')->search({
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',
     });
-    $schedule->delete if defined $schedule;
+    while (my $schedule = $schedules->next) {
+        $schedule->delete if defined $schedule;
+    }
 
-    Lacuna->db->resultset('Schedule')->create({
+    my $new_sched = Lacuna->db->resultset('Lacuna::DB::Result::Schedule')->create({
         delivery        => $new_work_ends,
         parent_table    => 'Building',
         parent_id       => $self->id,
@@ -1042,7 +1158,7 @@ sub last_check_formatted {
 
 sub is_offline {
     my $self = shift;
-    if ($self->efficiency == 0) {
+    if ($self->effective_efficiency == 0) {
         confess [1013, $self->name.' is currently offline.'];
     }
 }
@@ -1158,7 +1274,6 @@ sub spend_efficiency {
         'Lacuna::DB::Result::Building::Embassy' => 'Lacuna::DB::Result::Building::Embassy',
         'Lacuna::DB::Result::Building::EntertainmentDistrict' => 'Lacuna::DB::Result::Building::EntertainmentDistrict',
         'Lacuna::DB::Result::Building::Espionage' => 'Lacuna::DB::Result::Building::Espionage',
-        'Lacuna::DB::Result::Building::Food' => 'Lacuna::DB::Result::Building::Food',
         'Lacuna::DB::Result::Building::GasGiantLab' => 'Lacuna::DB::Result::Building::GasGiantLab',
         'Lacuna::DB::Result::Building::Intelligence' => 'Lacuna::DB::Result::Building::Intelligence',
         'Lacuna::DB::Result::Building::IntelTraining' => 'Lacuna::DB::Result::Building::IntelTraining',

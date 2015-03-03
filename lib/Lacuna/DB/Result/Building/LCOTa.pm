@@ -33,69 +33,43 @@ around produces_food_items => sub {
     return $foods;
 };
 
-has effective_efficiency => (
-    is          => 'rw',
-    lazy        => 1,
-    predicate   => 'has_effective_efficiency',
-    default     => 0,
-);
-
-has effective_level => (
-    is      => 'rw',
-    lazy        => 1,
+has '+effective_level' => (
     predicate   => 'has_effective_level',
-    default     => 0,
 );
 
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    unless ($self->has_effective_level) {
-        $self->calculate_effective_stats;
-    }
-    my $production = (GROWTH ** (  $self->effective_level - 1));
-    $production = ($production * $self->effective_efficiency) / 100;
-    return $production;
-}
-
-
-sub stats_after_upgrade {
-    my ($self) = @_;
-    unless ($self->has_effective_level) {
-        $self->calculate_effective_stats;
-    }
-    my $current_level = $self->effective_level;
-    $self->effective_level($current_level + 1);
-    my %stats;
-    my @list = qw(food_hour food_capacity ore_hour ore_capacity water_hour water_capacity waste_hour waste_capacity energy_hour energy_capacity happiness_hour);
-    foreach my $resource (@list) {
-        $stats{$resource} = $self->$resource;
-    }
-    $self->effective_level($current_level);
-    return \%stats;
-}
-
-sub calculate_effective_stats {
-    my $self = shift;
-    my $level = $self->level;
-    my $efficiency = $self->efficiency;
+around '_build_effective_level' => sub {
+    my ($orig, $self) = @_;
+    my $level = $self->$orig;
     my $body = $self->body;
     foreach my $ext (qw(b c d e f g h i)) {
         my $part = $body->get_building_of_class('Lacuna::DB::Result::Building::LCOT'.$ext);
         if (defined $part) {
-            $level = $part->level < $level ? $part->level : $level;
-            $efficiency = $part->efficiency < $efficiency ? $part->efficiency : $efficiency;
+            $level = $part->effective_level < $level ? $part->effective_level : $level;
         }
         else {
             $level = 0;
+        }
+        last if $level < 1;
+    }
+    return $level;
+};
+
+around '_build_effective_efficiency' => sub {
+    my ($orig, $self) = @_;
+    my $efficiency = $self->$orig;
+    my $body = $self->body;
+    foreach my $ext (qw(b c d e f g h i)) {
+        my $part = $body->get_building_of_class('Lacuna::DB::Result::Building::LCOT'.$ext);
+        if (defined $part) {
+            $efficiency = $part->effective_efficiency < $efficiency ? $part->effective_efficiency : $efficiency;
+        }
+        else {
             $efficiency = 0;
         }
-        last if $level < 1 || $efficiency < 1;
+        last if $efficiency < 1;
     }
-    $self->effective_level($level);
-    $self->effective_efficiency($efficiency);
-}
-
+    return $efficiency;
+};
 
 before 'can_demolish' => sub {
     my $self = shift;

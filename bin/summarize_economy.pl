@@ -55,12 +55,12 @@ out((($finish - $start->epoch)/60)." minutes have elapsed");
 sub summarize {
     my $date = shift;
     out('Summarizing Economy For '.$date->ymd);
-    my $today = $economy_log->search({date_stamp => $date->ymd},{rows=>1})->single;
+    my $today = $economy_log->search({date_stamp => $date->ymd})->first;
     if (defined $today) {
         $today->delete;
     }
     $today = $economy_log->new({ date_stamp => $date->ymd });
-    my $viral = $viral_log->search({date_stamp => $date->ymd},{rows=>1})->single;
+    my $viral = $viral_log->search({date_stamp => $date->ymd})->first;
     if (defined $viral) {
         $today->total_users($viral->total_users);
     }
@@ -85,7 +85,7 @@ sub summarize {
                     $today->purchases_1300( $today->purchases_1300 + 1);
                 }
             }
-            when ('Essentia Vein') {
+            when (/Essentia Vein/) {
                 $today->in_vein( $today->in_vein + $entry->amount);            
             }
             when ('tutorial') {

@@ -78,13 +78,14 @@ after send => sub {
     $self->payload($payload);
     $self->update;
     $body->update;
-    Lacuna->cache->set('supply_pod_sent',$self->body_id,1,60*60*24);
+
+    $self->body->get_a_building("PlanetaryCommand")->sent_a_pod;
 };
 
 after can_send_to_target => sub {
     my ($self, $target) = @_;
-    confess [1010, 'Cannot send more than one per day per planet.']
-      if (Lacuna->cache->get('supply_pod_sent',$self->body_id));
+    confess [1010, 'Cannot send another supply pod so soon after sending previous supply pod.']
+      unless $self->body->get_a_building("PlanetaryCommand")->can_send_pod;
 };
 
 1;

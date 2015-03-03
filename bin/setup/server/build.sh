@@ -12,14 +12,14 @@ make
 make install
 cd ..
 
-cd pcre-8.10
+cd pcre-8.33
 ./configure --prefix=/data/apps
 make
 make install
 cd ..
 
 cd nginx-0.7.67
-./configure --prefix=/data/apps --with-pcre=../pcre-8.10 --with-http_ssl_module --with-openssl=../openssl-1.0.0c
+./configure --prefix=/data/apps --with-pcre=../pcre-8.33 --with-http_ssl_module --with-openssl=../openssl-1.0.0c
 make
 make install
 cd ..

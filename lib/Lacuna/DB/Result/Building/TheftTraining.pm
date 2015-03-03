@@ -47,7 +47,7 @@ has spies_in_training_count => (
     lazy        => 1,
     default     => sub {
         my $self = shift;
-        return $self->get_spies->search({task=>'Training'})->count;
+        return $self->get_spies->search({task=>'Theft Training'})->count;
     },
 );
 
@@ -82,118 +82,11 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->level;
+        my $multiplier = $self->effective_level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }
 );
-
-sub training_costs {
-    my $self = shift;
-    my $spy_id = shift;
-    my $multiplier = $self->training_multiplier;
-    my $costs = {
-        water   => 1100 * $multiplier,
-        waste   => 40 * $multiplier,
-        energy  => 100 * $multiplier,
-        food    => 1000 * $multiplier,
-        ore     => 10 * $multiplier,
-        time    => [],
-    };
-    if ($spy_id) {
-        my $spy = $self->get_spy($spy_id);
-        my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/100) + 1;
-        my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
-        if ($self->body->happiness < 0) {
-            my $unhappy_workers = abs($self->body->happiness)/100_000;
-            $train_time = int($train_time * $unhappy_workers);
-        }
-        $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-        $train_time = 21600 if ($train_time < 21600); # Min time is 6 hour
-        $costs->{time} = $train_time;
-    }
-    else {
-        my $spies = $self->get_spies->search({ task => { in => ['Counter Espionage','Idle'] } });
-        while (my $spy = $spies->next) {
-            my $xp_level = int(($spy->intel_xp + $spy->mayhem_xp + $spy->politics_xp + $spy->theft_xp)/100) + 1;
-            my $train_time = sprintf('%.0f', 3600 * $xp_level * ((100 - (5 * $self->body->empire->management_affinity)) / 100));
-            if ($self->body->happiness < 0) {
-                my $unhappy_workers = abs($self->body->happiness)/100_000;
-                $train_time = int($train_time * $unhappy_workers);
-            }
-            $train_time = 5184000 if ($train_time > 5184000); # Max time per spy is 60 days
-            $train_time = 21600 if ($train_time < 21600); # Min time is 6 hour
-            push @{$costs->{time}}, {
-                spy_id  => $spy->id,
-                name    => $spy->name,
-                time    => $train_time,
-                level   => $spy->level,
-                offense_rating => $spy->offense,
-                defense_rating => $spy->offense,
-                intel          => $spy->intel_xp,
-                mayhem         => $spy->mayhem_xp,
-                politics       => $spy->politics_xp,
-                theft          => $spy->theft_xp,
-                task           => $spy->task,  # Should only be Idle or Counter Espionage
-                based_from     => {
-                    body_id => $spy->from_body_id,
-                    name    => $spy->from_body->name,
-                    x       => $spy->from_body->x,
-                    y       => $spy->from_body->y,
-                },
-            };
-        }
-    }
-    return $costs;
-}
-
-sub can_train_spy {
-    my ($self, $costs) = @_;
-    my $body = $self->body;
-    foreach my $resource (qw(water ore food energy)) {
-        unless ($body->type_stored($resource) >= $costs->{$resource}) {
-            confess [1011, 'Not enough '.$resource.' to train a spy.'];
-        }
-    }
-    return 1;
-}
-
-sub spend_resources_to_train_spy {
-    my ($self, $costs) = @_;
-    my $body = $self->body;
-    foreach my $resource (qw(water ore food energy)) {
-        my $spend = 'spend_'.$resource;
-        $body->$spend($costs->{$resource});
-    }
-    $body->add_waste($costs->{waste});
-}
-
-sub train_spy {
-    my ($self, $spy_id, $time_to_train) = @_;
-    my $empire = $self->body->empire;
-    my $spy = $self->get_spy($spy_id);
-    unless ($spy->theft_xp < 2600) {
-        confess [1013, $spy->name." has already learned all there is to know about Theft."];
-    }
-    unless (defined $time_to_train) {
-        $time_to_train = $self->training_costs($spy_id)->{time};
-    }
-    $spy->is_available;
-    unless ($spy->task ~~ ['Counter Espionage','Idle']) {
-        confess [1011, 'Spy must be idle to train.'];
-    }
-    my $available_on = DateTime->now;
-    $available_on->add(seconds => $time_to_train );
-    my $total = $spy->theft_xp + $self->level;
-    $total = 2600 if $total > 2600;
-    $spy->theft_xp($total);
-    $spy->update_level;
-    $spy->task('Training');
-    $spy->available_on($available_on);
-    $spy->update;
-    return $self;
-}
-
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

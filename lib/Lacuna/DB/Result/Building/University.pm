@@ -51,7 +51,7 @@ after finish_upgrade => sub {
         $empire->university_level(++$tech_lvl);
         $empire->update;
         if ($tech_lvl > 4) {
-            my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+            my $invite = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id})->first;
             if (defined $invite) {
                 my $inviter = $invite->inviter;
                 if (defined $inviter) {

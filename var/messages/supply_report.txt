@@ -1,0 +1,8 @@
+%s
+~~~
+Here's some information about the supply chains on {Starmap %s %s %s} you may find interesting.
+
+More to come,
+
+%s of {Planet %s %s}
+

@@ -4,4 +4,24 @@ Essentia Vein is accessible via the URL C</essentiavein>.
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session_id, building_id )
+
+ {
+    "status" : { ... },
+    "building" : { 
+       "drain_capable" : 3,
+       ...
+    },
+ }
+
+Addition of a drain_capable flag indicating how many groups of 30 days
+can be drained.  Above example shows 90-119 days remaining.
+
+=head2 drain ( session_id, building_id[, times] )
+
+Allows draining of an evein quickly.  Instead of 4e per day over 30 days,
+this will use up 30 days and provide 30e instantly.  The optional C<times>
+parameter allows draining of multiple months' worth in a single RPC.  Periods
+less than 30 days cannot be drained quickly.
+
 =cut

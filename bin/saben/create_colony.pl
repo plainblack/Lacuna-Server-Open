@@ -34,9 +34,8 @@ die 'Could not find target player.' unless defined $target_player;
 
 out('Finding colony...');
 my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-    { zone => $target_player->home_planet->zone, empire_id => undef, size => { between => [30,35]}},
-    { rows => 1 }
-    )->single;
+    { zone => $target_player->home_planet->zone, empire_id => undef, size => { between => [30,35]}}
+    )->first;
 die 'Could not find a colony to occupy.' unless defined $body;
 say $body->name;
 

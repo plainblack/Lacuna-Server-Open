@@ -22,11 +22,11 @@ __PACKAGE__->add_columns(
     queue        => {data_type => 'varchar', size => 30, is_nullable => 0},
     job_id       => {data_type => 'int', size => 11, is_nullable => 0},
     delivery     => {data_type => 'datetime', is_nullable => 0},
-    priority     => {data_type => 'int', size => 11, is_nullable => 0, default => 1000},
+    priority     => {data_type => 'int', size => 11, is_nullable => 0, default_value => 1000},
     parent_table => {data_type => 'varchar', size => 30, is_nullable => 0},
     parent_id    => {data_type => 'int', size => 11, is_nullable => 0},
     task         => {data_type => 'varchar', size => 30, is_nullable => 0},
-    args         => {data_type => 'medium_blob', is_nullable => 1, serializer_class => 'JSON'},
+    args         => {data_type => 'mediumblob', is_nullable => 1, serializer_class => 'JSON'},
 );
 
 after 'insert' => sub {

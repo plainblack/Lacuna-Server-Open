@@ -150,6 +150,7 @@ Returns a list of the excavator sites currently controlled by this ministry.
             "glyph" : 30,
             "plan" : 7,
             "resource" : 53
+            "date_landed" : Date excav started at location
         },
         ...
     ]
@@ -187,6 +188,19 @@ The unique id of the archaeology ministry.
 =head3 site_id
 
 The unique id of the excavator site you wish to abandon.
+
+
+=head2 mass_abandon_excavator ( session_id, building_id )
+
+Destroy all excavators.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the archaeology ministry.
 
 
 =cut

@@ -11,7 +11,7 @@ use Lacuna::Util qw(randint);
 
 use constant controller_class => 'Lacuna::RPC::Building::TheDillonForge';
 
-use constant subsidy_cost => 2;
+#use constant subsidy_cost => 2;
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;
@@ -49,9 +49,25 @@ use constant name => 'The Dillon Forge';
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
 
-sub split_plan {
-    my ($self, $plan_class, $level, $extra_build_level) = @_;
+sub subsidy_cost {
+    my ($self) = @_;
 
+    my $sub = 2;
+    if ($self->is_working) {
+        my $work = $self->work;
+        if ($work->{task} eq "split_plan" and $work->{quantity} > 1) {
+            my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+            $sub = 2 + $sub * $pow_two;
+        }
+    }
+    return $sub;
+}
+
+sub split_plan {
+    my ($self, $plan_class, $level, $extra_build_level, $quantity) = @_;
+
+    $quantity = $quantity || 1;
+    $quantity = 2_000_000 if $quantity > 2_000_000;
     my $halls   = $self->equivalent_halls($level, $extra_build_level);
     my $class   = 'Lacuna::DB::Result::Building::'.$plan_class;
     my $body    = $self->body;
@@ -61,8 +77,13 @@ sub split_plan {
         and $_->extra_build_level   == $extra_build_level
     } @{$body->plan_cache};
 
+    my $effective_level = $self->effective_level;
+
     if (not $plan) {
         confess [1002, 'You cannot split a plan you do not have.'];
+    }
+    if ($plan->quantity < $quantity) {
+        confess [1002, 'You only have '.$plan->quantity.' of the '.$quantity.' you wish to split.'];
     }
     my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($class);
     if (not $glyphs) {
@@ -71,17 +92,22 @@ sub split_plan {
     if ($class =~ m/Platform$/) {
         confess [1002, 'You cannot split a Platform plan.'];
     }
-    $body->delete_one_plan($plan);
+    $body->delete_many_plans($plan, $quantity);
+    my $num_glyphs = scalar @$glyphs;
 
-    my $build_secs = int($halls * 30 * 3600 / $self->level);
-    $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level}, $build_secs)->update;
+    my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
+    my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
+    $build_secs = 15 if ($build_secs < 15);
+    $build_secs = 31_536_000 if ($build_secs > 31_536_000);
+    $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
 sub make_plan {
     my ($self, $plan_class, $level) = @_;
 
-    if ($level > $self->level) {
-        confess [1002, 'Your Dillon Forge level is not high enough to build that high a plan level.'];
+    my $effective_level = $self->effective_level;
+    if ($level > $effective_level) {
+        confess [1002, 'Your Dillon Forge or your tech level is not high enough to build that high a plan level.'];
     }
     if ($plan_class =~ m/HallsOfVrbansk/) {
         confess [1002, 'It is not a good idea to create a plan you cannot use.'];
@@ -137,9 +163,14 @@ before finish_work => sub {
         $body->add_news(100, sprintf('%s used the Dillon Forge to create a %s plan level %s on %s.', $empire->name, $plan_class->name, $work->{level}, $body->name));
     }
     if ($work->{task} eq 'split_plan') {
+        my $effective_level = $self->effective_level;
         # calculate the probability of success
-        my $success_percent = $self->level * 3;
+        my $success_percent = $effective_level * 3;
         my $halls = $self->equivalent_halls($work->{level}, $work->{extra_build_level});
+
+        my $pow_two = int(log($work->{quantity})/log(2)+0.5);
+        $success_percent -= 2 * $pow_two;
+        $success_percent = 5 if ($success_percent < 5);
         
         if ($plan_class =~ m/HallsOfVrbansk$/) {
             # create a random A,B,C or D hall
@@ -148,35 +179,58 @@ before finish_work => sub {
             $plan_class .= " $hall_type";
         }
         my $glyphs = Lacuna::DB::Result::Plan->get_glyph_recipe($plan_class);
-        my @many_glyphs = shuffle map { @$glyphs } (1..$halls);
         my $glyphs_built;
         my $total_glyphs = 0;
-        for my $glyph (@many_glyphs) {
-            if ($success_percent > rand(100)) {
-                $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
-                $total_glyphs++;
+        for my $glyph (@$glyphs) {
+            my $potential = $halls * $work->{quantity};
+            my $slice = 0;
+            my $reward = 0;
+            if ($potential > 100) {
+                $slice = $potential - 100;
+                $potential = 100;
+            }
+            for (1..$potential) {
+                if ($success_percent > rand(100)) {
+                    $glyphs_built->{$glyph} = $glyphs_built->{$glyph} ? $glyphs_built->{$glyph}+1 : 1;
+                    $total_glyphs++;
+                }
+            }
+            if ($slice > 0) {
+                my $avg_num = int($slice * $success_percent/100 + 0.5);
+                $glyphs_built->{$glyph} += $avg_num;
+                $total_glyphs += $avg_num;
             }
         }
+
         for my $glyph (keys %{$glyphs_built}) {
           $self->body->add_glyph($glyph, $glyphs_built->{$glyph});
         }
         my @report = map { [ $glyphs_built->{$_}, $_ ]} keys %$glyphs_built;
         unshift (@report, ['Quantity','Glyph']);
 
+        my $s_place = $work->{quantity} > 1 ? "s" : "";
         if ($total_glyphs > 0) {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'plan_split_by_forge.txt',
-                params      => [$body->id, $body->name, $work->{level}, $work->{extra_build_level}, $plan_class->name],
+                params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
                 attachments => { table  => \@report },
             );
-            $body->add_news(100, sprintf('%s used the Dillon Forge to split a %s level %s + %s plan into %s glyphs today on %s', $empire->name, $plan_class->name, $work->{level}, $work->{extra_build_level}, $total_glyphs, $body->name));
+            $body->add_news(100, sprintf('%s used the Dillon Forge to split %d %s level %s + %s plan%s into %s glyphs today on %s',
+                                          $empire->name,
+                                          $work->{quantity},
+                                          $plan_class->name,
+                                          $work->{level},
+                                          $work->{extra_build_level},
+                                          $s_place,
+                                          $total_glyphs,
+                                          $body->name));
         }
         else {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'plan_split_by_forge_failure.txt',
-                params      => [$body->id, $body->name, $work->{level}, $work->{extra_build_level}, $plan_class->name],
+                params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
             );
             $body->add_news(100, sprintf('%s failed miserably in an attempt to run the Dillon Forge today on %s', $empire->name, $body->name));
         }

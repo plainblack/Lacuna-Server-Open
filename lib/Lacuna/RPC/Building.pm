@@ -225,7 +225,7 @@ sub demolish {
     my $body = $building->body;
     $building->can_demolish;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->level >= 2) {
+        unless ($body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
         }
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
@@ -255,7 +255,7 @@ sub downgrade {
     my $body = $building->body;
     $building->can_downgrade;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->level >= 2) {
+        unless ($body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
         }
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
@@ -284,6 +284,7 @@ sub get_stats_for_level {
         confess [1009, 'Level must be an integer between 1 and 100.'];
     }
     $building->level($level);
+    $building->clear_effective_level;
     my $image_after_upgrade = $building->image_level($building->level + 1);
     return {
         building    => {

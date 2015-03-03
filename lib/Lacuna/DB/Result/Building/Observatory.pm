@@ -7,7 +7,7 @@ extends 'Lacuna::DB::Result::Building';
 
 sub max_probes {
     my $self = shift;
-    return $self->level * 3;
+    return $self->effective_level * 3;
 }
 
 around 'build_tags' => sub {
@@ -17,7 +17,9 @@ around 'build_tags' => sub {
 
 sub probes {
     my $self = shift;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Probes')->search( { body_id => $self->body_id } );
+    return Lacuna->db->resultset('Probes')->search_observatory( {
+        body_id     => $self->body->id,
+    } );
 }
 
 use constant controller_class => 'Lacuna::RPC::Building::Observatory';

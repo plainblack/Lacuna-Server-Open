@@ -128,6 +128,8 @@ __PACKAGE__->add_columns(
     max_berth                       => { data_type => 'tinyint', default_value => 1 },
     unhappy_date                    => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     unhappy                         => { data_type => 'tinyint', default_value => 0 },
+    propaganda_boost                => { data_type => 'int',  default_value => 0 },
+    neutral_entry                   => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
@@ -329,6 +331,7 @@ sub get_status_lite {
         orbit           => $self->orbit,
         size            => $self->size,
         id              => $self->id,
+        type            => $self->get_type,
     );
     return \%out;
 }
@@ -398,6 +401,39 @@ sub is_bhg_neutralized {
         }
     }
     return 0;
+}
+
+sub add_to_neutral_entry {
+    my ($self, $seconds) = @_;
+
+    my $now = DateTime->now;
+    if ($self->neutral_entry < $now) {
+        $self->neutral_entry($now->add(seconds => $seconds));
+    }
+    else {
+        $self->neutral_entry($self->neutral_entry->add(seconds => $seconds));
+        my $day_30 = $now->add(days => 30);
+        $self->neutral_entry($day_30) if ($self->neutral_entry > $day_30);
+    }
+    $self->update;
+    return 1;
+}
+
+sub subtract_from_neutral_entry {
+    my ($self, $seconds) = @_;
+
+    my $day = DateTime->now->add(hours => 24 * 7);
+    return 1 if ($self->neutral_entry < $day);
+
+    my $time_ends = $self->neutral_entry->clone->subtract(seconds => $seconds);
+    if ($time_ends > $day) {
+        $self->neutral_entry($time_ends);
+    }
+    else {
+        $self->neutral_entry($day);
+    }
+    $self->update;
+    return 1;
 }
 
 no Moose;

@@ -8,9 +8,10 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
 use feature "switch";
 use Module::Find;
 use UUID::Tiny ':std';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date commify kmbtq);
 use List::Util qw(sum);
 use Data::Dumper;
+use LWP::UserAgent;
 
 sub www_send_test_message {
     my ($self, $request, $id) = @_;
@@ -87,7 +88,7 @@ sub www_search_essentia_codes {
     my $toggle_used = $used ? '0' : 1;
     my $out = '<h1>Search Essentia Codes</h1>';
     $out .= '<form method="post" action="/admin/search/essentia/codes"><input name="code" value="'.$code.'"><input type="submit" value="search"></form>';
-    $out .= sprintf('<table style="width: 100%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
+    $out .= sprintf('<table style="width: 100%%;"><tr><th>Id</th><th>Code</th><th>Amount</th><th>Description</th><th>Date Created</th><th><a href="/admin/search/essentia/codes?code=%s;used=%d" title="Toggle">Used</a></th></tr>', $code, $toggle_used );
     while (my $code = $codes->next) {
         $out .= sprintf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $code->id, $code->code, $code->amount, $code->description, $code->date_created, $code->used);
     }
@@ -322,9 +323,11 @@ sub www_search_bodies {
     }
     my $out = '<h1>Search Bodies</h1>';
     $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Empire</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>', $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->empire_id || '', $body->empire_id || '');
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
+                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, kmbtq($body->happiness),
+                        $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/bodies', 'name', $name, $page_number);
@@ -346,9 +349,11 @@ sub www_search_stars {
     }
     my $out = '<h1>Search Stars</h1>';
     $out .= '<form method="post" action="/admin/search/stars"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Station</th></tr>';
     while (my $star = $stars->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone);
+        $out .= sprintf('<tr><td><a href="/admin/view/star?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/body?id=%s">%s</a></td></tr>',
+                        $star->id, $star->id, $star->name, $star->x, $star->y, $star->zone,
+                        $star->station_id || '', $star->station_id || '');
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/stars', 'name', $name, $page_number);
@@ -394,7 +399,7 @@ sub www_send_meteor_shower {
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
     foreach my $building (@{$body->building_cache}) {
         next unless ('Infrastructure' ~~ [$building->build_tags]);
-        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
+#        next if ( $building->class eq 'Lacuna::DB::Result::Building::PlanetaryCommand' );
         $building->class('Lacuna::DB::Result::Building::Permanent::Crater');
         $building->level(1);
         $building->is_upgrading(0);
@@ -426,6 +431,8 @@ sub www_send_pestilence {
         body        => "Derni Pestilence has broken out on ".$body->name.". The colony is lost.\n\nRegards,\n\nYour Humble Assistant",
         tag         => 'Alert',
     );
+    my @all_buildings = @{$body->building_cache};
+    $body->delete_buildings(\@all_buildings);
     $body->sanitize;
     return $self->wrap('Pestilence sent!');
 }
@@ -671,6 +678,7 @@ sub www_view_glyphs {
         $out .= '<option value="'.$name.'">'.$name.'</option>';
     }
     $out .= '</select></td>';
+    $out .= '<td><input name="quantity" value="1" size="2"></td>';
     $out .= '<td><input type="submit" value="add glyph"></td>';
     $out .= '</tr></form>';
     $out .= '</table>';
@@ -683,7 +691,7 @@ sub www_add_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->add_glyph($request->param('type'));
+    $body->add_glyph($request->param('type'), $request->param('quantity'));
     return $self->www_view_glyphs($request, $body->id);
 }
 
@@ -693,7 +701,7 @@ sub www_delete_glyph {
     unless (defined $body) {
         confess [404, 'Body not found.'];
     }
-    $body->glyphs->find($request->param('glyph_id'))->delete;
+    $body->glyph->find($request->param('glyph_id'))->delete;
     return $self->www_view_glyphs($request, $body->id);
 }
 
@@ -803,6 +811,10 @@ sub format_complex_paginator {
     return $out;
 }
 
+=for later
+
+MUCH later.
+
 sub www_delete_empire {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('empire_id');
@@ -818,6 +830,8 @@ sub www_delete_empire {
     $empire->delete;
     return $self->www_search_empires($request);
 }
+
+=cut
 
 sub www_toggle_isolationist {
     my ($self, $request, $id) = @_;
@@ -835,6 +849,10 @@ sub www_toggle_isolationist {
     return $self->www_view_empire($request, $id);
 }
 
+=for probably never
+
+Admins are added/removed so rarely, it shouldn't be done so trivially
+
 sub www_toggle_admin {
     my ($self, $request, $id) = @_;
     $id ||= $request->param('id');
@@ -850,6 +868,8 @@ sub www_toggle_admin {
     }
     return $self->www_view_empire($request, $id);
 }
+
+=cut
 
 sub www_toggle_mission_curator {
     my ($self, $request, $id) = @_;
@@ -876,7 +896,7 @@ sub www_become_empire {
     }
     my $uri = Lacuna->config->get('server_url');
     $uri .= '#session_id=%s';
-    $uri = sprintf $uri, $empire->start_session({ api_key => 'admin_console' })->id;
+    $uri = sprintf $uri, $empire->start_session({ is_admin => $request->user, api_key => 'admin:' . $request->user })->id;
     [$uri, { status => 302 } ]
 }
 
@@ -917,41 +937,121 @@ sub www_view_empire {
 <input name="description" value="Administrative Privilege">
 <input type="submit" value="add essentia"></form></td></tr>', $empire->id);
     $out .= sprintf('<tr><th>Species</th><td>%s</td><td></td></tr>', $empire->species_name);
-    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a></td><td></td></tr>', $empire->home_planet_id, $empire->home_planet_id);
+    $out .= sprintf('<tr><th>Home</th><td><a href="/admin/view/body?id=%s">%s</a> (%s)</td><td></td></tr>', $empire->home_planet_id, $empire->home_planet->name, $empire->home_planet_id);
     $out .= sprintf('<tr><th>Alliance</th><td>');
     if ( my $alliance = $empire->alliance ) {
-        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a>', $alliance->id, $alliance->name);
+        $out .= sprintf('<a href="/admin/view/alliance?id=%d">%s</a> (%s)', $alliance->id, $alliance->name, $alliance->id);
     }
     $out .= sprintf('</td></tr>');
     $out .= '<tr><th>Invites Sent To</th><td>';
     my $invites_sent = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({inviter_id => $empire->id});
     $out .= join ' ; ',
         map {
-            sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $_->id, $_->name )
+            sprintf('<a href="/admin/view/empire?id=%d">%s</a> (%s)', $_->id, $_->name, $_->id )
         }
         map  { $_->invitee }
         grep { $_->invitee_id } 
             $invites_sent->all;
     $out .= '</td></tr>';
     $out .= '<tr><th>Invite Accepted From</th><td>';
-    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id},{rows=>1})->single;
+    my $invite_accepted = Lacuna->db->resultset('Lacuna::DB::Result::Invite')->search({invitee_id => $empire->id})->first;
     if ( $invite_accepted && $invite_accepted->inviter_id ) {
         my $inviter = $invite_accepted->inviter;
-        $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a>', $inviter->id, $inviter->name);
+        $out .= sprintf('<a href="/admin/view/empire?id=%d">%s</a> (%s)', $inviter->id, $inviter->name, $inviter->id);
     }
     $out .= '</td></tr>';
     $out .= sprintf('<tr><th>Description</th><td>%s</td><td></td></tr>', $empire->description);
     $out .= sprintf('<tr><th>University Level</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/change/university/level"><input type="hidden" name="id" value="%s"><input name="university_level" style="width: 30px;" value="0"><input type="submit" value="change"></form></td></tr>', $empire->university_level, $empire->id);
     $out .= sprintf('<tr><th>Isolationist</th><td>%s</td><td><a href="/admin/toggle/isolationist?id=%s">Toggle</a></td></tr>', $empire->is_isolationist, $empire->id);
-    $out .= sprintf('<tr><th>Admin</th><td>%s</td><td><a href="/admin/toggle/admin?id=%s">Toggle</a></td></tr>', $empire->is_admin, $empire->id);
+    $out .= sprintf('<tr><th>Admin</th><td>%s</td></tr>', $empire->is_admin);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
+
+    my $notes = Lacuna->db->resultset('Log::EmpireAdminNotes')->find({empire_id => $empire->id},{order_by => { -desc => 'id' }, limit => 1 });
+    $out .= sprintf('<tr><th>Admin Notes</th><td colspan="2"><form method="post" style="display: inline" action="/admin/set/admin/notes"><input type="hidden" name="id" value="%s"><textarea name="notes" rows="4" cols="80">%s</textarea><input type="submit"></form></td><td>Last set by: %s<br/>Last set on: %s<br/><a href="/admin/view/admin/note/log?id=%s">View Log</a></td></tr>',
+                    $empire->id,
+                    $notes ? $notes->notes : '',
+                    $notes ? $notes->creator : '<i>not set yet</i>',
+                    $notes ? $notes->date_stamp : '<i>not set yet</i>',
+                    $empire->id
+                   );
+
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/become/empire?empire_id=%s">Become This Empire In-Game</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/search/bodies?empire_id=%s">View All Colonies</a></li>', $empire->id);
     $out .= sprintf('<li><a href="/admin/send/test/message?empire_id=%s">Send Developer Test Email</a></li>', $empire->id);
-    $out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
+    #$out .= sprintf('<li><a href="/admin/delete/empire?empire_id=%s" onclick="return confirm(\'Are you sure?\')">Delete Empire</a> (Be Careful)</li>', $empire->id);
     $out .= '</ul>';
     return $self->wrap($out);
+}
+
+sub www_set_admin_notes {
+    my ($self, $request) = @_;
+
+    my $id = $request->param('id');
+    my $empire = Lacuna->db->empire($id);
+    my $notes = $request->param('notes');
+
+    my $note = Lacuna->db->resultset('Log::EmpireAdminNotes')->new({
+                       empire_id   => $empire->id,
+                       empire_name => $empire->name,
+                       date_stamp  => DateTime->now,
+                       notes       => $notes,
+                       creator     => $request->user,
+                   })->insert;
+
+    return $self->www_view_empire($request);
+}
+
+sub www_view_admin_note_log {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $empire = Lacuna->db->empire($id);
+
+    my $history = Lacuna->db->resultset('Log::EmpireAdminNotes')->search({empire_id => $empire->id},{order_by => { -desc => 'date_stamp' }});
+    my $out = sprintf '<h1>"%s" Empire notes log</h1>', $empire->name;
+    $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $empire->id);
+    $out .= '<table style="width:100%;"><tr><th>Date</t><th>Creator</th><th>Notes</th></tr>';
+    while (my $log = $history->next) {
+        $out .= sprintf('<tr><td>%s</td><td>%s</td><td><pre>%s</pre></td></tr>',
+                        $log->date_stamp, $log->creator, Plack::Util::encode_html($log->notes));
+    }
+    $out .= '</table>';
+    return $self->wrap($out);
+}
+
+sub www_set_alliance_logo {
+    my ($self, $request, $id) = @_;
+    $id ||= $request->param('id');
+    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($id);
+    unless (defined $alliance) {
+        confess [404, 'Alliance not found.'];
+    }
+    my $image = $request->param('logo_url');
+    unless (defined $image) {
+        confess [404, 'Logo URL not supplied' ];
+    }
+    my $out = '';
+
+    my $full_url = 'https://d16cbq0l6kkf21.cloudfront.net/assets/alliances/' . $image . '.png';
+    my $response = LWP::UserAgent->new->head($full_url);
+    if ($response->is_success)
+    {
+        $alliance->image($image);
+        $alliance->update;
+        $out .= '<h2>Success</h2>';
+        $out .= sprintf('<p>Successfully updated %s to use <a href="%s">%s</a></p>',
+                        $alliance->name, $full_url, $image);
+    }
+    else
+    {
+        $out .= '<h3>Failure</h2>';
+        $out .= sprintf('<p>Could not find an image for %s - has it been delivered yet?</p>',
+                        $image);
+    }
+    $out .= sprintf('<p>Back to <a href="/admin/view/alliance?id=%d">%s</a></p>',
+                    $alliance->id, $alliance->name);
+    return $self->wrap($out);
+
 }
 
 sub www_view_alliance {
@@ -961,8 +1061,32 @@ sub www_view_alliance {
     unless (defined $alliance) {
         confess [404, 'Alliance not found.'];
     }
+    my $current_logo_path = $alliance->image;
+    my $num = 0;
+
+    if ($current_logo_path)
+    {
+        ($num) = $current_logo_path =~ /_(\d+)$/;
+        $current_logo_path = qq["$current_logo_path"];
+    }
+    else
+    {
+        $current_logo_path = "not set";
+    }
+
+    my $uri = URI->new(Lacuna->config->get('server_url'));
+    my ($domain) = $uri->authority =~ /^([^.]+)\./;
+    my $new_logo_path = sprintf("%s/logo_%d_%03d", $domain, $alliance->id, $num + 1);
+
     my $leader = $alliance->leader;
     my $out = '<h1>Manage Alliance</h1>';
+    $out .= '<ul>';
+    $out .= sprintf('<li><form method="post" action="/admin/set/alliance/logo?id=%d">Alliance logo image (excluding ".png"): <input name="logo_url" value="%s"> (currently %s)<input type="submit" value="set_logo"></form></li>',
+                    $alliance->id,
+                    $new_logo_path,
+                    $current_logo_path,
+                   );
+    $out .= '</ul>';
     $out .= '<table style="width: 100%">';
     $out .= '<tr><th>Id</th><th>Name</th><th>Home</th><th>Last Login</th></tr>';
     $out .= sprintf('<tr><td><b><a href="/admin/view/empire?id=%d">%d</a></b></td><td><b>%s</b></td><td><b><a href="/admin/view/body?id=%d">%s</a></b></td><td><b>%s</b></td></tr>',
@@ -993,8 +1117,13 @@ sub www_view_body {
     $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $body->y);
     $out .= sprintf('<tr><th>Orbit</th><td>%s</td><td></td></tr>', $body->orbit);
     $out .= sprintf('<tr><th>Happiness</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/happiness"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input type="submit" value="add happiness"></form></td></tr>', $body->happiness, $body->id);
-    $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a></td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star_id, $body->star_id);
-    $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a></td><td></td></tr>', $body->empire_id, $body->empire_id);
+    $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a> (%s)</td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star->name, $body->star_id, $body->star_id);
+    if ($body->empire) {
+        $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a> (%s)</td><td></td></tr>', $body->empire_id, $body->empire->name, $body->empire_id);
+    }
+    else {
+        $out .= sprintf('<tr><th>Empire</th><td><i>Unowned</i></td><td></td></tr>');
+    }
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/view/resources?body_id=%s">View Resources</a></li>', $body->id);
     $out .= sprintf('<li><a href="/admin/view/buildings?body_id=%s">View Buildings</a></li>', $body->id);
@@ -1024,7 +1153,13 @@ sub www_view_star {
     $out .= sprintf('<tr><th>Name</th><td>%s</td><td></td></tr>', $star->name);
     $out .= sprintf('<tr><th>Zone</th><td>%s</td><td><a href="/admin/search/stars?zone=%s">Stars In This Zone</a></td></tr>', $star->zone, $star->zone);
     $out .= sprintf('<tr><th>X</th><td>%s</td><td></td></tr>', $star->x);
-    $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $star->y);
+    $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $star->y);#))
+    if ($star->station_id) {
+        $out .= sprintf('<tr><th>Station</th><td><a href="/admin/view/body?id=%s">%s</a> (%s)</td><td></td></tr>', $star->station_id, $star->station->name, $star->station_id);
+    }
+    else {
+        $out .= sprintf('<tr><th>Station</th><td><i>Unowned</i></td><td></td></tr>');
+    }
     $out .= '</table><ul>';
     $out .= sprintf('<li><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></li>', $star->id);
     $out .= '</ul>';
@@ -1663,9 +1798,13 @@ ATTACKER:
 
     return $self->wrap($out);
 }
-
+                                    #"
 sub wrap {
     my ($self, $content) = @_;
+
+    my $uri = URI->new(Lacuna->config->get('server_url'));
+    my ($domain) = $uri->authority =~ /^([^.]+)\./;
+
     return $self->wrapper('<div style="width: 150px;">
     <ul class="admin_menu">
     <li><a href="/admin/search/empires">Empires</a></li>
@@ -1681,7 +1820,7 @@ sub wrap {
     </div>
     <div style="position: absolute; top: 0; left: 160px; min-width: 600px; margin: 5px;">
     <div>'. $content .' </div></div>',
-    { title => 'Admin Console'}
+    { title => "Admin Console ($domain)"}
     );
 }
 

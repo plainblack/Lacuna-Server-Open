@@ -16,14 +16,15 @@ GetOptions(
 
 out('Started');
 my $start = time;
-my $date_ended = DateTime->now->subtract( days => 7 );
+my $date_ended = DateTime->now->subtract( days => 30 );
 
 out('Loading DB');
 our $db = Lacuna->db;
+our $dtf = $db->storage->datetime_parser;
 
 out('Deleting Old Battle Logs');
 my $log = $db->resultset('Lacuna::DB::Result::Log::Battles');
-$log->search({ date_stamp => { '<' => $date_ended }})->delete_all;
+$log->search({ date_stamp => { '<' => $dtf->format_datetime($date_ended) }})->delete_all;
 
 my $finish = time;
 out('Finished');

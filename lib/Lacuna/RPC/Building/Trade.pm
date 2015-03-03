@@ -123,7 +123,7 @@ sub remove_supply_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $supply_chain = $building->supply_chains->search({},{rows => 1})->single;
+    my $supply_chain = $building->supply_chains->search({})->first;
     if (defined $supply_chain) {
         my $from = $supply_chain->target;
         $building->send_supply_ship_home($from, $ship);
@@ -155,7 +155,7 @@ sub remove_waste_ship_from_fleet {
         confess [1013, "You can't manage a ship that is not yours."];
     }
 
-    my $waste_chain = $building->waste_chains->search({},{rows => 1})->single;
+    my $waste_chain = $building->waste_chains->search({})->first;
     if (defined $waste_chain) {
         my $from = $building->body->star;
         $building->send_waste_ship_home($from, $ship);
@@ -211,7 +211,7 @@ sub view_supply_chains {
         confess [1002, "Cannot find that building."];
     }
 
-    my $max_chains = $building->level * 3;
+    my $max_chains = $building->effective_level * 3;
     my @supply_chains;
     my $chains      = $building->supply_chains;
     while (my $chain = $chains->next) {
@@ -272,7 +272,7 @@ sub create_supply_chain {
         confess [1002, "Cannot find that building."];
     }
     my $body        = $building->body;
-    my $max_chains = $building->level * 3;
+    my $max_chains = $building->effective_level * 3;
     if ($body->out_supply_chains->count >= $max_chains) {
         confess [1002, "You cannot create any more supply chains outgoing from this planet."];
     }
@@ -387,7 +387,7 @@ sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -471,7 +471,7 @@ sub accept_from_market {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
 
     $empire->current_session->check_captcha;
 
@@ -499,7 +499,8 @@ sub accept_from_market {
         from_reason => 'Trade Price',
         to_empire   => $trade->body->empire,
         to_reason   => 'Trade Income',
-    })->update;
+    });
+    $empire->update;
 
     $offer_ship->send(
         target  => $body,
@@ -522,7 +523,7 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -564,9 +565,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     get_ships 
     get_ship_summary
     get_prisoners 
-    get_plans 
     get_plan_summary 
-    get_glyphs 
     get_glyph_summary
 ));
 

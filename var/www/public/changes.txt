@@ -1,10 +1,246 @@
+3.0909:
+ - Add: Enable Alliance chat rooms.
+ - Add: Admin UI to set alliance logo.
+ - Add: Admin UI display more info on bodies & stars.
+ - Fix: Only one notification per empire per star on probe detection.
+ - Add: Fleet Lite
+ - Mod: Sweepers adjusted for balance.
+ - Fix: Most buildings should no longer ignore uni level.
+ - Add: Overheating Parliament does damage.
+ - Fix: Buildings should no longer get stuck in upgrading state.
+ - Add: Allow login with "#<userid>".
+ - Mod: "#" no longer permitted as leading character in empire names.
+ - Mod: Propaganda doesn't count as often for missions.
+ - Mod: incoming ships list ordered correctly.
+ - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assassinated/Abducted.
+ - Add: Essentia veins can be drained.
+ - Mod: Archaeology searches now take 5 hours, 50 minutes to complete. (thanks tmtowtdi!)
+ - Mod: Bleeders replicate.
+ - Mod: Disable chat for sitters.
+ - Add: pod_delay returned as part of PCC view
+ - Mod: Minimum flight time: 5 Minutes, Maximum is 2 months.
+ - Add: Build queue stats (size, len) returned as part of body status.
+ - UI : most IDs are available in the UI.
+ - Fix: If alliance member self destructs, station passed to leader.
+ - Fix: log real IPs in login log.
+ - Fix: Speed up N19 news display.
+ - Add: Added flip medal.
+ - Mod: Profanity filtering is more clear.
+ - Add: Shared admin notes on empires
+ - Mod: Oracle cooldown on BHG movement shortened to a flat 5 minutes.
+ - Mod: BHG Neutralization does not effect own alliance.
+ - Mod: BHG Can no longer swap with seized hostiles.
+ - Mod: Spies have fewer useless options.
+ - Mod: Invalid login attempts warns.
+ - Mod: Warnings about fissures shouldn't bother as many out of range.
+ - Mod: Split happiness cost calculation with SS & Colonies
+
+3.0908:
+ - Mod: trash_messages_where now defaults to not returning deleted message IDs.
+ - Mod: Firing BFG now requires captcha.
+ - Fix: Jump Zone for BHG can now find needles in haystacks.
+ - UI : Reasons for not being able to use a BHG function now always displayed for every task.
+ - Fix: Instead of going via parliament, go via body or star to view_laws.  This allows everyone access to passed laws by a station.
+ - UI : No more nagging if you want to spend halls.
+
+3.0907:
+ - Add: Timer added to colony object preventing passage into Neutral Zone.
+ - Add: colonies and stations added to empire stat. planets kept to maintain backwards compatibility
+ - Fix: Fetching Spies no longer will send more spies.
+ - Add: Sabotage Defenses task added for spies.
+ - Add: Bugout task for spies added to get spies home.
+ - Mod: Replace cheap plastic parts on Space Station with steel.
+ - Mod: Slight tweaking of AI behaviours.
+ - Mod: Police Stations now have more thorough security on incoming visitors.
+
+3.0906:
+ - Fix: Some fixes to the send_ship_types API call.
+ - Fix: Don't list platform plans for splitting in Dillon Forge.
+ - Fix: Disable self-destruct works again.
+ - Fix: Building/upgrade on SS has all buildings in parallel.
+ - Mod: Damaged Gauntlet gives more granular infiltration time.
+ - Mod: Spies take a break after teleporting home.
+ - Mod: Improved unsustainable message to make it clearer.
+ - Mod: Observatory now displays 30 rows not 25.
+ - Mod: Option to send scows back home without any waste.
+ - Mod: Update ChiselChat.
+ - Mod: Plan list sorting now done more naturally.
+ - Mod: Improve message handling speed (deleting, archiving).
+ - Mod: Spy lists in intel min, merc guild, send-spy tab all use the same ordering.
+ - Mod: Planets can't jump into the neutral zone when it has too many ships in transit.
+ - Add: mass_abandon_excavator and mass_abandon_platform APIs.
+ - Add: Inbox API call added: trash_messages_where.
+ - Add: Add Highest Embassy in your empire to returned get_status.
+ - Add: POD timer is now on PCC with varying timer based on PCC level.
+
+3.0905:
+ - Mod: Replaced Envolve chat with ChiselChat
+
+3.0904:
+ - Fix: Removed cronic duplication in starmap API, hopefully reducing lag
+ - Mod: Gratch now more granualar for infiltration times when damaged
+ - Mod: If planet is abandoned, spies from elsewhere will be set to Idle when ported home.
+ - Fix: Removed any possibility of inter-alliance voting.
+
+3.0903:
+ - Fix: Have spies set on propaganda start work immediately.
+ - Fix: Stakes no longer go into Members Only Colony Space.
+ - Fix: Crater gets cleared if AI is out of space.
+ - Fix: Get first 100 spies via prepare_send or fetch that are available.
+ - Mod: Oracle of Anid schedules recalculation after a period of work instead of immediately.
+
+3.0902:
+ - Add: Jackpot AI
+ - Fix: Idle spies that hit max training on check.
+ - Fix: Seizing in Neutral Area fails if passed. (Thanks RO)
+ - Add: Custom message for upgrades in code.  (so far, just bleeders. Thanks Tower)
+ - Fix: No shortcuts via the forbidden zone.
+ - Fix: Recalled ships ignore fleet speed.
+ - Fix: Snarks splash damage now splash as advertised.
+
+3.0901:
+ - API: Spaceport ship filter includes all relevant tasks.
+ - Fix: Parliament actually looks at leader's embassy for max members.
+ - Mod: Saben, Diablotin, Cult get some timing changes.
+
+3.0900:
+ - Fix: Gratch's Gauntlet on repair, checks spies current status.
+ - Mod: Redid Political Propaganda as a constant task.
+ - Mod: Cult less effective against planets running propaganda campaigns.
+ - Mod: Plan sorting is Glyph-Standard-Module Order
+
+3.0899:
+ - Mod: Different speeds for the various Supply Pods.  Smaller the pod, the faster.
+ - Add: Supply Pod V
+ - Mod: Saben no longer waste attacks on Isolationists.
+ - Fix: Stealing planets no longer resets "defenders".
+ - Fix: Better checking on lack of resource damage.
+ - Mod: Added more spy statistics.
+ - Mod: Rescued Comrades have same cooldown as rescuer.
+
+3.0898:
+ - Mod: The Dillon Forge can now take a quantity of plans for splitting.
+ - Fix: GG & Terra Platforms ignore University Level.
+ - Fix: Archeology Level is limited by University Level.
+ - Fix: The Dillon Forge is limited by University Level.
+ - Fix: Oversight Ministry is limited by University Level.
+ - Fix: Citadels now generate Battle Log reports and better email.
+ - Mod: Security Ministry Seekers also hit Gratch's Gauntlet.
+ - Mod: Observatory Seekers also hit Oracle of Anid and Temple of the Drajilites.
+ - API: mass_scuttle_ship available.
+
+3.0897:
+ - Fix: SupplyPods ignore University Level.
+ - Fix: Deployed Bleeders ignore University Level.
+ - Mod: Pods & Bleeders get a boost.
+ - Mod: AI don't bother building ships if build time exceeds X time.
+ - Add: API call added to docs for spy_training_boost.
+ - Fix: Spy training immediately recalculates levels.
+
+3.0896:
+ - Mod: New method to training spies in Intel, Mayhem, Politics, and Theft. Less clicking.
+ - Add: Spy training boost
+ - Add: New spy "defense" skill of Political Propaganda.  Maximize happiness recovery.
+ - Mod: AI's deal with captured spies.
+ - Mod: Growth Affinity more effective.
+ - Mod: Kidnap Operatives can use an orbiting spy shuttle for the getaway vehicle.
+ - Fix: Tick planets could error out.
+ - Mod: Saben planets respect neutralized BHG areas and certain spy tasks.
+ - Mod: Captcha added to certain areas.
+
+3.0895:
+ - Fix: Bad error message when not enough glyphs for a mission fixed.
+ - Fix: Fetch Spies exploit filled in.
+ - Add: BHG Sabotage option available.
+ - Add: Date Landed returned from excavation sites.
+ - Fix: All spies in training on a planet are executed on new management.
+ - Mod: Uni level also determines top production levels.
+ - Fix: SS Modules drop a level if at 0% for any reason.
+ - Add: Empire named in exploding planets.
+ - Mod: AI Tuning.
+
+3.0894:
+ - API: repair_list checks number of fed building ids, rejection of call if over max building count.
+ - Fix: Missions now go past part2.
+ - Mod: Atmospheric Evaporators adjusted up.
+ - Mod: Evaporators and Purifiers water cost reduced to zero.
+ - Add: Spies report on Supply Chains via Resource intelligence.
+ - Mod: Mission files now use a quantity field instead of listed multiples.
+ - Fix: Berth Levels added to missions.
+ - Mod: Missions take qualifying ship in name, then id order.
+ - Mod: Fissure explosions not a threat after 200 units.
+
+3.0893:
+ - Fix: Closed starter zone loophole.
+ - Mod: Citadel now repels planetary debris.
+ - Mod: Fissures cause instability, preventing planets from moving.
+ - Mod: Fissures in starter zones don't cause damage.
+ - Fix: Supply Chains to Space Stations are halted if supplier leaves alliance.
+ - Mod: If alliance leader quits game, alliance leadership is transferred.
+ - Mod: If a member of an alliance leaves, space stations of member turned over to leader of alliance.
+ - Fix: BHG cooldown time of 5 minutes during warmup.
+ - API: get_buildings now returns repair costs if building is damaged.
+ - API: Api call repair_list from Body will attempt to repair buildings supplied to function in order of list.
+ - Mod: FIssure tag added to fissure related emails.
+
+3.0892:
+ - Fix: Fix schedule to remove past jobs when rescheduling.
+
+3.0891:
+ - Mod: Clarified max building level for university in return message.
+ - Mod: Gas Giants produce more energy, and consume less energy.
+ - Mod: Gas Giants produce less water.
+ - Mod: Gas Giants consume more waste and can store more waste.
+ - Fix: Fissures cost resources to fix again.
+
+3.0890:
+ - Fix: Decor placement by BHG now causes recalc.
+ - Mod: Drop Shipyard level on default ship names.
+ - Mod: 24 hour timer between renaming empire.
+ - Mod: First pass of restructure of Diab.
+ - Mod: Make sure spies owned by flipped planet don't defend.
+ - Mod: Max range of fissure alert reduced to 120 units.
+
+3.0889:
+ - Mod: More Fissure Fun.
+ - Mod: Boosted SRCS
+ - Mod: Scanners & Surveyors can be sent to uninhabited planets in neutral area.
+
+3.0888:
+ - Mod: Oracle now shows planets in star map if in range.
+ - Mod: Fissures alert via email to nearby empires.
+
+3.0887:
+ - Mod: UI star map now shows alliance logos over seized stars
+ - Mod: UI star map now shows fissure logo over planets with fissures on them
+ - Mod: Star-view should now be a little more responsive again
+ - Mod: get_star_map now allows an area up to 3001 units (scan the whole expanse in 1400 RPC anyone?)
+ - Mod: get_star_map now includes alliance details for seized stars
+ - Mod: get_star_map now has a 'fissure' flag to indicate planets with fissures
+ - Fix: Fissures no longer cost happiness to downgrade.
+ - Fix: Fissures can not be upgraded.
+ - Fix: Turning rebels works.
+ - Mod: Fissure explosions are easier on GGs.
+ - Fix: Plans for missions can be taken from multiple buckets.
+ - Fix: Admin glyph adding and deletion works.
+ - Mod: Plans when being taken for missions, go by the equivalent hall cost.
+
+3.0886:
+ - Fix: Better error if trying to build ships at damaged shipyards
+ - Fix: Correct display of planet type code letters if starmap planet images are turned off
+ - Fix: Stupid typo fix on seizure.
+
 3.0885:
+ - Mod: Star-view is now using a 'lite' API call so should be a little more responsive
  - Fix: Spies disabling buildings have more targets, but not bleeders.
- - Fix: Fissure implosions originating in Neutral Area do not damage other planets.
- - Add: Spy task returned from training query.  (Should only Idle or Counter Espionage).
+ - Fix: Fissure implosions originating in Neutral Area do no damage.
+ - Add: Spy task returned from training query.  (Should only be Idle or Counter Espionage).
  - Fix: Junk buildings cost waste to build again.
  - Mod: If a plan is available, build time is reduced 25%. 0.75 final build time after other modifications.
- - Fix: Supply chain targets were not being recalculated on removal.
+ - Fix: Supply chain targets were not being recalculated on removal and would only happen after some ticks.
+ - Add: Lottery winning email mentions zone you won in.
+ - Mod: When flipping AI planets, unhappiness date is reset.
+ - Fix: Force recalc on insurrection to make sure plot count is updated.
 
 3.0884:
  - Fix: Bug when upgrading Glyph buildings, but with no hall plans

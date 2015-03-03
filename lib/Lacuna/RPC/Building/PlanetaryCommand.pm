@@ -23,7 +23,9 @@ around 'view' => sub {
     $out->{planet} = $building->body->get_status($empire);
     $out->{ore} = $building->body->get_ore_status;
     $out->{food} = $building->body->get_food_status;
-    $out->{next_colony_cost} = $empire->next_colony_cost;
+    $out->{next_colony_cost} = $empire->next_colony_cost("colony_ship");
+    $out->{next_station_cost} = $empire->next_colony_cost("space_station");
+    $out->{pod_delay} = $building->pod_delay;
     return $out;
 };
 
@@ -54,7 +56,34 @@ sub view_plans {
     }
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_plans view_incoming_supply_chains));
+sub subsidise_pod_cooldown {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+
+    unless ($building->is_working) {
+        confess [1010, "PCC is not in cooldown mode."];
+    }
+
+    unless ($empire->essentia >= 2) {
+        confess [1011, "Not enough essentia."];
+    }
+
+    $building->finish_work->update;
+    $empire->spend_essentia({
+        amount  => 2,
+        reason  => 'PCC cooldown subsidy after the fact',
+    });
+    $empire->update;
+
+    return $self->view($empire, $building);
+}
+
+__PACKAGE__->register_rpc_method_names(qw(
+    subsidise_pod_cooldown
+    view_plans
+    view_incoming_supply_chains
+));
 
 
 

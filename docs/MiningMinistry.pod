@@ -161,4 +161,19 @@ The unique id of the mining ministry.
 
 The unique id of the platform you wish to abandon.
 
+
+
+=head2 mass_abandon_platform ( session_id, building_id )
+
+Destroy all platforms.
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id for the mining ministry.
+
+
 =cut

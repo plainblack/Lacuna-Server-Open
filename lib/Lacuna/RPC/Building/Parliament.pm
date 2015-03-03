@@ -18,7 +18,7 @@ sub max_members {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    my $leader_emp = $building->body->empire;
+    my $leader_emp = $building->body->alliance->leader;
     my $leader_planets = $leader_emp->planets;
     my @planet_ids;
     while ( my $planet = $leader_planets->next ) {
@@ -27,8 +27,8 @@ sub max_members {
     my $embassy = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search(
         { body_id => { in => \@planet_ids }, class => 'Lacuna::DB::Result::Building::Embassy' }, 
         { order_by => { -desc => 'level' } }
-    )->single;
-    return ( $building->level >= $embassy->level ) ? 2 * $building->level : 2 * $embassy->level;
+    )->first;
+    return ( $building->effective_level >= $embassy->effective_level ) ? 2 * $building->effective_level : 2 * $embassy->effective_level;
 }
 
 sub view_propositions {
@@ -119,16 +119,25 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
-    my @out;
-    my $laws = $body->laws;
-    while (my $law = $laws->next) {
-        push @out, $law->get_status($empire);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body_id);
+    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        my @out;
+        my $laws = $body->laws;
+        while (my $law = $laws->next) {
+            push @out, $law->get_status($empire);
+        }
+        return {
+            status          => $self->format_status($empire, $body),
+            laws            => \@out,
+        };
     }
-    return {
-        status          => $self->format_status($empire, $body),
-        laws            => \@out,
-    };
+    else {
+        return {
+            status => "Not a station",
+            laws   => [],
+        },
+    }
 }
 
 sub cast_vote {
@@ -147,6 +156,10 @@ sub cast_vote {
     unless (defined $proposition) {
         confess [1002, 'Proposition not found.'];
     }
+    if ($proposition->station->alliance_id != $empire->alliance_id) {
+        confess [1003, 'You cannot vote for another alliances propositions!'];
+    }
+
     $proposition->cast_vote($empire, $vote);
     return {
         status      => $self->format_status($empire, $building->body),
@@ -160,9 +173,13 @@ sub propose_fire_bfg {
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
+    $empire->current_session->check_captcha;
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 25) {
+    unless ($building->effective_level >= 25) {
         confess [1013, 'Parliament must be level 25 to propose using the BFG.',25];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot be empty.',$reason])->not_empty;
     Lacuna::Verify->new(content=>\$reason, throws=>[1005,'Reason cannot contain HTML tags or entities.',$reason])->no_tags;
@@ -202,8 +219,11 @@ sub propose_writ {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 4) {
+    unless ($building->effective_level >= 4) {
         confess [1013, 'Parliament must be level 4 to propose a writ.',4];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot be empty.',$title])->not_empty;
     Lacuna::Verify->new(content=>\$title, throws=>[1005,'Title cannot contain any of these characters: {}<>&;@',$title])->no_restricted_chars;
@@ -234,8 +254,11 @@ sub propose_transfer_station_ownership {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 6) {
+    unless ($building->effective_level >= 6) {
         confess [1013, 'Parliament must be level 6 to transfer station ownership.',6];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($to_empire_id) {
         confess [1002, 'Must specify an empire id to transfer the station to.'];
@@ -273,8 +296,11 @@ sub propose_seize_star {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 7) {
+    unless ($building->effective_level >= 7) {
         confess [1013, 'Parliament must be level 7 to seize control of a star.',7];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($star_id) {
         confess [1002, 'Must specify a star id to seize.'];
@@ -327,8 +353,11 @@ sub propose_repeal_law {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 5) {
+    unless ($building->effective_level >= 5) {
         confess [1013, 'Parliament must be level 5 to repeal a law.',5];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($law_id) {
         confess [1002, 'Must specify a law id to repeal.'];
@@ -360,8 +389,11 @@ sub propose_rename_star {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 8) {
+    unless ($building->effective_level >= 8) {
         confess [1013, 'Parliament must be level 8 to rename a star.',8];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($star_id) {
         confess [1002, 'Must specify a star id to rename.'];
@@ -403,8 +435,11 @@ sub propose_broadcast_on_network19 {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 9) {
+    unless ($building->effective_level >= 9) {
         confess [1013, 'Parliament must be level 9 to propose a broadcast.',9];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message cannot be empty.',$message])->not_empty;
     Lacuna::Verify->new(content=>\$message, throws=>[1005,'Message cannot contain any of these characters: {}<>&;@',$message])->no_restricted_chars;
@@ -434,8 +469,11 @@ sub propose_rename_asteroid {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 12) {
+    unless ($building->effective_level >= 12) {
         confess [1013, 'Parliament must be level 12 to rename an asteroid.',12];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($asteroid_id) {
         confess [1002, 'Must specify a asteroid id to rename.'];
@@ -477,8 +515,11 @@ sub propose_rename_uninhabited {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 17) {
+    unless ($building->effective_level >= 17) {
         confess [1013, 'Parliament must be level 17 to rename an uninhabited planet.',17];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($planet_id) {
         confess [1002, 'Must specify a planet id to rename.'];
@@ -523,8 +564,11 @@ sub propose_members_only_mining_rights {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 13) {
+    unless ($building->effective_level >= 13) {
         confess [1013, 'Parliament must be level 13 to propose members only mining rights.',13];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyMiningRights',
@@ -548,8 +592,11 @@ sub propose_members_only_excavation {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 20) {
+    unless ($building->effective_level >= 20) {
         confess [1013, 'Parliament must be level 20 to propose members only excavation rights.',20];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyExcavation',
@@ -573,8 +620,11 @@ sub propose_members_only_colonization {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 18) {
+    unless ($building->effective_level >= 18) {
         confess [1013, 'Parliament must be level 18 to propose members only colonization.',18];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'MembersOnlyColonization',
@@ -598,8 +648,11 @@ sub propose_neutralize_bhg {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 23) {
+    unless ($building->effective_level >= 23) {
         confess [1013, 'Parliament must be level 23 to propose to neutralize black hole generators.',23];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'BHGNeutralized',
@@ -623,8 +676,11 @@ sub propose_evict_mining_platform {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 14) {
+    unless ($building->effective_level >= 14) {
         confess [1013, 'Parliament must be level 14 to evict a mining platform.',14];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($platform_id) {
         confess [1002, 'You must specify a mining platform id.'];
@@ -659,8 +715,11 @@ sub propose_evict_excavator {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 21) {
+    unless ($building->effective_level >= 21) {
         confess [1013, 'Parliament must be level 21 to evict an excavator.',21];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($excav_id) {
         confess [1002, 'You must specify an excavator id.'];
@@ -695,8 +754,11 @@ sub propose_elect_new_leader {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 11) {
+    unless ($building->effective_level >= 11) {
         confess [1013, 'Parliament must be level 11 to elect a new alliance leader.',11];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($to_empire_id) {
         confess [1002, 'Must specify an empire id to elect a new alliance leader.'];
@@ -731,8 +793,11 @@ sub propose_induct_member {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 10) {
+    unless ($building->effective_level >= 10) {
         confess [1013, 'Parliament must be level 10 to induct a new alliance member.',10];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     my $alliance = $building->body->alliance;
     my $count = $alliance->members->count;
@@ -774,8 +839,11 @@ sub propose_expel_member {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 10) {
+    unless ($building->effective_level >= 10) {
         confess [1013, 'Parliament must be level 10 to expel an alliance member.',10];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($empire_id) {
         confess [1002, 'Must specify an empire id to expel an alliance member.'];
@@ -813,8 +881,11 @@ sub propose_taxation {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 15) {
+    unless ($building->effective_level >= 15) {
         confess [1013, 'Parliament must be level 15 to propose taxation.',15];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($taxes =~ /^\d+$/ && $taxes > 0 )
     {
@@ -843,8 +914,11 @@ sub propose_foreign_aid {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     my $building = $self->get_building($empire, $building_id);
-    unless ($building->level >= 16) {
+    unless ($building->effective_level >= 16) {
         confess [1013, 'Parliament must be level 16 to send out foreign aid packages.',16];
+    }
+    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
+        confess [1003, "You must have a functional Parliament!"];
     }
     unless ($planet_id) {
         confess [1002, 'You must specify a planet id.'];

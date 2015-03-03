@@ -2,6 +2,7 @@ package Lacuna::Role::Ship::Arrive::DumpWaste;
 
 use strict;
 use Moose::Role;
+use Lacuna::Util qw(commify);
 
 after handle_arrival_procedures => sub {
     my ($self) = @_;
@@ -28,14 +29,16 @@ after handle_arrival_procedures => sub {
     if (defined($payload->{resources})) {
       $waste_dumped = $payload->{resources}{waste} if defined($payload->{resources}{waste});
     }
+    return unless $waste_dumped > 0;
     $body_attacked->add_waste($waste_dumped);
     $body_attacked->update;
+    $waste_dumped = commify($waste_dumped); # commify so emails look nicer
 
     unless ($self->body->empire->skip_attack_messages) {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'our_scow_hit.txt',
-            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $self->hold_size],
+            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $waste_dumped],
         );
     }
 
@@ -43,12 +46,39 @@ after handle_arrival_procedures => sub {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'hit_by_scow.txt',
-            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $self->hold_size],
+            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $waste_dumped],
         );
     }
 
     $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
     
+    # all pow
+    my $done_after = 1;
+    my $number_of_scows = 0;
+    if ($self->type eq "attack_group") {
+        my @trim;
+        for my $key ( keys %{$payload->{fleet}}) {
+            if ( grep { $payload->{fleet}->{$key}->{type} eq $_ } ("scow", "scow_fast", "scow_large", "scow_mega")) {
+                push @trim, $key;
+                $number_of_scows += $payload->{fleet}->{$key}->{quantity};
+            }
+            else {
+                $done_after = 0;
+            }
+        }
+#reset payload if needed
+        unless ($done_after) {
+            for my $key (@trim) {
+                delete $payload->{fleet}->{$key};
+            }
+            $self->number_of_docks($self->number_of_docks - $number_of_scows);
+            $self->payload($payload);
+            $self->update;
+        }
+    }
+    else {
+        $number_of_scows = 1;
+    }
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,
@@ -56,14 +86,16 @@ after handle_arrival_procedures => sub {
         attacking_empire_name   => $self->body->empire->name,
         attacking_body_id       => $self->body_id,
         attacking_body_name     => $self->body->name,
-        attacking_unit_name     => $self->name,
+        attacking_unit_name     => "Scows",
         attacking_type          => $self->type_formatted,
+        attacking_number        => $number_of_scows,
         defending_empire_id     => $body_attacked->empire_id,
         defending_empire_name   => $body_attacked->empire->name,
         defending_body_id       => $body_attacked->id,
         defending_body_name     => $body_attacked->name,
         defending_unit_name     => '',
         defending_type          => '',
+        defending_type          => 0,
         attacked_empire_id      => $body_attacked->empire_id,
         attacked_empire_name    => $body_attacked->empire->name,
         attacked_body_id        => $body_attacked->id,
@@ -71,22 +103,47 @@ after handle_arrival_procedures => sub {
         victory_to              => 'attacker',
     })->insert;
 
-    # all pow
-    $self->delete;
-    confess [-1];
+    if ($done_after) {
+        $self->delete;
+        confess [-1];
+    }
 };
 
 after send => sub {
-    my $self = shift;
+    my ($self, %options ) = @_;
     my $waste_sent;
-    if ($self->body->waste_stored < $self->hold_size) {
-      $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+
+    if ($self->type eq "attack_group") {
+        my $payload = $self->payload;
+        my $hold_size = $self->hold_size;
+        my $room;
+        if ($payload->{resources}->{waste}) {
+            $room = $hold_size - $payload->{resources}->{waste};
+        }
+        else {
+            $payload->{resources}->{waste} = 0;
+            $room = $hold_size;
+        }
+        return if $room < 1;
+        if ($self->body->waste_stored < $room) {
+          $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+          $waste_sent = $room;
+        }
+        $payload->{resources}->{waste} += $waste_sent;
+        $self->payload($payload);
     }
     else {
-      $waste_sent = $self->hold_size;
+        if ($self->body->waste_stored < $self->hold_size) {
+          $waste_sent = $self->body->waste_stored > 0 ? $self->body->waste_stored : 0;
+        }
+        else {
+          $waste_sent = $self->hold_size;
+        }
+        $self->payload({ resources => { waste => $waste_sent }});
     }
     $self->body->spend_waste($waste_sent)->update;
-    $self->payload({ resources => { waste => $waste_sent } });
     $self->update;
 };
 

@@ -37,10 +37,10 @@ if ($tournament) {
     my @colonies;
 
     if ($server_url =~ /us2/) {
-        push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} },{rows=>1})->single;
-        push @colonies, $viable->search({ x => { '<' => -150}, y => { '>' => 150} },{rows=>1})->single;
-        push @colonies, $viable->search({ x => { '<' => -150}, y => { '<' => -150} },{rows=>1})->single;
-        push @colonies, $viable->search({ x => { '>' => 150}, y => { '<' => -150} },{rows=>1})->single;
+        push @colonies, $viable->search({ x => { '>' => 150}, y => { '>' => 150} })->first;
+        push @colonies, $viable->search({ x => { '<' => -150}, y => { '>' => 150} })->first;
+        push @colonies, $viable->search({ x => { '<' => -150}, y => { '<' => -150} })->first;
+        push @colonies, $viable->search({ x => { '>' => 150}, y => { '<' => -150} })->first;
     }
     elsif ($server_url =~ /us1/) {
         # four planets in 2|2

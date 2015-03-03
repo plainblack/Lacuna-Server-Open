@@ -23,17 +23,13 @@ diag("Create a station");
 my $station = Lacuna->db->resultset('Map::Body')->search({
     class => 'Lacuna::DB::Result::Map::Body::Planet::Station',
     empire_id => $empire->id,
-    },{
-    rows=>1,
-})->single;
+    })->first;
 
 if (not $station) {
     $station = Lacuna->db->resultset('Map::Body')->search({
         class => {like => 'Lacuna::DB::Result::Map::Body::Planet::P%'},
         empire_id => undef,
-        },{
-        rows=>1,
-    })->single;
+        })->first;
 
     $station->convert_to_station($empire);
     $station = $station->discard_changes; # just in case
@@ -52,9 +48,7 @@ $station->tick;
 my $trade = Lacuna->db->resultset('Building')->search({
     class => 'Lacuna::DB::Result::Building::Trade',
     body_id => $home->id,
-    },{
-    rows => 1,
-})->single;
+    })->first;
 
 # remove any existing ships from the supply chain
 $result = $tester->post('trade','get_supply_ships', [$session_id, $trade->id]);

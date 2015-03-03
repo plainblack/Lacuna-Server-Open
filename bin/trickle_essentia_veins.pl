@@ -33,23 +33,31 @@ out((($finish - $start)/60)." minutes have elapsed");
 
 
 sub trickle {
-    my $veins = $db->resultset('Lacuna::DB::Result::Building')->search({class => 'Lacuna::DB::Result::Building::Permanent::EssentiaVein'});
-    while (my $vein = $veins->next) {
-        my $body = $vein->body;
-        if ($body->empire_id) {
-            my $empire = $body->empire;
-            if (defined $empire) {
-                out($empire->name);
-                $empire->add_essentia({
-                    amount  => 4, 
-                    reason  => 'Essentia Vein',
-                });
-                $empire->update;
-            }
-        }
+    # find all empires, with the count of eveins they have, as a single call.
+    # unowned eveins will naturally be ignored by the way the join is created
+    # since we're just looking for empires that have eveins, not eveins in
+    # general.
+    my $empires = $db->resultset('Empire')
+        ->search(
+                 {
+                     '_buildings.class' => "Lacuna::DB::Result::Building::Permanent::EssentiaVein",
+                 }, {
+                     join => { 'bodies' => '_buildings' },
+                     group_by => 'me.id',
+                     '+select' => { count => '_buildings.id', -as => 'eveins' },
+                 });
+
+    while (my $empire = $empires->next)
+    {
+        my $eveins = $empire->get_column('eveins');
+        out($empire->name . " x$eveins");
+        $empire->add_essentia({
+                     amount => 4 * $eveins,
+                     reason => "Essentia Vein ($eveins)",
+                 });
+        $empire->update;
     }
 }
-
 
 # UTILITIES
 

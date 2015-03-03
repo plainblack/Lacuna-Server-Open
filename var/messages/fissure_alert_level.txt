@@ -1,0 +1,9 @@
+Fissure growing nearby
+~~~
+Our astronomers have detected that a fissure on {Starmap %s %s %s} is growing.
+If that is an uninhabited planet, we should send Fissure Sealers as soon as possible.
+
+Regards,
+
+Your Humble Assistant
+

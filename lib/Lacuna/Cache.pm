@@ -112,7 +112,7 @@ sub get {
         $self->clear_memcached;
         return $self->get($namespace, $id, 1);
     }
-    warn "Couldn't get $key from cache because ".$memcached->errstr;
+    warn "Couldn't get $key from cache because [".$memcached->errstr."]";
 }
 
 sub get_and_deserialize {

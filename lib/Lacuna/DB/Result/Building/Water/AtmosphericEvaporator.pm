@@ -29,9 +29,9 @@ use constant energy_consumption => 63;
 
 use constant ore_consumption => 21;
 
-use constant water_consumption => 14;
+use constant water_consumption => 0;
 
-use constant water_production => 280;
+use constant water_production => 500;
 use constant max_instances_per_planet => 2;
 use constant university_prereq => 17;
 
@@ -40,7 +40,7 @@ use constant waste_production => 63;
 sub water_production_hour {
     my ($self) = @_;
     my $base = $self->body->water * $self->water_production * $self->production_hour / 10000;
-    return 0 if $base == 0;
+    return 0 if $base <= 0;
     return sprintf('%.0f', $base * $self->water_production_bonus);
 }
 
