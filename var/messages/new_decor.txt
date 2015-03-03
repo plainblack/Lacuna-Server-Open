@@ -1,6 +1,6 @@
 New Decorations!
 ~~~
-Something odd happened during that earthquake and we have %s new decoration%s on %s.
+Something odd happened during that earthquake and we have %s new decoration%s on {Starmap %s %s %s}.
 
 Regards,
 
