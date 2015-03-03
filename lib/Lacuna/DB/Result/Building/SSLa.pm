@@ -122,7 +122,7 @@ has plan_time_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 200;
+        return 272;
     }
 );
 
