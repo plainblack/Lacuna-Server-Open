@@ -23,7 +23,8 @@ around 'view' => sub {
     $out->{planet} = $building->body->get_status($empire);
     $out->{ore} = $building->body->get_ore_status;
     $out->{food} = $building->body->get_food_status;
-    $out->{next_colony_cost} = $empire->next_colony_cost;
+    $out->{next_colony_cost} = $empire->next_colony_cost("colony_ship");
+    $out->{next_station_cost} = $empire->next_colony_cost("space_station");
     $out->{pod_delay} = $building->pod_delay;
     return $out;
 };

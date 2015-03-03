@@ -33,6 +33,7 @@
  - Mod: Spies have fewer useless options.
  - Mod: Invalid login attempts warns.
  - Mod: Warnings about fissures shouldn't bother as many out of range.
+ - Mod: Split happiness cost calculation with SS & Colonies
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.

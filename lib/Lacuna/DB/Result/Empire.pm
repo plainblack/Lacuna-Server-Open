@@ -970,15 +970,46 @@ sub add_observatory_probe {
 }
 
 sub next_colony_cost {
-    my ($self, $adjustment) = @_;
-    my $count = $self->planets->count + $adjustment;
-    $count += Lacuna->db->resultset('Ships')->search(
-        { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
-        { join => 'body' }
-    )->count;
-    my $inflation = 1 + INFLATION - ($self->effective_growth_affinity * 5 / 100);
-#    my $inflation = 1 + INFLATION - ($self->effective_growth_affinity / 100);
-    my $tally = 100_000 * ($inflation**($count-1));
+    my ($self, $type, $adjustment) = @_;
+
+    $adjustment = 0 unless defined $adjustment;
+    my $tally;
+    if ($type eq "colony_ship" or $type eq "short_range_colony_ship" or $type eq "spy") {
+        my $count = $self->planets->search({ class => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' }})->count;
+        $count += Lacuna->db->resultset('Ships')->search(
+            { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
+            { join => 'body' }
+        )->count;
+        my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
+        my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
+        $tally = 100_000 * ($inflation**($count-1));
+        my $max = 2_700_000_000_000_000 / (1 + (($srcs + $self->effective_growth_affinity * 5) / 100));
+        $max *= 250 if $type eq "spy";
+        $tally = $max if $tally > $max;
+    }
+    elsif ($type eq "space_station" and $self->alliance_id) {
+        my $count = $self->alliance->stations->count;
+        my @allies = Lacuna->db->resultset('Empire')->search(
+            {
+                alliance_id => $self->alliance_id,
+            })->get_column('id')->all;
+        $count += Lacuna->db->resultset('Ships')->search(
+            {
+                type=> 'space_station',
+                task=>'Travelling',
+                direction=>'out',
+                'body.empire_id' => { in => \@allies}
+            },
+            { join => 'body' }
+        )->count;
+        my $inflation = 1 + INFLATION - (($self->effective_growth_affinity * 5) / 100);
+        $tally = 250_000 * ($inflation**($count-1));
+        my $max = 1_350_000_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
+        $tally = $max if $tally > $max;
+    }
+    else {
+        $tally = 10_000_000_000_000_000_000;
+    }
     return sprintf('%.0f', $tally);
 }
 

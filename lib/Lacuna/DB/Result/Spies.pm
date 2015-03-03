@@ -1885,9 +1885,9 @@ sub can_conduct_advanced_missions {
 
 sub steal_planet {
     my ($self, $defender) = @_;
-    my $next_colony_cost = $self->empire->next_colony_cost;
+    my $next_colony_cost = $self->empire->next_colony_cost("spy");
     my $planet_happiness = $self->on_body->happiness;
-    my $chance = abs($planet_happiness * 100) / $next_colony_cost;
+    my $chance = int(abs($planet_happiness * 100) / $next_colony_cost);
     my $failure = randint(1,100) > $chance;
     if ($planet_happiness > 0 || $failure) { # lose
         $self->on_body->empire->send_predefined_message(
@@ -1901,6 +1901,9 @@ sub steal_planet {
               params      => [$self->on_body->x,
                               $self->on_body->y,
                               $self->on_body->name,
+                              commify(abs($planet_happiness)),
+                              commify($next_colony_cost("spy")),
+                              $chance,
                               $self->format_from],
         )->id;
     }
