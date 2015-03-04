@@ -113,7 +113,7 @@ has plan_resource_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 1_400_000;
+        return 850_000;
     }
 );
 
@@ -122,13 +122,13 @@ has plan_time_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 272;
+        return 150;
     }
 );
 
 sub plan_time_at_level {
     my ($self, $level, $base) = @_;
-    my $inflate = INFLATION - (($self->body->empire->effective_manufacturing_affinity * 5)/100);
+    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_manufacturing_affinity * 5)/200);
     my $time_cost = sprintf('%.0f', $base * ($inflate ** $level));
     $time_cost = 15 if ($time_cost < 15);
     $time_cost = 5184000 if ($time_cost > 5184000);
@@ -137,7 +137,7 @@ sub plan_time_at_level {
 
 sub plan_cost_at_level {
     my ($self, $level, $base) = @_;
-    my $inflate = INFLATION - (($self->body->empire->effective_research_affinity * 5)/100);
+    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_research_affinity * 5)/200);
     my $cost = sprintf('%.0f', $base * ($inflate ** $level));
     return $cost;
 }
