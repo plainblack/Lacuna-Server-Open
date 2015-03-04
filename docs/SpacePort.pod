@@ -615,11 +615,15 @@ A hash reference of the required arrival time.
     "minute" : "01",
     "second" : "30"
   }
+or
+  {
+    "earliest" : 1,
+  }
 
 So long as the sending body has that quantity of ships with those specifications, then the
 ships will be sent.
 
-Ships will be set to arrive at the B<arrival> time and date, which can be up to 28 days in
+Ships will be set to arrive at the B<arrival> time and date, which can be up to 60 days in
 the future. B<day> is the day of the month, either the remainder of the current month, or
 the start of next month. e.g. if the current date is 23rd of January, then a B<day> of 23
 will refer to today whereas 3 would refer to 3rd of February.
@@ -627,6 +631,8 @@ will refer to today whereas 3 would refer to 3rd of February.
 If an arrival time is set which is prior to the earliest arrival time of the slowest ship,
 then an exception is raised.
 
+If earliest is set, all other values are ignored and ships are sent at fastest speed possible.
+They may still be grouped together by the server into an attack group.
 
 =head2 send_fleet ( session_id, ship_ids, target, [ set_speed ] )
 
