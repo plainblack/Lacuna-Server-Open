@@ -284,14 +284,6 @@ sub send_ship_types {
     if ($arrival_params->{earliest}) {
         $arrival = 0;
     }
-    else {
-        $self->find_arrival($arrival_params);
-        my $two_months  = DateTime->now->add(days=>60);
-        if ($arrival > $two_months) {
-            confess [1009, "Cannot set a speed that will take over 60 days."];
-        }
-    }
-
 
     # calculate the total ships before the expense of any database operations.
     my $total_ships = 0;
@@ -355,6 +347,11 @@ sub send_ship_types {
         elsif ($earliest > $arrival) {
             confess [1009, "Cannot set a speed earlier than possible arrival time."];
         }
+        my $two_months  = DateTime->now->add(days=>60);
+        if ($arrival > $two_months) {
+            confess [1009, "Cannot send a ship that will take longer than 60 days to arrive."];
+        }
+
         if (not $do_captcha_check and $ship->hostile_action) {
             $do_captcha_check = 1;
         }
