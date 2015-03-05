@@ -56,6 +56,10 @@ sub complete_mission {
     confess [1002, 'Please specify a mission id.'] unless $mission_id;
     my $mission = $building->missions->find($mission_id);
     confess [1002, 'No such mission.'] unless $mission;
+    # this check is repeated later to avoid race conditions, but done early
+    # to give more meaningful errors to those not trying to game the system.
+    confess [1002, 'Already completed that mission in another zone.']
+        if Lacuna->cache->get($mission->mission_file_name, $empire->empire_id);
     my $body = $building->body;
     $mission->check_objectives($body);
     $mission->complete($body);
