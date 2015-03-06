@@ -1902,7 +1902,7 @@ sub steal_planet {
                               $self->on_body->y,
                               $self->on_body->name,
                               commify(abs($planet_happiness)),
-                              commify($self->empire->next_colony_cost("spy")),
+                              commify($next_colony_cost),
                               $chance,
                               $self->format_from],
         )->id;

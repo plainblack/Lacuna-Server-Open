@@ -47,6 +47,10 @@ sub incomplete {
 
 sub complete {
     my ($self, $body) = @_;
+    # This is a duplicate of the check made earlier to reduce the scope
+    # of any race condition in case someone is really trying hard to defeat this.
+    confess [1002, 'Already completed that mission in another zone.']
+        if Lacuna->cache->get($self->mission_file_name, $body->empire_id);
     Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
     $self->spend_objectives($body);
     $self->add_rewards($body);

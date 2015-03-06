@@ -280,19 +280,10 @@ sub send_ship_types {
     my $empire  = $self->get_empire_by_session($session_id);
     my $body    = $self->get_body($empire, $body_id);
     my $target  = $self->find_target($target_params);
-    my $arrival = $self->find_arrival($arrival_params);
-
-    my $five_minute = DateTime->now->add(minutes=>5);
-    if ($arrival < $five_minute) {
-        $arrival = $five_minute;
-#        confess [1009, "Cannot set a speed that will take less than five minutes."];
+    my $arrival;
+    if ($arrival_params->{earliest}) {
+        $arrival = 0;
     }
-
-    my $two_months  = DateTime->now->add(days=>60);
-    if ($arrival > $two_months) {
-        confess [1009, "Cannot set a speed that will take over 60 days."];
-    }
-
 
     # calculate the total ships before the expense of any database operations.
     my $total_ships = 0;
@@ -350,9 +341,17 @@ sub send_ship_types {
 #If time to target is longer than 60 days, fail.
         my $seconds_to_target = $ship->calculate_travel_time($target);
         my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
-        if ($earliest > $arrival) {
+        if ($arrival == 0) {
+            $arrival = $earliest;
+        }
+        elsif ($earliest > $arrival) {
             confess [1009, "Cannot set a speed earlier than possible arrival time."];
         }
+        my $two_months  = DateTime->now->add(days=>60);
+        if ($arrival > $two_months) {
+            confess [1009, "Cannot send a ship that will take longer than 60 days to arrive."];
+        }
+
         if (not $do_captcha_check and $ship->hostile_action) {
             $do_captcha_check = 1;
         }
