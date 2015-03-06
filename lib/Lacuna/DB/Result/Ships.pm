@@ -427,9 +427,13 @@ sub send {
     my %ag_hash = map { $_ => $cnt++ } @ag_list;
     my $time2arrive = DateTime->now->subtract_datetime_absolute($arrival);
     my $seconds2arrive = $time2arrive->seconds;
+    my $sec_rng = 900;
+    if ($seconds2arrive < 1200) {
+        $sec_rng = int($seconds2arrive * 2/3);
+    }
     my $dtf = Lacuna->db->storage->datetime_parser;
-    my $start_range = DateTime->now->add(seconds => ($seconds2arrive - 900));
-    my $end_range = DateTime->now->add(seconds => ($seconds2arrive + 900));
+    my $start_range = DateTime->now->add(seconds => ($seconds2arrive - $sec_rng));
+    my $end_range = DateTime->now->add(seconds => ($seconds2arrive + $sec_rng));
     my $ships_rs;
     my $ag_chk = 0;
     if ( grep { $self->type eq $_ } @ag_list ) {
@@ -446,7 +450,7 @@ sub send {
         $ag_chk += $ships_rs->get_column('number_of_docks')->sum;
     }
 
-    if ($seconds2arrive > 180 && $ag_chk > 1) {  # Only consolidate if ships take longer than 20 minutes
+    if ($seconds2arrive > 300 && $ag_chk > 1) {
         my $payload = $self->payload;
 #        $payload->{debug} = {
 #            old_type => $self->type,
@@ -463,8 +467,8 @@ sub send {
             my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
                               $ag_hash{$self->type},
                               $self->type, 
-                              $self->speed, 
                               $self->combat, 
+                              $self->speed, 
                               $self->stealth, 
                               $self->hold_size);
             $payload->{fleet}->{$key} = {
@@ -521,8 +525,8 @@ sub send {
                 my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
                               $ag_hash{$ship->type},
                               $ship->type, 
-                              $ship->speed, 
                               $ship->combat, 
+                              $ship->speed, 
                               $ship->stealth, 
                               $ship->hold_size);
                 if ($payload->{fleet}->{$key}) {
