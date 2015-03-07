@@ -6,6 +6,7 @@ use base 'Exporter';
 use constant INFLATION => 1.75;
 use constant SECONDS_IN_A_DAY => 60 * 60 * 24;
 use constant GROWTH => 1.55;
+use constant MINIMUM_EXERTABLE_INFLUENCE => 10;
 use constant FOOD_TYPES => (qw(cheese bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
 use constant BUILDABLE_CLASSES => (qw(
@@ -134,6 +135,7 @@ our @EXPORT_OK = qw(
     INFLATION
     SECONDS_IN_A_DAY
     GROWTH
+    MINIMUM_EXERTABLE_INFLUENCE
     FOOD_TYPES
     ORE_TYPES
     BUILDABLE_CLASSES
@@ -149,6 +151,7 @@ our %EXPORT_TAGS = (
         INFLATION
         SECONDS_IN_A_DAY
         GROWTH
+        MINIMUM_EXERTABLE_INFLUENCE
         FOOD_TYPES
         ORE_TYPES
         BUILDABLE_CLASSES

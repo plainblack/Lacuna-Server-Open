@@ -217,12 +217,7 @@ sub drop_stars_beyond_range {
     my ($station) = @_;
 
     return 0 if ($station->get_type ne 'space station');
-    my $laws = $station->laws->search({type => 'Jurisdiction'});
-    while (my $law = $laws->next) {
-        unless ($station->in_range_of_influence($law->star)) {
-            $law->delete;
-        }
-    }
+    $station->update_influence();
     return 1;
 }
 

@@ -29,7 +29,6 @@ after downgrade => sub {
     my $level = $self->effective_level;
 
     push @unsupported_laws, 'Writ'                    if $level < 4;
-    push @unsupported_laws, 'Jurisdiction'            if $level < 7;
     push @unsupported_laws, 'MembersOnlyMiningRights' if $level < 13;
     push @unsupported_laws, 'Taxation'                if $level < 15;
     push @unsupported_laws, 'MembersOnlyColonization' if $level < 18;

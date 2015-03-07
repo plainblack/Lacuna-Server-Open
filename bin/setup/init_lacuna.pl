@@ -13,6 +13,12 @@ my $lacunans_have_been_placed = 0;
 
 my $t = [Time::HiRes::tv_interval];
 create_database();
+
+# to test create db only, set env var, useful for testing db changes without
+# rebuilding full star map, don't forget to change
+# /data/Lacuna-Server/etc/lacuna.conf's db->dsn field to a new db first.
+exit 0 if $ENV{CREATE_DB_ONLY};
+
 open my $star_names, "<", "../../var/starnames.txt";
 create_star_map();
 close $star_names;

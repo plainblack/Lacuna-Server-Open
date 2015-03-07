@@ -61,8 +61,6 @@ before pass => sub {
                 }
                 else
                 {
-                    # this should never happen: BFGs simply cannot pass
-                    # if the parliament goes below 7 - nothing is still seized.
                     $self->station->add_news(99, sprintf('The parliament of %s suffered a critical malfunction today while trying to fire their BFG.', $self->station->name));
                 }
                 $self->station->update;

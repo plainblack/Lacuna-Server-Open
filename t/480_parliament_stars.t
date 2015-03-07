@@ -37,43 +37,6 @@ while( my $star = $stars_rs->next ) {
 # TODO Call get_stars_in_jurisdiction and check sort order
 
 
-my $influence_spent     = $station->influence_spent;
-my $influence_remaining = $station->influence_remaining;
-
-# get unseized stars in order distance from station.
-my $minus_x = 0 - $station->x;
-my $minus_y = 0 - $station->y;
-
-my $closest = Lacuna->db->resultset('Map::Star')->search({
-    station_id => undef,
-},{
-    '+select' => [
-        { ceil => \"pow(pow(me.x + $minus_x,2) + pow(me.y + $minus_y,2), 0.5)", '-as' => 'distance' },
-    ],
-    '+as' => [
-        'distance',
-    ],
-    order_by    => 'distance',
-});
-
-# Test setting seize propositions
-while ($influence_remaining) {
-    my $star = $closest->next;
-
-    diag("Propose seizing\t".$star->x."\t".$star->y."\t ".$star->name);
-    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-        type            => 'SeizeStar',
-        name            => 'Seize '.$star->name,
-        description     => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} by {Planet '.$station->id.' '.$station->name.'}, and apply all present laws to said star and its inhabitants.',
-        scratch         => { star_id => $star->id },
-        proposed_by_id  => $empire->id,
-    });
-    $proposition->station($station);
-    $proposition->proposed_by($empire);
-    $proposition->insert;
-    $influence_remaining--;
-}
-
 # TODO check that we can vote on propositions.
 # TODO check that stars are in order.
 # TODO check that propositions are in order.

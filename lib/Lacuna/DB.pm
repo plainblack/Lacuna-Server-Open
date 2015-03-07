@@ -104,5 +104,17 @@ sub ships {
     $self->resultset('Ships')->search($where);
 }
 
+sub X {
+    my ($self, $type, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset($type)->find($where);
+}
+
+sub XX {
+    my ($self, $type, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset($type)->search($where);
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
