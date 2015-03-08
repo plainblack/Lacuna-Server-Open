@@ -1881,7 +1881,7 @@ sub bhg_decor {
             $body->empire->send_predefined_message(
                 tags     => ['Alert'],
                 filename => 'new_decor.txt',
-                params   => [$planted, $plural, $body->name],
+                params   => [$planted, $plural, $body->x, $body->y, $body->name],
             );
         }
         return {
@@ -1983,7 +1983,7 @@ sub bhg_resource {
     $body->empire->send_predefined_message(
         tags     => ['Alert'],
         filename => 'wormhole.txt',
-        params   => [$body->name, $waste_msg, $resource_msg],
+        params   => [$body->x, $body->y, $body->name, $waste_msg, $resource_msg],
     );
     $body->update({
         needs_recalc => 1,
@@ -2041,7 +2041,7 @@ sub bhg_change_type {
                 $body->empire->send_predefined_message(
                     tags     => ['Alert'],
                     filename => 'changed_type.txt',
-                    params   => [$body->name, $old_type, $new_type],
+                    params   => [$body->x, $body->y, $body->name, $old_type, $new_type],
                 );
             }
         }
@@ -2131,7 +2131,7 @@ sub bhg_size {
             $body->empire->send_predefined_message(
                 tags     => ['Alert'],
                 filename => 'changed_size.txt',
-                params   => [$body->name, $old_size, $current_size],
+                params   => [$body->x, $body->y, $body->name, $old_size, $current_size],
             );
         }
     }

@@ -1,0 +1,10 @@
+Neutral Zone Violation with Spies
+~~~
+EMERGENCY BROADCAST:
+{Empire %s %s} has violated the neutral zone accords by planting offensive spies in an operation against the peace-loving residents of planet {Planet %s %s}.
+All empires receiving this message are urged to fulfill their moral obligation to put an end to the espionage. Please help keep the neutrality
+of the zone free of unwanted spy activity.
+
+With great urgency,
+
+Lacuna Expanse Corporation
