@@ -97,7 +97,10 @@ sub split_plan {
     my $num_glyphs = scalar @$glyphs;
 
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
-    my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
+    # You really should fix the building before putting it to work
+    my $effective_efficiency = (($self->efficiency > 0) ? 1 : $self->efficiency);
+    my $build_secs = int(($base * (2.72 ** (log($quantity)/log(2))) + 0.5) * 100 / $effective_efficiency);
+    
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
 }
 
@@ -130,8 +133,9 @@ sub make_plan {
     }
 
     $body->delete_many_plans($plan, $quantity_to_delete);
-    
-    $self->start_work({task => 'make_plan', level => $level, class => $class}, ($level * 5000))->update;
+    # You really should fix the building before putting it to work
+    my $effective_efficiency = (($self->efficiency > 0) ? 1 : $self->efficiency);
+    $self->start_work({task => 'make_plan', level => $level, class => $class}, ($level * 50 / $effctive_efficiency))->update;
 }
 
 sub equivalent_halls {
