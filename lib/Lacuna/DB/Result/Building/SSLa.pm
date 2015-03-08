@@ -195,7 +195,10 @@ sub make_plan {
     $level ||= 1;
     my $makeable = $self->makeable_plans;
     my $resource_cost = $self->plan_cost_at_level($level, $self->plan_resource_cost);
-    my $time_cost = $self->plan_time_at_level($level, $self->plan_time_cost);
+    # Really should fix the building before putting it to work.
+    my $effective_efficiency = (($self->efficiency <= 1) ? 1 : $self->efficiency);
+    my $time_cost = ($self->plan_time_at_level($level, $self->plan_time_cost) * 100 / $effective_efficiency);
+    if ($time_cost > 60 * 24 * 60 * 60) { $time_cost = 60 * 24 * 60 * 60; }
     my $body = $self->body;
     $body->spend_ore($resource_cost);
     $body->spend_water($resource_cost);
