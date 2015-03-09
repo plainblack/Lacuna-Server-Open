@@ -74,7 +74,7 @@ sub get_bodies_for_star_in_jurisdiction {
     unless ($star) {
         confess [1009, 'That star is not in your jurisdiction.'];
     }
-    my $bodies = $star->bodies;
+    my $bodies = $star->bodies->search({},{order_by => 'orbit'});
     while (my $body = $bodies->next) {
         push @out, $body->get_status($empire);
     }
