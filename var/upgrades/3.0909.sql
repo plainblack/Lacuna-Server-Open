@@ -51,3 +51,5 @@ CREATE TRIGGER stationinfluence_cleanup after delete ON stationinfluence
 END //
 
 DELIMITER ;
+
+-- after this is done, run bin/initial_jurisdiction.pl

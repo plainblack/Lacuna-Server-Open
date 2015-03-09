@@ -190,6 +190,7 @@ sub in_range_of_influence {
 sub update_influence {
     my $self = shift;
     my $opts = shift || {};
+    my $starttime = $opts->{starttime} || DateTime->now;
 
     my $range = $self->range_of_influence() / 100;
     my $influence = $self->total_influence;
@@ -261,7 +262,7 @@ EOSQL
         while (my $inf = $influence_rs->next)
         {
             $inf->influence($calc_influence->($inf->get_column('distance')));
-            $inf->oldstart(DateTime->now());
+            $inf->oldstart($starttime);
             $inf->update;
         }
     }
@@ -281,7 +282,6 @@ EOSQL
     });
 
         $|++;
-print "\n";
 
     while (my $star = $stars_rs->next)
     {
@@ -289,8 +289,6 @@ print "\n";
 
         my $distance = $star->get_column('distance');
         my $target_influence = $calc_influence->($distance);
-
-        printf "%-9d\r", $target_influence;
 
         # anything under MINIMUM_EXERTABLE_INFLUENCE is too weak to help/hinder influence of anything
         # (also keeps the influence table from blowing up over all the IBS30s)
@@ -303,8 +301,8 @@ print "\n";
                            star_id           => $star->id,
                            alliance_id       => $self->alliance_id,
                            oldinfluence      => 0, # start out with no influence
-                           oldstart          => DateTime->now,
-                           started_influence => DateTime->now,
+                           oldstart          => $starttime,
+                           started_influence => $starttime,
                            influence         => $target_influence,
                        }
                       );
@@ -315,8 +313,6 @@ print "\n";
             last;
         }
     }
-
-print "\n";
 }
 
 no Moose;

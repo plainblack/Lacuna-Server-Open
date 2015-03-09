@@ -118,31 +118,24 @@ sub recalc_influence {
         return;
     }
 
-    # We will use some 'raw' SQL rather than go through the machinations of DBIC
-    #
-    my $dbh = $self->result_source->storage->dbh;
-    my ($alliances) = $dbh->selectrow_array('select count(distinct(alliance_id)) from stationinfluence where star_id = ?', undef, $self->id) or die $dbh->errstr;
     my $station_id;
     my $influence = 0;
 
-    if ($alliances == 0)
-    {
-        # Do nothing, star is not under the influence of any alliance
-    }
-    else {
-        my $rs = Lacuna->db->resultset('StationInfluence');
-        my $inf = $rs->search(
-                    { star_id => $self->id },
-                    { 
-                        select => [
-                                   'alliance_id',
-                                   { sum => \[ $rs->sql_currentinfluence ], -as => 'totalinfluence' }
-                                  ],
-                        as => [ qw/alliance_id totalinfluence/ ],
-                        group_by => 'alliance_id',
-                        order_by => { -desc => 'totalinfluence' },
-                    });
-        my $best = $inf->next();
+    my $rs = Lacuna->db->resultset('StationInfluence');
+    my $inf = $rs->search(
+                          { star_id => $self->id },
+                          {
+                              select => [
+                                         'alliance_id',
+                                         { sum => \[ $rs->sql_currentinfluence ], -as => 'totalinfluence' }
+                                        ],
+                              as => [ qw/alliance_id totalinfluence/ ],
+                              group_by => 'alliance_id',
+                              order_by => { -desc => 'totalinfluence' },
+                          });
+    my $best = $inf->next();
+    # is there any influence?
+    if ($best) {
         $influence = $best->get_column('totalinfluence');
         while (my $i = $inf->next())
         {
@@ -151,7 +144,8 @@ sub recalc_influence {
 
         if ($influence > 100)
         {
-            # and now we have to figure out which station is the strongest.
+            # and now we have to figure out which station of
+            # the winner's alliance is the strongest.
             my $row = $rs->with_currentinfluence->find({ star_id => $self->id, alliance_id => $best->alliance_id },{order_by => {-desc => 'currentinfluence'}, limit => 1});
             $station_id = $row->station_id;
         }
@@ -161,6 +155,7 @@ sub recalc_influence {
             $influence = 0;
         }
     }
+    # else, if no influencers, everything left at uninfluenced.
 
     $self->needs_recalc(0);
     $self->influence($influence);
