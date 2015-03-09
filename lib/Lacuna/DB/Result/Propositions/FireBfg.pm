@@ -55,7 +55,7 @@ before pass => sub {
                 $parl->downgrade(1); # no point producing waste/unhappy
                 if ($parl->level >= 1)
                 {
-                    $parl->spend_efficiency(120); # becomes 25%
+                    $parl->spend_efficiency(25);
                     $parl->update;
                     $self->station->add_news(49, sprintf('The parliament of %s suffered a malfunction today while trying to fire their BFG.', $self->station->name));
                 }
