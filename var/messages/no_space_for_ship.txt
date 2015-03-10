@@ -1,0 +1,7 @@
+No Space for Ship
+~~~
+Our %s, en route to {Starmap %s %s %s}, was reported lost due to %s. Just to be sure, perhaps we should dispatch a scanner to see if there is a space to land?
+
+Regards,
+
+Your Humble Assistant

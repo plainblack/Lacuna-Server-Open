@@ -13,7 +13,21 @@ after handle_arrival_procedures => sub {
     # deploy the crater
     my $body_attacked = $self->foreign_body;
     my ($x, $y) = eval{$body_attacked->find_free_space};
-    unless ($@) {
+    if ($@) {
+
+	    # notify home of lost ship
+        unless ($self->body->empire->skip_attack_messages) {
+            $self->body->empire->send_predefined_message(
+                tags        => ['Attack','Alert'],
+                filename    => 'no_space_for_ship.txt',
+                params      => [$self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name, " a space anomaly"],
+            );
+           
+           $body_attacked->add_news(30 ,"No Trace of Ship Bound for %s - Mysterious Lacuna Quadrangle Blamed.", $body_attacked->name);
+        }
+
+	}
+    else {    
         my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
             class       => 'Lacuna::DB::Result::Building::Permanent::Crater',
             x           => $x,

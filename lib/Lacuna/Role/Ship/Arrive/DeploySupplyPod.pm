@@ -17,7 +17,19 @@ after handle_arrival_procedures => sub {
     # deploy the pod
     my $body = $self->foreign_body;
     my ($x, $y) = eval{$body->find_free_space};
-    unless ($@) {
+    if ($@)	{   
+	    
+    # notify home of lost ship 
+    $self->body->empire->send_predefined_message(
+         tags        => ['Alert'],
+         filename    => 'no_space_for_ship.txt',
+         params      => [$self->name, $body_attacked->x, $body_attacked->y, $body->name, " a mid-air collision"],
+     );
+    
+    $body_attacked->add_news(10 ,"Humanitarian mission bound for %s lost during final entry", $body->name);
+    
+    }    
+    else {
         my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
             class       => 'Lacuna::DB::Result::Building::SupplyPod',
             x           => $x,
