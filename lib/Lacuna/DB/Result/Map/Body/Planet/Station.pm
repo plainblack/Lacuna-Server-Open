@@ -248,21 +248,24 @@ EOSQL
     my $home_star = Lacuna->db->resultset('StationInfluence')->find({station_id => $self->id, star_id => $self->star_id});
     if (!$home_star || $calc_influence->(0) != $home_star->influence )
     {
-        my $influence_rs = Lacuna->db->resultset('StationInfluence')->
+        my $rs = Lacuna->db->resultset('StationInfluence');
+        my $influence_rs = $rs->
             search(
                    { 'me.station_id' => $self->id },
                    { 
                        join => 'star',
                        '+select' => [
+                                     \[ $rs->sql_currentinfluence . ' as currentinfluence' ],
                                      \[ 'pow(pow(star.x - ?, 2) + pow(star.y - ?, 2), 0.5) as distance', $centerpoint->x, $centerpoint->y, ], #,
                                     ],
-                       '+as' => [ 'distance' ],
+                       '+as' => [ 'currentinfluence', 'distance' ],
                    }
                   );
         while (my $inf = $influence_rs->next)
         {
             $inf->influence($calc_influence->($inf->get_column('distance')));
             $inf->oldstart($starttime);
+            $inf->oldinfluence($inf->currentinfluence);
             $inf->update;
         }
     }

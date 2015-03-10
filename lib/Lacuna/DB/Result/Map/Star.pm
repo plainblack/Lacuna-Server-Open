@@ -146,7 +146,7 @@ sub recalc_influence {
         {
             # and now we have to figure out which station of
             # the winner's alliance is the strongest.
-            my $row = $rs->with_currentinfluence->find({ star_id => $self->id, alliance_id => $best->alliance_id },{order_by => {-desc => 'currentinfluence'}, limit => 1});
+            my $row = $rs->with_currentinfluence->find({ star_id => $self->id, alliance_id => $best->alliance_id },{order_by => {-desc => 'currentinfluence'}, rows => 1});
             $station_id = $row->station_id;
         }
         else
