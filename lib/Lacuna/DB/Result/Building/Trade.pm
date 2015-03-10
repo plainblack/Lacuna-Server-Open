@@ -421,6 +421,7 @@ sub push_items {
             my $pship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
             next unless defined $pship;
             $pship->body_id($target->id);
+            $pship->task('Executing Transfer');
             $pship->update;
         }
     }
