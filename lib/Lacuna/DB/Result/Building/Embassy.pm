@@ -45,10 +45,10 @@ use constant water_consumption => 6;
 use constant waste_production => 1;
 
 # by accepting an optional level, we can centralise the calculation.
-# default level, of course, is the embassy's level.
+# default level, of course, is the embassy's effective level (based on uni level, etc).
 sub max_members {
     my $self  = shift;
-    my $level = @_ ? shift : $self->level;
+    my $level = @_ ? shift : $self->effective_level;
     return $level * 2;
 }
 
@@ -264,7 +264,7 @@ sub exchange_with_stash {
 
 sub max_exchange_size {
     my $self = shift;
-    return $self->level * 10000; 
+    return $self->effective_level * 10000; 
 }
 
 has exchanges_remaining_today => (
@@ -272,7 +272,7 @@ has exchanges_remaining_today => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->level - Lacuna->cache->get('stash_exchanges_'.format_date(undef,'%d'), $self->body_id);
+        return $self->effective_level - Lacuna->cache->get('stash_exchanges_'.format_date(undef,'%d'), $self->body_id);
     },
 );
 

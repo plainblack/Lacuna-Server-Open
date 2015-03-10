@@ -18,7 +18,10 @@ around can_upgrade => sub {
     my $plans = defined $plan ? $plan->quantity : 0;
     
     if ($plans < $self->level + 1) {
-        confess [1013, "You can't upgrade ".$self->name.", you don't have enough Halls of Vrbansk plans."];
+        confess [1013,
+                 sprintf ("You can't upgrade this %s, you have %d Halls of Vrbansk plan%s but need %d.",
+                          $self->name, $plans, $plans == 1 ? "" : "s", $self->level + 1),
+                ];
     }
     return $self->$orig(@_);
 };

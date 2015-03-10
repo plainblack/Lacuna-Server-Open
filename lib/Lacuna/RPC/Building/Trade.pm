@@ -211,7 +211,7 @@ sub view_supply_chains {
         confess [1002, "Cannot find that building."];
     }
 
-    my $max_chains = $building->level * 3;
+    my $max_chains = $building->effective_level * 3;
     my @supply_chains;
     my $chains      = $building->supply_chains;
     while (my $chain = $chains->next) {
@@ -272,7 +272,7 @@ sub create_supply_chain {
         confess [1002, "Cannot find that building."];
     }
     my $body        = $building->body;
-    my $max_chains = $building->level * 3;
+    my $max_chains = $building->effective_level * 3;
     if ($body->out_supply_chains->count >= $max_chains) {
         confess [1002, "You cannot create any more supply chains outgoing from this planet."];
     }
@@ -387,7 +387,7 @@ sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
@@ -471,7 +471,7 @@ sub accept_from_market {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
 
     $empire->current_session->check_captcha;
 
@@ -523,7 +523,7 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->level > 0;
+    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
         confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];

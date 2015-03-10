@@ -101,7 +101,7 @@ sub level_costs_formatted {
             water   => $resource,
             energy  => $resource,
             food    => $resource,
-            waste   => sprintf('%.0f', $resource/4),
+            waste   => sprintf('%.0f', $resource/2),
             time    => $self->plan_time_at_level($level, $time_cost),
         };
     }
@@ -113,7 +113,7 @@ has plan_resource_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 40000 * ((100 - (5 * $self->body->empire->research_affinity)) / 100);
+        return 850_000;
     }
 );
 
@@ -122,13 +122,14 @@ has plan_time_cost => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return 1200 * ((100 - (5 * $self->body->empire->management_affinity)) / 100);
+        return 150;
     }
 );
 
 sub plan_time_at_level {
     my ($self, $level, $base) = @_;
-    my $time_cost = sprintf('%.0f', $base * (INFLATION ** $level));
+    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_manufacturing_affinity * 5)/200);
+    my $time_cost = sprintf('%.0f', $base * ($inflate ** $level));
     $time_cost = 15 if ($time_cost < 15);
     $time_cost = 5184000 if ($time_cost > 5184000);
     return $time_cost;
@@ -136,7 +137,8 @@ sub plan_time_at_level {
 
 sub plan_cost_at_level {
     my ($self, $level, $base) = @_;
-    my $cost = sprintf('%.0f', $base * (INFLATION ** $level));
+    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_research_affinity * 5)/200);
+    my $cost = sprintf('%.0f', $base * ($inflate ** $level));
     return $cost;
 }
 
@@ -145,12 +147,12 @@ has max_level => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $level = $self->level;
+        my $level = $self->effective_level;
         my $body = $self->body;
         foreach my $part (qw(b c d)) {
             my $building = $body->get_building_of_class('Lacuna::DB::Result::Building::SSL'.$part);
             if (defined $building) {
-                $level = ($level > $building->level) ? $building->level : $level;
+                $level = ($level > $building->effective_level) ? $building->effective_level : $level;
             }
             else {
                 $level = 0;

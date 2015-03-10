@@ -40,7 +40,7 @@ sub get_star_map {
         if (defined $row->station_id) {
             my $station = $cache->get_and_deserialize('starlite_station',$row->station_id);
             if (not $station) {
-                my $station = {
+                $station = {
                     id          => $row->station->id,
                     name        => $row->station->name,
                     x           => $row->station->x,

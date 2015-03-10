@@ -1,6 +1,6 @@
 Thud Hit Target
 ~~~
-Our Thud has touched down on {Starmap %s %s %s}.
+%s out of %s Thud(s) have touched down on {Starmap %s %s %s}.
 
 Regards,
 

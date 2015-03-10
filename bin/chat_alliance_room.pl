@@ -46,5 +46,10 @@ else {
     });
 }
 
-
+say "Adding room to user's list of rooms.";
+$firebase->put('users/'.$empire_id.'/rooms/'.$alliance_id, {
+    id      => $alliance_id,
+    active  => \1, 
+    name    => $alliance_name,
+});
 

@@ -1,3 +1,41 @@
+3.0909:
+ - Add: Enable Alliance chat rooms.
+ - Add: Admin UI to set alliance logo.
+ - Add: Admin UI display more info on bodies & stars.
+ - Fix: Only one notification per empire per star on probe detection.
+ - Add: Fleet Lite
+ - Mod: Sweepers adjusted for balance.
+ - Fix: Most buildings should no longer ignore uni level.
+ - Add: Overheating Parliament does damage.
+ - Fix: Buildings should no longer get stuck in upgrading state.
+ - Add: Allow login with "#<userid>".
+ - Mod: "#" no longer permitted as leading character in empire names.
+ - Mod: Propaganda doesn't count as often for missions.
+ - Mod: incoming ships list ordered correctly.
+ - Fix: Spies doing "Political Propaganda" and "Security Sweep" can be Assassinated/Abducted.
+ - Add: Essentia veins can be drained.
+ - Mod: Archaeology searches now take 5 hours, 50 minutes to complete. (thanks tmtowtdi!)
+ - Mod: Bleeders replicate.
+ - Mod: Disable chat for sitters.
+ - Add: pod_delay returned as part of PCC view
+ - Mod: Minimum flight time: 5 Minutes, Maximum is 2 months.
+ - Add: Build queue stats (size, len) returned as part of body status.
+ - UI : most IDs are available in the UI.
+ - Fix: If alliance member self destructs, station passed to leader.
+ - Fix: log real IPs in login log.
+ - Fix: Speed up N19 news display.
+ - Add: Added flip medal.
+ - Mod: Profanity filtering is more clear.
+ - Add: Shared admin notes on empires
+ - Mod: Oracle cooldown on BHG movement shortened to a flat 5 minutes.
+ - Mod: BHG Neutralization does not effect own alliance.
+ - Mod: BHG Can no longer swap with seized hostiles.
+ - Mod: Spies have fewer useless options.
+ - Mod: Invalid login attempts warns.
+ - Mod: Warnings about fissures shouldn't bother as many out of range.
+ - Mod: Split happiness cost calculation with SS & Colonies.
+ - Mod: SS Plans get cheaper packaging, level of SS Lab matters.
+
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
  - Mod: Firing BFG now requires captcha.

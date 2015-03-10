@@ -17,6 +17,7 @@ sub init_chat {
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');
     return undef unless $firebase_config;
+    return undef if $empire->current_session->is_sitter && $empire->id > 1;
     my $chat_auth = Firebase::Auth->new(
         secret  => $firebase_config->{auth}{secret},
 #        debug   => \1,
@@ -41,38 +42,41 @@ sub init_chat {
         $aname =~ s/__*/_/g;
         $chat_name .= " (".$aname.")";
     }
-    if (0) {
-#    if ($empire->alliance_id) {
+    if ($empire->alliance_id) {
     	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
         if ($@) {
   	     warn bleep;
         }
         elsif (defined $room) {
-             eval {
+            eval {
             	$firebase->patch('room-metadata/'.$empire->alliance_id.'/authorizedUsers', {
                 	$empire->id => \1
-           	});
-	     };
-             if ($@) {
+           	    });
+	        };
+            if ($@) {
                 warn bleep;
-             }
+            }
         }
         else {
             eval { 
 	            $firebase->put('room-metadata/'.$empire->alliance_id, {
         	        id              => $empire->alliance_id,
-#                	name            => $empire->alliance->name,
                 	name            => $aname,
 	                type            => 'private',
         	        createdByUserId => $empire->id,
                 	'.priority'     => {'.sv' => 'timestamp'},
 	                authorizedUsers => {$empire->id => \1},
         	    });
-	    };
-	    if ($@) {
-		warn bleep;
-	    }
+	        };
+	        if ($@) {
+		        warn bleep;
+	        }
         }
+        $firebase->put('users/'.$empire->id.'/rooms/'.$empire->alliance_id, {
+            id      => $empire->alliance_id,
+            active  => \1, 
+            name    => $aname,
+        });
     }
 #    if ($empire->is_admin) {
 #        $chat_name .= " <ADMIN>";
@@ -85,6 +89,7 @@ sub init_chat {
         email   => $empire->email,
         default => 'monsterid',
 	size    => 300,
+        https   => 1,
 	);
     my $ret = {
         status          => $self->format_status($empire),

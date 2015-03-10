@@ -1,6 +1,6 @@
 Target Hit
 ~~~
-Our %s reached {Starmap %s %s %s} and damaged the %s by %s%%.
+Our %s reached {Starmap %s %s %s} and damaged the surface.
 
 Regards,
 

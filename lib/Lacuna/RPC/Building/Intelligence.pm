@@ -202,7 +202,7 @@ sub train_spy {
     }
     my $trained = 0;
     my $body = $building->body;
-    if ($building->level < 1) {
+    if ($building->effective_level < 1) {
         confess [1013, "You can't train spies until your Intelligence Ministry is completed."];
     }
     my $costs = $building->training_costs;

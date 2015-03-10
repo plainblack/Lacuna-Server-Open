@@ -68,8 +68,8 @@ sub accept_from_market {
 
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->level > 0;
-    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->efficiency == 100;
+    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->effective_level > 0;
+    confess [1013, 'You cannot use a mercenaries guild that is not fully operational.'] unless $building->effective_efficiency == 100;
 
     my $int_min = $building->body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');
     unless (defined($int_min) and $int_min->spy_count < $int_min->max_spies) {
@@ -137,8 +137,8 @@ sub add_to_market {
     my ($self, $session_id, $building_id, $spy_id, $ask, $ship_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
-    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->level > 0;
-    my $cost = sprintf "%.1f", 3 - $building->level * 0.1;
+    confess [1013, 'You cannot use a mercenaries guild that has not yet been built.'] unless $building->effective_level > 0;
+    my $cost = sprintf "%.1f", 3 - $building->effective_level * 0.1;
     unless ($empire->essentia >= $cost) {
         confess [1011, "You need $cost essentia to make a trade using the Mercenaries Guild."];
     }

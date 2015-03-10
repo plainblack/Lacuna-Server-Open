@@ -163,7 +163,7 @@ The unique id of the platform you wish to abandon.
 
 
 
-=head2 mass_abandon_platform ( session_id, building_id, ship_ids )
+=head2 mass_abandon_platform ( session_id, building_id )
 
 Destroy all platforms.
 

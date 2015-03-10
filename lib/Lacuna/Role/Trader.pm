@@ -122,6 +122,7 @@ sub check_payload {
             $ships_rs = $ships_rs->search({
                           id      => {'!=' => $transfer_ship->id},
                        });
+            $transfer_ship->task('Holding Trade Goods');
           }
           my @ships = $ships_rs->search->all;
           confess [1002, "You don't have ".$item->{quantity}." ships of type ".$item->{ship_type}." you only have ".scalar(@ships)] unless @ships && scalar(@ships) >= $item->{quantity};
@@ -201,7 +202,7 @@ sub structure_payload {
             when ('ship') {
                 if ($item->{ship_id}) {
                     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($item->{ship_id});
-                    $ship->task('Waiting On Trade');
+                    $ship->task('Offered For Trade');
                     $ship->update;
                     push @{$payload->{ships}}, $ship->id;
                     $meta{has_ship} = 1;

@@ -60,16 +60,16 @@ our $quiet;
   say "Adding to ".$body->name;
   for my $build (@$builds) {
     next if ($build->{level} < 1 or $build->{level} > 30);
-    my ($x, $y) = $body->find_free_space;
+#    my ($x, $y) = $body->find_free_space;
 #    next if $y > -1;
     my $bld = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
         body_id  => $body->id,
-        x        => $x,
-        y        => $y,
+        x        => $build->{x},
+        y        => $build->{y},
         class    => $build->{class},
         level    => $build->{level} - 1,
      });
-     say sprintf("%2d:%2d L:%2d %s", $x, $y, $bld->level, $bld->name);
+     say sprintf("%2d:%2d L:%2d %s", $bld->x, $bld->y, $bld->level, $bld->name);
      $body->build_building($bld);
      $bld->finish_upgrade;
   }

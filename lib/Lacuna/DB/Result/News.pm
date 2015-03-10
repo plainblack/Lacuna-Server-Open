@@ -17,6 +17,7 @@ __PACKAGE__->add_columns(
 sub sqlt_deploy_hook {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_zone_date_posted', fields => ['zone','date_posted']);
+    $sqlt_table->add_index(name => 'idx_date_posted', fields => ['date_posted']);
 }
 
 sub date_posted_formatted {

@@ -17,7 +17,7 @@ __PACKAGE__->add_columns(
     announcements           => { data_type => 'text', is_nullable => 1 },
     date_created            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     stash                   => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
-    image                   => { data_type => 'varchar', size => 255, is_nullable => 0, default => 'default' },
+    image                   => { data_type => 'varchar', size => 255, is_nullable => 0, default_value => 'default' },
 ); 
 
 __PACKAGE__->belongs_to('leader', 'Lacuna::DB::Result::Empire', 'leader_id', { on_delete => 'set null' });

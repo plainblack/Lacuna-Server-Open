@@ -12,7 +12,7 @@ after handle_arrival_procedures => sub {
   # do we have archaeology of level 11 or greater, if not, turn around
   my $body = $self->body;
   my $archaeology = $body->archaeology;
-  return unless ((defined $archaeology) && ($archaeology->level >= 11));
+  return unless ((defined $archaeology) && ($archaeology->effective_level >= 11));
 
   # can we deploy a excavator
   my $empire = $body->empire;
@@ -50,7 +50,7 @@ after can_send_to_target => sub {
     confess [1009, 'Can only be sent to asteroids and habitable planets.'] if ($target->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant'));
     my $archaeology = $self->body->archaeology;
     confess [1013, 'Cannot control excavators without an Archaeology.'] unless (defined $archaeology);
-    confess [1013, 'Your Archaeology Ministry must be level 11 or higher in order to send excavators.'] unless ($archaeology->level >= 11);
+    confess [1013, 'Your Archaeology Ministry must be level 11 or higher in order to send excavators.'] unless ($archaeology->effective_level >= 11);
     $archaeology->can_add_excavator($target);
     if ($target->star->station_id) {
         if ($target->star->station->laws->search({type => 'MembersOnlyExcavation'})->count) {

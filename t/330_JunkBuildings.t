@@ -24,7 +24,7 @@ my $home = $empire->home_planet;
 #$db->resultset('Lacuna::DB::Result::Building')->search({class=>'Lacuna::DB::Result::Building::Permanent::SpaceJunkPark'})->delete;
 #$db->resultset('Lacuna::DB::Result::Building')->search({class=>'Lacuna::DB::Result::Building::Permanent::PyramidJunkSculpture'})->delete;
 
-my $construction_cost_reduction_bonus = (100 - $empire->research_affinity * 5) / 100;
+my $construction_cost_reduction_bonus = (100 - $empire->effective_research_affinity * 5) / 100;
 diag("construction_cost_reduction_bonus is ", $construction_cost_reduction_bonus);
 
 my @builds = (

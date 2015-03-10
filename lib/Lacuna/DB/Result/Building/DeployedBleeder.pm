@@ -5,7 +5,10 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(randint);
+use List::Util qw(shuffle);
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH INFLATION);
+
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 use constant controller_class => 'Lacuna::RPC::Building::DeployedBleeder';
 
@@ -35,9 +38,45 @@ after finish_upgrade => sub {
     my $self = shift;
     $self->discard_changes;
 
-    if ($self->level < 30) {
-        $self->start_upgrade(undef, 1);
+    if ($self->level >= 30) {
+        my $body_mult = $self->body;
+        my ($x, $y) = eval{$body_mult->find_free_space};
+        my $place = 0;
+        if ($@) {
+            my ($building) = shuffle grep {
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::EssentiaVein') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::TheDillonForge') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Permanent::Fissure') and
+                    !($_->class =~ /^Lacuna::DB::Result::Building::LCOT/) and
+                    ($_->class ne 'Lacuna::DB::Result::Building::DeployedBleeder') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::PlanetaryCommand') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Module::StationCommand') and
+                    ($_->class ne 'Lacuna::DB::Result::Building::Module::Parliament')
+            }
+            @{$body_mult->building_cache};
+            if ($building) {
+                $place = 1;
+                $building->downgrade(1);
+            }
+        }
+        else {
+            $place = 1;
+            my $deployed = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+                class       => 'Lacuna::DB::Result::Building::DeployedBleeder',
+                x           => $x,
+                y           => $y,
+            });
+            $body_mult->build_building($deployed, 1);
+            $deployed->finish_upgrade;
+            $body_mult->needs_surface_refresh(1);
+            $body_mult->update;
+        }
+        if ($place) {
+            $self->level(29);
+            $self->update;
+        }
     }
+    $self->start_upgrade(undef, 1) if ($self->level < 30);
 };
 
 sub finish_upgrade_news
@@ -47,15 +86,6 @@ sub finish_upgrade_news
         my %levels = (5=>'shocked',10=>'stunned into silence',15=>'bewildered',20=>'dumbfounded',25=>'depressed',30=>'in great fear');
         $self->body->add_news($new_level*4,"Standing around %s, the citizens of %s watched as their %s grew on its own.", $levels{$new_level}, $empire->name, $self->name);
     }
-}
-
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    my $prod_level = $self->level;
-    my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
-    return $production;
 }
 
 sub cost_to_upgrade {

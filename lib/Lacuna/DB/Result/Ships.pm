@@ -25,8 +25,8 @@ __PACKAGE__->add_columns(
     shipyard_id             => { data_type => 'int', is_nullable => 0 },
     date_started            => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     date_available          => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
-    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # probe, colony_ship, spy_pod, cargo_ship, space_station, smuggler_ship, mining_platform_ship, terraforming_platform_ship, gas_giant_settlement_ship
-    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Docked, Building, Travelling, Mining, Defend, Orbiting
+    type                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Look at typecast_map below
+    task                    => { data_type => 'varchar', size => 30, is_nullable => 0 }, # Building, Defend, Docked, Mining, Orbiting, Supply Chain, Travelling, Waiting on Trade, and Waste Chain
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     speed                   => { data_type => 'int', is_nullable => 0 },
     stealth                 => { data_type => 'int', is_nullable => 0 },
@@ -39,8 +39,10 @@ __PACKAGE__->add_columns(
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
     fleet_speed             => { data_type => 'int', is_nullable => 0 },
     berth_level             => { data_type => 'int', is_nullable => 0 },
+    number_of_docks         => { data_type => 'int', is_nullable => 1 },
 );
 __PACKAGE__->typecast_map(type => {
+    'attack_group'                          => 'Lacuna::DB::Result::Ships::AttackGroup', #attack ships combined into one group.
     'probe'                                 => 'Lacuna::DB::Result::Ships::Probe',
     'stake'                                 => 'Lacuna::DB::Result::Ships::Stake',
     'supply_pod'                            => 'Lacuna::DB::Result::Ships::SupplyPod',
@@ -226,7 +228,18 @@ sub handle_arrival_procedures {
 
 sub note_arrival {
     my $self = shift;
-    Lacuna->cache->increment($self->type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
+
+    my $type = $self->type;
+    if ($type eq "attack_group") {
+        my $payload = $self->payload;
+        for my $key (keys %{$payload->{fleet}}) {
+            Lacuna->cache->increment($payload->{fleet}->{$key}->{type}.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id,
+                                     $self->body->empire_id,1, 60*60*24*30);
+        }
+    }
+    else {
+        Lacuna->cache->increment($type.'_arrive_'.$self->foreign_body_id.$self->foreign_star_id, $self->body->empire_id,1, 60*60*24*30);
+    }
 }
 
 sub is_available {
@@ -294,6 +307,7 @@ sub get_status {
         payload         => $self->format_description_of_payload,
         can_scuttle     => ($self->task eq 'Docked') ? 1 : 0,
         can_recall      => ($self->task ~~ [qw(Defend Orbiting)]) ? 1 : 0,
+        number_of_docks => $self->number_of_docks,
     );
     if ($target) {
         $status{estimated_travel_time} = $self->calculate_travel_time($target);
@@ -374,6 +388,17 @@ sub send {
     $self->roundtrip($options{roundtrip} || 0);
     $self->direction($options{direction} || 'out');
     my $arrival = $options{arrival} || DateTime->now->add(seconds=>$self->calculate_travel_time($options{target}));
+
+    my $five_minute = DateTime->now->add(minutes=>5);
+    if ($arrival < $five_minute) {
+        $arrival = $five_minute;
+    }
+
+    my $two_months  = DateTime->now->add(days=>60);
+    if ($arrival > $two_months) {
+        confess [1009, "Cannot set a speed that will take over 60 days."];
+    }
+
     $self->date_available($arrival);
 
     if ($options{target}->isa('Lacuna::DB::Result::Map::Body')) {
@@ -393,6 +418,148 @@ sub send {
         confess [1002, 'You cannot send a ship to a non-existant target.'];
     }
     $self->update;
+
+    my @ag_list = ("sweeper","snark","snark2","snark3",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seeker",
+                   "scanner","surveyor","detonator","bleeder","thud",
+                   "scow","scow_large","scow_fast","scow_mega", "attack_group");
+    my $cnt = 0;
+    my %ag_hash = map { $_ => $cnt++ } @ag_list;
+    my $time2arrive = DateTime->now->subtract_datetime_absolute($arrival);
+    my $seconds2arrive = $time2arrive->seconds;
+    my $sec_rng = 900;
+    if ($seconds2arrive < 1200) {
+        $sec_rng = int($seconds2arrive * 2/3);
+    }
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $start_range = DateTime->now->add(seconds => ($seconds2arrive - $sec_rng));
+    my $end_range = DateTime->now->add(seconds => ($seconds2arrive + $sec_rng));
+    my $ships_rs;
+    my $ag_chk = 0;
+    if ( grep { $self->type eq $_ } @ag_list ) {
+        $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
+            id      => { '!=' => $self->id },
+            body_id => $self->body_id,
+            foreign_body_id => $self->foreign_body_id,
+            direction => 'out',
+            task    => 'Travelling',
+            type => { 'in' => \@ag_list },
+            date_available => { between => [ $dtf->format_datetime($start_range),
+                                             $dtf->format_datetime($end_range) ] },
+        });
+        $ag_chk += $ships_rs->get_column('number_of_docks')->sum;
+    }
+
+    if ($seconds2arrive > 300 && $ag_chk > 1) {
+        my $payload = $self->payload;
+#        $payload->{debug} = {
+#            old_type => $self->type,
+#            count    => $ships_rs->count,
+#            start_rng => $dtf->format_datetime($start_range),
+#            end_rng => $dtf->format_datetime($end_range),
+#            seconds => $seconds2arrive,
+#        };
+        if ($self->type eq "attack_group") { #Turn ship into attack group if not already one
+#            $payload = $self->payload;
+#            $payload->{debug}->{extra} = "already ag";
+        }
+        else {
+            my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $ag_hash{$self->type},
+                              $self->type, 
+                              $self->combat, 
+                              $self->speed, 
+                              $self->stealth, 
+                              $self->hold_size);
+            $payload->{fleet}->{$key} = {
+                type      => $self->type, 
+                speed     => $self->speed, 
+                combat    => $self->combat, 
+                stealth   => $self->stealth, 
+                hold_size => $self->hold_size,
+                target_building => $self->target_building,
+                quantity  => 1,
+            };
+            $self->type("attack_group");
+            $self->update;
+        }
+        my $date_available = $self->date_available;
+        my $attack_group = {
+            speed     => $self->speed, 
+            stealth   => $self->stealth, 
+            hold_size => $self->hold_size,
+            combat    => $self->combat, 
+            target_building => $self->target_building,
+            number_of_docks => $self->number_of_docks,
+        };
+        while (my $ship = $ships_rs->next) {
+            next if ($ship->id == $self->id);
+            if ($ship->speed < $attack_group->{speed}) {
+                $attack_group->{speed} = $ship->speed;
+            }
+            if ($ship->speed < $attack_group->{stealth}) {
+                $attack_group->{stealth} = $ship->stealth;
+            }
+            $attack_group->{combat} += $ship->combat;
+            $attack_group->{hold_size} += $ship->hold_size; #This really is only good for scows
+            $attack_group->{number_of_docks} += $ship->number_of_docks;
+            if ($ship->type eq "attack_group") {
+                if ($ship->payload->{resources}->{waste}) {
+                    if ($payload->{resources}->{waste}) {
+                        $payload->{resources}->{waste} += $ship->payload->{resources}->{waste};
+                    }
+                    else {
+                        $payload->{resources}->{waste} = $ship->payload->{resources}->{waste};
+                    }
+                }
+                for my $key (keys %{$ship->payload->{fleet}}) {
+                    if ($payload->{fleet}->{$key}) {
+                        $payload->{fleet}->{$key}->{quantity} += $ship->payload->{fleet}->{$key}->{quantity};
+                    }
+                    else {
+                        %{$payload->{fleet}->{$key}} = %{$ship->payload->{fleet}->{$key}};
+                    }
+                }
+            }
+            else {
+                my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $ag_hash{$ship->type},
+                              $ship->type, 
+                              $ship->combat, 
+                              $ship->speed, 
+                              $ship->stealth, 
+                              $ship->hold_size);
+                if ($payload->{fleet}->{$key}) {
+                    $payload->{fleet}->{$key}->{quantity}++;
+                }
+                else {
+                    $payload->{fleet}->{$key} = {
+                        type      => $ship->type, 
+                        speed     => $ship->speed, 
+                        combat    => $ship->combat, 
+                        stealth   => $ship->stealth, 
+                        hold_size => $ship->hold_size,
+                        target_building => $self->target_building,
+                        quantity  => 1,
+                    };
+                }
+            }
+            if ($ship->date_available > $date_available) {
+                $date_available = $ship->date_available;
+            }
+            $ship->delete;
+        }
+        $self->name("Attack Group Ship");
+        $self->speed($attack_group->{speed});
+        $self->combat($attack_group->{combat});
+        $self->stealth($attack_group->{stealth});
+        $self->payload($payload);
+        $self->hold_size($attack_group->{hold_size});
+        $self->number_of_docks($attack_group->{number_of_docks});
+        $self->berth_level(1);
+        $self->date_available($date_available);
+        $self->update;
+    }
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $arrival,
@@ -433,6 +600,16 @@ sub finish_construction {
     $schedule->delete if defined $schedule;
 
     return $self;
+}
+
+sub cancel_build {
+    my ($self) = @_;
+
+    if ($self->task eq 'Building') {
+        $self->reschedule_queue;
+        $self->delete;
+    }
+    return;
 }
 
 
@@ -546,7 +723,9 @@ sub travel_time {
     $speed ||= 1;
     my $hours = $distance / $speed;
     my $seconds = 60 * 60 * $hours;
-    $seconds = 1 if $seconds < 1;
+    $seconds += 300;
+#    $seconds = 1 if $seconds < 1;
+    $seconds = 300 if $seconds < 300; #minimum time for flights
     return sprintf('%.0f', $seconds);
 }
 

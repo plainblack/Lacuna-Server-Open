@@ -1,6 +1,6 @@
 We're Under Attack!!!
 ~~~
-We just tracked a %s as it broke through the atmosphere and struck the %s on {Planet %s %s}. From the wreckage it looks like it came from {Empire %s %s}.
+We just tracked a %s as it broke through the atmosphere of {Planet %s %s} and struck. From the wreckage it looks like it came from {Empire %s %s}.
 
 Regards,
 

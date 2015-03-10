@@ -82,7 +82,7 @@ has training_multiplier => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $multiplier = $self->level;
+        my $multiplier = $self->effective_level;
         $multiplier = 1 if $multiplier < 1;
         return $multiplier;
     }

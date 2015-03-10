@@ -90,6 +90,10 @@ __PACKAGE__->add_columns(
     latest_message_id       => { data_type => 'int',  is_nullable => 1 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
     chat_admin              => { data_type => 'int', default_value => 0 },
+    in_stasis               => { data_type => 'tinyint', default_value => 0 },
+    timeout                 => { data_type => 'tinyint', default_value => 0 },
+    outlaw                  => { data_type => 'tinyint', default_value => 0 },
+    outlaw_date             => { data_type => 'datetime', is_nullable => 0, default_value => "2010-10-03 18:17:26" },
 );
 
 sub sqlt_deploy_hook {
@@ -114,6 +118,54 @@ __PACKAGE__->has_many('sent_messages',      'Lacuna::DB::Result::Message',      
 __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      'to_id');
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
+__PACKAGE__->has_many('bodies',             'Lacuna::DB::Result::Map::Body',    'empire_id');
+
+for my $affin (qw(
+    manufacturing_affinity
+    deception_affinity
+    research_affinity
+    management_affinity
+    farming_affinity
+    mining_affinity
+    science_affinity
+    environmental_affinity
+    political_affinity
+    trade_affinity
+    growth_affinity
+    )) 
+{
+    my $builder = "_build_effective_$affin";
+    my $clearer = "clear_effective_$affin";
+    has "effective_$affin" =>
+        is   => 'rw',
+        isa  => 'Int',
+        lazy => 1,
+        builder => $builder,
+        clearer => $clearer;
+
+    __PACKAGE__->meta->add_method($builder => sub {
+        my $self = shift;
+
+        # for future work, we may allow temporary affinity boosts/penalties.
+        return $self->$affin;
+    });
+
+    around $affin => sub {
+        my ($orig, $self) = (shift, shift);
+        if (@_)
+        {
+            # if we're setting the affinity, clear the effective affinity
+            # to force a recalc of the affinity.
+            $self->$orig(@_);
+            $self->$clearer();
+        }
+        else
+        {
+            $self->$orig;
+        }
+    };
+}
+
 
 
 sub observatory_probes {
@@ -359,6 +411,9 @@ sub _adjust_essentia {
                     $self->$type(0);
                 }
             }
+            if ($residual < 0) {
+                $self->essentia_free($self->essentia_free + $residual);
+            }
         }
         else {
             $self->$type($residual);
@@ -482,14 +537,14 @@ sub get_status {
         self_destruct_date  => $self->self_destruct_date_formatted,
         primary_embassy_id  => $embassy_id,
     };
+    $status->{alliance_id} = $self->alliance_id if $self->alliance_id;
     return $status;
 }
 
 sub start_session {
     my ($self, $options) = @_;
     if (   $options
-        && $options->{api_key}
-        && $options->{api_key} ne 'admin_console' )
+        && !$options->{is_admin} )
     {
         $self->last_login(DateTime->now);
         $self->update;
@@ -890,13 +945,16 @@ sub add_observatory_probe {
     })->insert;
     
     # send notifications
-    # this could be a performance problem in the future depending upon the number of probes in a star system
     my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
-    # Get all systems that are probed (real or virtual)
-    my $probes = Lacuna->db->resultset('Probes')->search_any({ star_id => $star_id, empire_id => {'!=', $self->id } });
-    while (my $probe = $probes->next) {
-        my $that_empire = $probe->empire;
-        next unless defined $that_empire;
+    # Get all empires to be notified that have probes (real or virtual)
+    my %to_notify = map { $_->empire_id => 1 } Lacuna->db->resultset('Probes')
+                                               ->search_any({
+                                                   star_id => $star_id,
+                                                   empire_id => {'!=', $self->id }
+                                               });
+    for my $eid (keys %to_notify) {
+        my $that_empire = Lacuna->db->resultset('Empire')->find($eid);
+        next unless $that_empire;
         if (!$that_empire->skip_probe_detected) {
             $that_empire->send_predefined_message(
                 filename    => 'probe_detected.txt',
@@ -912,15 +970,46 @@ sub add_observatory_probe {
 }
 
 sub next_colony_cost {
-    my ($self, $adjustment) = @_;
-    my $count = $self->planets->count + $adjustment;
-    $count += Lacuna->db->resultset('Ships')->search(
-        { type=> { in => [qw(colony_ship short_range_colony_ship space_station)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
-        { join => 'body' }
-    )->count;
-    my $inflation = 1 + INFLATION - ($self->growth_affinity * 5 / 100);
-#    my $inflation = 1 + INFLATION - ($self->growth_affinity / 100);
-    my $tally = 100_000 * ($inflation**($count-1));
+    my ($self, $type, $adjustment) = @_;
+
+    $adjustment = 0 unless defined $adjustment;
+    my $tally;
+    if ($type eq "colony_ship" or $type eq "short_range_colony_ship" or $type eq "spy") {
+        my $count = $self->planets->search({ class => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' }})->count;
+        $count += Lacuna->db->resultset('Ships')->search(
+            { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
+            { join => 'body' }
+        )->count;
+        my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
+        my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
+        $tally = 100_000 * ($inflation**($count-1));
+        my $max = 2_700_000_000_000_000 / (1 + (($srcs + $self->effective_growth_affinity * 5) / 100));
+        $max *= 250 if $type eq "spy";
+        $tally = $max if $tally > $max;
+    }
+    elsif ($type eq "space_station" and $self->alliance_id) {
+        my $count = $self->alliance->stations->count;
+        my @allies = Lacuna->db->resultset('Empire')->search(
+            {
+                alliance_id => $self->alliance_id,
+            })->get_column('id')->all;
+        $count += Lacuna->db->resultset('Ships')->search(
+            {
+                type=> 'space_station',
+                task=>'Travelling',
+                direction=>'out',
+                'body.empire_id' => { in => \@allies}
+            },
+            { join => 'body' }
+        )->count;
+        my $inflation = 1 + INFLATION - (($self->effective_growth_affinity * 15) / 100);
+        $tally = 250_000 * ($inflation**($count-1));
+        my $max = 202_500_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
+        $tally = $max if $tally > $max;
+    }
+    else {
+        $tally = 10_000_000_000_000_000_000;
+    }
     return sprintf('%.0f', $tally);
 }
 
@@ -969,10 +1058,15 @@ before delete => sub {
     Lacuna->db->resultset('AllianceInvite')->search({empire_id => $self->id})->delete;
     if ($self->alliance_id) {
         my $alliance = $self->alliance;
-        if (defined $alliance && $alliance->leader_id == $self->id) {
-            my @members = $alliance->members;
-            if (scalar @members == 1) {
-                $alliance->delete;
+        if (defined $alliance) {
+            if ( $alliance->leader_id == $self->id) {
+                my @members = $alliance->members;
+                if (scalar @members == 1) {
+                    $alliance->delete;
+                }
+                else {
+                  $alliance->remove_member($self, 1);
+                }
             }
             else {
                 $alliance->remove_member($self, 1);
@@ -984,7 +1078,7 @@ before delete => sub {
     $self->medals->delete;
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
-        $planet->sanitize;
+        $planet->sanitize if ($planet->empire_id == $self->id); #In case of a cached space station
     }
     my $essentia_log = Lacuna->db->resultset('Log::Essentia');
     my $essentia_code;
@@ -1108,7 +1202,7 @@ sub highest_embassy {
             body_id         => { "!="  => $excluding_body_id },
         });
     }
-    my ($embassy) = $search_rs->search;
+    my $embassy = $search_rs->search->first;
 
     return $embassy;
 }

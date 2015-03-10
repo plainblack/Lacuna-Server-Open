@@ -88,8 +88,6 @@ for my $body_id (sort keys %has_fissures) {
                     fissure_level($body, $fissure);
 #Level fissure, Send minor alert $body_alert = level achieved.
                     my $range = ($fissure->level * 5) * $fissure_cnt;
-                    $range = 120 if $range > 120;
-                    $range = 25 if $range < 25;
                     if ($body_alert{$body_id}) {
                         $body_alert{$body_id}->{range} = $range
                             if ($body_alert{$body_id}->{range} < $range);
@@ -122,8 +120,6 @@ for my $body_id (sort keys %has_fissures) {
         if ($max_fissures == $fissure_cnt) {
             fissure_spawn($body);
             my $range = 30 * $fissure_cnt;
-            $range = 120 if $range > 120;
-            $range = 25 if $range < 25;
             $body_alert{$body_id} = {
                 range => $range,
                 type  => "spawn",
@@ -150,6 +146,8 @@ exit;
 sub fissure_alert {
     my ($body, $range, $type)  = @_;
 
+    $range =  25 if ($range <  25);
+    $range = 120 if ($range > 120);
     my $minus_x = 0 - $body->x;
     my $minus_y = 0 - $body->y;
     my $alert = Lacuna->db->resultset('Map::Body')->search({
@@ -165,8 +163,19 @@ sub fissure_alert {
         ],
         order_by    => 'distance',
     });
+    my $number_to_alert = 25;;
+    if ($type eq "level") {
+        $number_to_alert = 10;;
+    }
+    elsif ($type eq "spawn") {
+        $number_to_alert = 25;;
+    }
+    elsif ($type eq "critical") {
+        $number_to_alert = 15;;
+    }
     my %already;
     while (my $to_alert = $alert->next) {
+        last if ($number_to_alert-- < 1);
         my $distance = $to_alert->get_column('distance');
         last if ($distance > $range);
         my $eid = $to_alert->empire_id;

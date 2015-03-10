@@ -55,7 +55,7 @@ after sanitize => sub {
     my $self = shift;
     $self->update({
         size        => randint(1,10),
-        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,21),
+        class       => 'Lacuna::DB::Result::Map::Body::Asteroid::A21',
         alliance_id => undef,
     });
 };
@@ -138,7 +138,7 @@ sub _build_total_influence {
             $building->class eq 'Lacuna::DB::Result::Building::Module::CulinaryInstitute' or
             $building->class eq 'Lacuna::DB::Result::Building::Module::ArtMuseum'
             ) {
-            $influence += $building->level;
+            $influence += $building->effective_level;
         }
     }
     return $influence;
@@ -170,7 +170,7 @@ sub _build_range_of_influence {
     my $range = 0;
     my ($ibs) = grep {$_->class eq 'Lacuna::DB::Result::Building::Module::IBS'} @{$self->building_cache};
     if (defined $ibs) {
-        $range = $ibs->level * 1000;
+        $range = $ibs->effective_level * 1000;
     }
     return $range;
 }

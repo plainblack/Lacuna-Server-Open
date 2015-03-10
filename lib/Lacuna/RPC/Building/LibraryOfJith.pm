@@ -26,7 +26,7 @@ sub research_species {
         confess [1010, 'The researchers are busy now. Come back later.'];
     }
 
-    $building->start_work({}, 15 + ((60 * 60) * ((30-$building->level)/30)));
+    $building->start_work({}, 15 + ((60 * 60) * ((30-$building->effective_level)/30)));
 
     return {
         status  => $self->format_status($empire, $building->body),

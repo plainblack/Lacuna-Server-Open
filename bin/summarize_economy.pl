@@ -85,7 +85,7 @@ sub summarize {
                     $today->purchases_1300( $today->purchases_1300 + 1);
                 }
             }
-            when ('Essentia Vein') {
+            when (/Essentia Vein/) {
                 $today->in_vein( $today->in_vein + $entry->amount);            
             }
             when ('tutorial') {

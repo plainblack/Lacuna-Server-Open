@@ -7,6 +7,7 @@ use Lacuna::Constants qw(GROWTH);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 around 'build_tags' => sub {
   my ($orig, $class) = @_;
@@ -28,7 +29,7 @@ before 'can_demolish' => sub {
   my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform'} @{$body->building_cache};
   foreach my $gg_bld (@buildings) {
     $gg_cnt++;
-    $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
+    $gg_plots += int($gg_bld->effective_level * $gg_bld->effective_efficiency/100);
   }
   return if ($gg_cnt <= 1); # If we only have the one platform, they can destroy it.
   my $bld_count = $body->building_count;
@@ -36,7 +37,7 @@ before 'can_demolish' => sub {
   if ($excess_plots < 0) {
     confess [1013, 'Your Gas Giant shows that you are at negative plots.'];
   }
-  if ($excess_plots < int($self->level * $self->efficiency/100) ) {
+  if ($excess_plots < int($self->effective_level * $self->effective_efficiency/100) ) {
     confess [1013, 'You need to demolish a building before you can demolish this Gas Giant Settlement Platform.'];
   }
 };
@@ -51,7 +52,7 @@ before 'can_downgrade' => sub {
   my @buildings = grep {$_->class eq 'Lacuna::DB::Result::Building::Permanent::GasGiantPlatform'} @{$body->building_cache};
   foreach my $gg_bld (@buildings) {
     $gg_cnt++;
-    $gg_plots += int($gg_bld->level * $gg_bld->efficiency/100);
+    $gg_plots += int($gg_bld->effective_level * $gg_bld->effective_efficiency/100);
   }
   my $bld_count = $body->building_count;
   my $excess_plots = $gg_plots - $bld_count;
@@ -74,15 +75,6 @@ before has_special_resources => sub {
     }
   }
 };
-
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    my $prod_level = $self->level;
-    my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
-    return $production;
-}
 
 use constant name => 'Gas Giant Settlement Platform';
 

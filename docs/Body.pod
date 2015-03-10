@@ -46,6 +46,8 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         
         "needs_surface_refresh" : 1, # indicates that the client needs to call get_buildings() because something has changed
         "building_count" : 7,
+        "build_queue_size" : 15, # can build 15 at once
+        "build_queue_len" : 10,  # have 10 building now
         "plots_available" :60,
         "happiness" : 3939,
         "happiness_hour" : 25,

@@ -27,13 +27,13 @@ sub _where
     elsif ($id =~ /[%_]/) {
         $where{$type} = { like => $id };
     }
-    # or just the name (hopefully no names are purely numeric)
-    elsif ($id =~ /\D/) {
-        $where{$type} = $id;
-    }
     # or the numeric ID (probably most useful for testing)
-    else {
+    elsif ($id =~ /^#?-?\d+$/) {
         $where{id} = $id;
+    }
+    # or just the name (hopefully no names are purely numeric)
+    else {
+        $where{$type} = $id;
     }
     \%where;
 }
@@ -92,6 +92,17 @@ sub buildings {
     $self->resultset('Building')->search($where);
 }
 
+sub ship {
+    my ($self, $building_id) = @_;
+    $self->resultset('Ships')->find($building_id);
+}
+
+
+sub ships {
+    my ($self, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset('Ships')->search($where);
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -9,6 +9,8 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH);
 
 use constant controller_class => 'Lacuna::RPC::Building::SupplyPod';
 
+with 'Lacuna::Role::Building::IgnoresUniversityLevel';
+
 around can_build => sub {
     my ($orig, $self, $body) = @_;
     if ($body->get_plan(__PACKAGE__, 1)) {
@@ -37,6 +39,15 @@ after finish_upgrade => sub {
     $self->start_work({}, 60 * 60 * 24)->update;
 };
 
+sub finish_upgrade_news
+{
+    my ($self, $new_level, $empire) = @_;
+    if ($new_level % 5 == 0) {
+        my %levels = (5=>'a small',10=>'a',15=>'a large',20=>'a huge',25=>'a gigantic',30=>'a Tardis-branded');
+        $self->body->add_news($new_level*4,"The citizens of %s cheered as %s supply pod full of supplies survived a crash landing today.", $empire->name, $levels{$new_level});
+    }
+}
+
 after finish_work => sub {
     my $self = shift;
     my $body = $self->body;
@@ -45,15 +56,6 @@ after finish_work => sub {
     $body->update;
     $self->update({class=>'Lacuna::DB::Result::Building::Permanent::Crater'});
 };
-
-sub production_hour {
-    my $self = shift;
-    return 0 unless  $self->level;
-    my $prod_level = $self->level;
-    my $production = (GROWTH ** (  $prod_level - 1));
-    $production = ($production * $self->efficiency) / 100;
-    return $production;
-}
 
 # allow demolishing even when working
 sub can_demolish {

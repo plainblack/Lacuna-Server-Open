@@ -64,6 +64,7 @@ my $inactives = $empires->search({
     last_login           => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, 
     self_destruct_active => 0, 
     id                   => { '>' => 1},
+    is_admin             => 0,
 #    disable_self_destruct=> 0,
 });
 while (my $empire = $inactives->next) {

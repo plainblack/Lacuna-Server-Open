@@ -52,7 +52,7 @@ use constant water_storage => 300;
 
 before 'can_downgrade' => sub {
   my $self = shift;
-  my $max_level = 15 + int(($self->level-1)/3);
+  my $max_level = 15 + int(($self->effective_level-1)/3);
   if ($self->body->empire->university_level > 25) {
     $max_level += ($self->body->empire->university_level - 25);
   }
@@ -89,7 +89,7 @@ before 'can_demolish' => sub {
 
 sub extra_resource_levels {
     my $self = shift;
-    return int($self->level / 3);
+    return int($self->effective_level / 3);
 }
 
 no Moose;
