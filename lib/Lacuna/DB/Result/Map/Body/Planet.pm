@@ -6,7 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
-use List::Util qw(shuffle max min);
+use List::Util qw(shuffle max min none);
 use Lacuna::Util qw(randint format_date random_element);
 use DateTime;
 use Data::Dumper;
@@ -752,9 +752,7 @@ sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
     my $y = int( $unclean_y );
-    my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
-    return 0 if $count > 0;
-    return 1;
+    return none {$_->x == $x and $_->y == $y} @{$self->building_cache};
 }
 
 sub find_free_spaces
@@ -799,7 +797,7 @@ EOSQL
 
     my $o = $sth->fetchall_arrayref;
 
-    if ($size > 1)
+    if ($size > 1 && @$o)
     {
         my (@x_offsets,@y_offsets);
 
