@@ -712,7 +712,13 @@ sub view_public_profile {
         };
     }
     my @colonies;
-    my $probes = Lacuna->db->resultset('Probes')->search_any({empire_id => $viewer_empire->id});
+    my $probes = Lacuna->db->resultset('Probes');
+
+    if ($viewer_empire->alliance_id) {
+        $probes = $probes->search_any({ alliance_id => $viewer_empire->alliance_id });
+    } else {
+        $probes = $probes->search_any({ empire_id => $viewer_empire->id });
+    }
     my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
     while (my $colony = $planets->next) {
         if ($colony->id == $viewed_empire->home_planet_id || $probes->search({star_id=>$colony->star_id})->count) {

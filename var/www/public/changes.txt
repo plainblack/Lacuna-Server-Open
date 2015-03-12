@@ -35,6 +35,7 @@
  - Mod: Warnings about fissures shouldn't bother as many out of range.
  - Mod: Split happiness cost calculation with SS & Colonies.
  - Mod: SS Plans get cheaper packaging, level of SS Lab matters.
+ - Fix: Known colonies includes allied knowledge.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.
