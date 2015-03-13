@@ -308,6 +308,7 @@ sub send_ship_types {
         my $type        = $type_param->{type};
         my $quantity    = $type_param->{quantity};
         confess [1009, "Cannot send more than one excavator"] if ($type eq 'excavator' and $quantity > 1);
+        confess [1009, "Cannot send more than one supply pod"] if ($type =~ /supply_pod/ and $quantity > 1);
 
         my $max_berth = $body->max_berth;
         unless ($max_berth) {
@@ -456,25 +457,25 @@ sub send_fleet {
   my $target = $self->find_target($target_params);
   my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
   if (@$ship_ids > $max_ships) {
-    confess [1009, 'Too many ships for a fleet.'];
+      confess [1009, 'Too many ships for a fleet.'];
   }
   my @fleet;
   my $speed = 999999999;
 
   my $excavator = 0;
+  my $supply_pod = 0;
   for my $ship_id (@$ship_ids) {
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    unless (defined $ship) {
-      confess [1002, 'Could not locate that ship.'];
-    }
-    unless ($ship->body->empire_id == $empire->id) {
-      confess [1010, 'You do not own that ship.'];
-    }
-    if ($ship->type eq 'excavator') {
-      $excavator++;
-    }
-    $speed = $ship->speed if ( $speed > $ship->speed );
-    push @fleet, $ship_id;
+      my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+      unless (defined $ship) {
+          confess [1002, 'Could not locate that ship.'];
+      }
+      unless ($ship->body->empire_id == $empire->id) {
+          confess [1010, 'You do not own that ship.'];
+      }
+      $excavator++ if ($ship->type eq 'excavator');
+      $supply_pod++ if ($ship->type =~ /supply_pod/);
+      $speed = $ship->speed if ( $speed > $ship->speed );
+      push @fleet, $ship_id;
   }
 
   my $tmp_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($fleet[0]);
@@ -485,20 +486,20 @@ sub send_fleet {
   $min_speed = 1 if $min_speed < 1;
 
   unless ($excavator <= 1) {
-    confess [1010, 'Only one Excavator may be sent to a body by this empire.'];
+      confess [1010, 'Only one Excavator may be sent to a body by this empire.'];
   }
   unless ($set_speed <= $speed) {
-    confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
+      confess [1009, 'Set speed cannot exceed the speed of the slowest ship.'];
   }
   unless ($set_speed >= 0) {
-    confess [1009, 'Set speed cannot be less than zero.'];
+      confess [1009, 'Set speed cannot be less than zero.'];
   }
 #If time to target is longer than 60 days, fail.
   $speed = $set_speed if ($set_speed > 0 && $set_speed < $speed);
   $speed = $max_speed if ($speed > $max_speed);
 
   unless ($speed >= $min_speed) {
-    confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
+      confess [1009, 'Set speed cannot be set so that ships arrive after 60 days.'];
   }
 
   my @ret;
@@ -508,24 +509,24 @@ sub send_fleet {
 # Create attack_group
 
   for my $ship_id (@fleet) {
-    my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
-    my $body = $ship->body;
-    $body->empire($empire);
-    $ship->can_send_to_target($target);
-    if ($captcha_check && $ship->hostile_action ) {
-      $empire->current_session->check_captcha;
-      $captcha_check = 0;
-    }
-    $body->add_to_neutral_entry($ship->combat);
-    $ship->fleet_speed($speed);
-    $ship->send(target => $target);
-    push @ret, {
-      ship    => $ship->get_status,
-    }
+      my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
+      my $body = $ship->body;
+      $body->empire($empire);
+      $ship->can_send_to_target($target);
+      if ($captcha_check && $ship->hostile_action ) {
+          $empire->current_session->check_captcha;
+          $captcha_check = 0;
+      }
+      $body->add_to_neutral_entry($ship->combat);
+      $ship->fleet_speed($speed);
+      $ship->send(target => $target);
+      push @ret, {
+          ship    => $ship->get_status,
+      }
   }
   return {
-    fleet  => \@ret,
-    status  => $self->format_status($empire),
+      fleet  => \@ret,
+      status  => $self->format_status($empire),
   };
 }
 
