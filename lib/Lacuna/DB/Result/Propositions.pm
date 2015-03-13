@@ -176,6 +176,7 @@ sub get_status {
         votes_no    => $self->votes_no,
         status      => $self->status,
         date_ends   => $self->date_ends_formatted,
+        station     => $self->station->name,
         proposed_by => {
             id      => $self->proposed_by->id,
             name    => $self->proposed_by->name,

@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES);
+use Guard qw(guard);
 
 sub app_url {
     return '/embassy';
@@ -231,7 +232,71 @@ sub exchange_with_stash {
     return $self->view_stash($empire, $building);
 }
 
-__PACKAGE__->register_rpc_method_names(qw(exchange_with_stash view_stash donate_to_stash expel_member update_alliance get_pending_invites get_my_invites assign_alliance_leader create_alliance dissolve_alliance send_invite accept_invite withdraw_invite reject_invite leave_alliance get_alliance_status));
+sub view_propositions {
+    my ($self, $session_id, $building_id) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $building = $self->get_building($empire, $building_id);
+    my @out;
+    my $propositions = $building->propositions->search({ status => 'Pending'});
+    while (my $proposition = $propositions->next) {
+        $proposition->check_status;
+        push @out, $proposition->get_status($empire);
+    }
+    return {
+        status          => $self->format_status($empire, $building->body),
+        propositions    => \@out,
+    };
+}
+
+sub cast_vote {
+    my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+
+    my $building = $self->get_building($empire, $building_id);
+    my $cache = Lacuna->cache;
+    my $lock = 'vote_lock_'.$empire->id;
+    if ($cache->get($lock, $proposition_id)) {
+        confess [1013, 'You already have a vote in process for this proposition.'];
+    }
+    $cache->set($lock,$proposition_id,1,5);
+    my $guard = guard {$cache->delete($lock,$proposition_id);};
+    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->find($proposition_id);
+    unless (defined $proposition) {
+        confess [1002, 'Proposition not found.'];
+    }
+    if ($proposition->station->alliance_id != $empire->alliance_id) {
+        confess [1003, 'You cannot vote for another alliances propositions!'];
+    }
+
+    $proposition->cast_vote($empire, $vote);
+    return {
+        status      => $self->format_status($empire, $building->body),
+        proposition => $proposition->get_status($empire),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(
+                                       exchange_with_stash
+                                       view_stash
+                                       donate_to_stash
+
+                                       expel_member
+                                       update_alliance
+                                       get_pending_invites
+                                       get_my_invites
+                                       assign_alliance_leader
+                                       create_alliance
+                                       dissolve_alliance
+                                       send_invite
+                                       accept_invite
+                                       withdraw_invite
+                                       reject_invite
+                                       leave_alliance
+                                       get_alliance_status
+
+                                       view_propositions
+                                       cast_vote
+                                       ));
 
 
 no Moose;

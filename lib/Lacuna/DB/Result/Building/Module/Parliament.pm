@@ -16,7 +16,7 @@ use constant energy_consumption =>  90;
 
 sub propositions {
     my ($self) = @_;
-    return Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->search({station_id => $self->body->id});
+    return Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->search({station_id => $self->body->id}, {prefetch => 'station'});
 }
 
 after downgrade => sub {

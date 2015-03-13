@@ -4,7 +4,6 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
-use Guard qw(guard);
 
 sub app_url {
     return '/parliament';
@@ -31,21 +30,9 @@ sub max_members {
     return ( $building->effective_level >= $embassy->effective_level ) ? 2 * $building->effective_level : 2 * $embassy->effective_level;
 }
 
-sub view_propositions {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my @out;
-    my $propositions = $building->propositions->search({ status => 'Pending'});
-    while (my $proposition = $propositions->next) {
-        $proposition->check_status;
-        push @out, $proposition->get_status($empire);
-    }
-    return {
-        status          => $self->format_status($empire, $building->body),
-        propositions    => \@out,
-    };
-}
+# this is moving to the new location, but keep it available here
+# until we're ready to remove it.
+*view_propositions = \&Lacuna::RPC::Building::Embassy::view_propositions;
 
 sub get_stars_in_jurisdiction {
     my ($self, $session_id, $building_id) = @_;
@@ -140,32 +127,9 @@ sub view_laws {
     }
 }
 
-sub cast_vote {
-    my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    
-    my $building = $self->get_building($empire, $building_id);
-    my $cache = Lacuna->cache;
-    my $lock = 'vote_lock_'.$empire->id;
-    if ($cache->get($lock, $proposition_id)) {
-        confess [1013, 'You already have a vote in process for this proposition.'];
-    }
-    $cache->set($lock,$proposition_id,1,5);
-    my $guard = guard {$cache->delete($lock,$proposition_id);};
-    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->find($proposition_id);
-    unless (defined $proposition) {
-        confess [1002, 'Proposition not found.'];
-    }
-    if ($proposition->station->alliance_id != $empire->alliance_id) {
-        confess [1003, 'You cannot vote for another alliances propositions!'];
-    }
-
-    $proposition->cast_vote($empire, $vote);
-    return {
-        status      => $self->format_status($empire, $building->body),
-        proposition => $proposition->get_status($empire),
-    };
-}
+# this is moving to the new location, but keep it available here
+# until we're ready to remove it.
+*cast_vote = \&Lacuna::RPC::Building::Embassy::cast_vote;
 
 sub propose_fire_bfg {
     my ($self, $session_id, $building_id, $body_id, $reason) = @_;
