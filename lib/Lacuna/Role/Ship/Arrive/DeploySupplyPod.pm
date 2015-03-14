@@ -23,7 +23,7 @@ after handle_arrival_procedures => sub {
     $self->body->empire->send_predefined_message(
          tags        => ['Alert'],
          filename    => 'no_space_for_ship.txt',
-         params      => [$self->name, $body->x, $body->y, $body->name, " a mid-air collision"],
+         params      => [$self->type, $body->x, $body->y, $body->name, " a mid-air collision"],
      );
     
     $body->add_news(10 ,"Humanitarian mission bound for %s lost during final entry", $body->name);
