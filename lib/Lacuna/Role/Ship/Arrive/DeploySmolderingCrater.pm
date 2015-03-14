@@ -20,7 +20,7 @@ after handle_arrival_procedures => sub {
             $self->body->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
                 filename    => 'no_space_for_ship.txt',
-                params      => [$self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name, " a space anomaly"],
+                params      => [$self->type, $body_attacked->x, $body_attacked->y, $body_attacked->name, " a space anomaly"],
             );
            
            $body_attacked->add_news(30 ,"No Trace of Ship Bound for %s - Mysterious Lacuna Quadrangle Blamed.", $body_attacked->name);
