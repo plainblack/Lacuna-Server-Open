@@ -17,7 +17,7 @@ after handle_arrival_procedures => sub {
             $self->body->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
                 filename    => 'no_space_for_ship.txt',
-                params      => [$self->name, $body_attacked->x, $body_attacked->y, $body_attacked->name, " failed heat shielding"],
+                params      => [$self->type, $body_attacked->x, $body_attacked->y, $body_attacked->name, " failed heat shielding"],
         );
         $body_attacked->add_news(40 ,"The naturally thick atmosphere saves the citizens of %s from certain doom. Thanks, Nature!", $body_attacked->name);
 	    
