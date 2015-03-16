@@ -42,7 +42,8 @@ sub init_chat {
         $aname =~ s/__*/_/g;
         $chat_name .= " (".$aname.")";
     }
-    if ($empire->alliance_id) {
+    if (0) {
+#    if ($empire->alliance_id) {
     	my $room = eval { $firebase->get('room-metadata/'.$empire->alliance_id) };
         if ($@) {
   	     warn bleep;
