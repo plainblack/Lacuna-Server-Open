@@ -282,7 +282,10 @@ sub send_ship_types {
     my $target  = $self->find_target($target_params);
     my $arrival;
     if ($arrival_params->{earliest}) {
-        $arrival = 0;
+    }
+    else {
+        $arrival_params->{seconds} = 0 unless (defined $arrival_params->{seconds});
+        $arrival = $self->find_arrival($arrival_params);
     }
 
     # calculate the total ships before the expense of any database operations.
@@ -343,7 +346,7 @@ sub send_ship_types {
 #If time to target is longer than 60 days, fail.
         my $seconds_to_target = $ship->calculate_travel_time($target);
         my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
-        if ($arrival == 0) {
+        if ($arrival_params->{earliest}) {
             $arrival = $earliest;
         }
         elsif ($earliest > $arrival) {
