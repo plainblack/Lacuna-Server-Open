@@ -307,6 +307,7 @@ sub send_ship_types {
         }
         my $type        = $type_param->{type};
         my $quantity    = $type_param->{quantity};
+        confess [1009, "You must send at least one ship"] if ($quantity < 1);
         confess [1009, "Cannot send more than one excavator"] if ($type eq 'excavator' and $quantity > 1);
         confess [1009, "Cannot send more than one supply pod"] if ($type =~ /supply_pod/ and $quantity > 1);
 
