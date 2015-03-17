@@ -1,5 +1,4 @@
 3.0909:
- - Add: Enable Alliance chat rooms.
  - Add: Admin UI to set alliance logo.
  - Add: Admin UI display more info on bodies & stars.
  - Fix: Only one notification per empire per star on probe detection.

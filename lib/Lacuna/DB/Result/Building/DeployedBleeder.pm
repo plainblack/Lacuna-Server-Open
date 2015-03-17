@@ -114,6 +114,7 @@ use constant energy_consumption => 250;
 use constant ore_consumption => 250;
 use constant water_consumption => 250;
 use constant waste_production => 1000;
+use constant happiness_consumption => 1000;
 
 
 no Moose;
