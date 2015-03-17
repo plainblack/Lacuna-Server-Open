@@ -86,7 +86,7 @@ __PACKAGE__->add_columns(
     skip_excavator_destroyed => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_replace_msg => { data_type => 'tinyint', default_value => 0 },
     dont_replace_excavator  => { data_type => 'tinyint', default_value => 0 },
-    has_new_messages        => { data_type => 'tinyint', default_value => 0 },
+    has_new_messages        => { data_type => 'int', size => 11, default_value => 0 },
     latest_message_id       => { data_type => 'int',  is_nullable => 1 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
     chat_admin              => { data_type => 'int', default_value => 0 },
