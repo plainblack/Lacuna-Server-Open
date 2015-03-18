@@ -122,6 +122,9 @@ Exactly the same as C<view_inbox> except that it shows trashed messages instead.
 
 Exactly the same as C<view_inbox> except that it shows sent messages instead.
 
+=head2 view_unread ( session_id, [ options ] )
+
+Exactly the same as C<view_inbox> except that it shows only the unread messages in the inbox.
 
 
 
