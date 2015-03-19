@@ -250,6 +250,7 @@ sub ship_to_ship_combat {
             $defense_stat->{$dbid}->{$stype}->{number} = 1;
         }
         if ($ship->type eq 'drone') {
+            $damage = int($damage * 1.5);
             $ship->delete;
         }
         else {
