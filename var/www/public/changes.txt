@@ -35,6 +35,8 @@
  - Mod: Split happiness cost calculation with SS & Colonies.
  - Mod: SS Plans get cheaper packaging, level of SS Lab matters.
  - Fix: Known colonies includes allied knowledge.
+ - Mod: Balancing ships some more.
+ - Mod: Multiple Forges in empire ramp up costs.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.

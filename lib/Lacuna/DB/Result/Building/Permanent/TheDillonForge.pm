@@ -60,6 +60,9 @@ sub subsidy_cost {
             $sub = 2 + $sub * $pow_two;
         }
     }
+    my $working = $self->working_forges - 1;
+    $working = 0 if ($working < 0);
+    $sub *= 2**$working;
     return $sub;
 }
 
@@ -97,6 +100,11 @@ sub split_plan {
 
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
     my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
+
+    my $working = $self->working_forges - 1;
+    $working = 0 if ($working < 0);
+    $build_secs *= 2**$working;
+
     $build_secs = 15 if ($build_secs < 15);
     $build_secs = 31_536_000 if ($build_secs > 31_536_000);
     $self->start_work({task => 'split_plan', class => $class, level => $level, extra_build_level => $extra_build_level, quantity => $quantity}, $build_secs)->update;
@@ -130,8 +138,11 @@ sub make_plan {
     }
 
     $body->delete_many_plans($plan, $quantity_to_delete);
+    my $working = $self->working_forges - 1;
+    $working = 0 if ($working < 0);
+    my $mult = 2**$working;
     
-    $self->start_work({task => 'make_plan', level => $level, class => $class}, ($level * 5000))->update;
+    $self->start_work({task => 'make_plan', level => $level, class => $class}, int(($level/1.75) * $mult * $level * 5000))->update;
 }
 
 sub equivalent_halls {
@@ -143,6 +154,22 @@ sub equivalent_halls {
     my $halls   = $arg_k * $arg_l + $arg_m;
 
     return $halls;
+}
+
+sub working_forges {
+    my ($self) = @_;
+
+    my $working_forges = Lacuna->db->resultset('Empire')
+        ->search(
+                 {
+                     '_buildings.class' => "Lacuna::DB::Result::Building::Permanent::TheDillonForge",
+                     'me.id' => $self->body->empire_id,
+                     '_buildings.is_working' => 1,
+                 }, {
+                     join => { 'bodies' => '_buildings' },
+                 })->count;
+    $working_forges = 0 unless defined($working_forges);
+    return $working_forges;
 }
 
 before finish_work => sub {
