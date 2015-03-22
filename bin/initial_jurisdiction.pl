@@ -25,7 +25,7 @@ while(my $station = $rs->next)
     $station->update_influence({starttime=>$starttime});
 }
 
-
+out("Recalculating all control (will take a while).");
 LD->resultset("Map::Star")->recalc_control;
 
 out("Done.");
