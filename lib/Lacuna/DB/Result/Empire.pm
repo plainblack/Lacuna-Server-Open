@@ -980,6 +980,7 @@ sub next_colony_cost {
             { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
             { join => 'body' }
         )->count;
+        $count += $adjustment;
         my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
         my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
         $tally = 100_000 * ($inflation**($count-1));
@@ -1002,6 +1003,7 @@ sub next_colony_cost {
             },
             { join => 'body' }
         )->count;
+        $count += $adjustment;
         my $inflation = 1 + INFLATION - (($self->effective_growth_affinity * 15) / 100);
         $tally = 250_000 * ($inflation**($count-1));
         my $max = 202_500_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
