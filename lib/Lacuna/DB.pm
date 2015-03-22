@@ -79,6 +79,24 @@ sub bodies {
     $bodies->search($where);
 }
 
+sub star {
+    my ($self, $id) = @_;
+
+    my $bodies = $self->resultset('Map::Star');
+    my $where = $self->_where(name => $id);
+
+    $bodies->find($where);
+}
+
+sub stars {
+    my ($self, $id) = @_;
+
+    my $bodies = $self->resultset('Map::Star');
+    my $where = $self->_where(name => $id);
+
+    $bodies->search($where);
+}
+
 # similarly, a lot of typing can be saved with Lacuna->db->building($id)
 sub building {
     my ($self, $building_id) = @_;
