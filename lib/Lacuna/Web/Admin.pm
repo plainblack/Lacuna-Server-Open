@@ -307,13 +307,16 @@ sub www_search_bodies {
     my $page_number = $request->param('page_number') || 1;
     my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
     my $name = $request->param('name') || '';
+    my $pager = 'name';
     if ($name) {
         my $query = "$name%";
-        $query =~ s/\*/%/;
+        $query =~ s/\*/%/g;
         $bodies = $bodies->search({name => { like => $query }});
     }
     if ($request->param('empire_id')) {
-        $bodies = $bodies->search({empire_id => $request->param('empire_id')});
+        $pager = 'empire_id';
+        $name  = $request->param('empire_id');
+        $bodies = $bodies->search({empire_id => $name});
     }
     if ($request->param('zone')) {
         $bodies = $bodies->search({zone => $request->param('zone')});
@@ -330,7 +333,7 @@ sub www_search_bodies {
                         $body->empire_id || '', $body->empire_id || '');
     }
     $out .= '</table>';
-    $out .= $self->format_paginator('search/bodies', 'name', $name, $page_number);
+    $out .= $self->format_paginator('search/bodies', $pager, $name, $page_number);
     return $self->wrap($out);
 }
 
