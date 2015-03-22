@@ -142,7 +142,7 @@ sub make_plan {
     $working = 0 if ($working < 0);
     my $mult = 2**$working;
     
-    $self->start_work({task => 'make_plan', level => $level, class => $class}, int(($level/1.75) * $mult * $level * 5000))->update;
+    $self->start_work({task => 'make_plan', level => $level, class => $class}, int($mult * $level * 5000))->update;
 }
 
 sub equivalent_halls {
