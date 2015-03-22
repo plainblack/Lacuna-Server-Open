@@ -1,3 +1,9 @@
+3.0910:
+ - Add: Unread option in inbox UI
+ - Add: view_unread Inbox API
+ - Add: Stations auto-seize
+ - Add: Voting allowed in embassy
+
 3.0909:
  - Add: Admin UI to set alliance logo.
  - Add: Admin UI display more info on bodies & stars.
