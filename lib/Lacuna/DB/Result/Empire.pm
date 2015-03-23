@@ -478,6 +478,23 @@ has rpc_count => (
     }
 );
 
+# Reseting the RPC count for an empire should be done only under dire
+# circumstances, or for testing purposes.  In that case, this can
+# encapsulate the arcane magic somewhat.  This should not be exposed via
+# the admin UI, but can be called on the server for example as:
+# perl -I/data/Lacuna-Server/lib -ML -e 'LD->empire(shift)->reset_rpc' 'Jandor Trading'
+sub reset_rpc {
+    my ($self) = @_;
+    my $cache  = Lacuna->cache;
+    my $id     = $self->id;
+
+    printf "RPC count was: %d\n", $cache->get('rpc_count_'.format_date(undef,'%d'), $id);
+    printf "RPC rate was: %d\n",  $cache->get('rpc_rate_'.format_date(undef,'%M'), $id);
+    $cache->delete('rpc_count_'.format_date(undef,'%d'), $id);
+    $cache->delete('rpc_rate_'.format_date(undef,'%M'), $id);
+    printf "Reset to zero.";
+}
+
 # The number of times the rate limit has been exceeded
 has rpc_limit => (
     is      => 'ro',
