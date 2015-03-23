@@ -330,7 +330,7 @@ sub www_search_bodies {
     while (my $body = $bodies->next) {
         $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
                         $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, kmbtq($body->happiness),
-                        $body->empire_id || '', $body->empire_id || '');
+                        $body->empire_id || '', $body->empire_id ? sprintf("%s (%s)",$body->empire->name,$body->empire_id) : '' );
     }
     $out .= '</table>';
     $out .= $self->format_paginator('search/bodies', $pager, $name, $page_number);
