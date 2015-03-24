@@ -77,7 +77,7 @@ after handle_arrival_procedures => sub {
         $body_attacked->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
             filename    => 'hit_by_scow.txt',
-            params      => [$good_grammar, $self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $waste_dumped],
+            params      => [$self->body->empire_id, $self->body->empire->name, $good_grammar, $body_attacked->id, $body_attacked->name, $waste_dumped],
         );
     }
 
