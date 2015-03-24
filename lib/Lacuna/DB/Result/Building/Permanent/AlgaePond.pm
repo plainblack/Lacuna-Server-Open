@@ -4,7 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
-use Lacuna::Util qw(randint);
+use Lacuna::Util qw(randint random_element);
 
 use constant controller_class => 'Lacuna::RPC::Building::AlgaePond';
 
@@ -18,9 +18,20 @@ sub image_level {
     return $self->image.'1';
 }
 
+my @fish = (
+            'Rakl',
+            'Feornu',
+            'Ichthrum',
+            'Nyurk',
+           );
+
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('This is no fisherman\'s tale. A local fisherman caught a '.randint(1,9).' meter Rakl out of an algae pond on %s.', $self->body->name));
+    my @msg = ('This is no fisherman\'s tale. A local fisherman caught a %.1f meter %s out of an algae pond on %s.',
+               randint(10,95),
+               random_element(\@fish),
+               $self->body->name);
+    $self->body->add_news(130, @msg);
 };
 
 use constant name                       => 'Algae Pond';
