@@ -603,6 +603,33 @@ use constant assignments => (
     'Political Propaganda',
 );
 
+my @accepted_responses = (
+                          q[I am ready to serve.],
+                          q[I'm on it.],
+                          q[Consider it done.],
+                          q[Will do.],
+                          q[Yes.],
+                          q[Roger.],
+                          q[I live to serve.],
+                          q[Easy. Done.],
+                          q[I love challenges.],
+                          q[If you insist.],
+                          q[I don't think that's wise, but I'll try.],
+                          q[I have a bad feeling about this.],
+                          q[You're the boss.],
+                          q[When I get back, we're going to talk about a raise.],
+                          q[Seriously? Oh, man.],
+                          q[Just let me fill out my last will and testament, first.],
+                          q[Take care of my kids when I'm gone, okay?],
+                         );
+
+my @class_failures = (
+                      'I can\'t find the classroom!',
+                      'I need to be on a different planet.',
+                      'I know more than these guys already',
+                      'Boooooring!',
+                     );
+
 sub assign {
     my ($self, $assignment) = @_;
 
@@ -632,46 +659,46 @@ sub assign {
         $self->update;
         $self->on_body->needs_recalc(1);
         $self->on_body->update;
-        return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+        return {result => 'Accepted', reason => random_element(\@accepted_responses)};
     }
     elsif ($assignment eq 'Intel Training') {
         my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::IntelTraining');
         if ($train_bld) {
             $self->update;
-            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+            return {result => 'Accepted', reason => random_element(\@accepted_responses)};
         }
         else {
-            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+            return { result =>'Failure', reason => random_element(\@class_failures) };
         }
     }
     elsif ($assignment eq 'Mayhem Training') {
         my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::MayhemTraining');
         if ($train_bld) {
             $self->update;
-            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+            return {result => 'Accepted', reason => random_element(\@accepted_responses)};
         }
         else {
-            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+            return { result =>'Failure', reason => random_element(\@class_failures) };
         }
     }
     elsif ($assignment eq 'Politics Training') {
         my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::PoliticsTraining');
         if ($train_bld) {
             $self->update;
-            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+            return {result => 'Accepted', reason => random_element(\@accepted_responses)};
         }
         else {
-            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+            return { result =>'Failure', reason => random_element(\@class_failures) };
         }
     }
     elsif ($assignment eq 'Theft Training') {
         my $train_bld = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::TheftTraining');
         if ($train_bld) {
             $self->update;
-            return {result => 'Accepted', reason => random_element(['I am ready to serve.','I\'m on it.','Consider it done.','Will do.','Yes.','Roger.'])};
+            return {result => 'Accepted', reason => random_element(\@accepted_responses)};
         }
         else {
-            return { result =>'Failure', reason => random_element(['I can\'t find the classroom!','I need to be on a different planet.','I know more than these guys already']) };
+            return { result =>'Failure', reason => random_element(\@class_failures) };
         }
     }
     elsif ($assignment eq 'Security Sweep') {
@@ -847,7 +874,8 @@ sub run_mission {
       my $message_id = $self->$outcome($defender);
       $out = { result => 'Failure',
                message_id => $message_id,
-               reason => random_element(['Intel shmintel.',
+               reason => random_element([
+                                         'Intel shmintel.',
                                          'Code red!',
                                          'It has just gone pear shaped.',
                                          'I\'m pinned down and under fire.',
@@ -856,7 +884,9 @@ sub run_mission {
                                          'I want my mommy!',
                                          'No time to talk! Gotta run.',
                                          'Why do they always have dogs?',
-                                         'Did you even plan this mission?']) };
+                                         'Did you even plan this mission?',
+                                         q[Please make sure Johnny gets my bubblegum wrapper collection.],
+                                         ]) };
     }
     else {
         if (defined $defender) {
@@ -895,7 +925,13 @@ sub run_mission {
                                            'We\'re good.',
                                            'I\'ll be ready for a new mission soon.',
                                            'On my way back now.',
-                                           'I will be ready for another mission soon.']) };
+                                           'I will be ready for another mission soon.',
+                                           q[I'm going to be needing that raise now.],
+                                           'Skin of my teeth!',
+                                           'That was fun, can I do it again?',
+                                           'Exhilarating!',
+                                           q[Don't tell mom what I had to do for this, okay?],
+                                          ]) };
     }
     $self->offense_mission_count( $self->offense_mission_count + 1);
     $self->update;
