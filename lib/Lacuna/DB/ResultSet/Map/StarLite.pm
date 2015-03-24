@@ -33,6 +33,7 @@ sub get_star_map {
                 y       => $row->star_y,
                 id      => $row->star_id,
                 zone    => $row->star_zone,
+                influence => $row->influence,
             };
 
             $star_id = $row->star_id;

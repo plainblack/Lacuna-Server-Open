@@ -79,6 +79,24 @@ sub bodies {
     $bodies->search($where);
 }
 
+sub star {
+    my ($self, $id) = @_;
+
+    my $bodies = $self->resultset('Map::Star');
+    my $where = $self->_where(name => $id);
+
+    $bodies->find($where);
+}
+
+sub stars {
+    my ($self, $id) = @_;
+
+    my $bodies = $self->resultset('Map::Star');
+    my $where = $self->_where(name => $id);
+
+    $bodies->search($where);
+}
+
 # similarly, a lot of typing can be saved with Lacuna->db->building($id)
 sub building {
     my ($self, $building_id) = @_;
@@ -102,6 +120,18 @@ sub ships {
     my ($self, $id) = @_;
     my $where = $self->_where(name => $id);
     $self->resultset('Ships')->search($where);
+}
+
+sub X {
+    my ($self, $type, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset($type)->find($where);
+}
+
+sub XX {
+    my ($self, $type, $id) = @_;
+    my $where = $self->_where(name => $id);
+    $self->resultset($type)->search($where);
 }
 
 no Moose;

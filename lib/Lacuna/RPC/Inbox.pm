@@ -333,6 +333,18 @@ sub view_sent {
     return $self->view_messages($where, $empire, @_);
 }
 
+sub view_unread {
+    my $self = shift;
+    my $session_id = shift;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $where = {
+        has_archived    => 0,
+        has_read        => 0,
+        to_id           => $empire->id,
+    };
+    return $self->view_messages($where, $empire, @_);
+}
+
 sub view_messages {
     my ($self, $where, $empire, $options) = @_;
     $options->{page_number} ||= 1;
@@ -370,7 +382,7 @@ sub view_messages {
     };
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent send_message read_message archive_messages trash_messages trash_messages_where));
+__PACKAGE__->register_rpc_method_names(qw(view_inbox view_archived view_trashed view_sent view_unread send_message read_message archive_messages trash_messages trash_messages_where));
 
 
 no Moose;

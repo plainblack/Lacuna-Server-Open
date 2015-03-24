@@ -78,11 +78,26 @@ no longer supported. Check the web sites for the closest version to use.
 
 Step 2: Start Storage
 
-You need to start up you MySQL server and memcached. Memcached is as easy as:
+You need to start up your MySQL server, memcached, and beanstalk.
 
-memcached -d
 
-MySQL will depend on the system and how you installed it.
+Memcached is as easy as:
+
+memcached -d -u nobody -m 512
+
+For a private server, 512 may be overkill, -m 64, the default, is
+likely sufficient.
+
+For beanstalk, see the setup_beanstalk.txt file.  At this point, only
+the setup is required, the scheduler is not.
+
+
+MySQL needs one extra bit of configuration.  In /etc/my.cnf, find the
+section labelled "[mysqld]" and add the following line:
+
+  log_bin_trust_function_creators = 1
+
+Starting MySQL will depend on the system and how you installed it.
 
   # Make sure MySQL service starts on boot
   [root@myserver /]# chkconfig --levels 235 mysqld on

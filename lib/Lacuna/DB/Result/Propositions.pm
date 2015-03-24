@@ -47,7 +47,6 @@ __PACKAGE__->typecast_map(type => {
     RenameUninhabited       => 'Lacuna::DB::Result::Propositions::RenameUninhabited',
     RepairModule            => 'Lacuna::DB::Result::Propositions::RepairModule',
     RepealLaw               => 'Lacuna::DB::Result::Propositions::RepealLaw',
-    SeizeStar               => 'Lacuna::DB::Result::Propositions::SeizeStar',
     Taxation                => 'Lacuna::DB::Result::Propositions::Taxation',
     TransferStationOwnership=> 'Lacuna::DB::Result::Propositions::TransferStationOwnership',
     UpgradeModule           => 'Lacuna::DB::Result::Propositions::UpgradeModule',
@@ -177,6 +176,7 @@ sub get_status {
         votes_no    => $self->votes_no,
         status      => $self->status,
         date_ends   => $self->date_ends_formatted,
+        station     => $self->station->name,
         proposed_by => {
             id      => $self->proposed_by->id,
             name    => $self->proposed_by->name,

@@ -101,7 +101,7 @@ sub split_plan {
     my $base = ($num_glyphs * $halls * 30 * 3600) / ($effective_level * 4);
     my $build_secs = int($base * (2.72 ** (log($quantity)/log(2))) + 0.5);
 
-    my $working = $self->working_forges - 1;
+    my $working = $self->working_forges;
     $working = 0 if ($working < 0);
     $build_secs *= 2**$working;
 
@@ -138,11 +138,11 @@ sub make_plan {
     }
 
     $body->delete_many_plans($plan, $quantity_to_delete);
-    my $working = $self->working_forges - 1;
+    my $working = $self->working_forges;
     $working = 0 if ($working < 0);
     my $mult = 2**$working;
     
-    $self->start_work({task => 'make_plan', level => $level, class => $class}, int(($level/1.75) * $mult * $level * 5000))->update;
+    $self->start_work({task => 'make_plan', level => $level, class => $class}, int($mult * $level * 5000))->update;
 }
 
 sub equivalent_halls {

@@ -310,6 +310,13 @@ before 'can_demolish' => sub {
     }
 };
 
+# all propositions from all stations for this alliance visible in the embassy.
+sub propositions {
+    my ($self) = @_;
+    my $alliance = $self->alliance;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->
+        search({ "station.alliance_id" => $alliance->id, }, { prefetch => "station" });
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

@@ -104,14 +104,8 @@ is($result->{error}{code}, 1009, 'cannot transfer a station to a non-alliance me
 $result = $tester->post('parliament', 'propose_transfer_station_ownership', [$session_id, $par->id, $friend->empire->id]);
 is($result->{error}{code}, 1013, 'cannot transfer a station to an isolationist');
 
-$result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id]);
-is($result->{error}{data}, 7, 'seizing star requires level 7 parliament');
-
 $par->level(7);
 $par->update;
-
-$result = $tester->post('parliament', 'propose_seize_star', [$session_id, $par->id, $friend->empire->home_planet->star_id]);
-is($result->{error}{code}, 1009, 'star is not in range of influence');
 
 $result = $tester->post('parliament', 'propose_rename_star', [$session_id, $par->id]);
 is($result->{error}{data}, 8, 'renaming star requires level 8 parliament');

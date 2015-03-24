@@ -4,7 +4,6 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
-use Guard qw(guard);
 
 sub app_url {
     return '/parliament';
@@ -31,21 +30,9 @@ sub max_members {
     return ( $building->effective_level >= $embassy->effective_level ) ? 2 * $building->effective_level : 2 * $embassy->effective_level;
 }
 
-sub view_propositions {
-    my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my @out;
-    my $propositions = $building->propositions->search({ status => 'Pending'});
-    while (my $proposition = $propositions->next) {
-        $proposition->check_status;
-        push @out, $proposition->get_status($empire);
-    }
-    return {
-        status          => $self->format_status($empire, $building->body),
-        propositions    => \@out,
-    };
-}
+# this is moving to the new location, but keep it available here
+# until we're ready to remove it.
+*view_propositions = \&Lacuna::RPC::Building::Embassy::view_propositions;
 
 sub get_stars_in_jurisdiction {
     my ($self, $session_id, $building_id) = @_;
@@ -140,32 +127,9 @@ sub view_laws {
     }
 }
 
-sub cast_vote {
-    my ($self, $session_id, $building_id, $proposition_id, $vote) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    
-    my $building = $self->get_building($empire, $building_id);
-    my $cache = Lacuna->cache;
-    my $lock = 'vote_lock_'.$empire->id;
-    if ($cache->get($lock, $proposition_id)) {
-        confess [1013, 'You already have a vote in process for this proposition.'];
-    }
-    $cache->set($lock,$proposition_id,1,5);
-    my $guard = guard {$cache->delete($lock,$proposition_id);};
-    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->find($proposition_id);
-    unless (defined $proposition) {
-        confess [1002, 'Proposition not found.'];
-    }
-    if ($proposition->station->alliance_id != $empire->alliance_id) {
-        confess [1003, 'You cannot vote for another alliances propositions!'];
-    }
-
-    $proposition->cast_vote($empire, $vote);
-    return {
-        status      => $self->format_status($empire, $building->body),
-        proposition => $proposition->get_status($empire),
-    };
-}
+# this is moving to the new location, but keep it available here
+# until we're ready to remove it.
+*cast_vote = \&Lacuna::RPC::Building::Embassy::cast_vote;
 
 sub propose_fire_bfg {
     my ($self, $session_id, $building_id, $body_id, $reason) = @_;
@@ -278,63 +242,6 @@ sub propose_transfer_station_ownership {
         name            => 'Transfer Station',
         description     => 'Transfer ownership of {Planet '.$building->body->id.' '.$building->body->name.'} from {Empire '.$building->body->empire_id.' '.$building->body->empire->name.'} to {Empire '.$to_empire->id.' '.$to_empire->name.'}.',
         scratch         => { empire_id => $to_empire->id },
-        proposed_by_id  => $empire->id,
-    });
-    $proposition->station($building->body);
-    $proposition->proposed_by($empire);
-    $proposition->insert;
-    return {
-        status      => $self->format_status($empire, $building->body),
-        proposition => $proposition->get_status($empire),
-    };
-}
-
-sub propose_seize_star {
-    my ($self, $session_id, $building_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    if ($empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot create propositions.'];
-    }
-    my $building = $self->get_building($empire, $building_id);
-    unless ($building->effective_level >= 7) {
-        confess [1013, 'Parliament must be level 7 to seize control of a star.',7];
-    }
-    unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
-        confess [1003, "You must have a functional Parliament!"];
-    }
-    unless ($star_id) {
-        confess [1002, 'Must specify a star id to seize.'];
-    }
-    if ($building->body->in_neutral_area) {
-        confess [1009, 'Your station is in the Neutral Area and is not allowed to seize any star.'];
-    }
-    if ($building->body->in_starter_zone) {
-        confess [1009, 'Your station is in a Starter Zone and is not allowed to seize any star.'];
-    }
-    my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
-    unless (defined $star) {
-        confess [1002, 'Could not find the star.'];
-    }
-    if ($star->in_neutral_area) {
-        confess [1009, 'That star is in the Neutral Area and can not be seized.'];
-    }
-    if ($star->in_starter_zone) {
-        confess [1009, 'That star is in a Starter Zone and can not be seized.'];
-    }
-    if ($star->station_id) {
-        confess [1009, 'That star is already controlled by a station.'];
-    }
-    unless ($building->body->influence_remaining > 0) {
-        confess [1009, 'You do not have enough influence to control another star.'];
-    }
-    unless ($building->body->in_range_of_influence($star)) {
-        confess [1009, 'That star is not in range of influence.'];
-    }
-    my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-        type            => 'SeizeStar',
-        name            => 'Seize '.$star->name,
-        description     => 'Seize control of {Starmap '.$star->x.' '.$star->y.' '.$star->name.'} by {Planet '.$building->body->id.' '.$building->body->name.'}, and apply all present laws to said star and its inhabitants.',
-        scratch         => { star_id => $star->id },
         proposed_by_id  => $empire->id,
     });
     $proposition->station($building->body);
@@ -987,7 +894,7 @@ sub view_taxes_collected {
 
 
 
-__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_seize_star propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_taxation view_taxes_collected propose_foreign_aid propose_evict_excavator propose_members_only_excavation propose_neutralize_bhg));
+__PACKAGE__->register_rpc_method_names(qw(get_bodies_for_star_in_jurisdiction get_mining_platforms_for_asteroid_in_jurisdiction propose_evict_mining_platform propose_members_only_mining_rights propose_members_only_colonization propose_rename_asteroid propose_rename_uninhabited propose_broadcast_on_network19 get_stars_in_jurisdiction propose_rename_star propose_repeal_law propose_transfer_station_ownership view_propositions view_laws cast_vote propose_fire_bfg propose_writ propose_elect_new_leader propose_induct_member propose_expel_member propose_taxation view_taxes_collected propose_foreign_aid propose_evict_excavator propose_members_only_excavation propose_neutralize_bhg));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

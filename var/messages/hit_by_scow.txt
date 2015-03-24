@@ -1,6 +1,6 @@
 Bombarded With Waste
 ~~~
-I can't tell if {Empire %s %s} doesn't like us, or if they love us. They just crash landed a Scow on {Planet %s %s}, spilling %s waste in the process. If we clean this up quickly, it's an easy source of resources, but if they dump faster than we can handle, then we could be in trouble.
+I can't tell if {Empire %s %s} doesn't like us, or if they love us. Their scow%s just crashed landed on {Planet %s %s}, spilling %s waste in the process. If we clean this up quickly, it's an easy source of resources, but if they dump faster than we can handle, then we could be in trouble.
 
 Regards,
 

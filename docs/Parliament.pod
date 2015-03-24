@@ -345,42 +345,6 @@ The id of an empire within the alliance that wants control over the station.
 
 
 
-=head2 propose_seize_star ( session_id, building_id, star_id )
-
-Take control of a star. Usable at parliament level 7.
-
- {
-    "status" : { ... },
-    "proposition" : {
-        "id" : "id-goes-here",
-        "name" : "Seize Sol",
-        "description" : "Seize control of Sol.",
-        "votes_needed" : 7,
-        "votes_yes" : 0,
-        "votes_no" : 0,
-        "status" : "Pending",
-        "date_ends" : "01 31 2010 13:09:05 +0600",
-        "proposed_by" : {
-             "id" : "id-goes-here",
-             "name" : "Klingons",
-        }
-    }
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 building_id
-
-The unique id of the parliament.
-
-=head3 star_id
-
-The id of a star the station should control.
-
-
-
 =head2 propose_rename_star ( session_id, building_id, star_id, name )
 
 Rename a star. Usable at parliament level 8.
