@@ -4,12 +4,14 @@ use strict;
 use Moose::Role;
 use Lacuna::Util qw(commify);
 
+my %is_scow_type = map { $_ => 1 } qw(scow scow_fast scow_large scow_mega);
+
 after handle_arrival_procedures => sub {
     my ($self) = @_;
-    
+
     # we're coming home
     return if ($self->direction eq 'in');
-    
+
     # we're dumping on a star, nothing to do but go home
     if ($self->foreign_star_id) {
       $self->payload({ resources => { waste => 0 } });
@@ -40,7 +42,7 @@ after handle_arrival_procedures => sub {
     if ($self->type eq "attack_group") {
         my @trim;
         for my $key ( keys %{$payload->{fleet}}) {
-            if ( grep { $payload->{fleet}->{$key}->{type} eq $_ } ("scow", "scow_fast", "scow_large", "scow_mega")) {
+            if ($is_scow_type{$payload->{fleet}->{$key}->{type}}) {
                 push @trim, $key;
                 $number_of_scows += $payload->{fleet}->{$key}->{quantity};
             }
@@ -61,10 +63,9 @@ after handle_arrival_procedures => sub {
     else {
         $number_of_scows = 1;
     }
-    
-    my $good_grammar = "";
-    if ($number_of_scows > 1) $good_grammar = "s";
-    
+
+    my $good_grammar = $number_of_scows > 1 ? "s" : "";
+
     unless ($self->body->empire->skip_attack_messages) {
         $self->body->empire->send_predefined_message(
             tags        => ['Attack','Alert'],
@@ -82,7 +83,7 @@ after handle_arrival_procedures => sub {
     }
 
     $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
-    
+
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,
