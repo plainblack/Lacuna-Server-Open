@@ -10,9 +10,9 @@ after can_send_to_target => sub {
     my $range = $self->speed;
 # Note that $distance is actually *100 further, so we'll divide before output if needed.
     if ($distance > $range) {
-      $distance = int($distance/100+0.5);
-      $range    = int($range/100+0.5);
-      confess [1009, 'You only have a range of '.$range.' with this ship. This body is '.$distance.' away.'];
+      $distance = $distance/100;
+      $range    = $range/100;
+      confess [1009, sprintf("You only have a range of %0.2f with this ship. This body is %0.2f units away.",$range,$distance)];
     }
 };
 

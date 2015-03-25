@@ -47,7 +47,9 @@ sub commify {
 sub kmbtq {
     my ($numb) = @_;
 
+    my $neq = $numb < 0 ? -1 : 1;
     $numb =~ tr/0-9//cd;
+    $numb *= $neq;
 
     if ($numb >= 100_000_000_000_000_000 || $numb <= -100_000_000_000_000_000) {
 # 101Q
