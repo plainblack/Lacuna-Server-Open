@@ -17,14 +17,13 @@ after handle_arrival_procedures => sub {
     # deploy the pod
     my $body = $self->foreign_body;
     my ($x, $y) = eval{$body->find_free_space};
-    if ($@)	{   
-	    
-    # notify home of lost ship 
-    $self->body->empire->send_predefined_message(
-         tags        => ['Alert'],
-         filename    => 'no_space_for_ship.txt',
-         params      => [$self->type, $body->x, $body->y, $body->name, " a mid-air collision"],
-     );
+    if ($@) {   
+        # notify home of lost ship 
+         $self->body->empire->send_predefined_message(
+             tags        => ['Alert'],
+             filename    => 'no_space_for_ship.txt',
+             params      => [$self->type, $body->x, $body->y, $body->name, " a mid-air collision"],
+         );
     
     $body->add_news(10 ,"Humanitarian mission bound for %s lost during final entry", $body->name);
     
