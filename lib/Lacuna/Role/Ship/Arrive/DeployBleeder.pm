@@ -13,12 +13,13 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
     my ($x, $y) = eval{$body_attacked->find_free_space};
     if ($@) {
-	    unless ($self->body->empire->skip_attack_messages) {
+	unless ($self->body->empire->skip_attack_messages) {
             $self->body->empire->send_predefined_message(
                 tags        => ['Attack','Alert'],
                 filename    => 'no_space_for_ship.txt',
                 params      => [$self->type, $body_attacked->x, $body_attacked->y, $body_attacked->name, " failed heat shielding"],
-        );
+        )};
+        #N19 is all over it
         $body_attacked->add_news(40 ,"The naturally thick atmosphere saves the citizens of %s from certain doom. Thanks, Nature!", $body_attacked->name);
 	    
     }
