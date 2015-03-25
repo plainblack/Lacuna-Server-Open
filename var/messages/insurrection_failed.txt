@@ -1,7 +1,7 @@
 Insurrection Failed
 ~~~
 We have failed in our attempt to take control of {Starmap %s %s %s}, but not for lack of trying. It seems that the people are simply not as dissatisfied with their government as we thought. We can work on that by inciting a rebellion.
-We currently have them at %s unhappiness and with our chances based off %s giving us a %s% chance of taking control.
+We currently have them at %s unhappiness and with our chances based off of %s giving us a %s%% chance of taking control.
 
 Regards,
 

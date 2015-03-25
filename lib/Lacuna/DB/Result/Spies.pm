@@ -232,7 +232,7 @@ sub offensive_assignments {
                 skill       => 'theft',
             },
         );    
-        unless ($self->on_body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+        if ( !($self->on_body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) and $self->on_body->happiness < 0) {
             push @assignments, (
                 {
                     task        =>'Incite Insurrection', # Non-SS
