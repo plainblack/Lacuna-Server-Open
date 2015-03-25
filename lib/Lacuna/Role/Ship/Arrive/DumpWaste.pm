@@ -34,24 +34,6 @@ after handle_arrival_procedures => sub {
     $body_attacked->update;
     $waste_dumped = commify($waste_dumped); # commify so emails look nicer
 
-    unless ($self->body->empire->skip_attack_messages) {
-        $self->body->empire->send_predefined_message(
-            tags        => ['Attack','Alert'],
-            filename    => 'our_scow_hit.txt',
-            params      => [$body_attacked->x, $body_attacked->y, $body_attacked->name, $waste_dumped],
-        );
-    }
-
-    unless ($body_attacked->empire->skip_attack_messages) {
-        $body_attacked->empire->send_predefined_message(
-            tags        => ['Attack','Alert'],
-            filename    => 'hit_by_scow.txt',
-            params      => [$self->body->empire_id, $self->body->empire->name, $body_attacked->id, $body_attacked->name, $waste_dumped],
-        );
-    }
-
-    $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
-    
     # all pow
     my $done_after = 1;
     my $number_of_scows = 0;
@@ -79,6 +61,28 @@ after handle_arrival_procedures => sub {
     else {
         $number_of_scows = 1;
     }
+    
+    my $good_grammar = "";
+    if ($number_of_scows > 1) $good_grammar = "s";
+    
+    unless ($self->body->empire->skip_attack_messages) {
+        $self->body->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'our_scow_hit.txt',
+            params      => [$good_grammar, $body_attacked->x, $body_attacked->y, $body_attacked->name, $waste_dumped],
+        );
+    }
+
+    unless ($body_attacked->empire->skip_attack_messages) {
+        $body_attacked->empire->send_predefined_message(
+            tags        => ['Attack','Alert'],
+            filename    => 'hit_by_scow.txt',
+            params      => [$self->body->empire_id, $self->body->empire->name, $good_grammar, $body_attacked->id, $body_attacked->name, $waste_dumped],
+        );
+    }
+
+    $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
+    
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({
         date_stamp => DateTime->now,

@@ -1,6 +1,6 @@
 Scow Hit Target
 ~~~
-Our Scows just crashed into {Starmap %s %s %s} dropping %s waste in the process.
+Our scow%s just crashed into {Starmap %s %s %s} dropping %s waste in the process.
 
 Regards,
 
