@@ -40,7 +40,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, 'The old castle stands alone atop a bluff on %s. And still looks magestic after all these years.', $self->body->name);
+    $self->body->add_news(30, 'The old castle stands alone atop a bluff on %s. And still looks majestic after all these years.', $self->body->name);
 };
 
 use constant name => 'Kastern\'s Keep';
