@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
+use Lacuna::Util qw(random_element);
 
 use constant controller_class => 'Lacuna::RPC::Building::BeeldebanNest';
 
@@ -17,9 +18,14 @@ sub image_level {
     return $self->image.'1';
 }
 
+my @upgrades = (
+                'A boy was nearly killed today when he and his sister wandered into a wild Beeldeban nest on %s today.',
+                'A girl was nearly killed today when she and her brother wandered into a wild Beeldeban nest on %s today.',
+               );
+
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('A boy was nearly killed today when he and his sister wandered into a wild Beeldeban nest on %s today.', $self->body->name));
+    $self->body->add_news(30, random_element(\@upgrades), $self->body->name);
 };
 
 use constant name => 'Beeldeban Nest';

@@ -20,7 +20,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('The agents on %s use techniques handed down for millenia, which they say makes them unbeatable.', $self->body->name));
+    $self->body->add_news(30, 'The agents on %s use techniques handed down for millenia, which they say makes them unbeatable.', $self->body->name);
 };
 
 before 'repair' => sub {

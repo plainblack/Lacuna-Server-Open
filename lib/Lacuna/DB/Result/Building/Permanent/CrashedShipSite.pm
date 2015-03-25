@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(50, sprintf('Construction workers uncovered the hull of an ancient ship on %s as they were digging the foundation of a house.', $self->body->name));
+    $self->body->add_news(50, 'Construction workers uncovered the hull of an ancient ship on %s as they were digging the foundation of a house.', $self->body->name);
 };
 
 use constant name => 'Crashed Ship Site';

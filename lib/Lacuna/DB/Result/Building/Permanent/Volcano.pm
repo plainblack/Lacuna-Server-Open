@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('A volcano erupted on %s today spewing tons of ash on the inhabitants.', $self->body->name));
+    $self->body->add_news(30, 'A volcano erupted on %s today spewing tons of ash on the inhabitants.', $self->body->name);
 };
 
 use constant name => 'Volcano';

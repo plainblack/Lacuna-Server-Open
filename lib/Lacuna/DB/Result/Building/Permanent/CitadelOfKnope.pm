@@ -20,7 +20,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(50, sprintf('Research students say that the Citadel of Knope, which remained dormant for years on %s, sprang to life.', $self->body->name));
+    $self->body->add_news(50, 'Research students say that the Citadel of Knope, which remained dormant for years on %s, sprang to life.', $self->body->name);
 };
 
 use constant name => 'Citadel of Knope';

@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('Tender and juicy denton roots await those souls of %s who are brave enough to tackle the Denton Brambles.', $self->body->name));
+    $self->body->add_news(30, 'Tender and juicy denton roots await those souls of %s who are brave enough to tackle the Denton Brambles.', $self->body->name);
 };
 
 use constant min_orbit => 5;

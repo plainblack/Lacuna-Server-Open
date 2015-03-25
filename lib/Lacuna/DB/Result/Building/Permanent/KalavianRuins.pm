@@ -20,7 +20,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(50, sprintf('Archaeologists estimate that the Kalavian Ruins they uncovered on %s were buried for '.randint(10,99).',000 years.', $self->body->name));
+    $self->body->add_news(50, 'Archaeologists estimate that the Kalavian Ruins they uncovered on %s were buried for %d,000 years.', $self->body->name, randint(10,99));
 };
 
 use constant name => 'Kalavian Ruins';

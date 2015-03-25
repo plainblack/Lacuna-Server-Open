@@ -40,7 +40,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('The whole of the heavens are exposed to the citizens of %s.', $self->body->name));
+    $self->body->add_news(30, 'The whole of the heavens are exposed to the citizens of %s.', $self->body->name);
 };
 
 use constant name => 'Massad\'s Henge';

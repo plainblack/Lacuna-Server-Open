@@ -32,7 +32,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('Scientists are worried that %s may collapse in on itself.', $self->body->name));
+    $self->body->add_news(30, 'Scientists are worried that %s may collapse in on itself.', $self->body->name);
 };
 
 before 'can_demolish' => sub {

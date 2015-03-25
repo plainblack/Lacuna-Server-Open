@@ -30,7 +30,7 @@ sub probes {
 after finish_upgrade => sub {
     my $self = shift;
 
-    $self->body->add_news(30, sprintf('A warning to all enemies foreign and domestic. The government of %s sees all.', $self->body->name));
+    $self->body->add_news(30, 'A warning to all enemies foreign and domestic. The government of %s sees all.', $self->body->name);
 
     my $work_secs = 60;
     if ($self->is_working) {

@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(40, sprintf('The poet known for his "Ode To A Lapis Forest" is scheduled to speak today on %s.', $self->body->name));
+    $self->body->add_news(40, 'The poet known for his "Ode To A Lapis Forest" is scheduled to speak today on %s.', $self->body->name);
 };
 
 use constant name => 'Lapis Forest';

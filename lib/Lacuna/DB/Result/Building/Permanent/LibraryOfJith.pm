@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('Scientists on %s have unlocked the secrets of the origin of species.', $self->body->name));
+    $self->body->add_news(30, 'Scientists on %s have unlocked the secrets of the origin of species.', $self->body->name);
 };
 
 use constant name => 'Library of Jith';

@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('Children everywhere on %s were heard singing "Beans, beans, the music fruit" after they discovered an Amalgus Meadow today.', $self->body->name));
+    $self->body->add_news(30, 'Children everywhere on %s were heard singing "Beans, beans, the music fruit" after they discovered an Amalgus Meadow today.', $self->body->name);
 };
 
 use constant min_orbit => 4;

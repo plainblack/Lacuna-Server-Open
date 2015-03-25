@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('A tectonic shift shook the inhabitants of %s today as the ground quaked beneath their feet.', $self->body->name));
+    $self->body->add_news(30, 'A tectonic shift shook the inhabitants of %s today as the ground quaked beneath their feet.', $self->body->name);
 };
 
 use constant name => 'Ravine';

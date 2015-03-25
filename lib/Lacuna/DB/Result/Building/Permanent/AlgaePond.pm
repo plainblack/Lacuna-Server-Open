@@ -27,11 +27,11 @@ my @fish = (
 
 after finish_upgrade => sub {
     my $self = shift;
-    my @msg = ('This is no fisherman\'s tale. A local fisherman caught a %.1f meter %s out of an algae pond on %s.',
-               randint(10,95),
+    my @msg = (q[This is no fisherman's tale. A local fisherman caught a %.1f meter %s out of an algae pond on %s.],
+               randint(10,95)/10,
                random_element(\@fish),
                $self->body->name);
-    $self->body->add_news(130, @msg);
+    $self->body->add_news(30, @msg);
 };
 
 use constant name                       => 'Algae Pond';

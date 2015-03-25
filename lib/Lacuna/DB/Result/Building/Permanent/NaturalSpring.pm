@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('Worries of drought ended today as a natural spring bubbled to the surface of %s today.', $self->body->name));
+    $self->body->add_news(30, 'Worries of drought ended today as a natural spring bubbled to the surface of %s today.', $self->body->name);
 };
 
 use constant name => 'Natural Spring';

@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(50, sprintf('No one is certain how, but measurements of %s from the ground indicate it\'s bigger than measurements from space.', $self->body->name));
+    $self->body->add_news(50, 'No one is certain how, but measurements of %s from the ground indicate it\'s bigger than measurements from space.', $self->body->name);
 };
 
 use constant name => 'Pantheon of Hagness';

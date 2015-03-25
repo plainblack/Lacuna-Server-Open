@@ -19,7 +19,7 @@ sub image_level {
 
 after finish_upgrade => sub {
     my $self = shift;
-    $self->body->add_news(30, sprintf('%s is experimenting with advanced singularity technology.', $self->body->name));
+    $self->body->add_news(30, '%s is experimenting with advanced singularity technology.', $self->body->name);
 };
 
 sub can_build_on {

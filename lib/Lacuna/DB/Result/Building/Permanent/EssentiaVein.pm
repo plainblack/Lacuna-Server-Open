@@ -36,7 +36,7 @@ sub image_level {
 after finish_upgrade => sub {
     my $self = shift;
 
-    $self->body->add_news(30, sprintf('Though officials on %s tried to keep it secret, news of the discovery of an Essentia vein broke.', $self->body->name));
+    $self->body->add_news(30, 'Though officials on %s tried to keep it secret, news of the discovery of an Essentia vein broke.', $self->body->name);
     # Removed any scheduled work that is already running
     # Reschedule work.
     #
