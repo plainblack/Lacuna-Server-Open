@@ -40,7 +40,6 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
     my $bleeders = 0;
     for (1..$bleed_num) {
-        my $body_attacked = $self->foreign_body;
         my ($x, $y) = eval{$body_attacked->find_free_space};
         if ($@) {
             last;
@@ -53,11 +52,12 @@ after handle_arrival_procedures => sub {
             });
             $body_attacked->build_building($deployed, 1);
             $deployed->finish_upgrade;
-            $body_attacked->needs_surface_refresh(1);
-            $body_attacked->update;
             $bleeders++;
         }
     }
+    $body_attacked->needs_recalc(1);
+    $body_attacked->needs_surface_refresh(1);
+    $body_attacked->update;
     
     # notify home
     unless ($self->body->empire->skip_attack_messages) {

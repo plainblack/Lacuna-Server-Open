@@ -28,12 +28,15 @@ after handle_arrival_procedures => sub {
     }
     my $payload = $self->payload;
     my $waste_dumped = 0;
+    $body_attacked->recalc_stats;
     if (defined($payload->{resources})) {
       $waste_dumped = $payload->{resources}{waste} if defined($payload->{resources}{waste});
     }
     return unless $waste_dumped > 0;
     $body_attacked->add_waste($waste_dumped);
-    $body_attacked->update;
+    $body_attacked->needs_recalc(1);
+    $body_attacked->needs_surface_refresh(1);
+    $body_attacked->update(1);
     $waste_dumped = commify($waste_dumped); # commify so emails look nicer
 
     # all pow
