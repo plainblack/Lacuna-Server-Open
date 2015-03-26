@@ -203,7 +203,8 @@ after handle_arrival_procedures => sub {
     }
     $body_attacked->needs_recalc(1);
     $body_attacked->needs_surface_refresh(1);
-    $body_attacked->update(1);
+    $body_attacked->recalc_stats;
+    $body_attacked->update;
     for my $key (sort keys %treport) {
         push @{$report}, [
             $key,
