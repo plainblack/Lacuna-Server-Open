@@ -147,6 +147,7 @@ sub summarize_spies {
         my $defense_success_rate = ($spy->defense_mission_count) ? 100 * $spy->defense_mission_successes / $spy->defense_mission_count : 0;
         my $success_rate = $offense_success_rate + $defense_success_rate;
         my $planet = $db->resultset('Lacuna::DB::Result::Map::Body')->find($spy->from_body_id);
+        next unless defined $planet;
         my %spy_data = (
             date_stamp                  => DateTime->now,
             spy_name                    => $spy->name,
