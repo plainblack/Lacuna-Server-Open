@@ -436,7 +436,7 @@ sub send {
     my $end_range = DateTime->now->add(seconds => ($seconds2arrive + $sec_rng));
     my $ships_rs;
     my $ag_chk = 0;
-    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+    if ($options{target}->isa('Lacuna::DB::Result::Map::Star')) {
         $ag_chk = 0; #Just an empty statement.
     }
     elsif ( grep { $self->type eq $_ } @ag_list ) {

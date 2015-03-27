@@ -28,7 +28,7 @@ after handle_arrival_procedures => sub {
               $done_after = 0;
           }
       }
-      if ($done_after == 0 and $do_scan) {
+      if ($done_after == 0 and $do_boom) {
           for my $key (@trim) {
               delete $payload->{fleet}->{$key};
           }
