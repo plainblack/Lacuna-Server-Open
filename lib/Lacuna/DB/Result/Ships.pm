@@ -441,6 +441,7 @@ sub send {
             id      => { '!=' => $self->id },
             body_id => $self->body_id,
             foreign_body_id => $self->foreign_body_id,
+            foreign_star_id => $self->foreign_star_id,
             direction => 'out',
             task    => 'Travelling',
             type => { 'in' => \@ag_list },
