@@ -25,6 +25,7 @@ with "Lacuna::Role::Ship::Arrive::DeployBleeder";
 with "Lacuna::Role::Ship::Arrive::DeploySmolderingCrater";
 with "Lacuna::Role::Ship::Arrive::ScanSurface";
 with "Lacuna::Role::Ship::Arrive::SurveySurface";
+with "Lacuna::Role::Ship::Arrive::DestroyMinersExcavators";
 with "Lacuna::Role::Ship::Arrive::GroupHome";
 
 no Moose;

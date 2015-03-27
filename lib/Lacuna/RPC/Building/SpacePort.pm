@@ -380,6 +380,7 @@ sub send_ship_types {
         number_of_docks => 0,
     };
     my $payload;
+    $ag_chk = 0 if ($target->isa('Lacuna::DB::Result::Map::Star'));
     
     foreach my $ship (values %$ship_ref) {
         if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {

@@ -14,6 +14,32 @@ after handle_arrival_procedures => sub {
   my $is_uninhabit  = ($body_attacked->isa('Lacuna::DB::Result::Map::Body::Planet') and !(defined($body_attacked->empire_id)) );
 # not an asteroid or uninhabited planet
   return unless ( $self->foreign_body_id && ($is_asteroid || $is_uninhabit));
+  my $do_boom = 0;
+  my $done_after = 1;
+  if ($self->type eq "attack_group") {
+      my $payload = $self->payload;
+      my @trim;
+      for my $fleet (keys %{$payload->{fleet}}) {
+          if ($payload->{fleet}->{$fleet}->{type} eq "detonators") {
+              $do_boom = 1;
+              push @trim, $fleet;
+          }
+          else {
+              $done_after = 0;
+          }
+      }
+      if ($done_after == 0 and $do_scan) {
+          for my $key (@trim) {
+              delete $payload->{fleet}->{$key};
+          }
+          $self->payload($payload);
+          $self->update;
+      }
+  }
+  else {
+      $do_boom = 1;
+  }
+  return unless $do_boom;
 
   my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
   my $mcount = 0;

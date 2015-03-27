@@ -3,7 +3,8 @@
  - Add: view_unread Inbox API
  - Add: Stations auto-seize
  - Add: Voting allowed in embassy
- - Fix: Detonators do not group when sent toward different stars.
+ - Fix: If star is a target, no grouping.
+ - Fix: Detonators work properly on arrival.
 
 3.0909:
  - Add: Admin UI to set alliance logo.

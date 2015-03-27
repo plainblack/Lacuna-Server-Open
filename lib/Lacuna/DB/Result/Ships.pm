@@ -436,7 +436,10 @@ sub send {
     my $end_range = DateTime->now->add(seconds => ($seconds2arrive + $sec_rng));
     my $ships_rs;
     my $ag_chk = 0;
-    if ( grep { $self->type eq $_ } @ag_list ) {
+    if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+        $ag_chk = 0; #Just an empty statement.
+    }
+    elsif ( grep { $self->type eq $_ } @ag_list ) {
         $ships_rs = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({
             id      => { '!=' => $self->id },
             body_id => $self->body_id,

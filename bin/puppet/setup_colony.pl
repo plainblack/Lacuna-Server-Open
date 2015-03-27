@@ -41,6 +41,8 @@ our $quiet;
   }
   print "Really!\n";
   if ($sanitize) {
+    my @all_buildings = @{$body->building_cache};
+    $body->delete_buildings(\@all_buildings);
     $body->sanitize;
   }
   print "Checking empire\n";
