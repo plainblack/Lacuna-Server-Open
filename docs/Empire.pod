@@ -219,6 +219,7 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
             "id-goes-here" : "Mars"
         },
         "rpc_count" : 321, # the number of calls made to the server
+        "insurrect_value" : 100000,
         "is_isolationist" : 1, # hasn't sent out probes or colony ships
         "name" : "The Syndicate",
         "status_message" : "A spy's work is never done.",
@@ -226,6 +227,8 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
         "has_new_messages" : 4,
         "latest_message_id" : 1234,
         "essentia" : 0,
+        "next_colony_cost" : 100000,
+        "next_station_cost" : 1000000,
         "planets" : {
             "id-goes-here" : "Earth",
             "id-goes-here" : "Mars",

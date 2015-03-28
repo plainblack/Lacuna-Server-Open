@@ -550,6 +550,9 @@ sub get_status {
         planets             => \%planets,
         stations            => \%stations,
         colonies            => \%colonies,
+        next_colony_cost    => $self->next_colony_cost("colony_ship"),
+        next_station_cost   => $self->next_colony_cost("space_station"),
+        insurrect_value     => $self->next_colony_cost("spy"),
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
         primary_embassy_id  => $embassy_id,
@@ -1002,7 +1005,7 @@ sub next_colony_cost {
         my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
         $tally = 100_000 * ($inflation**($count-1));
         my $max = 2_700_000_000_000_000 / (1 + (($srcs + $self->effective_growth_affinity * 5) / 100));
-        $max *= 250 if $type eq "spy";
+        $max *= 200 if $type eq "spy";
         $tally = $max if $tally > $max;
     }
     elsif ($type eq "space_station" and $self->alliance_id) {
