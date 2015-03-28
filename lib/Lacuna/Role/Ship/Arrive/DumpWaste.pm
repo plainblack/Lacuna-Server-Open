@@ -36,7 +36,7 @@ after handle_arrival_procedures => sub {
     $body_attacked->add_waste($waste_dumped);
     $body_attacked->needs_recalc(1);
     $body_attacked->needs_surface_refresh(1);
-    $body_attacked->update(1);
+    $body_attacked->update;
     $waste_dumped = commify($waste_dumped); # commify so emails look nicer
 
     # all pow
