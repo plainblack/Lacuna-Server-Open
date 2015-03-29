@@ -43,6 +43,7 @@ use utf8;
           }
           printf "Adding %s of %s %s to %s\n", $to_build, $shash->{number}, $shash->{type}, $body_name;
           for (1..$to_build) {
+              my $berth_level = $shash->{berth_level} ? $shash->{berth_level} : 1;
               my $new = $body->ships->new({
                   type            => $shash->{type},
                   name            => $shash->{name},
@@ -51,6 +52,7 @@ use utf8;
                   combat          => $shash->{combat},
                   stealth         => $shash->{stealth},
                   hold_size       => $shash->{hold_size},
+                  berth_level     => $berth_level,
                   date_available  => DateTime->now,
                   date_started    => DateTime->now,
                   body_id         => $body->id,
