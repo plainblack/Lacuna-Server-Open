@@ -5,6 +5,7 @@
  - Add: Voting allowed in embassy
  - Fix: If star is a target, no grouping.
  - Fix: Detonators work properly on arrival.
+ - Fix: Offline Essentia veins can be repaired again in UI.
 
 3.0909:
  - Add: Admin UI to set alliance logo.
