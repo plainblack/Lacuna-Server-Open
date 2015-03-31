@@ -1026,7 +1026,7 @@ sub next_colony_cost {
         $count += $adjustment;
         my $inflation = 1 + INFLATION - (($self->effective_growth_affinity * 15) / 100);
         $tally = 250_000 * ($inflation**($count-1));
-        my $max = 202_500_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
+        my $max = 405_000_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
         $tally = $max if $tally > $max;
     }
     else {
