@@ -6,6 +6,7 @@
  - Fix: If star is a target, no grouping.
  - Fix: Detonators work properly on arrival.
  - Fix: Offline Essentia veins can be repaired again in UI.
+ - Mod: Stations sort to bottom of UI list.
 
 3.0909:
  - Add: Admin UI to set alliance logo.
