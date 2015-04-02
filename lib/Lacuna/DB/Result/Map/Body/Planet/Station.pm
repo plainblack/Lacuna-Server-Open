@@ -284,8 +284,6 @@ EOSQL
         order_by => 'distance',
     });
 
-        $|++;
-
     while (my $star = $stars_rs->next)
     {
         next if $star->in_neutral_area() or $star->in_starter_zone();
