@@ -55,5 +55,17 @@ after handle_arrival_procedures => sub {
     }
 };
 
+after can_send_to_target => sub {
+    my ($self, $target) = @_;
+    my $empire = $self->body->empire;
+    if ($target->star->station_id) {
+        if ($target->star->station->laws->search({type => 'MembersOnlyStations'})->count) {
+            unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
+                confess [1010, 'Only '.$target->star->station->alliance->name.' members can setup stations in the jurisdiction of the space station.'];
+            }
+        }
+    }
+    return 1;
+};
 
 1;
