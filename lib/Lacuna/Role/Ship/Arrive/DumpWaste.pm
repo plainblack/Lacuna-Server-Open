@@ -23,6 +23,7 @@ after handle_arrival_procedures => sub {
     my $body_attacked = $self->foreign_body;
 #If a scow crashes into an unclaimed planet, does anyone hear?
     unless ($body_attacked->empire) {
+      return if ($self->type eq "attack_group");
       $self->delete;
       confess [-1];
     }

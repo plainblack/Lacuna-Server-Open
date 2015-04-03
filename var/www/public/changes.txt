@@ -7,6 +7,7 @@
  - Fix: Detonators work properly on arrival.
  - Fix: Offline Essentia veins can be repaired again in UI.
  - Mod: Stations sort to bottom of UI list.
+ - Fix: Allied fighters let allies past.
 
 3.0909:
  - Add: Admin UI to set alliance logo.
@@ -47,6 +48,7 @@
  - Fix: Known colonies includes allied knowledge.
  - Mod: Balancing ships some more.
  - Mod: Multiple Forges in empire ramp up costs.
+ - Mod: SRCS costs less happiness to send.
 
 3.0908:
  - Mod: trash_messages_where now defaults to not returning deleted message IDs.

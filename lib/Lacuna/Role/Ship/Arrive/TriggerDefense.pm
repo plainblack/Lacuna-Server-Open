@@ -45,8 +45,9 @@ after handle_arrival_procedures => sub {
     $self->allied_combat();
 
     # Do all ships that are defending from dock (drones, fighters, sweepers)
-    $self->defender_combat();
-
+    if ($body_attacked->empire) {
+      $self->defender_combat();
+    }
 };
 
 sub citadel_interaction {
@@ -218,7 +219,7 @@ sub ship_to_ship_combat {
 
     my $attack_eid = $self->body->empire_id;
     my $attack_aid = 0;
-    $attack_aid = $self->body->empire->alliance_id if ($self->body->alliance);
+    $attack_aid = $self->body->empire->alliance_id if ($self->body->empire->alliance);
     my $attack_combat = $self->combat;
 
     my $defense_stat;
@@ -229,7 +230,7 @@ sub ship_to_ship_combat {
 
         # don't fight our alliance
         if ( ($ship->body->empire->alliance && $attack_aid) && 
-             ($ship->body->empire->alliance == $attack_aid)) {
+             ($ship->body->empire->alliance_id == $attack_aid)) {
             next;
         }
 
@@ -287,7 +288,6 @@ sub allied_combat {
     my ($self) = @_;
 
     my $attacked_body = $self->foreign_body;
-    my $ship_body = $self->body;
     my $is_planet = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Planet');
     my $is_asteroid = $attacked_body->isa('Lacuna::DB::Result::Map::Body::Asteroid');
     my $is_station = 0;
@@ -295,14 +295,14 @@ sub allied_combat {
 
     my $defend_eid = 0;
     my $defend_aid = 0;
-    my $attack_aid = 0;
     if ($attacked_body->empire) {
         $defend_eid = $attacked_body->empire_id;
         $defend_aid = $attacked_body->empire->alliance_id if ($attacked_body->empire->alliance_id);
     }
 
-    my $attack_eid = $ship_body->empire_id;
-    $attack_aid = $ship_body->empire->alliance_id if ($ship_body->alliance);
+    my $attack_aid = 0;
+    my $attack_eid = $self->body->empire_id;
+    $attack_aid = $self->body->empire->alliance_id if ($self->body->empire->alliance);
 
     if ($defend_aid != 0 and $attack_aid != 0) {
         return if ($defend_aid == $attack_aid);
@@ -314,26 +314,21 @@ sub allied_combat {
 
     my @allied_bodies;
     if ($attack_aid) {
-        my @allied_empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(
+        my @members = $self->body->empire->alliance->members->get_column('id')->all;
+        @allied_bodies = Lacuna->db->resultset('Map::Body')->search(
             {
-                alliance_id => $attack_aid,
-            });
-        @allied_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Body')->search(
-            {
-                empire_id => { 'in' => \@allied_empire, },
-            });
+                empire_id => { 'in' => \@members, },
+            })->get_column('id')->all;
     }
-    my $ship_db = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
-    my $fighters_orbit = $ship_db->search(
-                       {
+    my $ship_db = Lacuna->db->resultset('Ships');
+    my $fighters_orbit = $ship_db->search({
                            foreign_body_id => $attacked_body->id,
 			   type => 'fighter',
 			   task => 'Defend',
                            body_id => { 'not in' => \@allied_bodies, },
                        });
-    undef @allied_bodies;
     # initiate ship to ship combat between the attackers and the allied ships
-    if ($fighters_orbit->count) {
+    if ($fighters_orbit->count > 0) {
         $self->ship_to_ship_combat($fighters_orbit);
     }
 }
@@ -342,7 +337,7 @@ sub defender_combat {
     my ($self) = @_;
 
     # get defensive ships
-    my $defense_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
+    my $defense_ships = Lacuna->db->resultset('Ships')->search(
         {
           body_id => $self->foreign_body_id,
           type => { in => [ qw(fighter drone sweeper) ] },
@@ -383,7 +378,7 @@ sub system_saw_combat {
         return;
     }
 
-    my $defending_bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+    my $defending_bodies = Lacuna->db->resultset('Map::Body')
                             ->search({
                                 star_id => $attacked_body->star_id,
                             });
