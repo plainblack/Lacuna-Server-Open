@@ -26,6 +26,7 @@ __PACKAGE__->add_columns(
 __PACKAGE__->typecast_map(type => {
     AbandonStation          => 'Lacuna::DB::Result::Propositions::AbandonStation',
     BHGNeutralized          => 'Lacuna::DB::Result::Propositions::BHGNeutralized',
+    BHGPassport             => 'Lacuna::DB::Result::Propositions::BHGPassport',
     BroadcastOnNetwork19    => 'Lacuna::DB::Result::Propositions::BroadcastOnNetwork19',
     DemolishModule          => 'Lacuna::DB::Result::Propositions::DemolishModule',
     DowngradeModule         => 'Lacuna::DB::Result::Propositions::DowngradeModule',
@@ -39,6 +40,7 @@ __PACKAGE__->typecast_map(type => {
     InductMember            => 'Lacuna::DB::Result::Propositions::InductMember',
     InstallModule           => 'Lacuna::DB::Result::Propositions::InstallModule',
     MembersOnlyColonization => 'Lacuna::DB::Result::Propositions::MembersOnlyColonization',
+    MembersOnlyStations     => 'Lacuna::DB::Result::Propositions::MembersOnlyStations',
     MembersOnlyExcavation   => 'Lacuna::DB::Result::Propositions::MembersOnlyExcavation',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Propositions::MembersOnlyMiningRights',
     RenameAsteroid          => 'Lacuna::DB::Result::Propositions::RenameAsteroid',

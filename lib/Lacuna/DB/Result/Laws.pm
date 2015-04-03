@@ -21,7 +21,9 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->typecast_map(type => {
     BHGNeutralized          => 'Lacuna::DB::Result::Laws::BHGNeutralized',
+    BHGPassport             => 'Lacuna::DB::Result::Laws::BHGPassport',
     MembersOnlyColonization => 'Lacuna::DB::Result::Laws::MembersOnlyColonization',
+    MembersOnlyStations     => 'Lacuna::DB::Result::Laws::MembersOnlyStations',
     MembersOnlyMiningRights => 'Lacuna::DB::Result::Laws::MembersOnlyMiningRights',
     MembersOnlyExcavation   => 'Lacuna::DB::Result::Laws::MembersOnlyExcavation',
     Taxation                => 'Lacuna::DB::Result::Laws::Taxation',

@@ -8,6 +8,8 @@
  - Fix: Offline Essentia veins can be repaired again in UI.
  - Mod: Stations sort to bottom of UI list.
  - Fix: Allied fighters let allies past.
+ - Add: Members Only Station law added.
+ - Add: BHG Passport law added.
 
 3.0909:
  - Add: Admin UI to set alliance logo.

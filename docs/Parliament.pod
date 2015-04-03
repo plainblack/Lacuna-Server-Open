@@ -837,9 +837,40 @@ A session id.
 
 The unique id of the parliament.
 
+=head2 propose_members_only_stations ( session_id, building_id )
+
+If passed, only members of the alliance would be able to set up new stations in this station's jurisdiction. Usable at parliament level 18.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Members Only Stations",
+        "description" : "Only members of The Federation of Planets should be allowed to setup new stations in the jurisdiction of this station.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+
 =head2 propose_neutralize_bhg ( session_id, building_id )
 
-If passed, Black Hole Generators will not be able to be used on or from systems in the jurisdiction of this station.
+If passed, Black Hole Generators will not be able to be used on or from systems in the jurisdiction of this station by members outside the alliance. Usable at parliament level 23.
 
  {
     "status" : { ... },
@@ -905,5 +936,39 @@ A planet to fire at. See C<get_bodies_for_star_in_jurisdiction> for details.
 =head3 reason
 
 An explict reason why the BFG should be fired upon the target. Same rules as an L<Inbox> message body apply here.
+
+=head2 allow_bhg_by_alliance ( session_id, building_id, alliance_id )
+
+If passed, Black Hole Generators of members of another alliance are allowed to use their BHGs in this stations jurisdiction. Will also ignore Members Only Colonies & Stations. Usable at parliament level 28.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "BHG Passport",
+        "description" : "Black Hole Generators of alliance Star Fleet are allowed to be used in the jurisdiction of this station.",
+        "votes_needed" : 7,
+        "votes_yes" : 0,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        }
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 alliance_id
+
+The unique id of the alliance to be allowed to use their BHGs.
 
 =cut
