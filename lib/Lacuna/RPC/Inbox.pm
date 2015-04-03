@@ -163,8 +163,6 @@ sub trash_messages_where {
         $where{to_id}        = $empire->id;
         $where{has_trashed}  = 0; # only look at ones not already trashed
 
-        use Data::Dump; ddx \%where;
-
         my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')->search(\%where);
 
         # check if we have anything to delete
