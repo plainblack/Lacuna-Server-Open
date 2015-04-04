@@ -25,7 +25,7 @@ our $db = Lacuna->db;
 my $planet_rs = $db->resultset('Map::Body');
 my @ores = sort map {$_.''} ORE_TYPES;
 my $title = "Planet ID,Class,Water,";
-map { $title .= $_.',' } @ores;
+$title .= join ',', @ores;
 print "$title\n";
 foreach my $type (qw(P33)) {
     my @planets = $planet_rs->search(

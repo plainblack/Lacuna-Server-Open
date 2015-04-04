@@ -15,6 +15,6 @@ perl saben/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl delambert/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl cult/hourly_update.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl tick_fissures.pl >>/tmp/tick_fissures.log 2>>/tmp/tick_fissures.log
-perl test_weather.pl >>/tmp/test_weather.csv 2>/tmp/test_weather.log
+#perl test_weather.pl >>/tmp/test_weather.csv 2>/tmp/test_weather.log
 perl trelvestian/send_attack.pl >>/tmp/attack_trel.log 2>>/tmp/attack_trel.log &
 perl tick_stations.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
