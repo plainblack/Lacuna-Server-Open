@@ -1465,12 +1465,12 @@ sub add_news {
         }
     }
     if (randint(1,100) <= $chance) {
-        $headline = sprintf $headline, @_;
+        $headline = sprintf $headline, @_ if @_;
         Lacuna->db->resultset('Lacuna::DB::Result::News')->new({
             date_posted => DateTime->now,
             zone        => $self->zone,
             headline    => $headline,
-        })->insert;     
+        })->insert;
         return 1;
     }
     return 0;

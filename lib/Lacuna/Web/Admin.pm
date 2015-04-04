@@ -387,7 +387,7 @@ sub www_send_stellar_flare {
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;
-    $body->add_news(99, sprintf('%s has just belched a massive stellar flare. %s bore the brunt of it.', $body->star->name, $body->name));
+    $body->add_news(99, '%s has just belched a massive stellar flare. %s bore the brunt of it.', $body->star->name, $body->name);
     $body->empire->send_message(
         subject     => 'Stellar Flare',
         body        => "A stellar flare has disabled most of the infrastructure on ".$body->name.".\n\nRegards,\n\nYour Humble Assistant",
@@ -412,7 +412,7 @@ sub www_send_meteor_shower {
     $body->needs_recalc(1);
     $body->needs_surface_refresh(1);
     $body->update;
-    $body->add_news(99, sprintf('A meteor shower rained hell on %s today, and much of its infrastructure was destroyed.', $body->name));
+    $body->add_news(99, 'A meteor shower rained hell on %s today, and much of its infrastructure was destroyed.', $body->name);
     $body->empire->send_message(
         subject     => 'Meteor Shower',
         body        => "A meteor shower has just destroyed most of the infrastructure on ".$body->name.".\n\nRegards,\n\nYour Humble Assistant",
@@ -428,7 +428,7 @@ sub www_send_pestilence {
     if ($body->id == $body->empire->home_planet_id) {
         confess [401, 'You cannot send pestilence to someone\'s home planet.'];
     }
-    $body->add_news(99, sprintf('Yesterday there was an outbreak of Derni Pestilence on %s. Today %s has gone dark.', $body->name, $body->name));
+    $body->add_news(99, 'Yesterday there was an outbreak of Derni Pestilence on %s. Today %s has gone dark.', $body->name, $body->name);
     $body->empire->send_message(
         subject     => 'Pestilence',
         body        => "Derni Pestilence has broken out on ".$body->name.". The colony is lost.\n\nRegards,\n\nYour Humble Assistant",

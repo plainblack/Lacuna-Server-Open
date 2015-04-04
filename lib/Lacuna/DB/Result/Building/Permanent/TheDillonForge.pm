@@ -187,7 +187,7 @@ before finish_work => sub {
             filename    => 'plan_created_by_forge.txt',
             params      => [$body->id, $body->name, $work->{level}, $plan_class->name],
         );
-        $body->add_news(100, sprintf('%s used the Dillon Forge to create a %s plan level %s on %s.', $empire->name, $plan_class->name, $work->{level}, $body->name));
+        $body->add_news(100, '%s used the Dillon Forge to create a %s plan level %s on %s.', $empire->name, $plan_class->name, $work->{level}, $body->name);
     }
     if ($work->{task} eq 'split_plan') {
         my $effective_level = $self->effective_level;
@@ -243,7 +243,7 @@ before finish_work => sub {
                 params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
                 attachments => { table  => \@report },
             );
-            $body->add_news(100, sprintf('%s used the Dillon Forge to split %d %s level %s + %s plan%s into %s glyphs today on %s',
+            $body->add_news(100, '%s used the Dillon Forge to split %d %s level %s + %s plan%s into %s glyphs today on %s',
                                           $empire->name,
                                           $work->{quantity},
                                           $plan_class->name,
@@ -251,7 +251,7 @@ before finish_work => sub {
                                           $work->{extra_build_level},
                                           $s_place,
                                           $total_glyphs,
-                                          $body->name));
+                                          $body->name);
         }
         else {
             $empire->send_predefined_message(
@@ -259,7 +259,7 @@ before finish_work => sub {
                 filename    => 'plan_split_by_forge_failure.txt',
                 params      => [$body->id, $body->name, $work->{quantity}, $work->{level}, $work->{extra_build_level}, $plan_class->name, $s_place],
             );
-            $body->add_news(100, sprintf('%s failed miserably in an attempt to run the Dillon Forge today on %s', $empire->name, $body->name));
+            $body->add_news(100, '%s failed miserably in an attempt to run the Dillon Forge today on %s', $empire->name, $body->name);
         }
     }
 };

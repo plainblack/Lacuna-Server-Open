@@ -38,7 +38,7 @@ before pass => sub {
                     $body->needs_recalc(1);
                     $body->needs_surface_refresh(1);
                     $body->update;
-                    $body->add_news(99, sprintf('The parliament of %s has fired their BFG at %s, devastating the surface.', $self->station->name, $body->name));
+                    $body->add_news(99, 'The parliament of %s has fired their BFG at %s, devastating the surface.', $self->station->name, $body->name);
                     $body->empire->send_message(
                         subject     => 'BFG Damage',
                         body        => "The parliament of ".$self->station->name." has fired their BFG at ".$body->name.". The planet has been devastated, and I doubt it's repairable.\n\nRegards,\n\nYour Humble Assistant",
@@ -57,11 +57,11 @@ before pass => sub {
                 {
                     $parl->spend_efficiency(25);
                     $parl->update;
-                    $self->station->add_news(49, sprintf('The parliament of %s suffered a malfunction today while trying to fire their BFG.', $self->station->name));
+                    $self->station->add_news(49, 'The parliament of %s suffered a malfunction today while trying to fire their BFG.', $self->station->name);
                 }
                 else
                 {
-                    $self->station->add_news(99, sprintf('The parliament of %s suffered a critical malfunction today while trying to fire their BFG.', $self->station->name));
+                    $self->station->add_news(99, 'The parliament of %s suffered a critical malfunction today while trying to fire their BFG.', $self->station->name);
                 }
                 $self->station->update;
 

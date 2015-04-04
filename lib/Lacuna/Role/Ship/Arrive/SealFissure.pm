@@ -47,7 +47,7 @@ after handle_arrival_procedures => sub {
         }
     }
     
-    $body_hit->add_news(10, sprintf('An attempt to fix the fissure on %s happened today.', $body_hit->name));
+    $body_hit->add_news(10, 'An attempt to fix the fissure on %s happened today.', $body_hit->name);
 
     # handle fissure
     if (defined $fissure) {

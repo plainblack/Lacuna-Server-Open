@@ -75,7 +75,7 @@ after finish_upgrade => sub {
     my $empire = $body->empire;
     $empire->home_planet_id($body->id);
     $empire->update;
-    $body->add_news(80, sprintf('%s have announced that their new capitol is %s.', $empire->name, $body->name));
+    $body->add_news(80, '%s have announced that their new capitol is %s.', $empire->name, $body->name);
 };
 
 sub rename_empire_cost {

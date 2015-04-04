@@ -86,7 +86,7 @@ after handle_arrival_procedures => sub {
         );
     }
 
-    $body_attacked->add_news(30, sprintf('%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name));
+    $body_attacked->add_news(30, '%s is so polluted that waste seems to be falling from the sky.', $body_attacked->name);
 
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');
     $logs->new({

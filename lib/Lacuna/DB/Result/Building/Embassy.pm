@@ -83,7 +83,7 @@ sub create_alliance {
     });
     $alliance->insert;
     $alliance->add_member($empire);
-    $body->add_news(60,sprintf('A pact was formed by unnamed parties today, which formed a shadowy organization known only as %s.', $alliance->name));
+    $body->add_news(60,'A pact was formed by unnamed parties today, which formed a shadowy organization known only as %s.', $alliance->name);
     return $alliance;
 }
 
@@ -192,7 +192,7 @@ sub dissolve_alliance {
     if ($body->empire_id != $alliance->leader_id) {
         confess [1010, 'Only the alliance leader can dissolve an alliance.'];
     }
-    $body->add_news(60,sprintf('The organization known as %s dissolved today amid rumors of scandal.', $alliance->name));
+    $body->add_news(60,'The organization known as %s dissolved today amid rumors of scandal.', $alliance->name);
     $alliance->delete;
 }
 

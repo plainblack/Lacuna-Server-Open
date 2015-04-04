@@ -67,7 +67,7 @@ before downgrade => sub {
     else {
         $body->spend_ore($stored);
     }
-    $self->body->add_news(30, sprintf('Scientists on %s successfully downgraded a Fissure today.', $self->body->name));
+    $self->body->add_news(30, 'Scientists on %s successfully downgraded a Fissure today.', $self->body->name);
 };
 
 sub get_repair_costs {

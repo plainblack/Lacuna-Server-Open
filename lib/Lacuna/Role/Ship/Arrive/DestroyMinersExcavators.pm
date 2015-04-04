@@ -124,7 +124,7 @@ after handle_arrival_procedures => sub {
     $excav->delete;
   }
   # notify about destruction
-  $self->body->add_news(20, sprintf("A bright flash was observed on the surface of %s today.", $body_attacked->name));
+  $self->body->add_news(20, "A bright flash was observed on the surface of %s today.", $body_attacked->name);
   unless ($self->body->empire->skip_attack_messages) {
     my $filename; my $params;
     if ($mcount > 0 and $ecount > 0) {

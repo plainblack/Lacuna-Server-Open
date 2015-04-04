@@ -92,7 +92,7 @@ after handle_arrival_procedures => sub {
                 params      => [$body_attacked->id, $body_attacked->name, "Surveyor", $self->body->empire_id, $self->body->empire->name],
             );
         }
-        $body_attacked->add_news(65, sprintf('Several people reported seeing a UFO in the %s sky today.', $body_attacked->name));
+        $body_attacked->add_news(65, 'Several people reported seeing a UFO in the %s sky today.', $body_attacked->name);
     }
 
     my $logs = Lacuna->db->resultset('Lacuna::DB::Result::Log::Battles');

@@ -650,7 +650,7 @@ sub generate_singularity {
                 $count++;
             }
             if ($count) {
-                $body->add_news(75, sprintf('Scientists revolt against %s for despicable practices.', $empire->name));
+                $body->add_news(75, 'Scientists revolt against %s for despicable practices.', $empire->name);
                 $effect->{fail} = bhg_self_destruct($building);
                 return {
                     status => $self->format_status($empire, $body),
@@ -1007,11 +1007,11 @@ sub generate_singularity {
         }
         elsif ($task->{name} eq "Make Asteroid") {
             $return_stats = bhg_make_asteroid($building, $target);
-            $body->add_news(75, sprintf('%s has destroyed %s.', $empire->name, $target->name));
+            $body->add_news(75, '%s has destroyed %s.', $empire->name, $target->name);
         }
         elsif ($task->{name} eq "Increase Size") {
             $return_stats = bhg_size($building, $target, 1);
-            $body->add_news(50, sprintf('%s has expanded %s.', $empire->name, $target->name));
+            $body->add_news(50, '%s has expanded %s.', $empire->name, $target->name);
         }
         elsif ($task->{name} eq "Change Type") {
             $return_stats = bhg_change_type($target, $args->{params});
@@ -1030,7 +1030,7 @@ sub generate_singularity {
             else {
                 $tname = $target->name;
             }
-            $body->add_news(50, sprintf('%s has switched places with %s!', $body->name, $tname));
+            $body->add_news(50, '%s has switched places with %s!', $body->name, $tname);
         }
         elsif ($task->{name} eq "Swap Places") {
             $return_stats = bhg_swap($building->body, $target);
@@ -1041,7 +1041,7 @@ sub generate_singularity {
             else {
                 $tname = $target->name;
             }
-            $body->add_news(50, sprintf('%s has switched places with %s!', $body->name, $tname));
+            $body->add_news(50, '%s has switched places with %s!', $body->name, $tname);
         }
         elsif ($task->{name} eq "Move System") {
             $return_stats = bhg_move_system($building, $target);
@@ -1533,14 +1533,14 @@ sub bhg_random_make {
         };
     }
     elsif ($btype eq 'habitable planet' or $btype eq 'gas giant') {
-        $body->add_news(75, sprintf('%s has been destroyed!', $target->name));
+        $body->add_news(75, '%s has been destroyed!', $target->name);
         $return = bhg_make_asteroid($building, $target);
     }
     elsif ($btype eq 'asteroid') {
         my $platforms = Lacuna->db->resultset('Lacuna::DB::Result::MiningPlatforms')->
         search({asteroid_id => $target->id });
         unless ($platforms->next) {
-            $body->add_news(50, sprintf('A new planet has appeared where %s had been!', $target->name));
+            $body->add_news(50, 'A new planet has appeared where %s had been!', $target->name);
             $return = bhg_make_planet($building, $target);
         }
         else {
@@ -1574,12 +1574,12 @@ sub bhg_random_type {
     }
     elsif ($btype eq 'habitable planet') {
         my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->planet_types) };
-        $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
+        $body->add_news(50, '%s has gone thru extensive changes.', $target->name);
         $return = bhg_change_type($target, $params);
     }
     elsif ($btype eq 'asteroid') {
         my $params = { newtype => randint(1,Lacuna::DB::Result::Map::Body->asteroid_types) };
-        $body->add_news(50, sprintf('%s has gone thru extensive changes.', $target->name));
+        $body->add_news(50, '%s has gone thru extensive changes.', $target->name);
         $return = bhg_change_type($target, $params);
     }
     else {
@@ -1611,11 +1611,11 @@ sub bhg_random_size {
         };
     }
     elsif ($btype eq 'habitable planet') {
-        $body->add_news(50, sprintf('%s has deformed.', $target->name));
+        $body->add_news(50, '%s has deformed.', $target->name);
         $return = bhg_size($building, $target, 0);
     }
     elsif ($btype eq 'asteroid') {
-        $body->add_news(50, sprintf('%s has deformed.', $target->name));
+        $body->add_news(50, '%s has deformed.', $target->name);
         $return = bhg_size($building, $target, 0);
     }
     else {
@@ -1647,7 +1647,7 @@ sub bhg_random_resource {
         };
     }
     elsif ($btype eq 'habitable planet' or $btype eq 'gas giant') {
-        $body->add_news(50, sprintf('A wormhole briefly appeared on %s.', $target->name));
+        $body->add_news(50, 'A wormhole briefly appeared on %s.', $target->name);
         my $variance =  (randint(0,9) < 2) ? 1 : 0;
         $return = bhg_resource($target, $variance);
     }
@@ -1701,7 +1701,7 @@ sub bhg_random_fissure {
                 class        => 'Lacuna::DB::Result::Building::Permanent::Fissure',
             });
             $target->build_building($building, undef, 1);
-            $body->add_news(50, sprintf('Astronomers detect a gravitational anomoly on %s.', $target->name));
+            $body->add_news(50, 'Astronomers detect a gravitational anomoly on %s.', $target->name);
             $return->{message} = "Fissure formed";
             my $minus_x = 0 - $target->x;
             my $minus_y = 0 - $target->y;
@@ -1771,10 +1771,10 @@ sub bhg_random_decor {
     }
     elsif ($btype eq 'habitable planet') {
         if ($target->empire_id) {
-            $body->add_news(75, sprintf('The population of %s marvels at the new terrain.', $target->name));
+            $body->add_news(75, 'The population of %s marvels at the new terrain.', $target->name);
         }
         else {
-            $body->add_news(30, sprintf('Astronomers claim that the surface of %s has changed.', $target->name));
+            $body->add_news(30, 'Astronomers claim that the surface of %s has changed.', $target->name);
         }
         my $variance =  (randint(0,9) < 2) ? 1 : 0;
         $return = bhg_decor($building, $target, $variance);

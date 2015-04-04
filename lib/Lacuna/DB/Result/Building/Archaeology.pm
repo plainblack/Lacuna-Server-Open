@@ -218,8 +218,8 @@ sub dig_it {
         outcome => "Resource",
       };
       if (randint(0,99) < 1) {
-        $self->body->add_news(1,sprintf("%s uncovered a cache of %s on %s.",
-                          $empire_name, $type, $body->name));
+        $self->body->add_news(1,"%s uncovered a cache of %s on %s.",
+                          $empire_name, $type, $body->name);
       }
     }
     when ("plan") {
@@ -229,8 +229,8 @@ sub dig_it {
         outcome => "Plan",
       };
       if (randint(0,99) < 1) {
-        $self->body->add_news(10,sprintf("%s uncovered a %s plan on %s.",
-                          $empire_name, $name, $body->name));
+        $self->body->add_news(10,"%s uncovered a %s plan on %s.",
+                          $empire_name, $name, $body->name);
       }
     }
     when ("glyph") {
@@ -240,8 +240,8 @@ sub dig_it {
         outcome => "Glyph",
       };
       if (randint(0,99) < 1) {
-        $self->body->add_news(1,sprintf("%s uncovered a %s glyph on %s.",
-                          $empire_name, $glyph, $body->name));
+        $self->body->add_news(1,"%s uncovered a %s glyph on %s.",
+                          $empire_name, $glyph, $body->name);
       }
     }
     when ("artifact") {
@@ -257,8 +257,8 @@ sub dig_it {
           message => "Found level $lvl + $plus $name Plan.",
           outcome => "Artifact",
         };
-        $self->body->add_news(10,sprintf("%s uncovered a rare %s plan on %s.",
-                              $empire_name, $name, $body->name));
+        $self->body->add_news(10,"%s uncovered a rare %s plan on %s.",
+                              $empire_name, $name, $body->name);
       }
     }
     when ("destroy") {
@@ -659,7 +659,7 @@ before finish_work => sub {
             }
         );
         $empire->add_medal($ore.'_glyph');
-        $body->add_news(30, sprintf('%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $body->name));
+        $body->add_news(30, '%s has uncovered a rare and ancient %s glyph on %s.',$empire->name, $ore, $body->name);
     }
 };
 
