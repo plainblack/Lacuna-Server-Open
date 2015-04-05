@@ -413,7 +413,7 @@ sub check_bhg_neutralized {
             return 0, "";
         }
         if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
-            my $passes = $tstar->station->laws->search({type => "BHGPassport"})->all;
+            my $passes = $tstar->station->laws->search({type => "BHGPassport"});
             while (my $pass = $passes->next) {
                 return 0, "" if ($pass->scratch->{alliance_id} == $alliance_check);
             }
@@ -428,16 +428,24 @@ sub check_bhg_neutralized {
 
 sub check_member_laws {
     my ($body, $target, $task) = @_;
-#    ($return->{throw}, $return->{reason}) = check_member_laws($body, $target, $task);
     my $throw; my $reason; my $tstar;
+    my $btype;
     if (ref $target eq 'HASH') {
+        $btype = $target->{type};
         $tstar = $target->{star};
-        $target = $tstar;
     }
     else {
-        $tstar = $target->star;
+        if ($target->isa('Lacuna::DB::Result::Map::Star')) {
+            $btype = 'star';
+            $tstar = $target;
+        }
+        else {
+            $btype = $target->get_type;
+            $tstar = $target->star;
+        }
     }
     if ($task->{name} eq "Jump Zone" or $task->{name} eq "Swap Places") {
+        return 0, "" if $btype eq "star";
         my ($throw, $reason) = check_bentry($body, $tstar);
         return $throw, $reason if $throw;
         ($throw, $reason) = check_bentry($target, $body->star);
@@ -465,9 +473,10 @@ sub check_bentry {
     unless ($star->station_id) {
         return 0, "";
     }
-    my $baid = $body->empire->alliance_id;
+    return 0, "" unless ($body->empire);
+    my $baid = $body->empire->alliance_id if ($body->empire);
     my $staid = $star->station->alliance_id;
-    if ($baid == $staid) {
+    if ($baid and $baid == $staid) {
         return 0, "";
     }
     my $btype = $body->get_type;
@@ -482,14 +491,14 @@ sub check_bentry {
     elsif ($btype eq 'space station') {
       $lawcheck = "MembersOnlyStations";
       $reason = 'Only '.$star->station->alliance->name.
-                    ' members can bring stations into the jurisdiction of that space station '.
+                    ' members can bring stations into the jurisdiction of space station '.
                     $star->station->name.'.';
     }
     else {
         return 0, "";
     }
     if ($star->station->laws->search({type => $lawcheck})->count) {
-        my $passes = $star->station->laws->search({type => "BHGPassport"})->all;
+        my $passes = $star->station->laws->search({type => "BHGPassport"});
         while (my $pass = $passes->next) {
             return 0, "" if ($pass->scratch->{alliance_id} == $baid);
         }
@@ -800,7 +809,8 @@ sub generate_singularity {
                     }
                     else {
                         $confess = 'Only '.$tstar->station->alliance->name.
-                            ' members can colonize planets in the jurisdiction of that space station.';
+                                   ' members can bring colonies into the jurisdiction of space station '.
+                                   $tstar->station->name.'.';
                     }
                 }
                 else {

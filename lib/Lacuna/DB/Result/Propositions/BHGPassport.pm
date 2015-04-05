@@ -1,4 +1,4 @@
-package Lacuna::DB::Result::Propositions::BHGNeutralized;
+package Lacuna::DB::Result::Propositions::BHGPassport;
 
 use Moose;
 use utf8;
