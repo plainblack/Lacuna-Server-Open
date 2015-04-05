@@ -10,6 +10,7 @@ before pass => sub {
     my $law = Lacuna->db->resultset('Lacuna::DB::Result::Laws')->new({
         name        => $self->name,
         description => $self->description,
+        scratch     => $self->scratch,
         type        => 'BHGPassport',
         station_id  => $self->station_id,
     })->insert;

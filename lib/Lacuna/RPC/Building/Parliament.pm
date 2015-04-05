@@ -625,6 +625,7 @@ sub allow_bhg_by_alliance {
     my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
         type            => 'BHGPassport',
         name            => 'BHG Passport',
+        scratch         => { alliance_id => $alliance_id },
         description     => '{Alliance '.$alliance->id.' '.$alliance->name.' is allowed to use their BHG in the jurisdiction of {Starmap '.$building->body->x.' '.$building->body->y.' '.$building->body->name.'}.',
         proposed_by_id  => $empire->id,
     });
