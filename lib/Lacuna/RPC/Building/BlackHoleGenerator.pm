@@ -316,6 +316,10 @@ sub task_chance {
         if ($return->{throw} > 0) {
             return $return;
         }
+        ($return->{throw}, $return->{reason}) = check_member_laws($body, $target, $task);
+        if ($return->{throw} > 0) {
+            return $return;
+        }
     }
     unless ( grep { $target_type eq $_ } @{$task->{types}} ) {
         $return->{throw}   = 1009;
@@ -409,11 +413,87 @@ sub check_bhg_neutralized {
             return 0, "";
         }
         if ($tstar->station->laws->search({type => 'BHGNeutralized'})->count) {
+            my $passes = $tstar->station->laws->search({type => "BHGPassport"})->all;
+            while (my $pass = $passes->next) {
+                return 0, "" if ($pass->scratch->{alliance_id} == $alliance_check);
+            }
             my $ss_name = $tstar->station->name;
             $throw = 1009;
             $reason = sprintf("The star, %s is under BHG Neutralization from %s", $sname, $ss_name);
             return $throw, $reason;
         }
+    }
+    return 0, "";
+}
+
+sub check_member_laws {
+    my ($body, $target, $task) = @_;
+#    ($return->{throw}, $return->{reason}) = check_member_laws($body, $target, $task);
+    my $throw; my $reason; my $tstar;
+    if (ref $target eq 'HASH') {
+        $tstar = $target->{star};
+        $target = $tstar;
+    }
+    else {
+        $tstar = $target->star;
+    }
+    if ($task->{name} eq "Jump Zone" or $task->{name} eq "Swap Places") {
+        my ($throw, $reason) = check_bentry($body, $tstar);
+        return $throw, $reason if $throw;
+        ($throw, $reason) = check_bentry($target, $body->star);
+        return $throw, $reason if $throw;
+    }
+    elsif ($task->{name} eq "Move System") {
+        my $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $body->star_id ]});
+        my $throw; my $reason;
+        while (my $cbody = $bodies->next) {
+            ($throw, $reason) = check_bentry($cbody, $tstar);
+            return $throw, $reason if $throw;
+        }
+        $bodies = Lacuna->db->resultset('Map::Body')->search({star_id => [ $tstar->id ]});
+        while (my $tbody = $bodies->next) {
+            ($throw, $reason) = check_bentry($tbody, $body->star);
+            return $throw, $reason if $throw;
+        }
+    }
+    return 0, "";
+}
+
+sub check_bentry {
+    my ($body, $star) = @_;
+
+    unless ($star->station_id) {
+        return 0, "";
+    }
+    my $baid = $body->empire->alliance_id;
+    my $staid = $star->station->alliance_id;
+    if ($baid == $staid) {
+        return 0, "";
+    }
+    my $btype = $body->get_type;
+    my $lawcheck;
+    my $reason = '';
+    if ($btype eq 'habitable planet' or $btype eq 'gas giant') {
+      $lawcheck = "MembersOnlyColonization";
+      $reason = 'Only '.$star->station->alliance->name.
+                    ' members can bring planets into the jurisdiction of space station '.
+                    $star->station->name.'.';
+    }
+    elsif ($btype eq 'space station') {
+      $lawcheck = "MembersOnlyStations";
+      $reason = 'Only '.$star->station->alliance->name.
+                    ' members can bring stations into the jurisdiction of that space station '.
+                    $star->station->name.'.';
+    }
+    else {
+        return 0, "";
+    }
+    if ($star->station->laws->search({type => $lawcheck})->count) {
+        my $passes = $star->station->laws->search({type => "BHGPassport"})->all;
+        while (my $pass = $passes->next) {
+            return 0, "" if ($pass->scratch->{alliance_id} == $baid);
+        }
+        return 1099, $reason;
     }
     return 0, "";
 }
@@ -702,18 +782,13 @@ sub generate_singularity {
     elsif ( $task->{name} eq "Swap Places" ) {
         my $confess = "";
         my $allowed = 0;
-        if ($tid == $body->id) {
+        if ($body->id == $tid) {
             $confess = "Pointless swapping with oneself.";
         }
         elsif (defined($tempire)) {
             $confess = "You can not attempt that action on a body if it is occupied by another alliance!";
-            if ($body->empire->id == $tempire->id) {
-                $allowed = 1;
-            }
-            elsif (
-                $body->empire->alliance_id
-                && ($body->empire->alliance_id == $tempire->alliance_id)
-            ) {
+            if ( ($body->empire->id == $tempire->id) or ( $body->empire->alliance_id
+                  && ($body->empire->alliance_id == $tempire->alliance_id))) {
                 $allowed = 1;
             }
         }
@@ -762,6 +837,7 @@ sub generate_singularity {
         }
         # Let's check all planets in our system and target system
         qualify_moving_sys($building, $target);
+#Need to add to qualify
     }
     elsif ( $task->{name} eq 'Jump Zone' ) {
         if ($body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure')) {

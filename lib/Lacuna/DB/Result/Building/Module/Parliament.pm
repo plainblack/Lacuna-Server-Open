@@ -32,8 +32,10 @@ after downgrade => sub {
     push @unsupported_laws, 'MembersOnlyMiningRights' if $level < 13;
     push @unsupported_laws, 'Taxation'                if $level < 15;
     push @unsupported_laws, 'MembersOnlyColonization' if $level < 18;
+    push @unsupported_laws, 'MembersOnlyStations'     if $level < 18;
     push @unsupported_laws, 'MembersOnlyExcavation'   if $level < 20;
     push @unsupported_laws, 'BHGNeutralized'          if $level < 23;
+    push @unsupported_laws, 'BHGPassport'             if $level < 28;
 
     my $laws = $self->body->laws->search(type => { in => \@unsupported_laws });
     while (my $law = $laws->next)
