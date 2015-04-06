@@ -101,6 +101,11 @@ __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');
 __PACKAGE__->belongs_to('foreign_star', 'Lacuna::DB::Result::Map::Star', 'foreign_star_id');
 __PACKAGE__->belongs_to('foreign_body', 'Lacuna::DB::Result::Map::Body', 'foreign_body_id');
 
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+    $sqlt_table->add_index(name => 'idx_shiptype', fields => ['type']);
+}
+
 use constant prereq                 => [ { class=> 'Lacuna::DB::Result::Building::University',  level => 1 } ];
 use constant base_food_cost         => 1;
 use constant base_water_cost        => 1;
