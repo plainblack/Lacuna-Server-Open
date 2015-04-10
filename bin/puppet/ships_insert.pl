@@ -16,11 +16,12 @@ use utf8;
   our $fill;
   our $maintain;
 
-  GetOptions(
+  my $ok = GetOptions(
       'config=s'  => \$config,
       'fill'  => \$fill,
       'maintain'  => \$maintain,
   );
+  die "$0 --fill --maintain --config CFGFILE\n" unless $ok;
 
   die "Must give config\n" unless ($config);
   out('Started');
@@ -31,6 +32,10 @@ use utf8;
 
   for my $body_name (sort keys %$builds) {
       my $body = Lacuna->db->resultset('Map::Body')->search( { name => "$body_name" })->first;
+      unless ($body) {
+          out("Could not find $body_name");
+          next;
+      }
       for my $shash (@{$builds->{$body_name}}) {
           my $to_build = $shash->{number};
           if ($maintain) {

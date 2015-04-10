@@ -157,8 +157,8 @@ sub subsidize_ship {
 sub build_ship {
     my ($self, $session_id, $building_id, $type, $quantity) = @_;
     $quantity = defined $quantity ? $quantity : 1;
-    if ($quantity > 50) {
-        confess [1011, "You can only build up to 50 ships at a time"];
+    if ($quantity > 600) { # of course, this would only be reached if the planet had 20 shipyards at level 30
+        confess [1011, "You can only build up to 600 ships at a time"];
     }
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];

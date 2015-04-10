@@ -39,29 +39,29 @@ exit;
 ## SUBROUTINES
 ###############
 sub summarize_map {
-    my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
 
-    out('Getting Occupied Bodies');
-    my $occupied = $bodies->search({empire_id => { '!=' => 'Null' }});
     my %map_data;
     my $star_map_size = Lacuna->config->get('map_size');
     $map_data{map} = {
       bounds => $star_map_size,
     };
-    $map_data{colonies} = {};
-    while (my $body = $occupied->next) {
-        my $bdata = {
-            id => $body->id,
-            x => $body->x,
-            y => $body->y,
-            pop => $body->population,
-            zone => $body->zone,
-            orbit => $body->orbit,
-            star_id => $body->star_id,
-            empire_id => $body->empire_id,
-        };
-        $map_data{colonies}->{$body->id} = $bdata;
-    }
+#    my $bodies = $db->resultset('Lacuna::DB::Result::Map::Body');
+#    out('Getting Occupied Bodies');
+#    my $occupied = $bodies->search({empire_id => { '!=' => 'Null' }});
+#    $map_data{colonies} = {};
+#    while (my $body = $occupied->next) {
+#        my $bdata = {
+#            id => $body->id,
+#            x => $body->x,
+#            y => $body->y,
+#            pop => $body->population,
+#            zone => $body->zone,
+#            orbit => $body->orbit,
+#            star_id => $body->star_id,
+#            empire_id => $body->empire_id,
+#        };
+#        $map_data{colonies}->{$body->id} = $bdata;
+#    }
     out('Getting Seized Stars');
     my $stars  = $db->resultset('Lacuna::DB::Result::Map::Star');
     my $seized_stars = $stars->search({station_id => { '!=' => 'Null' }});

@@ -1,5 +1,7 @@
 3.0911:
  - Add: Add opacity to less-well-controlled stars.
+ - Add: Upped limit of how many ships that could be ordered via Shipyard to 600.
+ - Add: Fleet limit increased to 600 per send.
 
 3.0910:
  - Add: Unread option in inbox UI

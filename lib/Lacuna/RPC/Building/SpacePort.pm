@@ -146,7 +146,7 @@ sub get_ships_for {
       push @available, $ship->get_status($target);
     }
     
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
+    my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
 
     my %out = (
         status              => $self->format_status($empire, $body),
@@ -291,7 +291,7 @@ sub send_ship_types {
     # calculate the total ships before the expense of any database operations.
     my $total_ships = 0;
     map {$total_ships += $_->{quantity}} @$type_params;
-    my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
+    my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
     if ($total_ships > $max_ships) {
         confess [1009, sprintf("Too many ships for a fleet, number must be less than or equal to %d.", $max_ships)];
     }
@@ -460,7 +460,7 @@ sub send_fleet {
   $set_speed //= 0;
   my $empire = $self->get_empire_by_session($session_id);
   my $target = $self->find_target($target_params);
-  my $max_ships = Lacuna->config->get('ships_per_fleet') || 500;
+  my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
   if (@$ship_ids > $max_ships) {
       confess [1009, 'Too many ships for a fleet.'];
   }
