@@ -145,6 +145,7 @@ sub view_excavators {
         plan     => $chances->{plan},
         resource => $chances->{resource},
         date_landed => format_date($building->date_created),
+        distance => 0,
     };
     my $excavators = $building->excavators;
     my $travel = Lacuna->db->resultset('Lacuna::DB::Result::Ships')
@@ -160,6 +161,7 @@ sub view_excavators {
         plan     => $chances->{plan},
         resource => $chances->{resource},
         date_landed => format_date($excav->date_landed),
+        distance => sprintf("%.2f", $building->body->calculate_distance_to_target($excav->body) / 100),
       };
     }
     return {

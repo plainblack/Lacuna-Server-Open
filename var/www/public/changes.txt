@@ -2,6 +2,7 @@
  - Add: Reduce opacity for less-well-controlled stars.
  - Add: Upped limit of how many ships that could be ordered via Shipyard to 600.
  - Add: Fleet limit increased to 600 per send.
+ - Add: Excavator distance shown in Arch Min.
 
 3.0910:
  - Add: Unread option in inbox UI
