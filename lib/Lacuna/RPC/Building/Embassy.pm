@@ -265,7 +265,7 @@ sub cast_vote {
         confess [1002, 'Proposition not found.'];
     }
     if ($proposition->station->alliance_id != $empire->alliance_id) {
-        confess [1003, 'You cannot vote for another alliances propositions!'];
+        confess [1003, q[You cannot vote for another alliance's propositions!]];
     }
 
     $proposition->cast_vote($empire, $vote);

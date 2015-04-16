@@ -3,6 +3,8 @@
  - Add: Upped limit of how many ships that could be ordered via Shipyard to 600.
  - Add: Fleet limit increased to 600 per send.
  - Add: Excavator distance shown in Arch Min.
+ - Fix: Stop fast voting from passing a proposition multiple times.
+ - Fix: Embassies must not be flattened to count as a primary embassy.
 
 3.0910:
  - Add: Unread option in inbox UI

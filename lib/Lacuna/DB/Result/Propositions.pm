@@ -94,18 +94,24 @@ before delete => sub {
 
 sub check_status {
     my $self = shift;
+    my $cache = Lacuna->cache;
+    return $self if $cache->get('proposition_recently_completed', $self->id);
+
     if ($self->status eq 'Pending') {
         $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
     }
     if ($self->status ne 'Pending') {
     }
     elsif ($self->votes_yes >= $self->votes_needed) {
+        $cache->set('proposition_recently_completed', $self->id, 30);
         $self->pass;
     }
     elsif ($self->votes_no >= $self->votes_needed) {
-        $self->fail;        
+        $cache->set('proposition_recently_completed', $self->id, 30);
+        $self->fail;
     }
     elsif ($self->date_ends->epoch < time()) {
+        $cache->set('proposition_recently_completed', $self->id, 30);
         $self->pass;
     }
     $self->update;
