@@ -1215,6 +1215,7 @@ sub highest_embassy {
     my $search_rs = Lacuna->db->resultset('Building')->search({
         'body.empire_id'    => $self->id,
         'me.class'          => 'Lacuna::DB::Result::Building::Embassy',
+        'me.efficiency'     => { '>' => 0 },
     },{
         join                => 'body',
         order_by            => { -desc => 'level' },
