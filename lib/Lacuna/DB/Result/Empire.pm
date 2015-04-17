@@ -6,7 +6,8 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result';
 use DateTime;
 use Scalar::Util qw(weaken);
-use Lacuna::Util qw(format_date randint);
+use List::Util qw(shuffle);
+use Lacuna::Util qw(format_date);
 use Digest::SHA;
 use List::MoreUtils qw(uniq);
 use Email::Stuff;
@@ -551,6 +552,7 @@ sub get_status {
         stations            => \%stations,
         colonies            => \%colonies,
         next_colony_cost    => $self->next_colony_cost("colony_ship"),
+        next_colony_srcs    => $self->next_colony_cost("short_range_colony_ship"),
         next_station_cost   => $self->next_colony_cost("space_station"),
         insurrect_value     => $self->next_colony_cost("spy"),
         self_destruct_active=> $self->self_destruct_active,
@@ -743,67 +745,50 @@ sub found {
 sub find_home_planet {
     my ($self) = @_;
     my $planets = Lacuna->db->resultset('Map::Body');
-    my %search = (
-        usable_as_starter_enabled   => 1,
-        orbit                       => { between => [ $self->min_orbit, $self->max_orbit] },
-        empire_id                   => undef,
+    my %body_search = (
+        'me.orbit'     => { between => [ $self->min_orbit, $self->max_orbit] },
+        'me.empire_id' => undef,
+        'me.class'     => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' }, 
     );
+    my %star_search = (
+        station_id => undef,
+    );
+    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id})->first;
     my $sz_param = Lacuna->config->get('starter_zone');
-    if ($sz_param and $sz_param->{active}) {
+    my @stars;
+    if (defined $invite) {
+        $body_search{'me.zone'} = $invite->zone;
+        $star_search{zone} = $invite->zone;
+    }
+    elsif ($sz_param and $sz_param->{active}) {
        if ($sz_param->{zone}) {
-           $search{zone} = { in => $sz_param->{zone_list} };
+           $body_search{'me.zone'} = { in => $sz_param->{zone_list} };
+           $star_search{zone} = { in => $sz_param->{zone_list} };
        }
        if ($sz_param->{coord}) {
-           $search{x} = { between => $sz_param->{x} };
-           $search{y} = { between => $sz_param->{y} };
+           $body_search{'me.x'} = { between => $sz_param->{x} };
+           $body_search{'me.y'} = { between => $sz_param->{y} };
+           $star_search{x} = { between => $sz_param->{x} };
+           $star_search{y} = { between => $sz_param->{y} };
        }
     }
+    else {
+         $body_search{'me.usable_as_starter_enabled'} = 1;
+    }
+    @stars  = Lacuna->db->resultset('Map::Star')->search(\%star_search)->get_column('id')->all;
+    $body_search{'me.star_id'} = { 'in' => \@stars };
+    my @bodies = shuffle $planets->search( \%body_search, { join => 'star' } );
     
-    # determine search area
-    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id})->first;
-    if (defined $invite) {
-        $search{zone} = $invite->zone;
-        delete $search{x};
-        delete $search{y};
-        # other possible solution
-        #   (SQRT( POW(5-x,2) + POW(8-y,2) )) as distance
-        # then order by distance
-    }
-
-    # search FIXME Note, this is temporary, should create a single query
-    # that returns all possible planets. 'rows 100' is not guaranteed to
-    # find a planet.
-    # Slightly better scheme.  At least we're likely to get a different group of planets.
-    my $possible_count   = $planets->search(\%search);
-    my $offset = 0;
-    if ($possible_count > 100) {
-        $offset = randint(0,$possible_count-100);
-    }
-    my @possible_planets = $planets->search(\%search, { offset => $offset, rows => 100 });
-
-    # find an uncontested planet in the possible planets
     my $home_planet;
-    while (scalar @possible_planets > 0) {
-        my $planet = splice (@possible_planets, randint(0,scalar @possible_planets), 1);
-        next unless (defined($planet));
-        # skip planets with member's only colonization
-        next if ($planet->empire);  # If a planet is qualified, but inhabited.
-        if ($planet->star->station_id) {
-            if ($planet->star->station->laws->search({type => 'MembersOnlyColonization'})->count) {
-                next;
-            }
-        }
-
-        # Skip the unlucky planet by coords
-        if ($planet->x == -4 && $planet->y == -444) {
-            next; 
-        }
-
-        unless ($planet->is_locked) {
-            $planet->lock;
-            $home_planet = $planet;
-            last;
-        }
+    for my $planet (@bodies) {
+      next unless (defined $planet);
+      next if ($planet->empire);
+      next if ($planet->is_claimed);
+      next if ($planet->x == -4 && $planet->y == -444); #Unlucky Planet
+      next if ($planet->is_locked);
+      $planet->lock;
+      $home_planet = $planet;
+      last;
     }
 
     # didn't find one
