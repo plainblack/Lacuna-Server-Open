@@ -473,7 +473,7 @@ sub check_bentry {
     unless ($star->station_id) {
         return 0, "";
     }
-    return 0, "" unless ($body->empire);
+    return 0, "" unless (Scalar::Util::blessed($body) && $body->empire);
     my $baid = $body->empire->alliance_id if ($body->empire);
     my $staid = $star->station->alliance_id;
     if ($baid and $baid == $staid) {
