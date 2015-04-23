@@ -456,9 +456,81 @@ B<NOTE:> The total sum, must add up to the sum of the donation, but can be in di
     "energy" : 2000,
     "meal" : 7500
  }
+
+=head2 view_propositions (session_id, building_id )
+
+Returns a list of the pending propositions.
+
+ {
+    "status" : { ... },
+    "propositions" : [
+        {
+           "id" : "id-goes-here",
+           "name" : "Rename Station",
+           "description" : "Rename the station from 'Bri Prui 7' to 'Deep Space 1'.",
+           "votes_needed" : 7,
+           "votes_yes" : 1,
+           "votes_no" : 0,
+           "status" : "Pending",
+           "date_ends" : "01 31 2010 13:09:05 +0600",
+           "proposed_by" : {
+                "id" : "id-goes-here",
+                "name" : "Klingons",
+           },
+           "my_vote" : 0 # not present if they haven't voted
+        },
+        ...
+    ]
+ }
  
- 
- 
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the embassy.
+
+
+=head2 cast_vote ( session_id, building_id, proposition_id, vote )
+
+Casts a vote for or against a proposition.
+
+ {
+    "status" : { ... },
+    "proposition" : {
+        "id" : "id-goes-here",
+        "name" : "Rename Station",
+        "description" : "Rename the station from 'Bri Prui 7' to 'Deep Space 1'.",
+        "votes_needed" : 7,
+        "votes_yes" : 2,
+        "votes_no" : 0,
+        "status" : "Pending",
+        "date_ends" : "01 31 2010 13:09:05 +0600",
+        "proposed_by" : {
+             "id" : "id-goes-here",
+             "name" : "Klingons",
+        },
+        "my_vote" : 0 # not present if they haven't voted
+    }
+ }
+
+=head3 session_id
+
+A session id.
+
+=head3 building_id
+
+The unique id of the parliament.
+
+=head3 proposition_id
+
+The id of the propostion you're casting this vote for or against. See C<view_propositions> for a list.
+
+=head3 vote
+
+A boolean indicating which way you wish to vote. 1 for yes. 0 for no. Default is 0.
+
 
 
 
