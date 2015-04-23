@@ -796,11 +796,9 @@ has home_field_advantage => (
         my $body = $self->on_body;
         my $building = 'Security';
         my $div = 2;
-        my $uni_level = $body->empire->university_level;
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             $building = 'Module::PoliceStation';
             $div = 1;
-            $uni_level = 30;  #This way, uni level doesn't matter with SS
         }
         my $hq = $body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
         if (defined $hq) {
