@@ -10,7 +10,7 @@ use Lacuna::Util qw(format_date);
 
 sub get_session {
     my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Result::Session') {
+    if (ref $session_id eq 'Lacuna::Session') {
         return $session_id;
     }
     else {
@@ -34,6 +34,9 @@ sub get_empire_by_session {
         my $empire = $self->get_session($session_id)->empire;
         if (defined $empire) {
             my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+            if (my $delay = Lacuna->cache->get('rpc_block', $session_id)) {
+                confess [1010, 'Too fast response, ' . $empire->name . '!'];
+            }
             if ($empire->rpc_rate > $throttle) {
                 Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
                 confess [1010, 'Slow down '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
