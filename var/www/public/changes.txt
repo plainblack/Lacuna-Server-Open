@@ -1,3 +1,6 @@
+3.0912:
+ - Fix: get_fleet_for returns berth appropriate ships.
+
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
  - Add: Upped limit of how many ships that could be ordered via Shipyard to 600.

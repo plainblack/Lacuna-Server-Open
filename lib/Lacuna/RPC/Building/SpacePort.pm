@@ -55,7 +55,7 @@ sub get_fleet_for {
     my $body    = $self->get_body($empire, $body_id);
     my $target  = $self->find_target($target_params);
 
-    my $berth   = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
+    my $max_berth   = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
         class       => 'Lacuna::DB::Result::Building::SpacePort',
         body_id     => $body_id,
         efficiency  => 100,
@@ -64,6 +64,7 @@ sub get_fleet_for {
         {
             body_id => $body->id, 
             task => 'docked',
+            berth_level => {'<=' => $max_berth } },
         },{
             '+select'   => [{count => 'id'}],
             '+as'       => [ qw(quantity) ],
