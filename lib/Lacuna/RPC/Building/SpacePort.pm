@@ -64,7 +64,7 @@ sub get_fleet_for {
         {
             body_id => $body->id, 
             task => 'docked',
-            berth_level => {'<=' => $max_berth } },
+            berth_level => {'<=' => $max_berth },
         },{
             '+select'   => [{count => 'id'}],
             '+as'       => [ qw(quantity) ],
