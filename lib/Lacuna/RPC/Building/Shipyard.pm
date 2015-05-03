@@ -1,11 +1,12 @@
 package Lacuna::RPC::Building::Shipyard;
 
+use 5.010;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC::Building';
 use Lacuna::Constants qw(SHIP_TYPES);
-use List::Util qw(none);
+use List::Util qw(none max min any sum reduce);
 
 sub app_url {
     return '/shipyard';
@@ -180,6 +181,134 @@ sub build_ship {
         $ship->update;
     }
     return $self->view_build_queue($empire, $building);
+}
+
+# All buildings must be on the same body
+# options:
+#     type        - sweeper, snark3, etc.
+#   one of:
+#     body_id     - the planet to build on
+#     building_id - the primary SY to use, or a list of SYs to use (array ref)
+#   optional:
+#     autoselect  -
+#          "all"    - use the given body, select all SYs
+#          "higher" - use the given body, select all SYs equal to or higher level than this one
+#          "only"   - use the given body, select all SYs equal in level to this one
+#                   - if not given, no autoselecting (just building_id(s) passed in)
+#     quantity    - default 1
+
+sub build_ships {
+    my ($self, $session_id, $opts) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+
+    my $quantity = $opts->{quantity} // 1;
+    if ($quantity > 600) { # of course, this would only be reached if the planet had 20 shipyards at level 30
+        confess [1011, "You can only build up to 600 ships at a time"];
+    }
+    if ($quantity <= 0 or int($quantity) != $quantity) {
+        confess [1001, "Quantity must be a positive integer"];
+    }
+
+    my @buildings;
+    if ($opts->{building_id}) {
+        if (ref($opts->{building_id}) eq 'ARRAY') {
+            push @buildings, map { $self->get_building($empire, $_) } @{$opts->{building_id}}
+        } else {
+            push @buildings, $self->get_building($empire, $opts->{building_id});
+        }
+        $opts->{body_id} = $buildings[0]->body_id;
+    } elsif ($opts->{body_id}) {
+
+    } else {
+        confess [1001, "Either building id(s) or body id must be provided"];
+    }
+    my $body = $self->get_body($empire, $opts->{body_id});
+
+    my @all_sys = grep {
+        $_->class eq 'Lacuna::DB::Result::Building::Shipyard'
+    } @{$body->building_cache};
+
+    my $ships_building = Lacuna->db->resultset("Ships")->search({body_id => $opts->{body_id}, task => 'Building'})->count;
+    if ($quantity > (my $total = sum map { $_->level } @all_sys) - $ships_building)
+    {
+        confess [1011, "You can only build up to $total ships at a time on this planet, and you already have $ships_building ships building."];
+    }
+    if (any { $_->body_id != $opts->{body_id} } @buildings)
+    {
+        confess [1011, "All Shipyards must be on the same planet."];
+    }
+
+    given(lc $opts->{autoselect}) {
+        when(undef) {
+            confess [1011, 'No building_id specified'] if @buildings < 1;
+        }
+        when('all') {
+            @buildings = @all_sys;
+        }
+        when('higher') {
+            confess [1011, 'Too many building_ids'] if @buildings > 1;
+            confess [1011, 'No building_id specified'] if @buildings < 1;
+            my $min_level = $buildings[0]->level;
+            @buildings = grep {
+                $_->level >= $min_level
+            } @all_sys;
+        }
+        when('only') {
+            confess [1011, 'Too many building_ids'] if @buildings > 1;
+            confess [1011, 'No building_id specified'] if @buildings < 1;
+            my $desired_level = $buildings[0]->level;
+            @buildings = grep {
+                $_->level == $desired_level
+            } @all_sys;
+        }
+        default {
+            confess [1011, "Unknown autoselect option: $_"];
+        }
+    }
+
+    my $ship_template = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
+    unless ($ship_template) {
+        confess [1011, "Unknown ship type: $opts->{type}"];
+    }
+
+    # different SYs may have different costs.
+    my %costs;
+    my $cost_for = sub {
+        my $b = shift;
+        $costs{$b->id} ||= $b->get_ship_costs($ship_template);
+        $costs{$b->id};
+    };
+
+    # sort based on when the SY would become available.
+    my $sorter = sub {
+        @buildings = sort {
+            ($a->work_seconds_remaining + $cost_for->($a)->{seconds}) <=>
+            ($b->work_seconds_remaining + $cost_for->($b)->{seconds})
+        } @buildings;
+        $buildings[0];
+    };
+
+    # ensure costs can be met overall by using the highest level SY.
+    # (should determine the spread of all the ships being built on their
+    # appropriate SYs and add up the costs that way, but, for now, this
+    # is a close enough approximation.)
+    my $highest_sy = reduce { $a->level > $b->level ? $a : $b } @buildings;
+    $highest_sy->can_build_ship($ship_template, $cost_for->($highest_sy), $quantity);
+
+    for (1..$quantity) {
+        my $building = $sorter->();
+        my $ship = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
+        my $cost = $cost_for->($building);
+        $building->can_build_ship($ship, $cost, 1);
+        $building->spend_resources_to_build_ship($cost);
+        $building->build_ship($ship, $cost->{seconds});
+        $ship->body_id($opts->{body_id});
+        $ship->update;
+    }
+
+    return {
+        status          => $self->format_status($empire, $buildings[0]->body),
+    }
 }
 
 

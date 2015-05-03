@@ -183,8 +183,84 @@ A ship type. Get from C<get_buildable>.
 =head3 quantity
 
 An optional quantity, if left blank it defaults to 1, otherwise specify the number
-of ships to build up to a maximum of 50. You must have the shipyard capacity, the
+of ships to build up to a maximum of 600. You must have the shipyard capacity, the
 space port capacity and the resources required to build the specified quantity of
 ships.
+
+=head2 build_ships ( session_id, options )
+
+Adds ships to build queues. Returns only the empire status.
+
+=head3 session_id
+
+A session id.
+
+=head3 options
+
+A hash of options.  Keys are:
+
+=over 4
+
+=item type
+
+A ship type. Get from C<get_buildable>.
+
+=item quantity
+
+An optional quantity.  If omitted, it defaults to 1, otherwise specify the
+number of ships to build up to a maximum of 600.  You must have the shipyard
+capacity, space port capacity, and the resources required to build the
+specified quantity of ships.  For now, you must be able to build this quantity
+as if it were all at the highest shipyard in your queue, which should only
+be an issue if you're almost out of resources.
+
+=item body_id
+
+When selecting C<all> shipyards, can simply provide the body_id to save
+the extra RPC call to look for all shipyards and select one.  At least one
+of body_id and building_id must be provided.
+
+=item building_id
+
+Can be a single building ID of the shipyard, or an array of building IDs to
+select which shipyards to use.  All buildings must belong to the same body.
+If the C<body_id> is also set, all shipyards must be on that body.  At least
+one of body_id and building_id must be provided.
+
+=item autoselect
+
+The shipyard autoselect mode.  By default, if this is not set, the mode
+is to only use the shipyard(s) selected by building_id.
+
+Can be one of:
+
+=over 4
+
+=item 1.
+
+C<all>
+
+Selects all shipyards on the current body, whether that was from body_id or
+building_id(s).
+
+=item 2.
+
+C<higher>
+
+Selects all shipyards on the current body, whose level is I<equal to or higher than>
+the building_id passed in.  Cannot pass in multiple building_ids when
+using this option.
+
+=item 3.
+
+C<only>
+
+Selects all shipyards on the current body, whose level is I<only equal to>
+the building_id passed in.  Cannot pass in multiple building_ids when
+using this option.
+
+=back
+
+=back
 
 =cut
