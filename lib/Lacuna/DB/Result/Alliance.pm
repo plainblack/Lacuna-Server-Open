@@ -55,6 +55,9 @@ sub check_donation {
         unless ($resource ~~ \@valid) {
             confess [1010, 'The stash cannot hold '.$resource.'.'];
         }
+        if ($donation->{$resource} < 0) {
+            confess [1010, 'You can not donate a negative amount of '.$resource.'.'];
+        }
         $body->can_spend_type($resource, $donation->{$resource});
     }
     return 1;
@@ -88,6 +91,9 @@ sub check_request {
     foreach my $resource (keys %{$request}) {
         if ($request->{$resource} > $stash->{$resource}) {
             confess [1010, 'The stash does not contain '.$request->{$resource}.' '.$resource.'.'];
+        }
+        if ($request->{$resource} < 0) {
+            confess [1010, 'You can not request a negative amount of '.$resource.'.'];
         }
         $sum += $request->{$resource};
     }
