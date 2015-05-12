@@ -210,6 +210,7 @@ sub build_ships {
     }
 
     my @buildings;
+    my $building_view;
     if ($opts->{building_id}) {
         if (ref($opts->{building_id}) eq 'ARRAY') {
             push @buildings, map { $self->get_building($empire, $_) } @{$opts->{building_id}}
@@ -217,6 +218,7 @@ sub build_ships {
             push @buildings, $self->get_building($empire, $opts->{building_id});
         }
         $opts->{body_id} = $buildings[0]->body_id;
+        $building_view = $buildings[0];
     } elsif ($opts->{body_id}) {
 
     } else {
@@ -239,11 +241,12 @@ sub build_ships {
     }
 
     given(lc $opts->{autoselect}) {
-        when(undef) {
+        when([undef,'']) {
             confess [1011, 'No building_id specified'] if @buildings < 1;
         }
         when('all') {
             @buildings = @all_sys;
+            $building_view ||= (sort { $b->level <=> $a->level } @buildings)[0];
         }
         when('higher') {
             confess [1011, 'Too many building_ids'] if @buildings > 1;
@@ -252,6 +255,7 @@ sub build_ships {
             @buildings = grep {
                 $_->level >= $min_level
             } @all_sys;
+            $building_view ||= $buildings[-1];
         }
         when('only') {
             confess [1011, 'Too many building_ids'] if @buildings > 1;
@@ -260,6 +264,7 @@ sub build_ships {
             @buildings = grep {
                 $_->level == $desired_level
             } @all_sys;
+            $building_view ||= $buildings[-1];
         }
         default {
             confess [1011, "Unknown autoselect option: $_"];
@@ -295,6 +300,7 @@ sub build_ships {
     my $highest_sy = reduce { $a->level > $b->level ? $a : $b } @buildings;
     $highest_sy->can_build_ship($ship_template, $cost_for->($highest_sy), $quantity);
 
+    my $needs_refresh;
     for (1..$quantity) {
         my $building = $sorter->();
         my $ship = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
@@ -304,11 +310,17 @@ sub build_ships {
         $building->build_ship($ship, $cost->{seconds});
         $ship->body_id($opts->{body_id});
         $ship->update;
+
+        $needs_refresh++ if ($building->id != $building_view->id)
     }
 
-    return {
-        status          => $self->format_status($empire, $buildings[0]->body),
+    if ($needs_refresh)
+    {
+        $body->needs_surface_refresh(1);
+        $body->update;
     }
+
+    return $self->view_build_queue($empire, $building_view);
 }
 
 
@@ -362,6 +374,7 @@ sub get_buildable {
 __PACKAGE__->register_rpc_method_names(qw(
     get_buildable 
     build_ship 
+    build_ships
     view_build_queue 
     subsidize_build_queue
     subsidize_ship
