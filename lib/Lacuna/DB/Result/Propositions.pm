@@ -185,6 +185,7 @@ sub get_status {
         status      => $self->status,
         date_ends   => $self->date_ends_formatted,
         station     => $self->station->name,
+        station_id  => $self->station->id,
         proposed_by => {
             id      => $self->proposed_by->id,
             name    => $self->proposed_by->name,
