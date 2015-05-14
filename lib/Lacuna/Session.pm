@@ -22,6 +22,7 @@ sub BUILD {
         $self->extended($session_data->{extended});
         $self->is_sitter($session_data->{is_sitter});
         $self->is_from_admin($session_data->{is_from_admin});
+        $self->ip_address($session_data->{ip_address});
     }
 }
 
@@ -53,6 +54,10 @@ has empire_id => (
     },
 );
 
+has ip_address => (
+    is      => 'rw',
+);
+
 has empire => (
     is          => 'rw',
     predicate   => 'has_empire',
@@ -78,21 +83,27 @@ sub check_captcha {
     confess [1016,'Needs to solve a captcha.'];
 }
 
-sub extend {
+sub update {
     my $self = shift;
-    $self->extended( $self->extended + 1 );
     Lacuna->cache->set(
         'session',
         $self->id,
         { 
-			empire_id		=> $self->empire_id,
-			api_key			=> $self->api_key,
-			extended		=> $self->extended,
-			is_sitter		=> $self->is_sitter,
-			is_from_admin   	=> $self->is_from_admin,
+            empire_id       => $self->empire_id,
+            api_key         => $self->api_key,
+            extended        => $self->extended,
+            is_sitter       => $self->is_sitter,
+            is_from_admin   => $self->is_from_admin,
+            ip_address      => $self->ip_address,
         },
         60 * 60 * 2,
     );
+}
+
+sub extend {
+    my $self = shift;
+    $self->extended( $self->extended + 1 );
+    $self->update;
     return $self;
 }
 
@@ -120,6 +131,7 @@ sub start {
     my $ip;
     if (exists $options->{request}) {
         $ip = real_ip_address($options->{request});
+        $self->ip_address($ip);
     }
     Lacuna->db->resultset('Lacuna::DB::Result::Log::Login')->new({
         empire_id       => $empire->id,

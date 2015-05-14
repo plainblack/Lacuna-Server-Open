@@ -4,9 +4,10 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'JSON::RPC::Dispatcher::App';
-use Lacuna::Util qw(format_date);
+use Lacuna::Util qw(format_date real_ip_address);
+use Log::Any qw($log);
 
-
+has plack_request => ( is => 'rw' );
 
 sub get_session {
     my ($self, $session_id) = @_;
@@ -31,7 +32,8 @@ sub get_empire_by_session {
         return $session_id;
     }
     else {
-        my $empire = $self->get_session($session_id)->empire;
+        my $session = $self->get_session($session_id);
+        my $empire = $session->empire;
         if (defined $empire) {
             my $throttle = Lacuna->config->get('rpc_throttle') || 30;
             if (my $delay = Lacuna->cache->get('rpc_block', $session_id)) {
@@ -45,6 +47,18 @@ sub get_empire_by_session {
             if ($empire->rpc_count > $max) {
                 confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
             }
+            my $ipr = real_ip_address($self->plack_request);
+            if (!$session->ip_address) {
+                $log->debug("Missing IP address, adding $ipr");
+                $session->ip_address($ipr);
+                $session->update;
+            }
+            my $ipm = $session->ip_address eq $ipr;
+            my @caller;
+            for (my $i = 1;$caller[0] !~ /Lacuna::RPC/;++$i) {
+                @caller = caller($i);
+            }
+            $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $session_id, $session->is_sitter ? 1 : 0, $caller[3]);
             #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
             #   empire_id    => $empire->id,
             #   empire_name  => $empire->name,
@@ -148,6 +162,24 @@ sub format_status {
         $out{body} = $body->get_status($empire);
     }
     return \%out;
+}
+
+sub to_app {
+    my $self = shift;
+    my $rpc = JSON::RPC::Dispatcher->new;
+    my $ref;
+    if ($ref = $self->can('_rpc_method_names')) {
+        foreach my $method ($ref->()) {
+            if (ref $method eq 'HASH') {
+                my $name = $method->{name};
+                $rpc->register($name, sub { $self->plack_request($_[0]); $self->$name(@_) }, $method->{options});
+            }
+            else {
+                $rpc->register($method, sub { $self->plack_request(shift); $self->$method(@_) }, { with_plack_request => 1} );
+            }
+        }
+    }
+    $rpc->to_app;
 }
 
 no Moose;
