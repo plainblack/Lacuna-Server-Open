@@ -172,7 +172,12 @@ sub to_app {
         foreach my $method ($ref->()) {
             if (ref $method eq 'HASH') {
                 my $name = $method->{name};
-                $rpc->register($name, sub { $self->plack_request($_[0]); $self->$name(@_) }, $method->{options});
+                if ($method->{options}{with_plack_request}) {
+                    $rpc->register($name, sub { $self->plack_request($_[0]); $self->$name(@_) }, $method->{options});
+                }
+                else {
+                    $rpc->register($name, sub { $self->plack_request(shift); $self->$name(@_) }, { with_plack_request => 1, %{$method->{options}} });
+                }
             }
             else {
                 $rpc->register($method, sub { $self->plack_request(shift); $self->$method(@_) }, { with_plack_request => 1} );
