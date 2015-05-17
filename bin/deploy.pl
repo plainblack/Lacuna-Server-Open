@@ -97,7 +97,7 @@ END_TEXT
 
                         $s3bucket->add_key(
                             $s3path,
-                            $final,
+                            $content,
                             {
                                 'Content-Type'      => $type,
                                 'Content-Encoding'  => 'gzip',
