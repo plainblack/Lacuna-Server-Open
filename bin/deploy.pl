@@ -5,9 +5,15 @@ use 5.010;
 
 use POSIX ();
 BEGIN {
-    fork && POSIX::_exit(0);
-    POSIX::setsid();
-    fork && POSIX::_exit(0);
+    # want to check if we're running under the debugger,
+    # and not fork off in that case.
+    no warnings 'once';
+    if (!defined $DB::single)
+    {
+        fork && POSIX::_exit(0);
+        POSIX::setsid();
+        fork && POSIX::_exit(0);
+    }
 }
 
 use Config::JSON;
@@ -18,8 +24,16 @@ use DateTime;
 use DateTime::Format::HTTP;
 use Path::Class::Dir;
 use Git::Wrapper;
+use AnyEvent::Util;
+use DateTime;
 $ENV{PATH} = '/data/apps/bin:' . $ENV{PATH};
-#open STDERR, '>>', '/tmp/lacuna-deploy.log';
+open STDOUT, '>>', '/tmp/lacuna-deploy.log';
+open STDERR, '>&', \*STDOUT;
+
+sub out {
+    my $message = shift;
+    say DateTime->now, " ", $message;
+}
 
 my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
 my $s3 = Net::Amazon::S3->new(
@@ -52,6 +66,10 @@ sub run {
     my $branch_config = $repo_config->{branch}{$branch};
     return
         unless $branch_config;
+
+    out "--------";
+    out "Updating $repo / $branch";
+    out "";
 
     my $dir = Path::Class::Dir->new($repo_config->{path});
     my $git = Git::Wrapper->new($repo_config->{path});
@@ -160,7 +178,7 @@ END_TEXT
                 local $/;
                 <$fh>;
             };
-            $index =~ s{((?:href|src)=")[^"]+(/(?:load\.(?:min\.)?js|styles\.(?:min\.)?css)")}{$1$url_root/code/$new_rev$2}msxg;
+            $index =~ s{((?:href|src)=")[^"]+(/(?:load\.(?:min\.)?js|styles\.(?:min\.)?css)")}{$1$url_root/code/$new_rev/lacuna$2}msxg;
             open my $fh, '>', $index_file;
             print {$fh} $index;
             close $fh;
@@ -209,6 +227,15 @@ END_TEXT
 }
 
 sub cmd_pipe {
+    my ($content, @cmd) = @_;
+
+    my $r = '';
+    my $cv = AnyEvent::Util::run_cmd(\@cmd, '<', \$content, '>', \$r);
+    $cv->recv;
+    return $r;
+}
+
+sub cmd_pipe_old {
     my ($content, @cmd) = @_;
     my ($wtr, $rdr);
     my $err = Symbol::gensym();
