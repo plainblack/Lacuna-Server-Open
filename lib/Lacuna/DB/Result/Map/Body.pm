@@ -130,6 +130,7 @@ __PACKAGE__->add_columns(
     unhappy                         => { data_type => 'tinyint', default_value => 0 },
     propaganda_boost                => { data_type => 'int',  default_value => 0 },
     neutral_entry                   => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
+    notes                           => { data_type => 'text', is_nullable => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
@@ -350,6 +351,7 @@ sub get_status {
         star_name       => $self->star->name,
         zone            => $self->zone,
         id              => $self->id,
+        notes           => $self->notes,
     );
     if ($self->star->station_id) {
         my $station = $self->star->station;

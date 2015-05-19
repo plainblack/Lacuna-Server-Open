@@ -2089,6 +2089,7 @@ sub steal_planet {
         $self->on_body->unhappy_date(DateTime->now);
     }
     $self->on_body->empire_id($self->empire_id);
+    $self->on_body->notes(undef);
     $self->on_body->add_happiness(int(abs($planet_happiness) / 10));
     $self->on_body->needs_recalc(1);
     $self->on_body->update;

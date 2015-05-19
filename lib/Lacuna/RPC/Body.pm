@@ -538,7 +538,36 @@ sub view_laws {
     }
 }
 
-__PACKAGE__->register_rpc_method_names(qw(abandon rename get_buildings get_buildable get_status get_body_status repair_list rearrange_buildings view_laws));
+sub set_colony_notes
+{
+    my ($self, $session_id, $body_id, $opts) = @_;
+    my $empire = $self->get_empire_by_session($session_id);
+    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
+                ->find($body_id);
+    my $notes = $opts->{notes};
+
+    #Lacuna::Verify->new(content=>\$notes, throws=>[1000,'Content may not have any of the following characters: @&<>;{}()',$notes])
+    #    ->no_restricted_chars;
+
+    $body->notes($notes);
+    $body->update;
+
+    return {
+        status => $self->format_status($empire, $body),
+    };
+}
+
+__PACKAGE__->register_rpc_method_names(qw(
+    abandon
+    rename
+    get_buildings
+    get_buildable
+    get_status
+    get_body_status
+    repair_list
+    rearrange_buildings
+    set_colony_notes
+    view_laws));
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -48,6 +48,7 @@ after handle_arrival_procedures => sub {
     # let's claim this for our very own!
     else {
         $planet->lock;
+        $planet->notes(undef);
         $planet->found_colony($empire);
         $empire->send_predefined_message(
             tags        => ['Colonization','Alert'],
