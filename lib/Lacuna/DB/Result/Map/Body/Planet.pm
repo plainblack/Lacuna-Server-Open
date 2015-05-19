@@ -1097,6 +1097,17 @@ sub found_colony {
         $crater->finish_work->update;
     }
 
+    # recreate virtual probes if there's already an oracle here.
+    if (my $oracle = $self->oracle) {
+        my $ends = DateTime->now->add(seconds => 60);
+        if ($oracle->is_working) {
+            $oracle->reschedule_work($ends)
+        }
+        else {
+            $oracle->start_work({}, 60);
+        }
+    }
+
     # add starting resources
     $self->needs_recalc(1);
     $self->tick;

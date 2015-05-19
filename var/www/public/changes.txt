@@ -4,6 +4,7 @@
  - Fix: trade ministry's supply chain tab now works after selecting ship tab.
  - Add: build_ships API to automatically spread out ship building across multiple yards.
  - Add: per-colony notes in PCC
+ - Fix: Oracles now work even during colonisation (60-second timer).
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
