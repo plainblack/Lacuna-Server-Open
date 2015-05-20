@@ -2321,6 +2321,7 @@ sub prevent_insurrection {
     else {
        $member_ids[0] = $self->empire->id;
     }
+    my $caught_level = int(3 * $self->level/2);
     my $conspirators = Lacuna->db
                         ->resultset('Spies')
                         ->search( { on_body_id => $self->on_body_id,
@@ -2328,6 +2329,7 @@ sub prevent_insurrection {
                                                            'Travelling',
                                                            'Captured',
                                                            'Prisoner Transport'] },
+                                    level     => { "<=" => $caught_level },
                                     empire_id => { 'in' => \@member_ids } });
     my $max_cnt = $defender->level;
     $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt;
