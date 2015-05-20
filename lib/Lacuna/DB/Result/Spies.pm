@@ -2321,7 +2321,6 @@ sub prevent_insurrection {
     else {
        $member_ids[0] = $self->empire->id;
     }
-    my $caught_level = int(3 * $self->level/2);
     my $conspirators = Lacuna->db
                         ->resultset('Spies')
                         ->search( { on_body_id => $self->on_body_id,
@@ -2329,16 +2328,16 @@ sub prevent_insurrection {
                                                            'Travelling',
                                                            'Captured',
                                                            'Prisoner Transport'] },
-                                    level     => { "<=" => $caught_level },
-                                    empire_id => { 'in' => \@member_ids } });
+                                    empire_id => { 'in' => \@member_ids },
+                                  },
+                                  { order_by => 'level', 'rand()' });
     my $max_cnt = $defender->level;
-    $max_cnt = ($max_cnt < 3) ? 6 : $max_cnt;
-    my $count = randint(5,$max_cnt);
+    $max_cnt = ($max_cnt < 3) ? 3 : $max_cnt;
+    my $count = randint(3,$max_cnt);
     while (my $conspirator = $conspirators->next ) {
-       $count--;
-       $conspirator->go_to_jail;
-       $conspirator->update;
-       last if $count < 1;
+        $count--;
+        $conspirator->go_to_jail;
+        last if $count < 1;
     }
     $defender->on_body->empire->send_predefined_message(
         tags        => ['Spies','Alert'],
