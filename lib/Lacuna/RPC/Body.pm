@@ -542,8 +542,7 @@ sub set_colony_notes
 {
     my ($self, $session_id, $body_id, $opts) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
-                ->find($body_id);
+    my $body = $self->get_body($empire, $body_id);
     my $notes = $opts->{notes};
 
     #Lacuna::Verify->new(content=>\$notes, throws=>[1000,'Content may not have any of the following characters: @&<>;{}()',$notes])
