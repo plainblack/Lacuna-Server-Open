@@ -26,7 +26,7 @@ foreach my $doc (@docs) {
     $parser->{perldoc_url_prefix} = '/api/';
     $parser->{perldoc_url_postfix} = '.html';
     $parser->{title_prefix} = 'The Lacuna Expanse API - ';
-    $parser->{html_footer} = '&copy; 2010 Lacuna Expanse Corp';
+    $parser->{html_footer} = sprintf '&copy; 2010,%d Lacuna Expanse Corp', 1900+(gmtime)[5];
 
     open my $in, '<', $poddir.$doc;
     my $name = $doc;
