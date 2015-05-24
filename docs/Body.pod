@@ -407,7 +407,7 @@ The new name of the body.
 
 =head2 abandon ( session_id, body_id )
 
-Abandon's a colony, and destroys everything on the planet. Returns a status block.
+Abandons a colony, and destroys everything on the planet. Returns a status block.
 
 =head3 session_id
 
@@ -443,6 +443,25 @@ A session id.
 =head3 body_id
 
 The unique id of the space station.
+
+
+=head2 set_colony_notes
+
+Sets the per-colony notes for an owned body (colony or station).  Returns
+a status block.
+
+=head3 session_id
+
+A session id.
+
+=head3 body_id
+
+The unique id of the body whose notes you want to update.
+
+=head3 options
+
+A hash of options.  Currently, the only valid key is C<notes>, and its
+value is the notes to assign.
 
 =cut
 
