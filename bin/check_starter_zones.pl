@@ -50,7 +50,7 @@ EMP: while (my $empire = $empires->next)
             if ($szb > $sz_param->{max_colonies}) {
                 $empire->send_predefined_message(
                     tags      => ['Alert'],
-                    filename  => 'sz_exceeded.txt',
+                    filename  => 'zoning_board_warning.txt',
                     params    => [ $sz_param->{max_colonies} ],
                 );
                 out(sprintf("%s:%d has more than %d colonies in the starter zones.",

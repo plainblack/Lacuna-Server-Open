@@ -9,3 +9,4 @@ perl rotate_taxes_paid.pl >> /tmp/daily.log 2>> /tmp/daily.log
 perl clean_up_mail.pl >> /tmp/daily.log 2>> /tmp/daily.log
 perl record_rpc.pl >> /tmp/daily.log 2>> /tmp/daily.log
 perl util/check_spy_count.pl --burn >> /tmp/daily.log 2>> /tmp/daily.log
+perl check_starter_zones.pl >> /tmp/daily.log 2>> /tmp/daily.log
