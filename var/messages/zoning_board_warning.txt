@@ -2,7 +2,7 @@ Overcrowding
 ~~~
 It has come to our attention that you have more than the allowed number of colonies in the starting area. This can not be allowed to continue, since we want to be sure new empires have an area to start off in.
 
-Please address this as soon as possible so that you only have %s number of colonies in the starting areas.
+Please address this as soon as possible so that you only have %s number of colonies in the starting areas. Your population will get happier once you do so.
 
 Regards,
 

@@ -508,6 +508,8 @@ sub happiness_production_bonus {
 sub happiness_production_hour {
     my ($self) = @_;
     my $base = $self->happiness_production * $self->production_hour;
+    return 0 unless $self->body->empire;
+    return 0 if Lacuna->cache->get('sz_exceeded', $self->body->empire->id);
     return 0 if $base == 0;
     return sprintf('%.0f', $base * $self->happiness_production_bonus);
 }

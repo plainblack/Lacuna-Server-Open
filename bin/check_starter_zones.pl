@@ -41,6 +41,7 @@ sub check_sz {
 
     my $empires = $db->resultset('Empire')->search({ id => { '>' => 1 }});
 
+    my $cache = Lacuna->cache;
 EMP: while (my $empire = $empires->next)
     {
         my $bodies = $empire->planets;
@@ -55,6 +56,8 @@ EMP: while (my $empire = $empires->next)
                 );
                 out(sprintf("%s:%d has more than %d colonies in the starter zones.",
                             $empire->name, $empire->id, $sz_param->{max_colonies}));
+                
+                $cache->set('sz_exceeded', $empire->id, 1, 60*60*24);
                 next EMP;
             }
         }
