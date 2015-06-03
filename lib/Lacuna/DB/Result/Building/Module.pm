@@ -108,5 +108,51 @@ around demolish => sub {
     }
 };
 
+sub food_capacity {
+    my ($self) = @_;
+    my $base = $self->food_storage * $self->production_hour;
+    return 0 if $base == 0;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base );
+}
+
+sub energy_capacity {
+    my ($self) = @_;
+    my $base = $self->energy_storage * $self->production_hour;
+    return 0 if $base == 0;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base );
+}
+
+sub ore_capacity {
+    my ($self) = @_;
+    my $base = $self->ore_storage * $self->production_hour;
+    return 0 if $base == 0;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base );
+}
+
+sub water_capacity {
+    my ($self) = @_;
+    my $base = $self->water_storage * $self->production_hour;
+    return 0 if $base == 0;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base );
+}
+
+sub waste_capacity {
+    my ($self) = @_;
+    my $base = $self->waste_storage * $self->production_hour;
+    return 0 if $base == 0;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    return sprintf('%.0f', $base );
+}
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

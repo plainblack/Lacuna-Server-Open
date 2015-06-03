@@ -6,6 +6,7 @@
  - Add: per-colony notes in PCC
  - Fix: Oracles now work even during colonisation (60-second timer).
  - Fix: Starter Zone limit enforced.
+ - Mod: Warehouses no longer use affinities or storage boosts.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
