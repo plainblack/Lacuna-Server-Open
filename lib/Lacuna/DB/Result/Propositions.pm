@@ -12,9 +12,6 @@ __PACKAGE__->table('propositions');
 __PACKAGE__->add_columns(
     name                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     station_id              => { data_type => 'int', size => 11, is_nullable => 0 },
-    votes_needed            => { data_type => 'int', is_nullable => 0, default_value => 1 },
-    votes_yes               => { data_type => 'int', is_nullable => 0, default_value => 0 },
-    votes_no                => { data_type => 'int', is_nullable => 0, default_value => 0 },
     description             => { data_type => 'text', is_nullable => 1 },
     type                    => { data_type => 'varchar', size => 30, is_nullable => 0 },
     scratch                 => { data_type => 'mediumblob', is_nullable => 1, 'serializer_class' => 'JSON' },
@@ -63,6 +60,33 @@ sub sqlt_deploy_hook {
     $sqlt_table->add_index(name => 'idx_status_date_ends', fields => ['status','date_ends']);
 }
 
+has votes_needed => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        int( ($self->station->alliance->members->count + 1) / 2);
+    }
+);
+
+has votes_yes => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        $self->votes->search({vote => 1})->count;
+    }
+);
+
+has votes_no => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        $self->votes->search({vote => 0})->count;
+    }
+);
+
 sub cast_vote {
     my ($self, $empire, $vote) = @_;
     unless ($self->status eq 'Pending') {
@@ -76,13 +100,6 @@ sub cast_vote {
         empire_id       => $empire->id,
         vote            => $vote,
     })->insert;
-    if ($vote) {
-        $self->votes_yes( $self->votes_yes + 1 );
-    }
-    else {
-        $self->votes_no( $self->votes_no + 1 );
-    }
-    $self->update;
     $self->check_status;
 }
 
@@ -95,27 +112,35 @@ before delete => sub {
 sub check_status {
     my $self = shift;
     my $cache = Lacuna->cache;
-    return $self if $cache->get('proposition_recently_completed', $self->id);
 
     if ($self->status eq 'Pending') {
-        $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
+        # cache check as close as possible to cache set to reduce chance
+        # (but not eliminate chance) of race condition
+        if ($self->votes_yes >= $self->votes_needed) {
+            return $self if $cache->get('proposition_recently_completed', $self->id);
+            $cache->set('proposition_recently_completed', $self->id, 30);
+            $self->pass;
+        }
+        elsif ($self->votes_no >= $self->votes_needed) {
+            return $self if $cache->get('proposition_recently_completed', $self->id);
+            $cache->set('proposition_recently_completed', $self->id, 30);
+            $self->fail;
+        }
+        elsif ($self->date_ends->epoch < time()) {
+            return $self if $cache->get('proposition_recently_completed', $self->id);
+            $cache->set('proposition_recently_completed', $self->id, 30);
+            $self->time_is_up;
+        }
+        $self->update;
     }
-    if ($self->status ne 'Pending') {
-    }
-    elsif ($self->votes_yes >= $self->votes_needed) {
-        $cache->set('proposition_recently_completed', $self->id, 30);
-        $self->pass;
-    }
-    elsif ($self->votes_no >= $self->votes_needed) {
-        $cache->set('proposition_recently_completed', $self->id, 30);
-        $self->fail;
-    }
-    elsif ($self->date_ends->epoch < time()) {
-        $cache->set('proposition_recently_completed', $self->id, 30);
-        $self->pass;
-    }
-    $self->update;
     return $self;
+}
+
+# allow some propositions to auto-fail by overriding this.
+sub time_is_up
+{
+    my ($self) = @_;
+    $self->pass;
 }
 
 sub pass {
@@ -164,7 +189,6 @@ has fail_extra_message  => (
 
 before insert => sub {
     my $self = shift;
-    $self->votes_needed( int( ( $self->station->alliance->members->count + 1 ) / 2 ) );
     $self->date_ends( DateTime->now->add(hours => 72) );
 };
 

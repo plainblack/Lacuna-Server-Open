@@ -465,7 +465,7 @@ sub get_latest_message_id {
         },{
         order_by        => { -desc => 'date_sent' },
     })->first;
-    my $message_id = defined $message ? $message->id : 0;
+    my $message_id = defined $message ? $message->id : undef;
     return $message_id;
 }
 
