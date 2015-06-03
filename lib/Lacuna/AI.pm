@@ -586,15 +586,139 @@ sub start_attack {
 }
 
 sub attack_with_ships {
-    my ($self, $attacking_colony, $target_colony, $ship_types) = @_;
-    say 'ATTACK WITH SHIPS';
-    my $available_ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search({ type => { in => $ship_types }, task=>'Docked', body_id => $attacking_colony->id});
-    while (my $ship = $available_ships->next) {
-        if (eval{$ship->can_send_to_target($target_colony)}) {
-            sleep(randint(1,10)); # simulate regular player clicking
-            say '    Sending '.$ship->type_formatted.' to '.$target_colony->name.'...';
-            $ship->send(target => $target_colony);
+    my ($self, $attacking_body, $target_body, $ship_types) = @_;
+
+    my $arrival = DateTime->now;
+    my $ship_ref;
+    my $ag_chk = 0;
+    my @ag_list = ("sweeper","snark","snark2","snark3",
+                   "observatory_seeker","spaceport_seeker","security_ministry_seeker",
+                   "scanner","surveyor","detonator","bleeder","thud",
+                   "scow","scow_large","scow_fast","scow_mega");
+STYPE: foreach my $type (@$ship_types) {
+        my $max_berth = $attacking_body->max_berth;
+        unless ($max_berth) {
+            $max_berth = 1;
         }
+        my $ships_rs    = Lacuna->db->resultset('Ships')->search({
+            body_id => $attacking_body->id,
+            task    => 'Docked',
+            type    => $type,
+            berth_level => {'<=' => $max_berth },
+        });
+        # handle optional parameters
+        my $quantity = $ships_rs->count;
+        next STYPE unless $quantity;
+        if (grep { $type eq $_ } @ag_list) {
+            $ag_chk += $quantity;
+        }
+        my @ships = $ships_rs->all;
+        my $ship = $ships[0]; #Need to grab slowest ship
+        # We only need to check one of the ships
+        $ship->can_send_to_target($target_body);
+
+#Check speed of ship.  If it can not make it to the target in time, fail
+#If time to target is longer than 60 days, fail.
+        my $seconds_to_target = $ship->calculate_travel_time($target_body);
+        my $earliest = DateTime->now->add(seconds=>$seconds_to_target);
+
+        my $two_months  = DateTime->now->add(days=>60);
+        if ($earliest > $two_months) {
+            say "$type can't make it in two months.";
+            next STYPE;
+        }
+        if ($earliest > $arrival) {
+            $arrival = $earliest;
+        }
+
+        foreach my $ship (@ships) {
+            $ship_ref->{$ship->id} = $ship;
+        }
+    }
+
+# Create attack_group
+    my $cnt = 0;
+    my %ag_hash = map { $_ => $cnt++ } @ag_list;
+    my $attack_group = {
+        speed       => 50_000,
+        stealth     => 50_000,
+        hold_size   => 0,
+        combat      => 0,
+        number_of_docks => 0,
+    };
+    my $payload;
+    $ag_chk = 0 if ($target_body->isa('Lacuna::DB::Result::Map::Star'));
+    
+    foreach my $ship (values %$ship_ref) {
+        if ($ag_chk > 1 and grep { $ship->type eq $_ } @ag_list) {
+            my $sort_val = $ag_hash{$ship->type};
+            if ($ship->speed < $attack_group->{speed}) {
+                $attack_group->{speed} = $ship->speed;
+            }
+            if ($ship->speed < $attack_group->{stealth}) {
+                $attack_group->{stealth} = $ship->stealth;
+            }
+            $attack_group->{combat} += $ship->combat;
+            $attack_group->{hold_size} += $ship->hold_size; #This really is only good for scows
+            $attack_group->{number_of_docks}++;
+            my $key = sprintf("%02d:%s:%05d:%05d:%05d:%09d",
+                              $sort_val,
+                              $ship->type, 
+                              $ship->combat, 
+                              $ship->speed, 
+                              $ship->stealth, 
+                              $ship->hold_size);
+            if ($payload->{fleet}->{$key}) {
+                $payload->{fleet}->{$key}->{quantity}++;
+            }
+            else {
+                $payload->{fleet}->{$key} = {
+                    type      => $ship->type, 
+                    name      => $ship->name,
+                    speed     => $ship->speed, 
+                    combat    => $ship->combat, 
+                    stealth   => $ship->stealth, 
+                    hold_size => $ship->hold_size,
+                    target_building => $ship->target_building,
+                    damage_taken => 0,
+                    quantity  => 1,
+                };
+            }
+            $ship->delete;
+        }
+        else {
+            my $distance = $attacking_body->calculate_distance_to_target($target_body);
+            my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
+            my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
+
+            $ship->fleet_speed($fleet_speed);
+            $ship->send(target => $target_body, arrival => $arrival);
+            $attacking_body->add_to_neutral_entry($ship->combat);
+        }
+    }
+    if ($attack_group->{number_of_docks} > 0) {
+        my $distance = $attacking_body->calculate_distance_to_target($target_body);
+        my $transit_time = $arrival->subtract_datetime_absolute(DateTime->now)->seconds;
+        my $fleet_speed = int( $distance / ($transit_time/3600) + 0.5);
+        my $ag = $attacking_body->ships->new({
+            type            => "attack_group",
+            name            => "Attack Group TLE",
+            shipyard_id     => "17",
+            speed           => $attack_group->{speed},
+            combat          => $attack_group->{combat},
+            stealth         => $attack_group->{stealth},
+            hold_size       => $attack_group->{hold_size},
+            date_available  => DateTime->now,
+            date_started    => DateTime->now,
+            fleet_speed     => $fleet_speed,
+            berth_level     => 1,
+            body_id         => $attacking_body->id,
+            task            => 'Docked',
+            number_of_docks => $attack_group->{number_of_docks},
+          })->insert;
+        say "Sending Attack Group from ".$attacking_body->name." to ".$target_body->name;
+        $ag->send(target => $target_body, arrival => $arrival, payload => $payload);
+        $attacking_body->add_to_neutral_entry($attack_group->{combat});
     }
 }
 
