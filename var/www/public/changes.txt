@@ -7,6 +7,7 @@
  - Fix: Oracles now work even during colonisation (60-second timer).
  - Fix: Starter Zone limit enforced.
  - Mod: Warehouses no longer use affinities or storage boosts.
+ - Add: RPC counter always displayed in UI
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
