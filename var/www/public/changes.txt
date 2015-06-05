@@ -8,6 +8,7 @@
  - Fix: Starter Zone limit enforced.
  - Mod: Warehouses no longer use affinities or storage boosts.
  - Add: RPC counter always displayed in UI
+ - Fix: Can now change station owner to oneself (UI)
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
