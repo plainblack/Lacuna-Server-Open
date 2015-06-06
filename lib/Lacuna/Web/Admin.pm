@@ -973,7 +973,7 @@ sub www_view_empire {
     $out .= sprintf('<tr><th>Admin</th><td>%s</td></tr>', $empire->is_admin);
     $out .= sprintf('<tr><th>Mission Curator</th><td>%s</td><td><a href="/admin/toggle/mission/curator?id=%s">Toggle</a></td></tr>', $empire->is_mission_curator, $empire->id);
 
-    my $notes = Lacuna->db->resultset('Log::EmpireAdminNotes')->find({empire_id => $empire->id},{order_by => { -desc => 'id' }, limit => 1 });
+    my $notes = Lacuna->db->resultset('Log::EmpireAdminNotes')->find({empire_id => $empire->id},{order_by => { -desc => 'id' }, rows => 1 });
     $out .= sprintf('<tr><th>Admin Notes</th><td colspan="2"><form method="post" style="display: inline" action="/admin/set/admin/notes"><input type="hidden" name="id" value="%s"><textarea name="notes" rows="4" cols="80">%s</textarea><input type="submit"></form></td><td>Last set by: %s<br/>Last set on: %s<br/><a href="/admin/view/admin/note/log?id=%s">View Log</a></td></tr>',
                     $empire->id,
                     $notes ? $notes->notes : '',

@@ -9,6 +9,7 @@
  - Mod: Warehouses no longer use affinities or storage boosts.
  - Add: RPC counter always displayed in UI
  - Fix: Can now change station owner to oneself (UI)
+ - Add: homeworld highlighted and always at the top of the public profile
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

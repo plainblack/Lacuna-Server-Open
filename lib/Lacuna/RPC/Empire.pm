@@ -721,7 +721,10 @@ sub view_public_profile {
     }
     my $planets = $viewed_empire->planets->search(undef,{order_by => 'name'});
     while (my $colony = $planets->next) {
-        if ($colony->id == $viewed_empire->home_planet_id || $probes->search({star_id=>$colony->star_id})->count) {
+        if ($colony->id == $viewed_empire->home_planet_id) {
+            unshift @colonies, $colony->get_status;
+            $colonies[0]{homeworld} = 1;
+        } elsif ($probes->search({star_id=>$colony->star_id})->count) {
             push @colonies, $colony->get_status;
         }
     }
