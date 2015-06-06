@@ -169,7 +169,8 @@ sub reset_stuff {
 sub reject_badspy {
     my ($self, $colony) = @_;
 
-    print "Jailing Spies that are too advanced\n";
+    print "Bouncing Spies that are too advanced\n";
+    my %empires;
     my $spies = Lacuna->db->resultset('Spies')->search({
                     'me.on_body_id' => $colony->id,
                     'me.empire_id'  => {'!=' => $colony->empire_id },
@@ -182,7 +183,16 @@ sub reject_badspy {
                     join                      => 'empire',
     });
     while (my $spy = $spies->next) {
-        $spy->go_to_jail;
+        printf "    Spy ID: %d from %s sent home\n",$spy->id, $spy->empire->name;
+        my $result = eval { $spy->assign("Bugout") };
+        unless ($empires{$spy->empire->id} ) {
+            $empires{$spy->empire->id} = 1;
+            $spy->empire->send_predefined_message(
+                from        => $colony->empire,
+                tags        => ['Spies','Alert'],
+                filename    => 'jackpot_reject.txt',
+            )
+        }
     }
 }
 
