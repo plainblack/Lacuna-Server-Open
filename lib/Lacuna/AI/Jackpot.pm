@@ -184,6 +184,7 @@ sub reject_badspy {
     });
     while (my $spy = $spies->next) {
         printf "    Spy ID: %d from %s sent home\n",$spy->id, $spy->empire->name;
+        $spy->task("Idle");
         my $result = eval { $spy->assign("Bugout") };
         unless ($empires{$spy->empire->id} ) {
             $empires{$spy->empire->id} = 1;
