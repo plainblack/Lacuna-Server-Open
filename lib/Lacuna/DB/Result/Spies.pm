@@ -2309,7 +2309,7 @@ sub prevent_insurrection {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(20,
-                             'Officials prevented a coup d\'tat today on on %s by capturing %s and comrades.',
+                             'Officials prevented a coup d\'Âtat today on %s by capturing %s and comrades.',
                              $self->on_body->name,
                              $self->name);
     $self->go_to_jail;
@@ -2356,7 +2356,7 @@ sub capture_kidnapper {
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body->add_news(50,
                              'Police say they have captured the notorious %s-time kidnapper %s on %s.',
-                             randint(10,20), $self->on_body->name, $self->name);
+                             randint(10,20), $self->name, $self->on_body->name);
     return $defender->capture_a_spy($self)->id;
 }
 
