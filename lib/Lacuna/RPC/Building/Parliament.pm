@@ -618,7 +618,7 @@ sub allow_bhg_by_alliance {
     unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
         confess [1003, "You must have a functional Parliament!"];
     }
-    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Map::Alliance')->find($alliance_id);
+    my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($alliance_id);
     unless (defined $alliance) {
         confess [1002, 'Could not find alliance.'];
     }
