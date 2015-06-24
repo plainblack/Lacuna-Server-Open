@@ -11,6 +11,7 @@
  - Fix: Can now change station owner to oneself (UI)
  - Add: homeworld highlighted and always at the top of the public profile
  - Mod: Spies from tech levels above 15 on Jackpot are bounced automatically instead of jailed.
+ - Fix: allow_bhg_by_alliance rejection fixed.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

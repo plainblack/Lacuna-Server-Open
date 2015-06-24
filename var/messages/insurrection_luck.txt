@@ -1,6 +1,6 @@
 We Were Lucky
 ~~~
-We were very lucky today. Some enemy agents attempted to overthrow you on {Planet %s %s} today. Luckily they bungled it. We may not be so lucky going forward.
+We were very lucky today. Some enemy agents attempted to overthrow you on {Planet %s %s}, but they bungled it. We may not be so fortunate next time.
 
 Regards,
 
