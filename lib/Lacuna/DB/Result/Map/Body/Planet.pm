@@ -6,7 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Map::Body';
 use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES BUILDABLE_CLASSES SPACE_STATION_MODULES);
-use List::Util qw(shuffle max min none);
+use List::Util qw(shuffle max min none sum);
 use Lacuna::Util qw(randint format_date random_element);
 use DateTime;
 use Data::Dumper;
@@ -605,13 +605,8 @@ has population => (
 sub _build_population {
     my ($self) = @_;
 
-    my $population = 0;
-    foreach my $building (@{$self->building_cache}) {
-        next if $building->class =~ /Lacuna::DB::Result::Building::Permanent/;
-        next if $building->class eq 'Lacuna::DB::Result::Building::DeployedBleeder';
-        $population += $building->effective_level * 10_000;
-    }
-    return $population;    
+    my $population = sum map { $_->population } @{$self->building_cache};
+    return $population;
 }
 
 has building_count => (

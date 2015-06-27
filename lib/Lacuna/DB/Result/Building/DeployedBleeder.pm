@@ -116,6 +116,10 @@ use constant water_consumption => 250;
 use constant waste_production => 1000;
 use constant happiness_consumption => 1000;
 
+# bleeders come with no population
+sub _build_population {
+    0
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

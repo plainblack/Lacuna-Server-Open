@@ -9,5 +9,10 @@ sub sortable_name {
     '25'.shift->name
 }
 
+# permanent buildings come with no population
+sub _build_population {
+    0
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

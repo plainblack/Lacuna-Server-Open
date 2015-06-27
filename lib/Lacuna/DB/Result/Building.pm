@@ -1264,6 +1264,20 @@ sub spend_efficiency {
     return $self;
 }
 
+# POPULATION
+
+has population => (
+        is      => 'ro',
+        lazy    => 1,
+        builder => '_build_population',
+        );
+
+sub _build_population {
+    my ($self) = @_;
+
+    $self->effective_level * 10_000;
+}
+
 {
     local *ensure_class_loaded = sub {}; # graham's crazy fix for circular dependency, may break if DynamicSubclass gets upgraded
     __PACKAGE__->typecast_map(class => {

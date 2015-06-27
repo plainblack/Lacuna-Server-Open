@@ -67,6 +67,10 @@ use constant energy_storage => 2000;
 use constant ore_storage => 2000;
 use constant water_storage => 2000;
 
+# supply pods come with no population
+sub _build_population {
+    0
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
