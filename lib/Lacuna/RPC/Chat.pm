@@ -85,12 +85,18 @@ sub init_chat {
 #    elsif ($empire->chat_admin) {
 #        $chat_name .= " <MOD>";
 #    }
-    my $gravatar_id = gravatar_id($empire->email);
+    my $email = $empire->email // do {
+        # give it a predictable but unique name.
+        my $e = ($empire->name . '@lacunaexpanse.com');
+        $e =~ s/[^\w\d@.]/_/g;
+        $e;
+    };
     my $gravatar_url = gravatar_url(
-        email   => $empire->email,
+        email   => $email,
         default => 'monsterid',
 	size    => 300,
         https   => 1,
+        rating  => 'g',
 	);
     my $ret = {
         status          => $self->format_status($empire),
