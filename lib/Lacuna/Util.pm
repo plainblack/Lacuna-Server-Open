@@ -111,6 +111,7 @@ sub consolidate_items {
 
 sub real_ip_address {
     my ($plack_request) = @_;
+    return unless $plack_request;
     $plack_request->headers->header('X-Real-IP') //
             $plack_request->address;
 }
