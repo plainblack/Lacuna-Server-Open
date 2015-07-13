@@ -1150,6 +1150,27 @@ sub get_species_templates {
     ]
 }
 
+sub authorize_sitters
+{
+    my ($self, $session_id, @sitters) = @_;
+    my $session = $self->get_session($session_id);
+    my $baby_id = $session->empire_id;
+
+    my $rs = Lacuna->db->resultset('SitterAuths');
+    for my $sitter (@sitters)
+    {
+        my $sit = Lacuna->db->empire($sitter);
+        my $sitter_id = $sit->id;
+
+        my $auth = $rs->find(baby_id => $baby_id, sitter_id => $sitter_id);
+        $auth  //= $rs->new({baby_id => $baby_id, sitter_id => $sitter_id});
+        $auth->reauthorise;
+        $auth->update_or_insert;
+    }
+
+    return { status => $self->format_status($empire) };
+}
+
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1 } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
@@ -1157,7 +1178,25 @@ __PACKAGE__->register_rpc_method_names(
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
     { name => "reset_password", options => { with_plack_request => 1 } },
-    qw(redefine_species redefine_species_limits get_invite_friend_url get_species_templates update_species view_species_stats send_password_reset_message invite_friend redeem_essentia_code enable_self_destruct disable_self_destruct change_password set_status_message find view_profile edit_profile view_public_profile is_name_available logout get_full_status get_status boost_building boost_storage boost_water boost_energy boost_ore boost_food boost_happiness boost_spy_training view_boosts),
+    qw(
+    redefine_species redefine_species_limits
+    get_invite_friend_url
+    get_species_templates update_species view_species_stats
+    send_password_reset_message
+    invite_friend
+    redeem_essentia_code
+    enable_self_destruct disable_self_destruct
+    change_password
+    set_status_message
+    find
+    view_profile edit_profile view_public_profile
+    is_name_available
+    logout
+    get_full_status get_status
+    boost_building boost_storage boost_water boost_energy boost_ore
+    boost_food boost_happiness boost_spy_training view_boosts
+    authorize_sitters
+    ),
 );
 
 
