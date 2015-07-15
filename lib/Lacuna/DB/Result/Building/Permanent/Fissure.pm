@@ -56,6 +56,12 @@ before 'can_downgrade' => sub {
     }
 };
 
+after 'demolish' => sub {
+    my $self = shift;
+    my $empire = $self->body->empire;
+    $empire->add_medal('fissure_repair');
+};
+
 before downgrade => sub {
     my $self = shift;
     my $body = $self->body;

@@ -49,6 +49,7 @@ sub abandon {
         confess [1017, 'The abandon has been delayed pending a parliamentary vote.'];
     }
     $body->abandon;
+    $empire->add_medal('abandoned_colony');
     return $self->format_status($empire);
 }
 

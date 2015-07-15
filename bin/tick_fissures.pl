@@ -372,6 +372,7 @@ sub fissure_explode {
                 params      => [$body->name],
             );
         }
+        $empire->add_medal('fissure_explosion');
 # Send out N19 news about the lost colony.
         $body->add_news(100, sprintf('A huge ripple in space-time was felt, caused by the implosion of %s, millions feared dead.',$body->name));
         $body->sanitize;

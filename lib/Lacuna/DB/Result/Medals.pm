@@ -381,6 +381,9 @@ use constant MEDALS => {
     TournamentVictory               => 'Won a tournament',
     '20Stars'                       => 'Won the Twenty Stars tournament',
     'flipped'                       => 'Ran a successful insurrection',
+    abandoned_colony                => 'Abandoned a Colony',
+    fissure_explosion               => 'Suffered a Fissure Explosion on a Colony',
+    fissure_repair                  => 'Closed a Fissure',
 };
 
 sub name {

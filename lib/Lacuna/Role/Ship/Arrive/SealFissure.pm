@@ -65,11 +65,13 @@ after handle_arrival_procedures => sub {
         }
         if ($curr_lev < 1) {
             $fissure->delete;
-            $self->body->empire->send_predefined_message(
+            my $empire = $self->body->empire;
+            $empire->send_predefined_message(
                 tags        => ['Fissure', 'Alert'],
                 filename    => 'we_destroyed_a_fissure.txt',
                 params      => [$self->type_formatted, $body_hit->x, $body_hit->y, $body_hit->name ],
             );
+            $empire->add_medal('fissure_repair');
         }
         else {
             $fissure->level($curr_lev);
