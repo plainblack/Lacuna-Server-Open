@@ -826,12 +826,13 @@ EOSQL
         }
 
         # sort it for easier debugging.
-        return sort {
+        return [ sort {
             $a->[0] <=> $b->[0] ||
             $a->[1] <=> $b->[1]
         } map {
             [ split ',', $_ ]
-        } grep {$free{$_} == $size} keys %free;
+        } grep {$free{$_} == $size} keys %free
+        ];
     }
     return $o;
 }

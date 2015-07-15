@@ -1,6 +1,9 @@
 package LR;
 
 use Class::Load qw(load_first_existing_class);
+use strict;
+use warnings;
+use Scalar::Util qw(blessed);
 use 5.12.0;
 
 # Intended to be used from the command line to save a bunch of typing.
@@ -27,7 +30,7 @@ sub _clean(@)
 {
     [
      map {
-         if (ref $_) {
+         if (blessed $_) {
              eval { $_->id } || ref $_
          } else {
              $_

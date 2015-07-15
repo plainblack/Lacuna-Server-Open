@@ -511,6 +511,21 @@ sub get_buildable {
 
     return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($empire, $body)};
 }
+
+sub get_buildable_locations {
+    my ($self, $opts) = @_;
+    my $empire = $self->get_empire_by_session($opts->{session_id});
+    my $body = $self->get_body($empire, $opts->{body_id});
+
+    my %args;
+    $args{size} = $opts->{size} if $opts->{size} and $opts->{size} ~~ [1,4,9];
+
+    return {
+        status => $self->format_status($empire, $body),
+        unoccupied => $body->find_free_spaces(\%args),
+    }
+}
+
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
@@ -562,6 +577,7 @@ __PACKAGE__->register_rpc_method_names(qw(
     rename
     get_buildings
     get_buildable
+    get_buildable_locations
     get_status
     get_body_status
     repair_list

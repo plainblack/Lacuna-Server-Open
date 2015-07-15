@@ -383,7 +383,35 @@ The y axis of the area on the planet you wish to place the building. Valid value
 A tag that will limit the list of buildings to return. Required. Cannot be C<Now>, C<Soon>, or C<Later>, but all other tags are fair game.
 
 
+=head2 get_buildable_locations ( options )
 
+Tells you where you can build buildings.  The order of the returned list is not guaranteed.
+
+    {
+        "unoccupied": [ [ "2", "-5" ], [ "2", "-4" ], ... ],
+        "status": ...
+    }
+
+=head3 options
+
+A hash whose keys are:
+
+=over 4
+
+=item session_id
+
+A session id.
+
+=item body_id
+
+The id of the body you wish to get the free locations of.
+
+=item size
+
+Optional: the size of the building you want to put.  If this is 9, then the unoccupied locations will be for the LCOTa (center tile).
+If this is 4, then the unoccupied locations will be for the SSLa (northwest tile).  Otherwise, it returns locations for single-tile buildings.
+
+=back
 
 =head2 rename ( session_id, body_id, name )
 
