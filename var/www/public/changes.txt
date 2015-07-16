@@ -15,6 +15,7 @@
  - Fix: Supply Pods don't count toward population.
  - Add: abandoned colony, fissure explosion, and fissure repair medals
  - Add: get_buildable_locations API for bodies (Jazz request)
+ - Add: Happy citizens can build faster.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

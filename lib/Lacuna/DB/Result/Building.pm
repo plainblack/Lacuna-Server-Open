@@ -816,15 +816,12 @@ sub time_cost_reduction_bonus {
     my $empire = $body->empire;
     return 1 unless defined $empire;
     my $unhappy_workers = 0;
-    if ($body->happiness < 0 ) {
-        $unhappy_workers = abs($body->happiness) / 1000;
-    }
     my $base_cost_reduction = 100 - $extra - ($body->empire->effective_management_affinity * 5);
     if ( $base_cost_reduction < 1 ) {
         my $new_factor = (1 - $base_cost_reduction) / 30;
         $base_cost_reduction = 1 - $new_factor;
     }
-    return ($base_cost_reduction + $unhappy_workers) / 100;
+    return $base_cost_reduction / 100;
 }
 
 sub cost_to_upgrade {
@@ -856,6 +853,7 @@ sub cost_to_upgrade {
                        $self->building_reduction_bonus * $self->time_cost_reduction_bonus *
                        $oversight_reduction * $time_with_plan;
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days
+    $time_cost *= $self->body->build_boost;
     $time_cost = 15 if ($time_cost < 15);
 
     if ($build_with_halls) {

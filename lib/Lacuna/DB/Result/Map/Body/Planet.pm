@@ -743,6 +743,25 @@ has oracle => (
     },
 );
 
+has build_boost => (
+    is      => 'rw',
+    lazy    => 1,
+    clearer => "clear_bb",
+    default => sub {
+        my $self = shift;
+
+        my $sign = $self->happiness >= 0 ? 1 : -1;
+        my $scale = $self->happiness == 0 ? 0 :
+            int(
+                log(abs($self->happiness)) /
+                log(1000)
+               );
+            #1 - $sign * $scale * ($sign < 0 ? 10 : 2) / 100;
+        1 - $sign * $scale * ($sign < 0 ? 150 : 5) / 100;
+    },
+);
+
+
 sub is_space_free {
     my ($self, $unclean_x, $unclean_y) = @_;
     my $x = int( $unclean_x );
