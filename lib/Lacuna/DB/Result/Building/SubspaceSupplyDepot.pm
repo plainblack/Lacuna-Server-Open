@@ -123,6 +123,7 @@ after finish_work => sub {
             name    => 'The Gift',
             speed   => 5500,
             task    => 'Docked',
+            hold_size => 0,
         })->insert;
         $body->empire->send_predefined_message(
             tags        => ['Alert'],
