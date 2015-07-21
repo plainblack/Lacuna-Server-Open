@@ -592,10 +592,6 @@ sub www_buy_currency {
                     </select>
                     <select name="expiration_year" id="expiration_year">
                         <option value=''>year</option>
-                        <option value='2011'>2011</option>
-                        <option value='2012'>2012</option>
-                        <option value='2013'>2013</option>
-                        <option value='2014'>2014</option>
                         <option value='2015'>2015</option>
                         <option value='2016'>2016</option>
                         <option value='2017'>2017</option>
@@ -603,6 +599,10 @@ sub www_buy_currency {
                         <option value='2019'>2019</option>
                         <option value='2020'>2020</option>
                         <option value='2021'>2021</option>
+                        <option value='2022'>2022</option>
+                        <option value='2023'>2023</option>
+                        <option value='2024'>2024</option>
+                        <option value='2025'>2025</option>
                     </select>
                     </div>
                     <label for="cvv2">CVV</label>
