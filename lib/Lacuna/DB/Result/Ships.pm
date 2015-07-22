@@ -18,6 +18,8 @@ has 'hostile_action' => (
 
 sub _build_hostile_action { 0 }
 
+sub sitter_can_send { 1 }
+
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('ships');
 __PACKAGE__->add_columns(

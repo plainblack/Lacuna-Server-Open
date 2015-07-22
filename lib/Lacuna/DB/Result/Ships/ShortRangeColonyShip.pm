@@ -19,6 +19,8 @@ use constant base_hold_size         => 0;
 use constant pilotable              => 1;
 use constant build_tags             => ['Colonization'];
 
+sub sitter_can_send() { 0 }
+
 with "Lacuna::Role::Ship::Send::Range";
 with "Lacuna::Role::Ship::Send::Planet";
 with "Lacuna::Role::Ship::Send::Uninhabited";

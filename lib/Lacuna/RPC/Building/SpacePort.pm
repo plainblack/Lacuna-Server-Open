@@ -88,6 +88,7 @@ sub get_fleet_for {
             hold_size   => $ship_group->hold_size,
             quantity    => $ship_group->get_column('quantity'),
             estimated_travel_time => $travel_time,
+            image       => $ship_group->image,
         };
         push @$summary, $summation;
     }
@@ -132,7 +133,10 @@ sub get_ships_for {
                                         body_id=>$body->id });
     while (my $ship = $available_rs->next) {
       $ship->body($body);
-      eval{ $ship->can_send_to_target($target) };
+      eval{ 
+          $ship->can_send_to_target($target);
+          confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
+      };
       my $reason = $@;
       if ($reason) {
         push @unavailable, { ship => $ship->get_status, reason => $reason };
@@ -226,6 +230,7 @@ sub send_ship {
     if ($ship->hostile_action) {
         $empire->current_session->check_captcha;
     }
+    confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
     $ship->send(target => $target);
     $body->add_to_neutral_entry($ship->combat);
     return {
@@ -340,6 +345,7 @@ sub send_ship_types {
                                       {order_by => 'speed', rows => $quantity }
                                       );
         my $ship = $ships[0]; #Need to grab slowest ship
+        confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
 
@@ -523,6 +529,7 @@ sub send_fleet {
           $empire->current_session->check_captcha;
           $captcha_check = 0;
       }
+      confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
       $body->add_to_neutral_entry($ship->combat);
       $ship->fleet_speed($speed);
       $ship->send(target => $target);

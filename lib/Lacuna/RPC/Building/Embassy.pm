@@ -98,6 +98,10 @@ sub expel_member {
 sub accept_invite {
     my ($self, $session_id, $building_id, $invite_id, $message) = @_;
     my $empire = $self->get_empire_by_session($session_id);
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot join alliances.'];
+    }
+    $empire->current_session->check_captcha;
     my $building = $self->get_building($empire, $building_id);
     unless ($invite_id) {
         confess [1002, 'You must specify an invite id.'];
