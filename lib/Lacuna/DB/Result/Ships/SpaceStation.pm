@@ -19,6 +19,8 @@ use constant pilotable              => 1;
 use constant build_tags             => [qw(War Intelligence)];
 use constant type_formatted         => 'Space Station Hull';
 
+sub sitter_can_send() { 0 }
+
 with "Lacuna::Role::Ship::Send::Planet";
 with 'Lacuna::Role::Ship::Send::Uninhabited';
 with "Lacuna::Role::Ship::Send::StarterZone";
