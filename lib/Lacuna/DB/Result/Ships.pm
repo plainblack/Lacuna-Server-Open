@@ -282,6 +282,12 @@ sub type_human {
     return $type;
 }
 
+# allow each ship to change the image as we go.
+sub image {
+    my $self = shift;
+    $self->type;
+}
+
 sub date_started_formatted {
     my $self = shift;
     return format_date($self->date_started);
@@ -299,6 +305,7 @@ sub get_status {
         name            => $self->name,
         type_human      => $self->type_formatted,
         type            => $self->type,
+        image           => $self->image,
         task            => $self->task,
         speed           => $self->speed,
         fleet_speed     => $self->fleet_speed,

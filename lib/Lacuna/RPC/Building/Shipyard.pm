@@ -351,6 +351,7 @@ sub get_buildable {
             can         => ($can) ? 1 : 0,
             reason      => $reason,
             type_human  => $ship->type_formatted,
+            image       => $ship->image,
         };
     }
     my $docks = 0;
