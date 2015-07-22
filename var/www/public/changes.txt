@@ -16,6 +16,9 @@
  - Add: abandoned colony, fissure explosion, and fissure repair medals
  - Add: get_buildable_locations API for bodies (Jazz request)
  - Add: Happy citizens can build faster.
+ - Add: image field to ship lists
+ - Fix: Sitters cannot join alliances.
+ - Fix: The Gift's hold size needs specifying.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
