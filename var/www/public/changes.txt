@@ -18,6 +18,7 @@
  - Add: Happy citizens can build faster.
  - Add: image field to ship lists
  - Fix: Sitters cannot join alliances.
+ - Fix: Sitters cannot start colonies, stations.
  - Fix: The Gift's hold size needs specifying.
 
 3.0911:
