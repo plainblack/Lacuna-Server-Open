@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use 5.010;
 
+use constant SECINDAY => 60 * 60 * 24;
+sub CACHECONTROL { sprintf 'max-age=%d, public', SECINDAY * (shift()||7) }
+
 use POSIX ();
 BEGIN {
     # want to check if we're running under the debugger,
@@ -120,7 +123,7 @@ END_TEXT
                                 'Content-Type'      => $type,
                                 'Content-Encoding'  => 'gzip',
                                 'Expires'           => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years=>5)),
-                                'Cache-Control'     => 'max-age=290304000, public',
+                                'Cache-Control'     => CACHECONTROL(180),
                                 acl_short           => 'public-read',
                             },
                             ) or die $s3->err . ": " . $s3->errstr;
@@ -163,7 +166,7 @@ END_TEXT
                             'Content-Type'      => $type,
                             'Content-Encoding'  => 'gzip',
                             'Expires'           => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years=>5)),
-                            'Cache-Control'     => 'max-age=290304000, public',
+                            'Cache-Control'     => CACHECONTROL(180),
                             acl_short           => 'public-read',
                         },
                     ) or die $s3->err . ": " . $s3->errstr;
@@ -217,7 +220,7 @@ END_TEXT
                     {
                         'Content-Type'      => $type,
                         'Expires'           => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years=>5)),
-                        'Cache-Control'     => 'max-age=290304000, public',
+                        'Cache-Control'     => CACHECONTROL(7),
                         acl_short           => 'public-read',
                     },
                 ) or die $s3->err . ": " . $s3->errstr;
