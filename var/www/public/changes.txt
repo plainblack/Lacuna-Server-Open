@@ -20,6 +20,7 @@
  - Fix: Sitters cannot join alliances.
  - Fix: Sitters cannot start colonies, stations.
  - Fix: The Gift's hold size needs specifying.
+ - Fix: Essentia code redeeming no longer gives more than one digit after decimal point.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

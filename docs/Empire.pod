@@ -772,6 +772,7 @@ A session id.
 Redeems an essentia code and applies the essentia to the empire's balance.
 
  {
+    "amount" : ...,
     "status" : { ... }
  }
 

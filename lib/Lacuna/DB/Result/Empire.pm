@@ -1175,7 +1175,7 @@ sub redeem_essentia_code {
         transaction_id  => $code_string,
     });
     $self->update;
-    return $self;
+    return $amount;
 }
 
 sub pay_taxes {

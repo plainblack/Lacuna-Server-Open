@@ -836,8 +836,8 @@ sub disable_self_destruct {
 sub redeem_essentia_code {
     my ($self, $session_id, $code) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    $empire->redeem_essentia_code($code);
-    return { status => $self->format_status($empire) };
+    my $amount = $empire->redeem_essentia_code($code);
+    return { amount => $amount, status => $self->format_status($empire) };
 }
 
 sub get_invite_friend_url {
