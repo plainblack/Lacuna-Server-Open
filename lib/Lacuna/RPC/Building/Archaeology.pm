@@ -164,6 +164,13 @@ sub view_excavators {
         distance => sprintf("%.2f", $building->body->calculate_distance_to_target($excav->body) / 100),
       };
     }
+    @sites = sort { 
+        # closer first so player can see which ones are closer easily
+        $a->{distance} <=> $b->{distance} or
+        # if the distance is exactly the same (?), order of deployment
+        # is close enough so that it remains (mostly) consistent.
+        $a->{id} <=> $b->{id}
+    } @sites;
     return {
         excavators       => \@sites,
         max_excavators   => $building->max_excavators,
