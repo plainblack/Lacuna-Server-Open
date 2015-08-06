@@ -300,7 +300,7 @@ sub build_ships {
     my $highest_sy = reduce { $a->level > $b->level ? $a : $b } @buildings;
     $highest_sy->can_build_ship($ship_template, $cost_for->($highest_sy), $quantity);
 
-    my $needs_refresh;
+    #my $needs_refresh;
     for (1..$quantity) {
         my $building = $sorter->();
         my $ship = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
@@ -311,16 +311,17 @@ sub build_ships {
         $ship->body_id($opts->{body_id});
         $ship->update;
 
-        $needs_refresh++ if ($building->id != $building_view->id)
+        #$needs_refresh++ if ($building->id != $building_view->id)
     }
 
-    if ($needs_refresh)
-    {
-        $body->needs_surface_refresh(1);
-        $body->update;
-    }
+    #if ($needs_refresh)
+    #{
+    #    $body->needs_surface_refresh(1);
+    #    $body->update;
+    #}
 
-    return $self->view_build_queue($empire, $building_view);
+    #return $self->view_build_queue($empire, $building_view);
+    Lacuna::RPC::Body->new->get_buildings($empire, $body);
 }
 
 
