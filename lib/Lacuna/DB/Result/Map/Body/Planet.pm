@@ -752,12 +752,13 @@ has build_boost => (
 
         my $sign = $self->happiness >= 0 ? 1 : -1;
         my $scale = $self->happiness == 0 ? 0 :
-            int(
+            #int
+            (
                 log(abs($self->happiness)) /
                 log(1000)
                );
             #1 - $sign * $scale * ($sign < 0 ? 10 : 2) / 100;
-        1 - $sign * $scale * ($sign < 0 ? 150 : 5) / 100;
+        1 - $sign * $scale * ($sign < 0 ? 150 : 4) / 100;
     },
 );
 

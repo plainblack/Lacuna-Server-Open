@@ -28,11 +28,13 @@ sub _where
         $where{$type} = { like => $id };
     }
     # or the numeric ID (probably most useful for testing)
-    elsif ($id =~ /^#?-?\d+$/) {
-        $where{id} = $id;
+    elsif ($id =~ /^#?(-?\d+)$/) {
+        $where{id} = $1;
     }
     # or just the name (hopefully no names are purely numeric)
     else {
+        $id =~ s/^\s+//;
+        $id =~ s/\s+$//;
         $where{$type} = $id;
     }
     \%where;
