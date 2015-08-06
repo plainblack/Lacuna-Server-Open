@@ -18,6 +18,7 @@ sub BUILD {
     my $session_data = Lacuna->cache->get_and_deserialize('session', $self->id);
     if (defined $session_data && ref $session_data eq 'HASH') {
         $self->api_key($session_data->{api_key});
+        $self->real_empire_id($session_data->{real_empire_id});
         $self->empire_id($session_data->{empire_id});
         $self->extended($session_data->{extended});
         $self->_is_sitter($session_data->{is_sitter});
@@ -58,6 +59,10 @@ has empire_id => (
         my $self = shift;
         $self->clear_empire;
     },
+);
+
+has real_empire_id => (
+    is          => 'rw',
 );
 
 has ip_address => (
@@ -119,6 +124,7 @@ sub update {
         'session',
         $self->id,
         { 
+            real_empire_id  => $self->real_empire_id,
             empire_id       => $self->empire_id,
             api_key         => $self->api_key,
             extended        => $self->extended,
@@ -152,6 +158,7 @@ sub end {
 
 sub start {
     my ($self, $empire, $options) = @_;
+    $self->real_empire_id($empire->id) if !$options->{is_sitter};
     $self->empire_id($empire->id);
     $self->api_key($options->{api_key});
     $self->_is_sitter($options->{is_sitter});

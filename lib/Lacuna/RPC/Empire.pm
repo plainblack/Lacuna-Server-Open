@@ -1154,8 +1154,9 @@ sub authorize_sitters
 {
     my ($self, $session_id, @sitters) = @_;
     my $session = $self->get_session($session_id);
-    my $baby_id = $session->empire_id;
+    $session->check_captcha;
 
+    my $baby_id = $session->empire_id;
     my $rs = Lacuna->db->resultset('SitterAuths');
     for my $sitter (@sitters)
     {
@@ -1168,7 +1169,27 @@ sub authorize_sitters
         $auth->update_or_insert;
     }
 
-    return { status => $self->format_status($empire) };
+    return { status => $self->format_status($session->empire) };
+}
+
+sub view_authorized_sitters
+{
+    my ($self, $session_id) = @_;
+    my $session = $self->get_session($session_id);
+
+    my $baby_id = $session->empire_id;
+    my $rs = Lacuna->db->resultset('SitterAuths')->search({baby_id => $baby_id});
+
+    my @auths;
+    while (my $auth = $rs->next)
+    {
+        push @auths, {
+            id   => $auth->sitter_id,
+            name => $auth->sitter->name,
+        };
+    }
+
+    return { status => $self->format_status($session->empire), auths => \@auths };
 }
 
 __PACKAGE__->register_rpc_method_names(
@@ -1195,7 +1216,7 @@ __PACKAGE__->register_rpc_method_names(
     get_full_status get_status
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
-    authorize_sitters
+    authorize_sitters view_authorized_sitters
     ),
 );
 
