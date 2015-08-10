@@ -28,6 +28,9 @@ sub get_lottery_voting_options {
     my ($self, $session_id, $building_id) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     $empire->current_session->check_captcha;
+    if ($empire->current_session->is_sitter) {
+        confess [1015, 'Sitters cannot enter the lottery.'];
+    }
     my $cache = Lacuna->cache;
     my $building = $self->get_building($empire, $building_id); 
     my @list;
