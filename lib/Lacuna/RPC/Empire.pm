@@ -1152,44 +1152,116 @@ sub get_species_templates {
 
 sub authorize_sitters
 {
-    my ($self, $session_id, @sitters) = @_;
+    my ($self, $session_id, $opts) = @_;
     my $session = $self->get_session($session_id);
     $session->check_captcha;
 
+    my $baby = $self->get_empire_by_session($session);
     my $baby_id = $session->empire_id;
-    my $rs = Lacuna->db->resultset('SitterAuths');
+    my $rs = $baby->sitters;
+    my $auths = Lacuna->db->resultset('SitterAuths');
+
+    my @sitters;
+    if ($opts->{allied})
+    {
+        if ($baby->alliance_id)
+        {
+            push @sitters, $baby->alliance->members->get_column('id')->all;
+        }
+    }
+    if ($opts->{alliance})
+    {
+        my $alliance =
+            Lacuna->db->resultset('Alliance')->find({name => $opts->{alliance}});
+        if ($alliance)
+        {
+            push @sitters, $alliance->members->all;
+        }
+    }
+    if ($opts->{alliance_id})
+    {
+        my $alliance =
+            Lacuna->db->resultset('Alliance')->find({id => $opts->{alliance_id}});
+        if ($alliance)
+        {
+            push @sitters, $alliance->members->all;
+        }
+    }
+    if ($opts->{empires} and ref $opts->{empires} eq 'ARRAY')
+    {
+        push @sitters, @{$opts->{empires}};
+    }
+    if ($opts->{revalidate_all})
+    {
+        push @sitters, $rs->get_column('me.sitter_id')->all;
+    }
+    confess [1009, "No sitters selected"] unless @sitters;
+
+    my @bad_ids;
     for my $sitter (@sitters)
     {
-        my $sit = Lacuna->db->empire($sitter);
-        my $sitter_id = $sit->id;
+        my $sit = eval { $sitter->isa('Lacuna::DB::Result::Empire') } ?
+            $sitter :
+            Lacuna->db->empire($sitter);
+        if ($sit)
+        {
+            my $sitter_id = $sit->id;
+            next if $sitter_id == $baby_id;
 
-        my $auth = $rs->find(baby_id => $baby_id, sitter_id => $sitter_id);
-        $auth  //= $rs->new({baby_id => $baby_id, sitter_id => $sitter_id});
-        $auth->reauthorise;
-        $auth->update_or_insert;
+            my $auth = $auths->find({baby_id => $baby_id, sitter_id => $sitter_id});
+            $auth  //= $auths->new({baby_id => $baby_id, sitter_id => $sitter_id});
+            $auth->reauthorise;
+            $auth->update_or_insert;
+        }
+        else
+        {
+            push @bad_ids, $sitter;
+        }
     }
 
-    return { status => $self->format_status($session->empire) };
+    my $rc = $self->view_authorized_sitters($session);
+    $rc->{rejected_ids} = \@bad_ids;
+    return $rc;
 }
 
 sub view_authorized_sitters
 {
     my ($self, $session_id) = @_;
     my $session = $self->get_session($session_id);
+    my $baby = $self->get_empire_by_session($session);
 
-    my $baby_id = $session->empire_id;
-    my $rs = Lacuna->db->resultset('SitterAuths')->search({baby_id => $baby_id});
+    my $rs = $baby->sitters()
+        ->search(
+                 { expiry => { '>' => \q[UTC_TIMESTAMP()] } },
+                 {
+                     '+select' => [ 'me.expiry' ],
+                     '+as'     => [ 'expiry' ],
+                 }
+                );
 
     my @auths;
-    while (my $auth = $rs->next)
+    while (my $e = $rs->next)
     {
         push @auths, {
-            id   => $auth->sitter_id,
-            name => $auth->sitter->name,
+            id     => $e->id,
+            name   => $e->name,
+            expiry => $e->get_column('expiry'),
         };
     }
 
     return { status => $self->format_status($session->empire), auths => \@auths };
+}
+
+sub deauthorize_sitters
+{
+    my ($self, $session_id, $opts) = @_;
+    my $session = $self->get_session($session_id);
+    my $baby = $self->get_empire_by_session($session);
+
+    my $baby_id = $session->empire_id;
+    my $rs = $baby->sitters();
+
+
 }
 
 __PACKAGE__->register_rpc_method_names(

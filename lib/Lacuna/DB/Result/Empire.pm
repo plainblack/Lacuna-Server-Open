@@ -131,6 +131,15 @@ sub _build_has_new_messages {
     $self->received_messages->search({has_read => 0})->count;
 }
 
+# I'm the sitter for these babies.
+__PACKAGE__->has_many('babyauths',          'Lacuna::DB::Result::SitterAuths',  'sitter_id');
+
+# I'm the baby for these sitters.
+__PACKAGE__->has_many('sitterauths',        'Lacuna::DB::Result::SitterAuths',  'baby_id');
+
+__PACKAGE__->many_to_many('babies', 'babyauths', 'baby');
+__PACKAGE__->many_to_many('sitters', 'sitterauths', 'sitter');
+
 for my $affin (qw(
     manufacturing_affinity
     deception_affinity

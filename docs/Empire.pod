@@ -901,7 +901,7 @@ B<WARNING:> Once this is done it cannot be redone for 1 month, so make sure the 
  
 =head3 session_id
 
-A ssession id.
+A session id.
 
 =head3 params
 
@@ -961,5 +961,88 @@ Returns an array ref of species templates that can be used to help the user popu
     },
     ...
  ]
+
+=head2 view_authorized_sitters
+
+Returns the currently authorized sitters for this baby.
+
+ {
+    "status" : { ... },
+    "auths" : [
+      {
+        "id" : 12345,
+        "name" : "Some Empire",
+        "expiry" : "2015-10-10 17:20:03"
+      },
+      ...
+    ]
+ }
+
+=head2 authorize_sitters ( session_id, options )
+
+Authorizes other empires to babysit your account.  Each authorisation will
+be created if needed, and authorized for the full server-defined amount of
+time.
+
+Returns view of authorized sitters (see view_authorized_sitters) plus any
+rejected IDs.
+
+ {
+    "status" : { ... },
+    "auths" : [
+      {
+        id => ...,
+        name => ...
+      },
+      ...
+    ],
+    "rejected_ids" : [ 57, "No Such Empire", ... ],
+ }
+
+
+=head3 session_id
+
+A session id.
+
+=head3 options
+
+One or more of the following options:
+
+=head4 allied
+
+If true, all allies are automatically selected.
+
+=head4 alliance
+
+The name of another alliance all of whom are automatically selected.
+
+=head4 alliance_id
+
+The ID of another alliance all of whom are automatically selected.
+
+=head4 empires
+
+An array of IDs and/or names of specific empires being authorized.
+
+=head4 revalidate_all
+
+A quick method for selecting all currently-authorized empires to
+extend their authorization period.
+
+=head2 deauthorize_sitters ( session_id, options )
+
+Remove sitters from being permitted to sit this account.
+
+=head3 session_id
+
+A session id.
+
+=head3 options
+
+One or more of the following options:
+
+=head4 empires
+
+An array of IDs (not names) of specific empires being removed.
 
 =cut
