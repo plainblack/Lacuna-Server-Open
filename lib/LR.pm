@@ -39,6 +39,28 @@ sub _clean(@)
     ];
 }
 
+sub _session
+{
+    my $session;
+    if (ref $_[0] eq 'Lacuna::DB::Result::Empire')
+    {
+        # create a session for it.
+        $session = $_[0]->start_session;
+        $_[0] = $session->id;
+    }
+    if (ref $_[0] eq 'HASH' && exists $_[0]->{session_id} && ref $_[0]->{session_id})
+    {
+        # create a session for it.
+        $session = $_[0]->{session_id}->start_session;
+        $_[0]->{session_id} = $session->id;
+    }
+    if ($ENV{captcha})
+    {
+        Lacuna->cache->set('captcha_valid', $session->id, 1, 60 * 30 );
+    }
+    @_
+}
+
 sub call
 {
     my $class = shift;
@@ -50,7 +72,7 @@ sub call
 
     print "REQUEST: ";
     Data::Dump::dd(_clean @_);
-    my $rc = eval { $type->new->$method(@_) } || $@;
+    my $rc = eval { $type->new->$method(_session @_) } || $@;
     print "RESULT: ";
     Data::Dump::dd($rc);
 }
@@ -64,21 +86,11 @@ sub jcall
 
     $type = load_first_existing_class "Lacuna::RPC::$type", "Lacuna::RPC::Building::$type";
 
-    if (ref $_[0] eq 'Lacuna::DB::Result::Empire')
-    {
-        # create a session for it.
-        $_[0] = $_[0]->start_session->id;
-    }
-    if (ref $_[0] eq 'HASH' && exists $_[0]->{session_id} && ref $_[0]->{session_id})
-    {
-        # create a session for it.
-        $_[0]->{session_id} = $_[0]->{session_id}->start_session->id;
-    }
 
     say "Class: $type";
     say "method: $method";
     say "REQUEST params: ", JSON::XS::encode_json(_clean @_);
-    my $rc = eval { $type->new->$method(@_) } || $@;
+    my $rc = eval { $type->new->$method(_session @_) } || $@;
     say "RESULT: ", JSON::XS::encode_json(ref $rc ? $rc : [$rc]);
 }
 
