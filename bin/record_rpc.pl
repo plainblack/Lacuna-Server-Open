@@ -35,6 +35,9 @@ while (my $empire = $empire_rs->next) {
     my $limits = Lacuna->cache->get('rpc_limit_'.$yesterday_formatted, $empire->id) || 0;
 
     out("Empire [".$empire->name."] had [$rpc] RPC and [$limits] rate limits yesterday");
+
+    next unless $rpc;
+
     my $log = $db->resultset('Log::EmpireRPC')->create({
         date_stamp  => $now,
         empire_id   => $empire->id,
