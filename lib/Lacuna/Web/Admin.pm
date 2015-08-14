@@ -114,7 +114,7 @@ sub www_add_essentia_code {
     my $code = Lacuna->db->resultset('Lacuna::DB::Result::EssentiaCode')->new({
         date_created    => DateTime->now,
         amount          => $request->param('amount'),
-        description     => $request->param('description'),
+        description     => decode_utf8($request->param('description')),
         code            => create_uuid_as_string(UUID_V4),
     })->insert;
     return $self->wrap('<p>Essentia Code: '. $code->code.'</p><p><a href="/admin/search/essentia/codes">Back To Essentia Codes</a></a>');
@@ -266,7 +266,7 @@ sub www_search_empires {
     my $page_number = $request->param('page_number') || 1;
     my $empires = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->search(undef, { rows => 25, page => $page_number });
     my $field = $request->param('field') || 'name';
-    my $name  = $request->param('name') || '';
+    my $name  = decode_utf8($request->param('name') || '');
     if ($name) {
         my $query = "$name%";
         $query =~ s/\*/%/;
@@ -302,12 +302,16 @@ sub www_search_empires {
     return $self->wrap($out);
 }
 
+use Encode;
 sub www_search_bodies {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
     my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
-    my $name = $request->param('name') || '';
+    my $name = decode_utf8($request->param('name') || '');
     my $pager = 'name';
+
+    printf "NAME: %s\n",$name;
+
     if ($name) {
         my $query = "$name%";
         $query =~ s/\*/%/g;
@@ -341,7 +345,7 @@ sub www_search_stars {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
     my $stars = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
-    my $name = $request->param('name') || '';
+    my $name = decode_utf8($request->param('name') || '');
     if ($name) {
         my $query = "$name%";
         $query =~ s/\*/%/;
@@ -996,7 +1000,7 @@ sub www_set_admin_notes {
 
     my $id = $request->param('id');
     my $empire = Lacuna->db->empire($id);
-    my $notes = $request->param('notes');
+    my $notes = decode_utf8($request->param('notes'));
 
     my $note = Lacuna->db->resultset('Log::EmpireAdminNotes')->new({
                        empire_id   => $empire->id,
@@ -1601,7 +1605,7 @@ sub www_change_announcement {
     my ($self, $request) = @_;
     my $cache = Lacuna->cache;
     $cache->set('announcement','alert', create_uuid_as_string(UUID_V4), 60*60*24);
-    $cache->set('announcement','message', $request->param('message'), 60*60*24);
+    $cache->set('announcement','message', decode_utf8($request->param('message')), 60*60*24);
     return $self->wrap('Announcement saved.');
 }
 
