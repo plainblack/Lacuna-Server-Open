@@ -10,7 +10,7 @@ use Lacuna::Util qw(format_date);
 __PACKAGE__->table('message');
 __PACKAGE__->add_columns(
     in_reply_to     => { data_type => 'int', size => 11, is_nullable => 1 },
-    subject         => { data_type => 'varchar', size => 30, is_nullable => 0 },
+    subject         => { data_type => 'varchar', size => 64, is_nullable => 0 },
     body            => { data_type => 'mediumtext', is_nullable => 1 },
     date_sent       => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
     from_id         => { data_type => 'int', size => 11, is_nullable => 0 },

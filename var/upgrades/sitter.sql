@@ -9,4 +9,6 @@ CREATE TABLE sitter_auths (
   PRIMARY KEY (baby_id, sitter_id),
   CONSTRAINT sitter_auths_fk_baby_id FOREIGN KEY (baby_id) REFERENCES empire (id) ON DELETE CASCADE,
   CONSTRAINT sitter_auths_fk_sitter_id FOREIGN KEY (sitter_id) REFERENCES empire (id) ON DELETE CASCADE
-) ENGINE=InnoDB--
+) ENGINE=InnoDB;--
+
+alter table message modify subject varchar(64);
