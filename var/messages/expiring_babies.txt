@@ -1,0 +1,9 @@
+%s To Give Help Expiring
+~~~
+We have %s "%1$s To Give Help" expiring. To continue to offer these other empires assistance administrate their empire during their far-too-regular vacations, they will need to renew the treaties in their profile settings.
+
+If they fail to do so prior to the expiry of the treaty, our access will be cut off with no further warning.
+
+Sincerely,
+
+Your diplomatic corps

@@ -1,0 +1,7 @@
+%s To Accept Help Expiring
+~~~
+We have %s "%1$s To Accept Help" expiring. If we wish to continue to allow these other empires to help administrate our empire during your well-deserved (and regular) vacations, you will need to renew the treaties in your profile settings.
+
+Sincerely,
+
+Your diplomatic corps

@@ -2,11 +2,17 @@
 export PATH=/data/apps/bin:$PATH
 touch /tmp/daily.log
 cd /data/Lacuna-Server/bin
-perl trickle_essentia_veins.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl determine_lottery_winner.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl alert_inactive_users.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl rotate_taxes_paid.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl clean_up_mail.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl record_rpc.pl >> /tmp/daily.log 2>> /tmp/daily.log
-perl util/check_spy_count.pl --burn >> /tmp/daily.log 2>> /tmp/daily.log
-perl check_starter_zones.pl >> /tmp/daily.log 2>> /tmp/daily.log
+
+# redirect everything.
+exec >> /tmp/daily.log
+exec 2>&1
+
+perl trickle_essentia_veins.pl
+perl determine_lottery_winner.pl
+perl alert_inactive_users.pl
+perl rotate_taxes_paid.pl
+perl clean_up_mail.pl
+perl record_rpc.pl
+perl util/check_spy_count.pl --burn
+perl check_starter_zones.pl
+perl clean_up_sitterauths.pl

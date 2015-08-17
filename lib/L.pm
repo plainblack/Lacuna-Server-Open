@@ -21,9 +21,8 @@ binmode STDERR, ':encoding(UTF-8)';
 
 our $quiet;
 sub out {
-    my $message = shift;
     unless ($quiet) {
-        say DateTime->now, " ", $message;
+        say DateTime->now, " ", @_;
     }
 }
 

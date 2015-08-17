@@ -5,6 +5,9 @@ use utf8;
 extends 'Lacuna::DB::ResultSet';
 use DateTime;
 
+use constant VALID_AUTH_DAYS => 60;
+use constant AUTH_WARNING_DAYS => 7;
+
 sub remove_auths_from_alliance
 {
     my ($self, $user) = @_;
@@ -23,35 +26,14 @@ sub remove_auths_from_alliance
     $self->search({ sitter_id => { -in => \@ids }, baby_id => $user->id })->delete;
 }
 
-sub new_auth_date { DateTime->now->add(days => 60) }
-
-sub hire_sitter
-{
-    my ($self, %opts) = @_;
-    die "Invalid hiring" unless ($opts{sitter} || $opts{sitter_id}) && ($opts{baby} || $opts{baby_id});
-
-    my $sitter = $opts{sitter} || $self->empire($opts{sitter_id});
-    my $baby   = $opts{baby}   || $self->empire($opts{baby_id});
-
-    __PACKAGE__->new({
-                  sitter_id   => $sitter->id,
-                  baby_id     => $baby->id,
-                  expiry      => new_auth_date(),
-              })->insert;
-}
+sub new_auth_date { DateTime->now->add(days => VALID_AUTH_DAYS) }
 
 sub clean_expired
 {
     my ($self) = @_;
 
-    my $db = Lacuna->db;
-    my $dtf = $db->storage->datetime_parser;
-    my $too_old = $dtf->format_datetime(DateTime->now);
-
-    $self->search({ expiry => { '<', $too_old } })->delete;
+    $self->search({ expiry => { '<', \q[UTC_TIMESTAMP()] } })->delete;
 }
-
-#sub 
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

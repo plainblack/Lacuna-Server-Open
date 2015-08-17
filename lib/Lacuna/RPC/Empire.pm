@@ -12,6 +12,7 @@ use Time::HiRes;
 use Text::CSV_XS;
 use Firebase::Auth;
 use Gravatar::URL;
+use List::Util qw(none);
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -1259,9 +1260,16 @@ sub deauthorize_sitters
     my $baby = $self->get_empire_by_session($session);
 
     my $baby_id = $session->empire_id;
-    my $rs = $baby->sitters();
+    my $rs = Lacuna->db->resultset('SitterAuths');
 
+    confess [1009, "The 'empires' option must be an array of empire IDs"]
+        unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
+        none { /\D/ } @{$opts->{empires}};
 
+    $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
+        ->delete();
+
+    return $self->view_authorized_sitters($session);
 }
 
 __PACKAGE__->register_rpc_method_names(
