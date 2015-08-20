@@ -24,6 +24,7 @@
  - Mod: Stations sort to bottom of list for TM and SST.
  - Mod: Excavs show in arch min in order of distance.
  - Mod: Default ships in fleet tab is now 1.
+ - Mod: Make all the big numbers more readable (UI side).
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
