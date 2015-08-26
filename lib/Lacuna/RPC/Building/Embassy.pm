@@ -71,6 +71,7 @@ sub dissolve_alliance {
     my $empire = $self->get_empire_by_session($session_id);
     my $building = $self->get_building($empire, $building_id);
     $building->dissolve_alliance;
+    $empire->discard_changes;
     return {
         status          => $self->format_status($empire, $building->body),
     };
