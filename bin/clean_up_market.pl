@@ -16,7 +16,7 @@ GetOptions(
 
 out('Started');
 my $start = time;
-my $date_ended = DateTime->now->subtract( hours => 72);
+my $date_ended = DateTime->now->subtract( hours => 168);
 
 out('Loading DB');
 our $db = Lacuna->db;
