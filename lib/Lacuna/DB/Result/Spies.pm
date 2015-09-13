@@ -1844,7 +1844,7 @@ sub incite_mutiny_loss {
     given (randint(1,3)) {
         when (1) { return $self->turn_defector(@_) }
         when (2) { return $self->knock_attacker_unconscious(@_) }
-        when (3) { return $self->kill_mutaneer(@_) }
+        when (3) { return $self->kill_mutineer(@_) }
     }
 }
 
@@ -2259,8 +2259,8 @@ sub turn_defector {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
 
-    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
-    if ($goodbye->{filename} eq 'none') {
+    my $returned = $defender->turn_a_spy($self);
+    if ($returned->{goodbye}->{filename} eq 'none') {
         $self->on_body->add_news(60,
                              '%s has just taken early retirement from %s.',
                              $self->name,
@@ -2273,15 +2273,15 @@ sub turn_defector {
                              $self->empire->name,
                              $defender->empire->name);
     }
-    return $defender->id;
+    return $returned->{goodbye}->id;
 }
 
 sub turn_rebel {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
 
-    my $goodbye = $defender->turn_a_spy($self)->{'goodbye'};
-    if ($goodbye->{filename} eq 'none') {
+    my $returned = $defender->turn_a_spy($self);
+    if ($returned->{goodbye}->{filename} eq 'none') {
         $self->on_body->add_news(60,
                              '%s has just taken early retirement from %s.',
                              $self->name,
@@ -2292,7 +2292,7 @@ sub turn_rebel {
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
     }
-    return $defender->id;
+    return $returned->{goodbye}->id;
 }
 
 sub capture_rebel {
@@ -2419,7 +2419,7 @@ sub abduct_operative {
 #    $self->on_body->add_news(80,'The leader of the rebellion to overthrow %s was killed in a firefight today on %s.', $self->on_body->empire->name, $self->on_body->name);
 #}
 #
-sub kill_mutaneer {
+sub kill_mutineer {
     my ($self, $defender) = @_;
     return $self->get_spooked->id unless (defined $defender);
     $self->on_body
