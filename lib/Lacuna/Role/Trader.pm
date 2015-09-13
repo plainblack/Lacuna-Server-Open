@@ -6,6 +6,11 @@ use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use Lacuna::Util qw(randint);
 use Data::Dumper;
 
+# hopefully this constant allows the comparison later to be
+# compiled out based on how we're called.
+our $overload_allowed;
+use constant OVERLOAD_ALLOWED => $overload_allowed;
+
   my $have_exception = [1011, 'You cannot offer to trade something you do not have.'];
   my $cargo_exception = 'You need %s cargo space to trade that.';
   my $offer_nothing_exception = [1013, 'It appears that you have offered nothing.'];
@@ -30,7 +35,7 @@ sub check_payload {
   unless (ref $items eq 'ARRAY') {
     confess [ 9999, 'The list of items you want to trade needs to be formatted as an array of hashes.'];
   }
-    
+
   my $space_used;
   my @expanded_items;
 
@@ -74,7 +79,7 @@ sub check_payload {
 
                     my $plan_class = $item->{plan_type};
                     $plan_class =~ s/_/::/g;
-                    $plan_class = "Lacuna::DB::Result::Building::$plan_class";
+                    $plan_class = "Lacuna::DB::Result::Building::$plan_class" unless $plan_class =~ /^Lacuna::DB::Result::Building::/;
                     my ($plan) = grep {
                             $_->class eq $plan_class 
                         and $_->level == $item->{level} 
@@ -136,7 +141,7 @@ sub check_payload {
   }
   $items = \@expanded_items;
   confess $offer_nothing_exception unless $space_used;
-  confess [1011, sprintf($space_exception,$space_used)] unless ($space_used <= $available_cargo_space);
+  confess [1011, sprintf($space_exception,$space_used)] unless (OVERLOAD_ALLOWED or $space_used <= $available_cargo_space);
   return $space_used, $items;
 }
 

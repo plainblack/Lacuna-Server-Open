@@ -50,11 +50,13 @@ use constant waste_production => 1;
 sub add_to_market {
     my ($self, $offer, $ask) = @_;
     $ask = sprintf("%0.1f", $ask);
-    unless ($ask >= 0.1 && $ask <= 100 ) {
-        confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
-    }
-    unless ($self->effective_level > $self->my_market->count) {
-        confess [1009, "This Subspace Transporter can only support ".$self->effective_level." trades at one time."];
+    unless(Lacuna::Role::Trader::OVERLOAD_ALLOWED()) {
+        unless ($ask >= 0.1 && $ask <= 100 ) {
+            confess [1009, "You must ask for between 0.1 and 100 essentia to create a trade."];
+        }
+        unless ($self->effective_level > $self->my_market->count) {
+            confess [1009, "This Subspace Transporter can only support ".$self->effective_level." trades at one time."];
+        }
     }
     my $space_used;
     ($space_used, $offer) = $self->check_payload($offer, $self->determine_available_cargo_space);

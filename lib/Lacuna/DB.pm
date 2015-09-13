@@ -45,95 +45,63 @@ sub _where
 # perl -MLacuna -E '$e=Lacuna->db->empire(1); say $e->id, ": ", $e->name'
 # 1: Lacuna Expanse Corp
 sub empire {
-    my ($self, $id) = @_;
-
-    my $empires = $self->resultset('Empire');
-    my $where = $self->_where(name => $id);
-
-    $empires->find($where);
+    shift->X(Empire=>@_)
 }
 
 sub empires {
-    my ($self, $id) = @_;
-
-    my $empires = $self->resultset('Empire');
-    my $where = $self->_where(name => $id);
-
-    $empires->search($where);
+    shift->XX(Empire=>@_);
 }
 
-
 sub body {
-    my ($self, $id) = @_;
-
-    my $bodies = $self->resultset('Map::Body');
-    my $where = $self->_where(name => $id);
-
-    $bodies->find($where);
+    shift->X('Map::Body'=>@_);
 }
 
 sub bodies {
-    my ($self, $id) = @_;
-
-    my $bodies = $self->resultset('Map::Body');
-    my $where = $self->_where(name => $id);
-
-    $bodies->search($where);
+    shift->XX('Map::Body'=>@_);
 }
 
 sub star {
-    my ($self, $id) = @_;
-
-    my $bodies = $self->resultset('Map::Star');
-    my $where = $self->_where(name => $id);
-
-    $bodies->find($where);
+    shift->X('Map::Star'=>@_);
 }
 
 sub stars {
-    my ($self, $id) = @_;
-
-    my $bodies = $self->resultset('Map::Star');
-    my $where = $self->_where(name => $id);
-
-    $bodies->search($where);
+    shift->XX('Map::Star'=>@_);
 }
 
 # similarly, a lot of typing can be saved with Lacuna->db->building($id)
 sub building {
-    my ($self, $building_id) = @_;
-    $self->resultset('Building')->find($building_id);
+    my $self = shift;
+    $self->resultset('Building')->find(@_);
 }
 
 
 sub buildings {
-    my ($self, $id) = @_;
-    my $where = $self->_where(name => $id);
-    $self->resultset('Building')->search($where);
+    my $self = shift;
+    $self->resultset('Building')->search(@_);
 }
 
 sub ship {
-    my ($self, $building_id) = @_;
-    $self->resultset('Ships')->find($building_id);
+    my $self = shift;
+    $self->resultset('Ships')->find(@_);
 }
 
-
 sub ships {
-    my ($self, $id) = @_;
-    my $where = $self->_where(name => $id);
-    $self->resultset('Ships')->search($where);
+    my $self = shift;
+    $self->resultset('Ships')->search(@_);
 }
 
 sub X {
-    my ($self, $type, $id) = @_;
-    my $where = $self->_where(name => $id);
-    $self->resultset($type)->find($where);
+    my $self = shift;
+    my $type = shift;
+    my $where = $self->_where(name => shift);
+    $self->resultset($type)->find($where, @_);
 }
 
 sub XX {
-    my ($self, $type, $id) = @_;
-    my $where = $self->_where(name => $id);
-    $self->resultset($type)->search($where);
+    my $self = shift;
+    my $type = shift;
+    my $where = $self->_where(name => shift);
+    $self->resultset($type)->search($where, @_);
 }
 
 no Moose;
