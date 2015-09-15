@@ -257,7 +257,7 @@ sub update_species {
 sub determine_species_limits {
     my ($self) = @_;
     my @colony_ids = $self->planets->get_column('id')->all;
-    my $colonies = Lacuna->db->resultset('Map::Body')->search({ empire_id => $self->id });
+    my $colonies = Lacuna->db->resultset('Map::Body')->search({ empire_id => $self->id, class => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station'} });
     my $min_orbit = $colonies->get_column('orbit')->min;
     my $max_orbit = $colonies->get_column('orbit')->max;
     $max_orbit    = 7 if $max_orbit > 7;

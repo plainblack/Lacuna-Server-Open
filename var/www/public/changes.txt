@@ -27,6 +27,7 @@
  - Mod: Make all the big numbers more readable (UI side).
  - Mod: Happiness Boost works on max rates.
  - Mod: Increase Market time out from three days to seven.
+ - Fix: Redefine species doesn't care about stations.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.
