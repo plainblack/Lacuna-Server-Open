@@ -43,7 +43,7 @@ sub empire_defaults {
 
 sub colony_structures {
     return (
-        ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',1],
+        ['Lacuna::DB::Result::Building::Permanent::EssentiaVein',29],
         ['Lacuna::DB::Result::Building::Permanent::GeoThermalVent',25],
         ['Lacuna::DB::Result::Building::Permanent::GratchsGauntlet',16],
         ['Lacuna::DB::Result::Building::Permanent::NaturalSpring',25],
