@@ -98,6 +98,25 @@ my @offer;
             Permanent_Volcano
         );
     }
+    elsif (my ($q) = /^(\d*)(?:sspack|ss)/)
+    {
+        my @r = map {
+            my $p = $_;
+            map "$p$_", 1..15
+        } map "$q$_", qw(
+            Module_ArtMuseum
+            Module_CulinaryInstitute
+            Module_IBS
+            Module_OperaHouse
+            Module_Parliament
+            Module_PoliceStation
+            Module_StationCommand
+        );
+        $q ||= 1;
+        $q *= 15;
+        push @r, map $q."Module_Warehouse$_", 1..15;
+        @r;
+    }
     else
     {
         $_
@@ -111,7 +130,7 @@ for my $p (@plans)
         unless @valid_plans;
 
     my ($quantity,$class,$level,$extra_build_level) =
-        $p =~ /^(\d*)\s*([^\d\s]+)(\d+)(?:\+(\d+))/;
+        $p =~ /^(\d*)\s*([^\d\s]+)(\d+)(?:\+(\d+))?/;
     $quantity ||= 1;
     $extra_build_level ||= 0;
 
