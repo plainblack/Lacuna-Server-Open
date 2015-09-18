@@ -584,6 +584,11 @@ sub encrypt_password {
     return Digest::SHA::sha256_base64($password);
 }
 
+sub set_password {
+    my ($self, $password) = @_;
+    $self->password($self->encrypt_password($password));
+    $self->update;
+}
 
 sub attach_invite_code {
     my ($self, $invite_code) = @_;
