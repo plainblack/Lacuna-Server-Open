@@ -28,6 +28,7 @@
  - Mod: Happiness Boost works on max rates.
  - Mod: Increase Market time out from three days to seven.
  - Fix: Redefine species doesn't care about stations.
+ - Mod: Faster spy boost calculation, remove 250-spy limit.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

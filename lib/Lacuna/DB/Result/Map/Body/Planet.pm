@@ -1280,17 +1280,18 @@ sub recalc_stats {
     }
     $stats{max_berth} = 1;
     #calculate propaganda bonus
-    my $propaganda = Lacuna->db->resultset('Lacuna::DB::Result::Spies')
-                       ->search({ on_body_id => $self->id,
-                                  task => 'Political Propaganda',
-                                  empire_id => $self->empire_id},
-                                  {rows => 250},
-                               );
-    my $spy_boost = 0;
-    while (my $spy = $propaganda->next) {
-        my $oratory = int( ($spy->defense + $spy->politics_xp)/250 + 0.5);
-        $spy_boost += $oratory;
-    }
+    my $spy_boost = Lacuna->db->resultset('Spies')
+        ->search(
+                 {
+                     on_body_id => $self->id,
+                     task => 'Political Propaganda',
+                     empire_id => $self->empire_id
+                 },
+                 {
+                     select => \[ "floor((me.defense + me.politics_xp)/250 + 0.5)" ],
+                     as => "boost"
+                 })->get_column("boost")->sum;
+
     $self->propaganda_boost($spy_boost);
     $self->update;
     #calculate building production
