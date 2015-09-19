@@ -384,6 +384,7 @@ use constant MEDALS => {
     abandoned_colony                => 'Abandoned a Colony',
     fissure_explosion               => 'Suffered a Fissure Explosion on a Colony',
     fissure_repair                  => 'Closed a Fissure',
+    patch                           => 'Submitted an accepted patch',
 };
 
 sub name {
