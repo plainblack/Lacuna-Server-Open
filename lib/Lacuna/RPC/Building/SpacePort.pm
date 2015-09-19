@@ -1062,6 +1062,7 @@ sub view_foreign_ships {
                     type            => 'unknown',
                     date_arrives    => $ship->date_available_formatted,
                     from            => {},
+                    image           => 'unknown',
                 );
             if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
                 $ship_info{from} = {
@@ -1076,6 +1077,7 @@ sub view_foreign_ships {
                     $ship_info{name} = $ship->name;
                     $ship_info{type} = $ship->type;
                     $ship_info{type_human} = $ship->type_formatted;
+                    $ship_info{image}      = $ship->image;
                 }
             }
             push @fleet, \%ship_info;
@@ -1110,6 +1112,7 @@ sub view_ships_orbiting {
                     type            => 'unknown',
                     date_arrived    => $ship->date_available_formatted,
                     from            => {},
+                    image           => 'unknown',
                 );
             if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
                 $ship_info{from} = {
@@ -1124,6 +1127,7 @@ sub view_ships_orbiting {
                     $ship_info{name} = $ship->name;
                     $ship_info{type} = $ship->type;
                     $ship_info{type_human} = $ship->type_formatted;
+                    $ship_info{image}      = $ship->image;
                 }
             }
             push @fleet, \%ship_info;
@@ -1157,6 +1161,7 @@ sub _view_ships {
                     type            => 'unknown',
                     date_arrives    => $ship->date_available_formatted,
                     from            => {},
+                    image           => 'unknown',
                 );
             if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
                 $ship_info{from} = {
@@ -1171,6 +1176,7 @@ sub _view_ships {
                     $ship_info{name} = $ship->name;
                     $ship_info{type} = $ship->type;
                     $ship_info{type_human} = $ship->type_formatted;
+                    $ship_info{image}      = $ship->image;
                 }
             }
 warn Dumper(\%ship_info); use Data::Dumper;
