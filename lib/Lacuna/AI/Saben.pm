@@ -95,10 +95,6 @@ sub colony_structures {
     ['Lacuna::DB::Result::Building::Permanent::BlackHoleGenerator',30],
     ['Lacuna::DB::Result::Building::Food::Syrup',15],
     ['Lacuna::DB::Result::Building::Food::Burger',15],
-    ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
-    ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
-    ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
-    ['Lacuna::DB::Result::Building::Permanent::TerraformingPlatform',10],
     ['Lacuna::DB::Result::Building::Permanent::OracleOfAnid',15],
     );
 }

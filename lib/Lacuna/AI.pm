@@ -158,6 +158,10 @@ sub add_colonies {
     my ($self, $add_one) = @_;
     my $config = Lacuna->config;
     my $empire = $self->empire;
+    my @all_zones = Lacuna->db->resultset('Map::Star')->search(
+                        undef,
+                        { distinct => 1 }
+                    )->get_column('zone')->all;
     
     say 'getting existing colonies';
     my $colonies = $empire->planets;
@@ -170,40 +174,42 @@ sub add_colonies {
     }
     
     say 'Adding colonies...';
-    X: foreach my $x (int($config->get('map_size/x')->[0]/250) .. int($config->get('map_size/x')->[1]/250)) {
-        Y: foreach my $y (int($config->get('map_size/y')->[0]/250) .. int($config->get('map_size/y')->[1]/250)) {
-            my $zone = $x.'|'.$y;
-            next if ($zone ~~ \@neutral_zones);
-            say $zone;
-            if ($zone ~~ \@existing_zones) {
-                say "nothing needed";
-            }
-            else {
-                say 'Finding colony in '.$zone.'...';
+ZONE: foreach my $zone (@all_zones) {
+        next unless (grep { $zone eq $_} @all_zones);
+        if (grep { $zone eq $_} @existing_zones) {
+            say 'Colony already exists in '.$zone.'.';
+            next;
+        }
+        if (grep { $zone eq $_} @neutral_zones) {
+            say 'Skip '.$zone.' because of neutral zone.';
+            next;
+        }
+        say $zone;
+        say 'Finding colony in '.$zone.'...';
 # Need to narrow search if neutral area defined by coordinates.
-                my @bodies = $self->viable_colonies->search({
-                            'me.zone' => $zone,
-                            'stars.station_id'   => undef,
-                         },{
-                           join       => 'stars',
-                           rows       => 100,
-                           order_by => 'rand()'
-                   });
-                my $body = random_element(\@bodies);
+        my @bodies = $self->viable_colonies->search({
+                    'me.zone' => $zone,
+                    'stars.station_id'   => undef,
+                 },{
+                   join       => 'stars',
+                   rows       => 100,
+                   order_by => 'rand()'
+           });
+        my $body = random_element(\@bodies);
 
-                if (defined $body) {
-                    say 'Clearing '.$body->name;
-                    my @to_demolish = @{$body->building_cache};
-                    $body->delete_buildings(\@to_demolish);
-                    say 'Colonizing '.$body->name;
-                    $body->found_colony($empire);
-                    $self->build_colony($body);
-                    last X if $add_one;
-                }
-                else {
-                    say 'Could not find a colony to occupy.';
-                }
-            }
+        if (defined $body) {
+            say 'Clearing '.$body->name;
+            my @to_demolish = @{$body->building_cache};
+            $body->delete_buildings(\@to_demolish);
+            say 'Colonizing '.$body->name;
+            $body->found_colony($empire);
+            $self->build_colony($body);
+            $body->happiness(1000000000);
+            $body->update;
+            last ZONE if $add_one;
+        }
+        else {
+            say 'Could not find a colony to occupy in '.$zone.'.';
         }
     }
 }
