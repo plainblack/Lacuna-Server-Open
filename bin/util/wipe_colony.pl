@@ -17,7 +17,7 @@ our $quiet;
   );
 
 
-  die "Usage: perl $0 --body X\n" unless ( defined @body_id );
+  die "Usage: perl $0 --body X\n" unless ( @body_id );
 
   out('Started');
   my $start = time;
