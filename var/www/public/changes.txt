@@ -29,6 +29,7 @@
  - Mod: Increase Market time out from three days to seven.
  - Fix: Redefine species doesn't care about stations.
  - Mod: Faster spy boost calculation, remove 250-spy limit.
+ - Mod: Maximum time for an incoming ship set to 60 days if greater.
 
 3.0911:
  - Add: Reduce opacity for less-well-controlled stars.

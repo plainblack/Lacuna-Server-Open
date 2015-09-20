@@ -410,7 +410,12 @@ sub send {
 
     my $two_months  = DateTime->now->add(days=>60);
     if ($arrival > $two_months) {
-        confess [1009, "Cannot set a speed that will take over 60 days."];
+        if ($self->direction eq 'in') {
+            $arrival = $two_months;
+        }
+        else {
+            confess [1009, "Cannot set a speed that will take over 60 days."];
+        }
     }
 
     $self->date_available($arrival);
