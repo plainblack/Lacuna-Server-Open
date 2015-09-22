@@ -42,23 +42,24 @@ sub check_sz {
     my $empires = $db->resultset('Empire')->search({ id => { '>' => 1 }});
 
     my $cache = Lacuna->cache;
-EMP: while (my $empire = $empires->next)
+    while (my $empire = $empires->next)
     {
         my $bodies = $empire->planets;
-        my $szb = 0;
+        my @starter_bodies;
         while (my $body = $bodies->next) {
-            $szb++ if ($body->in_starter_zone);
-            if ($szb > $sz_param->{max_colonies}) {
-                $empire->send_predefined_message(
-                    tags      => ['Alert'],
-                    filename  => 'zoning_board_warning.txt',
-                    params    => [ $sz_param->{max_colonies} ],
-                );
-                out(sprintf("%s:%d has more than %d colonies in the starter zones.",
-                            $empire->name, $empire->id, $sz_param->{max_colonies}));
-                
-                $cache->set('sz_exceeded', $empire->id, 1, 60*60*24);
-                next EMP;
+            push @starter_bodies, $body->id if ($body->in_starter_zone);
+        }
+        if (scalar @starter_bodies > $sz_param->{max_colonies}) {
+            $empire->send_predefined_message(
+                tags      => ['Alert'],
+                filename  => 'zoning_board_warning.txt',
+                params    => [ $sz_param->{max_colonies} ],
+            );
+            out(sprintf("%s:%d has more than %d colonies in the starter zones.",
+                        $empire->name, $empire->id, $sz_param->{max_colonies}));
+            
+            for my $bid (@starter_bodies) {
+              $cache->set('sz_exceeded', $bid, 1, 60*60*24);
             }
         }
     }
