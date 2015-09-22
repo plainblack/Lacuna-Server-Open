@@ -2265,6 +2265,7 @@ sub turn_defector {
                              '%s has just taken early retirement from %s.',
                              $self->name,
                              $self->empire->name);
+        return;
     }
     else {
         $self->on_body->add_news(60,
@@ -2272,8 +2273,8 @@ sub turn_defector {
                              $self->name,
                              $self->empire->name,
                              $defender->empire->name);
+        return $returned->{goodbye}->id;
     }
-    return $returned->{goodbye}->id;
 }
 
 sub turn_rebel {
@@ -2286,13 +2287,14 @@ sub turn_rebel {
                              '%s has just taken early retirement from %s.',
                              $self->name,
                              $self->empire->name);
+        return;
     }
     else {
         $self->on_body->add_news(70,
                              'The %s Governor\'s call for peace appears to be working. Several rebels told this reporter they are going home.',
                              $self->on_body->name);
+        return $returned->{goodbye}->id;
     }
-    return $returned->{goodbye}->id;
 }
 
 sub capture_rebel {

@@ -34,12 +34,12 @@ sub init_chat {
     );
     my $chat_name = $empire->name;
     my $aname;
-#    $chat_name =~ s/[^0-9a-zA-Z_ ]/_/g;
-#    $chat_name =~ s/__*/_/g;
+    $chat_name =~ s/[^0-9a-zA-Z_ ]/_/g;
+    $chat_name =~ s/__*/_/g;
     if ($empire->alliance_id) {
         $aname = $empire->alliance->name;
-#        $aname =~ s/[^0-9a-zA-Z_ ]/_/g;
-#        $aname =~ s/__*/_/g;
+        $aname =~ s/[^0-9a-zA-Z_ ]/_/g;
+        $aname =~ s/__*/_/g;
         $chat_name .= " (".$aname.")";
     }
     if (0) {
