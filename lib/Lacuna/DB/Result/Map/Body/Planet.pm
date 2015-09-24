@@ -1449,7 +1449,7 @@ sub recalc_stats {
         my $max_rate =    150_000_000_000 * ((time < $self->empire->happiness_boost->epoch) ? 1.25 : 1);
         my $max_time =    720 / ((time < $self->empire->happiness_boost->epoch) ? 1.25 : 1);
         my $one_twenty =  120 / ((time < $self->empire->happiness_boost->epoch) ? 1.25 : 1);
-        if ($happy < -1 * ($one_twenty * $max_rate)) {
+        if ($happy < -1 * ($one_twenty * 150_000_000_000)) {
             my $div = 1;
             my $unhappy_time = DateTime->now->subtract_datetime_absolute($self->unhappy_date);
             my $unh_hours = $unhappy_time->seconds/(3600);
