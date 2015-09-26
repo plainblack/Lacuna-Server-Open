@@ -24,7 +24,9 @@ around 'view' => sub {
     $out->{ore} = $building->body->get_ore_status;
     $out->{food} = $building->body->get_food_status;
     $out->{next_colony_cost} = $empire->next_colony_cost("colony_ship");
-    $out->{next_station_cost} = $empire->next_colony_cost("space_station") if $empire->alliance_id;
+    $out->{next_colony_srcs} = $empire->next_colony_cost("srcs");
+    $out->{next_station_cost} = $empire->alliance_id ? $empire->next_colony_cost("space_station") : 0;
+    $out->{insurrect_value} = $empire->next_colony_cost("spy");
     $out->{pod_delay} = $building->pod_delay;
     return $out;
 };
