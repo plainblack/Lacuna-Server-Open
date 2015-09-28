@@ -305,8 +305,10 @@ sub build_ships {
     #my $needs_refresh;
     for (1..$quantity) {
         my $building = $sorter->();
-        my $ship = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
         my $cost = $cost_for->($building);
+        confess [1007, "Shipyards don't have managers capable of handling 30 days' of orders."]
+            if $building->work_seconds_remaining + $cost->{seconds} > 60 * 60 * 24 * 30; # don't go over 30 days.
+        my $ship = Lacuna->db->resultset('Ships')->new({type => $opts->{type}});
         $building->can_build_ship($ship, $cost, 1);
         $building->spend_resources_to_build_ship($cost);
         $building->build_ship($ship, $cost->{seconds});
