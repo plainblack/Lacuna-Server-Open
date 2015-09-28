@@ -6,7 +6,6 @@ use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
 use JSON;
-use SOAP::Amazon::S3;
 use Lacuna::Constants qw(SHIP_TYPES ORE_TYPES);
 use utf8;
 
@@ -84,7 +83,7 @@ sub generate_overview {
             average_university_level    => $empires->get_column('university_level')->func('avg'),
             highest_university_level    => $empires->get_column('university_level')->max,
             isolationist_count          => $empires->search({is_isolationist => 1})->count,
-            essentia_using_count        => $empires->search({essentia => { '>' => 0 }})->count,
+            essentia_using_count        => $empires->search([map { $_ => { '>' => 0 } } qw(essentia_free essentia_paid essentia_game)])->count,
             currently_active_count      => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(hours=>1))}})->count,
             active_today_count          => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(hours=>24))}})->count,
             active_this_week_count      => $empires->search({last_login => {'>=' => $dtformatter->format_datetime(DateTime->now->subtract(days=>7))}})->count,
@@ -165,18 +164,37 @@ sub generate_overview {
         $out{glyphs}{types}{$glyph->type} = $glyph->quantity;
     }
 
-    out('Write To S3');
     my $config = Lacuna->config;
-    my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
-    my $bucket = $s3->bucket($config->get('feeds/bucket'));
-    # fetch existing overview
-    my $old_object = $bucket->object('server_overview.json');
-    my $old_stats  = from_json( $old_object->getdata );
-    # add old spies data to new data
-    $out{spies} = $old_stats->{spies};
-    # save updated data
-    my $object = $bucket->putobject('server_overview.json', to_json(\%out), { 'Content-Type' => 'application/json' });
-    $object->acl('public');
+    if ($config->get('access_key')) {
+        require SOAP::Amazon::S3;
+
+        out('Write To S3');
+        my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+        my $bucket = $s3->bucket($config->get('feeds/bucket'));
+        # fetch existing overview
+        my $old_object = $bucket->object('server_overview.json');
+        my $old_stats  = from_json( $old_object->getdata );
+        # add old spies data to new data
+        $out{spies} = $old_stats->{spies};
+        # save updated data
+        my $object = $bucket->putobject('server_overview.json', to_json(\%out), { 'Content-Type' => 'application/json' });
+        $object->acl('public');
+    }
+    else
+    {
+        my $read;
+
+        if (-e '/data/Lacuna-Server/var/www/public/server_overview.json')
+        {
+            open my $read, '<', '/data/Lacuna-Server/var/www/public/server_overview.json';
+            my $old_stats = from_json(do { local $/; <$read> });
+            $out{spies} = $old_stats->{spies};
+        }
+
+        open my $fh, '>', '/data/Lacuna-Server/var/www/public/server_overview.json';
+        print $fh to_json(\%out);
+        close $fh;
+    }
 }
 
 
@@ -514,12 +532,23 @@ sub output_map {
     }
   }
   my $json_txt = JSON->new->utf8->encode(\%output);
-  out('Write Map To S3');
+
   my $config = Lacuna->config;
-  my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
-  my $bucket = $s3->bucket($config->get('feeds/bucket'));
-  my $object = $bucket->putobject('starmap.json', $json_txt, { 'Content-Type' => 'application/json; charset=utf-8' });
-  $object->acl('public');
+  if ($config->get('access_key')) {
+      require SOAP::Amazon::S3;
+
+      out('Write Map To S3');
+      my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+      my $bucket = $s3->bucket($config->get('feeds/bucket'));
+      my $object = $bucket->putobject('starmap.json', $json_txt, { 'Content-Type' => 'application/json; charset=utf-8' });
+      $object->acl('public');
+  }
+    else
+    {
+        open my $fh, '>', '/data/Lacuna-Server/var/www/public/starmap.json';
+        print $fh $json_txt;
+        close $fh;
+    }
 }
 
 # UTILITIES

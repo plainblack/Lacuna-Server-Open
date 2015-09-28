@@ -6,7 +6,6 @@ use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
 use JSON;
-use SOAP::Amazon::S3;
 use Lacuna::Constants qw(SHIP_TYPES);
 use utf8;
 
@@ -95,15 +94,18 @@ sub generate_overview {
         },
     );
 
-    out('Write To S3');
     my $config = Lacuna->config;
-    my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
-    my $bucket = $s3->bucket($config->get('feeds/bucket'));
-    # fetch existing overview
-    my $old_object = $bucket->object('server_overview.json');
-    my $stats  = from_json( $old_object->getdata );
-    # replace old spies data with new
-    $stats->{spies} = $out{spies};
+    if ($config->get('access_key')) {
+        require SOAP::Amazon::S3;
+
+        out('Write To S3');
+        my $s3 = SOAP::Amazon::S3->new($config->get('access_key'), $config->get('secret_key'), { RaiseError => 1 });
+        my $bucket = $s3->bucket($config->get('feeds/bucket'));
+        # fetch existing overview
+        my $old_object = $bucket->object('server_overview.json');
+        my $stats  = from_json( $old_object->getdata );
+        # replace old spies data with new
+        $stats->{spies} = $out{spies};
     # save updated data
 #XXX
 #  my $spy_txt = JSON->new->pretty->canonical->utf8->encode($stats);
@@ -111,8 +113,24 @@ sub generate_overview {
 #  print OUT $spy_txt;
 #  close(OUT);
 #XXX
-    my $object = $bucket->putobject('server_overview.json', to_json($stats), { 'Content-Type' => 'application/json' });
-    $object->acl('public');
+        my $object = $bucket->putobject('server_overview.json', to_json($stats), { 'Content-Type' => 'application/json' });
+        $object->acl('public');
+    }
+    else
+    {
+        my $stats = {};
+        if (-e '/data/Lacuna-Server/var/www/public/server_overview.json')
+        {
+            open my $read, '<', '/data/Lacuna-Server/var/www/public/server_overview.json';
+            $stats = from_json(do { local $/; <$read> });
+        }
+        $stats->{spies} = $out{spies};
+
+        open my $fh, '>', '/data/Lacuna-Server/var/www/public/server_overview.json';
+        print $fh to_json(\%out);
+        close $fh;
+
+    }
 }
 
 
