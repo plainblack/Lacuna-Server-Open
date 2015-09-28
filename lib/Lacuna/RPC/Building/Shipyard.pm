@@ -225,9 +225,11 @@ sub build_ships {
         confess [1001, "Either building id(s) or body id must be provided"];
     }
     my $body = $self->get_body($empire, $opts->{body_id});
+    @buildings = grep { $_->level > 0 && $_->efficiency >= 100 } @buildings;
 
     my @all_sys = grep {
-        $_->class eq 'Lacuna::DB::Result::Building::Shipyard'
+        $_->class eq 'Lacuna::DB::Result::Building::Shipyard' &&
+        $_->level > 0 && $_->efficiency >= 100
     } @{$body->building_cache};
 
     my $ships_building = Lacuna->db->resultset("Ships")->search({body_id => $opts->{body_id}, task => 'Building'})->count;
@@ -242,7 +244,7 @@ sub build_ships {
 
     given(lc $opts->{autoselect}) {
         when([undef,'']) {
-            confess [1011, 'No building_id specified'] if @buildings < 1;
+            confess [1011, 'No repaired building_id specified'] if @buildings < 1;
         }
         when('all') {
             @buildings = @all_sys;
