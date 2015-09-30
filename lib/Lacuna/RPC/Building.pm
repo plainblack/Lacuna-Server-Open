@@ -68,7 +68,9 @@ sub upgrade {
         $proposition->proposed_by($empire);
         $proposition->insert;
     }
-    
+
+    # The cache needs clearing so the build queue length can be set properly
+    $body->clear_building_cache;
     return {
         status      => $self->format_status($empire, $body),
         building    => {
