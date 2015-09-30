@@ -443,11 +443,8 @@ sub get_buildable {
     
     # build queue
     my $dev = $body->development;
-    my $max_items_in_build_queue = 1;
-    if (defined $dev) {
-        $max_items_in_build_queue += $dev->effective_level;
-    }
-    my $items_in_build_queue = scalar @{$body->builds};
+    my $max_items_in_build_queue = $body->build_queue_size;
+    my $items_in_build_queue = $body->build_queue_length;
     
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) { 
         @buildable = ();
