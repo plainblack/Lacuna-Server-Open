@@ -1,10 +1,12 @@
 3.0913:
  - Add: Insurrect Value & SRCS happiness cost added to PCC output.
- -  UI: Fix screen scrolling.
- -  UI: Automatically load new captcha on failure (thanks, vortigon)
- -  UI: New buildings have level visible immediately if user wants levels always displayed.
+ - UI : Fix screen scrolling.
+ - UI : Automatically load new captcha on failure (thanks, vortigon)
+ - UI : New buildings have level visible immediately if user wants levels always displayed.
  - Mod: Limit shipyards to 30 days' queue.
  - Add: Constructing added to resource bar.
+ - UI : Stop the "Trade Ministry is offline" message when repairing TM
+ - UI : Added self-destruct button back.
 
 3.0912:
  - Fix: get_fleet_for returns berth appropriate ships.
