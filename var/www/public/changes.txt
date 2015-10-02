@@ -7,6 +7,7 @@
  - Add: Constructing added to resource bar.
  - UI : Stop the "Trade Ministry is offline" message when repairing TM
  - UI : Added self-destruct button back.
+ - Fix: Modify sanitize to do initialize of stored values last.
 
 3.0912:
  - Fix: get_fleet_for returns berth appropriate ships.
