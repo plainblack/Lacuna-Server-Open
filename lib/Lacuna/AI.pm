@@ -115,6 +115,7 @@ sub build_colony {
         }
     }
     
+    my $plot_use = 0;
     my $buildings = Lacuna->db->resultset('Lacuna::DB::Result::Building');
     foreach my $plan (@plans) {
         my ($x, $y) = $body->find_free_space;
@@ -129,6 +130,11 @@ sub build_colony {
         say $building->name;
         $body->build_building($building);
         $building->finish_upgrade;
+        $plot_use++ unless $plan =~ /::Permanent::/;
+    }
+    if ($plot_use > $body->size) {
+        $body->size($plot_use);
+        $body->update;
     }
 }
 
