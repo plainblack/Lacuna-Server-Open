@@ -8,6 +8,10 @@
  - UI : Stop the "Trade Ministry is offline" message when repairing TM
  - UI : Added self-destruct button back.
  - Fix: Modify sanitize to do initialize of stored values last.
+ - UI : New buildings will get level showing if user has asked for it.
+ - UI : Fix announcement window for users as logging in.
+ - UI : Stop the "Trade Ministry is offline" message when repairing TM.
+ - UI : Fix planet jumping from links
 
 3.0912:
  - Fix: get_fleet_for returns berth appropriate ships.
