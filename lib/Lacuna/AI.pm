@@ -359,11 +359,13 @@ sub train_spies {
     my $max_spies = $intelligence->level * 3;
     my $room_for  = $max_spies - $spies;
     my $train_count = 0;
+    say " Training $room_for spies for total of $max_spies with chance of $chance";
     if ($subsidise) {
+        say " Subsidizing";
         my $deception = $colony->empire->effective_deception_affinity * 50;
         while ($train_count < $room_for) {
             $train_count++;
-            next if (rand(100) < $chance);
+            next if ($chance < rand(100));
             # bypass everything and just create the spy
             my $spy = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->new({
                 from_body_id    => $colony->id,
