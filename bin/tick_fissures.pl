@@ -487,7 +487,7 @@ sub fissure_explode {
 
         my $outrage;
         if ($ename) {
-            $outrage = sprintf("We currently investigating why %s let this happen to their people.", $ename);
+            $outrage = sprintf("We are currently investigating why %s let this happen to their people.", $ename);
         }
         else {
             $outrage = "Local empires are investigating who is responsible for this outrage."
