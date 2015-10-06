@@ -142,7 +142,7 @@ has effective_level => (
 sub _build_effective_level
 {
     my $self = shift;
-    my $uni_prod   = ($self->body->empire) ? $self->body->empire->university_level + 1 : 1;
+    my $uni_prod   = ($self->body->empire) ? $self->body->empire->university_level : 1;
     my $real_level = $self->level;
     # take whichever one is lower.
     my $eff_level  = min($uni_prod + 1, $real_level);
