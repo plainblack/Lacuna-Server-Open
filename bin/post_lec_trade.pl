@@ -80,7 +80,7 @@ my @offer;
 
 @plans = map {
     # magic starter packs.
-    if (my ($q,undef,$rest) = /^(\d*)(?:starterpack|sp)(.*)/)
+    if (my ($q,$rest) = /^(\d*)(?:starterpack|sp)(.*)/)
     {
         $rest ||= '1+0';
         map "$q$_$rest", qw(
