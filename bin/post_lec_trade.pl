@@ -20,6 +20,7 @@ GetOptions(
            'plan|p=s@'     => \my @plans,
            'glyph|g=s@'    => \my @glyphs,
            'ship|s=s@'     => \my @ships,
+           'maxuniversity|u=i' => \my $maxuni,
           );
 
 if (not defined $cost or
@@ -265,7 +266,8 @@ eval {
     $trade->add_to_market(
                           \@offer,
                           $cost,
-                          @opts
+                          @opts,
+                          { max_university => $maxuni },
                          );
     1;
 } or die dump($@);

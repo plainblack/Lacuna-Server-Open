@@ -29,6 +29,7 @@ __PACKAGE__->add_columns(
     y                       => { data_type => 'int', default_value => 0 },
     speed                   => { data_type => 'int', default_value => 0 },
     trade_range             => { data_type => 'int', default_value => 0 },
+    max_university          => { data_type => 'int', is_nullable => 1 },
 );
 
 __PACKAGE__->belongs_to('body', 'Lacuna::DB::Result::Map::Body', 'body_id');

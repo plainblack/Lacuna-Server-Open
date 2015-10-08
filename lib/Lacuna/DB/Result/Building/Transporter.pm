@@ -48,7 +48,7 @@ use constant waste_production => 1;
 
 
 sub add_to_market {
-    my ($self, $offer, $ask) = @_;
+    my ($self, $offer, $ask, $internal_options) = @_;
     $ask = sprintf("%0.1f", $ask);
     unless(Lacuna::Role::Trader::OVERLOAD_ALLOWED()) {
         unless ($ask >= 0.1 && $ask <= 100 ) {
@@ -68,6 +68,7 @@ sub add_to_market {
         body_id         => $self->body_id,
         transfer_type   => $self->transfer_type,
     );
+    $trade{max_university} = $internal_options->{max_university} if $internal_options;
     return Lacuna->db->resultset('Lacuna::DB::Result::Market')->new(\%trade)->insert;
 }
 

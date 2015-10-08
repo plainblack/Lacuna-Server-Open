@@ -18,12 +18,13 @@ use constant OVERLOAD_ALLOWED => $overload_allowed;
   my $fractional_offer_exception = [1013, 'You cannot offer a fraction of something.'];
 
 sub market {
-  return Lacuna->db->resultset('Lacuna::DB::Result::Market');
+    my $self = shift;
+    return Lacuna->db->resultset('Lacuna::DB::Result::Market')->search({max_university => [ undef, { '>=', $self->body->empire->university_level } ]});
 }
 
 sub my_market { 
   my $self = shift;
-  return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type });
+  return $self->market->search({body_id => $self->body_id, transfer_type => $self->transfer_type});
 }
 
 sub check_payload {
