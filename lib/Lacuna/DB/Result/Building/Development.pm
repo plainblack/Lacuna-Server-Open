@@ -4,6 +4,7 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use List::Util qw(max);
 
 sub subsidize_build_queue {
     my ($self, $building) = @_;
@@ -23,20 +24,16 @@ sub subsidize_build_queue {
 sub calculate_subsidy {
     my ($self, $building) = @_;
 
-    my $levels  = 0;
-    my $premium = 0;
+    my $cost    = 0;
     if ($building) {
-        $levels = $building->level + 1;
-        $premium = 1;
+        $cost = 1 + # premium for targeting a single building
+            max(1, int($building->level + 1) / 3);
     }
     else {
         foreach my $build (@{$self->body->builds}) {
-            $levels += $build->level + 1;
+            $cost += max(1, int($build->level + 1) / 3);
         }
     }
-    my $cost = int($levels / 3);
-    $cost = 1 if $cost < 1;
-    $cost += $premium;
 
     return $cost;
 }
