@@ -311,7 +311,7 @@ before 'can_downgrade' => sub {
 };
 
 sub add_to_market {
-    my ($self, $offer, $ask, $options) = @_;
+    my ($self, $offer, $ask, $options, $internal_options) = @_;
     my $ship = $self->next_available_trade_ship($options->{ship_id});
     unless (defined $ship) {
         confess [1011, "You do not have any ships available that can carry trade goods."];
@@ -343,6 +343,7 @@ sub add_to_market {
         speed           => $ship->speed,
         trade_range     => int(450 + (15 * $self->effective_level)),
     );
+    $trade{max_university} = $internal_options->{max_university} if $internal_options;
     return Lacuna->db->resultset('Market')->new(\%trade)->insert;
 }
 
