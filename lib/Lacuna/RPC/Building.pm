@@ -209,6 +209,9 @@ sub build {
         $proposition->insert;
     }
     
+    # The cache needs clearing so the plots counts are updated correctly
+    $body->clear_building_cache;
+    $body->clear_building_count;
     # show the user
     return {
         status      => $self->format_status($empire, $body),

@@ -1,3 +1,6 @@
+3.0915:
+ - Fix: Building counts were being returned wrong when building new buildings.
+
 3.0914:
  - UI : Evein draining re-added.
  - Fix: Effective level could be too high.

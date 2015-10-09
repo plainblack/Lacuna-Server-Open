@@ -618,6 +618,7 @@ has building_count => (
         is      => 'rw',
         lazy    => 1,
         builder => '_build_building_count',
+        clearer => 'clear_building_count',
         );
 
 sub _build_building_count {
