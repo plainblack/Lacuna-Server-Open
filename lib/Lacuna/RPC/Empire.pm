@@ -734,58 +734,59 @@ sub view_public_profile {
 }
 
 sub boost_ore {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'ore_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'ore_boost', $weeks);
 }
 
 sub boost_water {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'water_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'water_boost', $weeks);
 }
 
 sub boost_energy {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'energy_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'energy_boost', $weeks);
 }
 
 sub boost_food {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'food_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'food_boost', $weeks);
 }
 
 sub boost_happiness {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'happiness_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'happiness_boost', $weeks);
 }
 
 sub boost_storage {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'storage_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'storage_boost', $weeks);
 }
 
 sub boost_building {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'building_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'building_boost', $weeks);
 }
 
 sub boost_spy_training {
-    my ($self, $session_id) = @_;
-    return $self->boost($session_id, 'spy_training_boost');
+    my ($self, $session_id, $weeks) = @_;
+    return $self->boost($session_id, 'spy_training_boost', $weeks);
 }
 
 sub boost {
-    my ($self, $session_id, $type) = @_;
+    my ($self, $session_id, $type, $weeks) = @_;
     my $empire = $self->get_empire_by_session($session_id);
-    unless ($empire->essentia >= 5) {
+    $weeks //= 1;
+    unless ($empire->essentia >= 5 * $weeks) {
         confess [1011, 'Not enough essentia.'];
     }
     $empire->spend_essentia({
-        amount  => 5, 
+        amount  => 5 * $weeks,
         reason  => $type.' boost',
     });
     my $start = DateTime->now;
     $start = $empire->$type if ($empire->$type > $start);
-    $start->add(days=>7);
+    $start->add(days=>7*$weeks);
     $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
