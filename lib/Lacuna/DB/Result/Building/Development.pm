@@ -34,7 +34,7 @@ sub calculate_subsidy {
             $cost += max(1, int($build->level + 1) / 3);
         }
     }
-
+    $cost = int($cost * 10)/10;
     return $cost;
 }
 
