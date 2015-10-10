@@ -27,11 +27,11 @@ sub calculate_subsidy {
     my $cost    = 0;
     if ($building) {
         $cost = 1 + # premium for targeting a single building
-            max(1, int($building->level + 1) / 3);
+            max(1, int(($building->level + 1) / 3));
     }
     else {
         foreach my $build (@{$self->body->builds}) {
-            $cost += max(1, int($build->level + 1) / 3);
+            $cost += max(1, int(($build->level + 1) / 3));
         }
     }
 
