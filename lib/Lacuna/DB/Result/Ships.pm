@@ -702,6 +702,7 @@ sub orbit {
     my ($self) = @_;
     $self->task('Orbiting');
     $self->date_available(DateTime->now);
+    $self->payload({});
     return $self;
 }
 
