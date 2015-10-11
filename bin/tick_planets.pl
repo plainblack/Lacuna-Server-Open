@@ -4,6 +4,7 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
+use L;
 use Getopt::Long;
 use utf8;
 $|=1;
@@ -20,8 +21,9 @@ out('Loading DB');
 our $db = Lacuna->db;
 
 out('Ticking planets');
-my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body')->search({empire_id => {'!=' => 0}});
-while (my $planet = $planets_rs->next) {
+my $planets_rs = $db->resultset('Lacuna::DB::Result::Map::Body')->search({empire_id => {'!=' => 0}})->get_column('id');
+while (my $id = $planets_rs->next) {
+    my $planet = LD->body($id);
     out('Ticking '.$planet->name.' : '.$planet->id);
     eval{$planet->tick};
     my $reason = $@;
@@ -40,17 +42,4 @@ while (my $planet = $planets_rs->next) {
 my $finish = time;
 out('Finished');
 out((($finish - $start)/60)." minutes have elapsed");
-
-
-###############
-## SUBROUTINES
-###############
-
-sub out {
-    my $message = shift;
-    unless ($quiet) {
-        say format_date(DateTime->now), " ", $message;
-    }
-}
-
 
