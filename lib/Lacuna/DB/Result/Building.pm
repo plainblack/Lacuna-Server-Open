@@ -646,6 +646,10 @@ sub can_build_on {
     return 1;
 }
 
+sub finish_building {
+    my $self = shift;
+    # most buildings don't need to do anything here.
+}
 
 # DEMOLISH
 

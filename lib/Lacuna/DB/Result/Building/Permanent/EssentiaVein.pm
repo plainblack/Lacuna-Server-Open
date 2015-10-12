@@ -33,6 +33,15 @@ sub image_level {
     return $self->image.'1';
 }
 
+# give them 5 days to complete the build from a plan.
+after finish_building => sub {
+    my $self = shift;
+
+    my $work_ends = DateTime->now->add(days => 5);
+    $self->reschedule_work($work_ends);
+    $self->update;
+};
+
 after finish_upgrade => sub {
     my $self = shift;
 

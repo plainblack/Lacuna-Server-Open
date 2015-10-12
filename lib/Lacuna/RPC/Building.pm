@@ -193,7 +193,8 @@ sub build {
 
     # build it
     $body->build_building($building);
-    
+    $building->finish_building();
+
     # add vote
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
@@ -213,14 +214,23 @@ sub build {
     $body->clear_building_cache;
     $body->clear_building_count;
     # show the user
-    return {
+    my %out = (
         status      => $self->format_status($empire, $body),
         building    => {
             id              => $building->id,
             level           => $building->level,
             pending_build   => $building->upgrade_status,
         },
-    };
+    );
+    if ($building->is_working) {
+        $out{building}{work} = {
+            seconds_remaining   => $building->work_seconds_remaining,
+            start               => $building->work_started_formatted,
+            end                 => $building->work_ends_formatted,
+        };
+    }
+
+    return \%out;
 }
 
 sub demolish {
