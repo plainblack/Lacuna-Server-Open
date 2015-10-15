@@ -55,7 +55,7 @@ sub get_empire_by_session {
             }
             my $ipm = $session->ip_address eq $ipr;
             my @caller;
-            for (my $i = 1;!@caller || $caller[0] !~ /Lacuna::RPC/;++$i) {
+            for (my $i = 1;@caller and $caller[0] !~ /Lacuna::RPC/;++$i) {
                 @caller = caller($i);
             }
             $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $session_id, $session->is_sitter ? 1 : 0, $caller[3]);
@@ -157,6 +157,11 @@ sub format_status {
             $out{server}{announcement} = 1;
         }
         $out{empire} = $empire->get_status;
+
+        if (my @promos = Lacuna->db->resultset('Promotion')->current_promotions)
+        {
+            $out{server}{promotions} = [ map $_->ui_details, @promos ];
+        }
     }
     if (defined $body) {
         $out{body} = $body->get_status($empire);

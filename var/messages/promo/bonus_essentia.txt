@@ -1,0 +1,5 @@
+Promotional Essentia Added
+~~~
+Due to the current %s%%-bonus promotions, an extra %s has been credited to your empire.
+
+Transaction ID: %s

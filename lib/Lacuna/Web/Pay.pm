@@ -559,9 +559,16 @@ sub www_buy_currency_cc {
             $empire->send_predefined_message(
                 tags        => ['Alert'],
                 filename    => 'purchase_essentia.txt',
-                params      => [$amount, $transaction_id],        
+                params      => [$amount, $transaction_id],
             );
-                
+            $self->_run_promotions({
+                amount => $amount,
+                empire => $empire,
+                cost   => $request->param('total'),
+                type   => 'iTransact',
+                transaction_id => $transaction_id
+            });
+
             my $script = "
              try {
               window.opener.YAHOO.lacuna.Essentia.paymentFinished();
@@ -727,6 +734,13 @@ sub www_paypal_ec_checkout {
         filename    => 'purchase_essentia.txt',
         params      => [$amount, $transaction_id],
     );
+    $self->_run_promotions({
+        amount => $amount,
+        empire => $empire,
+        cost   => $order->{total},
+        type   => 'PayPal',
+        transaction_id => $transaction_id
+    });
 
     Lacuna->cache->delete( 'paypal_order', $user_id );
     my $script = "
@@ -736,6 +750,17 @@ sub www_paypal_ec_checkout {
       } catch (e) {}
     ";
     return $self->wrap('Thank you! The essentia will be added to your account momentarily.<script type="text/javascript">'.$script.'</script>');    
+}
+
+sub _run_promotions
+{
+    my ($self, $opts) = @_;
+
+    my $rs = Lacuna->db->resultset("Promotion")->current_promotions_rs;
+    while (my $promo = $rs->next())
+    {
+        $promo->essentia_purchased($opts);
+    }
 }
 
 no Moose;
