@@ -1,6 +1,6 @@
 Friendly Essentia
 ~~~
-You invited your friend {Empire %s %s} to play the Lacuna Expanse and they just upgraded their University another level. As a reward for having active friends we have given you an extra 5 essentia.
+You invited your friend {Empire %s %s} to play the Lacuna Expanse and they just upgraded their University another level. As a reward for having active friends we have given you an extra 5 {essentia}.
 
 Thanks for inviting your friends to play.
 

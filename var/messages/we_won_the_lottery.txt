@@ -1,6 +1,6 @@
 We Won The Lottery!
 ~~~
-We were lucky enough to win the lottery grand prize of 10 essentia in Zone %s!
+We were lucky enough to win the lottery grand prize of 10 {essentia} in Zone %s!
 
 Very Excited,
 
