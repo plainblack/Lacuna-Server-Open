@@ -8,6 +8,7 @@ use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
 use Lacuna::Util qw(randint);
+use List::Util qw(all);
 use List::MoreUtils qw(uniq);
 use Carp;
 use feature 'switch';
@@ -185,6 +186,12 @@ sub repair_list {
 
 sub rearrange_buildings {
   my ($self, $session_id, $body_id, $arrangement) = @_;
+  confess [1002, "Arrangement must be an array reference of hashes" ]
+      unless $arrangement &&
+      ref $arrangement eq 'ARRAY' &&
+      all { ref $_ eq 'HASH' && exists $_->{id} && exists $_->{x} && exists $_->{y} } @$arrangement;
+
+
   my $empire = $self->get_empire_by_session($session_id);
   my $body = $self->get_body($empire, $body_id);
   my %cur_lay; my %new_lay;
@@ -231,7 +238,7 @@ sub rearrange_buildings {
     push @miss_in_cur, $id unless defined($cur_ids{$id});
     if (defined($new_lay{$spot})) {
       confess [1013,
-        sprintf("Trying to place %s in %s, where you alread have %s",
+        sprintf("Trying to place %s in %s, where you already have %s",
           $new_ids{$id}->{name}, $spot, $new_ids{$new_lay{$spot}}->{name})
       ];
     }
