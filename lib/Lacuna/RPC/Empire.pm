@@ -777,6 +777,10 @@ sub boost {
     my ($self, $session_id, $type, $weeks) = @_;
     my $empire = $self->get_empire_by_session($session_id);
     $weeks //= 1;
+
+    confess [1001, "Weeks must be a positive integer"]
+        unless $weeks >=0 and int($weeks) == $weeks;
+
     unless ($empire->essentia >= 5 * $weeks) {
         confess [1011, 'Not enough essentia.'];
     }
