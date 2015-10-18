@@ -65,6 +65,19 @@ around 'view' => sub {
     return $out;
 };
 
+my @orbits = (
+              undef,
+              [ 1,  2], # 1
+              [ 2,  1], # 2
+              [ 2, -1], # 3
+              [ 1, -2], # 4
+              [-1, -2], # 5
+              [-2, -1], # 6
+              [-2,  1], # 7
+              [-1,  2], # 8
+             );
+my %orbit_for; $orbit_for{$orbits[$_][0]}{$orbits[$_][1]} = $_ for 1..8;
+
 sub find_target {
     my ($self, $empire, $target_params) = @_;
     unless (ref $target_params eq 'HASH') {
@@ -128,31 +141,7 @@ sub find_target {
             if (defined $star) {
                 my $sx = $star->x; my $sy = $star->y;
                 my $tx = $target_params->{x}; my $ty = $target_params->{y};
-                my $orbit = 0;
-                if (($sx+1 == $tx) && ($sy+2 == $ty)) {
-                    $orbit = 1;
-                }
-                elsif (($sx+2 == $tx) && ($sy+1 == $ty)) {
-                    $orbit = 2;
-                }
-                elsif (($sx+2 == $tx) && ($sy-1 == $ty)) {
-                    $orbit = 3;
-                }
-                elsif (($sx+1 == $tx) && ($sy-2 == $ty)) {
-                    $orbit = 4;
-                }
-                elsif (($sx-1 == $tx) && ($sy-2 == $ty)) {
-                    $orbit = 5;
-                }
-                elsif (($sx-2 == $tx) && ($sy-1 == $ty)) {
-                    $orbit = 6;
-                }
-                elsif (($sx-2 == $tx) && ($sy+1 == $ty)) {
-                    $orbit = 7;
-                }
-                elsif (($sx-1 == $tx) && ($sy+2 == $ty)) {
-                    $orbit = 8;
-                }
+                my $orbit = $orbit_for{$tx-$sx}{$ty-$sy};
                 if ($orbit) {
                     $target = {
                         id      => 0,
@@ -233,17 +222,39 @@ sub find_target {
             $target_type = "zone";
         }
     }
-    elsif (exists $target_params->{star_name}) {
-        $target = Lacuna->db->
-            resultset('Lacuna::DB::Result::Map::Star')->search(
-                { name => $target_params->{star_name} }
-            )->first;
+    elsif (exists $target_params->{star_name} or exists $target_params->{star_id}) {
+        my ($type,$value) = exists $target_params->{star_id} ?
+            (id => $target_params->{star_id}) : (name => $target_params->{star_name});
+
+        $target = $db->resultset('Lacuna::DB::Result::Map::Star')->find({$type => $value});
         $target_type = "star";
-    }
-    elsif (exists $target_params->{star_id}) {
-        $target = Lacuna->db->
-        resultset('Lacuna::DB::Result::Map::Star')->find($target_params->{star_id});
-        $target_type = "star";
+
+        if (exists $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
+            my $star = $target;
+            my $orbit = int($target_params->{orbit});
+            my ($x, $y) = ($star->x + $orbits[$orbit][0], $star->y + $orbits[$orbit][1]); #++);
+
+            $target = $db->resultset('Map::Body')->find({ x => $x, y => $y });
+            if ($target)
+            {
+                $target_type = $target->get_type;
+            }
+            else
+            {
+                $target = {
+                    id      => 0,
+                    name    => "Empty Space",
+                    orbit   => $orbit,
+                    type    => 'empty',
+                    x       => $x,
+                    y       => $y,
+                    zone    => $star->zone,
+                    star    => $star,
+                    star_id => $star->id,
+                };
+                $target_type = "empty";
+            }
+        }
     }
     unless (defined $target) {
         confess [ 1002, 'Could not find '.$target_word.' target.'];

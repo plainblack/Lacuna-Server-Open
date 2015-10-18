@@ -143,6 +143,13 @@ A string with the star's name. Case insensitive, but will throw an exception for
 
 The unique id of the star.
 
+=head4 orbit
+
+If star_name or star_id are given, an extra "orbit" parameter is allowed.
+This allows easier specifying of unoccupied orbits.  If not given, then
+the target remains the star, otherwise the target is the given position,
+whether occupied or not, about the given star.
+
 =head4 zone
 
 Zone name as a target.  ie: '-1|4' ; Only useful for Jump Zone.
