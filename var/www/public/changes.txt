@@ -2,6 +2,7 @@
  - Fix: Reduce the wild resource fluctuations during planet ticking.
  - Mod: Evein plans get an extra 5 days start time for building.
  - Add: Lacuna promotions.
+ - Add: Orbits as BHG targets.
 
 3.0914:
  - UI : Evein draining re-added.

@@ -54,9 +54,12 @@ sub get_empire_by_session {
                 $session->update;
             }
             my $ipm = $session->ip_address eq $ipr;
-            my @caller;
-            for (my $i = 1;@caller and $caller[0] !~ /Lacuna::RPC/;++$i) {
-                @caller = caller($i);
+            my $i = 1;
+            my @caller = caller($i);
+            while (@caller)
+            {
+                last if $caller[0] =~ /Lacuna::RPC/;
+                @caller = caller(++$i);
             }
             $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $session_id, $session->is_sitter ? 1 : 0, $caller[3]);
             #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
