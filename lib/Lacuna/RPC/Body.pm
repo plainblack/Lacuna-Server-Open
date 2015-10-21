@@ -238,8 +238,8 @@ sub rearrange_buildings {
     push @miss_in_cur, $id unless defined($cur_ids{$id});
     if (defined($new_lay{$spot})) {
       confess [1013,
-        sprintf("Trying to place %s in %s, where you already have %s",
-          $new_ids{$id}->{name}, $spot, $new_ids{$new_lay{$spot}}->{name})
+        sprintf("Trying to place %s (%s) in %s, where you already have %s (%s)",
+                $new_ids{$id}->{name}, $id, $spot, $new_ids{$new_lay{$spot}}->{name}, $new_lay{$spot})
       ];
     }
     $new_lay{$spot} = $id;
