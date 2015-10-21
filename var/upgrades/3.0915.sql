@@ -8,3 +8,5 @@ CREATE TABLE promotion (
   payload mediumblob NULL,
   PRIMARY KEY (id)
 );
+
+alter table empire drop column has_new_messages;

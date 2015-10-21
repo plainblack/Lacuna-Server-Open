@@ -87,7 +87,6 @@ __PACKAGE__->add_columns(
     skip_excavator_destroyed => { data_type => 'tinyint', default_value => 0 },
     skip_excavator_replace_msg => { data_type => 'tinyint', default_value => 0 },
     dont_replace_excavator  => { data_type => 'tinyint', default_value => 0 },
-    has_new_messages        => { data_type => 'int', size => 11, default_value => 0 },
     latest_message_id       => { data_type => 'int',  is_nullable => 1 },
     skip_incoming_ships     => { data_type => 'tinyint', default_value => 0 },
     chat_admin              => { data_type => 'int', default_value => 0 },
@@ -120,6 +119,17 @@ __PACKAGE__->has_many('received_messages',  'Lacuna::DB::Result::Message',      
 __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       'empire_id');
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
 __PACKAGE__->has_many('bodies',             'Lacuna::DB::Result::Map::Body',    'empire_id');
+
+has has_new_messages => (
+                         is => 'ro',
+                         isa => 'Int',
+                         lazy_build => 1,
+                        );
+
+sub _build_has_new_messages {
+    my ($self) = @_;
+    $self->received_messages->search({has_read => 0})->count;
+}
 
 for my $affin (qw(
     manufacturing_affinity
@@ -439,8 +449,9 @@ sub _adjust_essentia {
 sub recalc_messages {
     my ($self) = @_;
 
+    # probably don't have to clear it, but shouldn't really hurt, either.
+    $self->clear_has_new_messages;
     $self->update({
-        has_new_messages    => $self->get_new_message_count,
         latest_message_id   => $self->get_latest_message_id,
     });
 }
