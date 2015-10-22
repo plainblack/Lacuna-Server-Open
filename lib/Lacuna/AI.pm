@@ -502,8 +502,8 @@ sub build_ships_max {
 sub set_defenders {
     my ($self, $colony) = @_;
     say 'SET DEFENDERS';
-    my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id});
-    my $on_sweep = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({from_body_id => $colony->id, on_body_id => $colony->id, task => "Security Sweep"})->count;
+    my $local_spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => $colony->empire_id, on_body_id => $colony->id});
+    my $on_sweep = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({empire_id => $colony->empire_id, on_body_id => $colony->id, task => "Security Sweep"})->count;
     my $enemies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search({on_body_id => $colony->id, task => { '!=' => 'Captured'}, empire_id => { '!=' => $self->empire_id }})->count;
     $on_sweep = 10 if ($enemies == 0);
     while (my $spy = $local_spies->next) {
