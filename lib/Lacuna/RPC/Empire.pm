@@ -68,7 +68,7 @@ sub logout {
 }
 
 sub login {
-    my ($self, $plack_request, $name, $password, $api_key) = @_;
+    my ($self, $plack_request, $name, $password, $api_key, $browser) = @_;
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
@@ -88,6 +88,7 @@ sub login {
     my %session_params = (
                           api_key => $api_key,
                           request => $plack_request,
+                          browser => $browser,
                          );
 
     if ($empire->is_password_valid($password)) {

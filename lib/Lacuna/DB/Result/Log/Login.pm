@@ -14,12 +14,14 @@ __PACKAGE__->add_columns(
     log_out_date        => { data_type => 'datetime', is_nullable => 1 },
     extended            => { data_type => 'int', size => 11, default_value => 0 },
     is_sitter           => { data_type => 'int', size => 1, is_nullable => 0, default_value => 0 },
+    browser_fingerprint => { data_type => 'varchar', size => 32, is_nullable => 1 },
 );
 
 after 'sqlt_deploy_hook' => sub {
     my ($self, $sqlt_table) = @_;
     $sqlt_table->add_index(name => 'idx_api_key', fields => ['api_key']);
     $sqlt_table->add_index(name => 'idx_session_id', fields => ['session_id']);
+    $sqlt_table->add_index(name => 'idx_fingerprint', fields => ['browser_fingerprint']);
 };
 
 

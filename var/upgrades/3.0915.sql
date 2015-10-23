@@ -10,3 +10,5 @@ CREATE TABLE promotion (
 );
 
 alter table empire drop column has_new_messages;
+alter table login_log add column browser_fingerprint varchar(32) NULL;
+alter table login_log add index idx_fingerprint (browser_fingerprint);

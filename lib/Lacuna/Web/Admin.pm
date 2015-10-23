@@ -143,7 +143,7 @@ sub www_view_essentia_log {
 sub www_view_login_log {
     my ($self, $request) = @_;
     my ( $search_field, $search_value );
-    for my $field (qw( empire_id ip_address api_key )) {
+    for my $field (qw( empire_id ip_address api_key browser_fingerprint )) {
         if ( my $value = $request->param($field) ) {
             $search_field = $field;
             $search_value = $value;
@@ -161,7 +161,7 @@ sub www_view_login_log {
     if ( $search_field eq 'empire_id' ) {
         $out .= sprintf('<a href="/admin/view/empire?id=%s">Back To Empire</a>', $search_value);
     }
-    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>ID</th><th>Empire Name</th><th>Log-in Date</th><th>Log-out Date</th><th>Extended</th><th>IP Address</th><th>Sitter</th><th>API Key</th><th>Browser ID</th></tr>';
     while (my $login = $logins->next) {
         my $sitter = $login->is_sitter ? 'Sitter' : '';
         $out .= sprintf('<tr><td><a href="/admin/view/empire?id=%d">%d</a></td>',
@@ -171,8 +171,11 @@ sub www_view_login_log {
         $out .= sprintf('<td><a href="/admin/view/login/log?ip_address=%s" title="Search for all users logging in with this IP address">%s</a></td>',
                         $login->ip_address, $login->ip_address );
         $out .= sprintf('<td>%s</td>', $sitter);
-        $out .= sprintf('<td><a href="/admin/view/login/log?api_key=%s" title="Search for all users logging in with this API key">%s</a></td></tr>',
+        $out .= sprintf('<td><a href="/admin/view/login/log?api_key=%s" title="Search for all users logging in with this API key">%s</a></td>',
                         $login->api_key, $login->api_key );
+        $out .= sprintf('<td><a href="/admin/view/login/log?browser_fingerprint=%s" title="Search for all users logging in with this browser fingerprint">%1$s</a></td>',
+                        $login->browser_fingerprint);
+        $out .= '</tr>';
     }
     $out .= '</table>';
     $out .= $self->format_paginator('view/login/log', $search_field, $search_value, $page_number);

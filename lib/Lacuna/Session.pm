@@ -140,6 +140,7 @@ sub start {
         ip_address      => $ip,
         session_id      => $self->id,
         is_sitter       => $options->{is_sitter} ? 1 : 0,
+        browser_fingerprint => $options->{browser},
         # is_from_admin => $options->{is_from_admin} <-- probably not needed
     })->insert;
     return $self->extend;

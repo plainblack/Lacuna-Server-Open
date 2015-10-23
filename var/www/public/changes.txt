@@ -4,6 +4,7 @@
  - Add: Lacuna promotions.
  - Add: Orbits as BHG targets.
  - UI : Add build-boost-from-happy to happy popup.
+ - Add: Fingerprinting browsers.
 
 3.0914:
  - UI : Evein draining re-added.
