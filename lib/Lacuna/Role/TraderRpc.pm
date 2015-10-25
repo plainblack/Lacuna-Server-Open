@@ -197,7 +197,7 @@ sub get_plan_summary {
     }
     return {
         plans                   => \@out,
-        cargo_space_used_each   => 10_000,
+        cargo_space_used_each   => 1_000,
         status                  => $self->format_status($empire, $building->body),
     };
 }

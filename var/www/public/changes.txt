@@ -6,6 +6,7 @@
  - UI : Add build-boost-from-happy to happy popup.
  - Add: Fingerprinting browsers.
  - UI : Essentia panel redone.
+ - Mod: Better packaging for plans using flat boxes. (1,000 space used instead of 10,000)
 
 3.0914:
  - UI : Evein draining re-added.

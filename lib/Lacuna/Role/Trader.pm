@@ -94,7 +94,7 @@ sub check_payload {
                     confess [1002, "You don't have ".$item->{quantity}." plans of type ".$item->{plan_type}] unless defined $plan and $plan->quantity >= $item->{quantity};
                     
                     push @expanded_items, {type => 'plan', plan_id => $plan->id, quantity => $item->{quantity} };
-                    $space_used += 10000 * $item->{quantity};
+                    $space_used += 1000 * $item->{quantity};
                 }
                 else {
                     confess [1002, 'You must specify a quantity if you are pushing a plan.'];

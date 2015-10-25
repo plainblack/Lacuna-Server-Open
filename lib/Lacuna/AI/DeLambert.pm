@@ -315,7 +315,7 @@ sub sell_plan_trade {
             $ship->task('Waiting On Trade');
             $ship->update;
             my %trade = (
-                offer_cargo_space_needed    => $quantity * 10000,
+                offer_cargo_space_needed    => $quantity * 1000,
                 has_plan                    => 1,
                 payload                     => {plans => \@plans},
                 ask                         => $cost_per * $quantity,

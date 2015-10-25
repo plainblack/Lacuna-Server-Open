@@ -193,7 +193,7 @@ Returns a list of ships that may be traded. Used with the C<add_trade> method.
         },
         ...
     ],
-    "cargo_space_used_each" : 10000,
+    "cargo_space_used_each" : 50000,
     "status" : { ... }
  }
 
@@ -254,7 +254,7 @@ Used with the C<add_trade> method.
         },
         ...
     ],
-    "cargo_space_used_each" : 10000,
+    "cargo_space_used_each" : 1000,
     "status" : { ... }
  }
 
