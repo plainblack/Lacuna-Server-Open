@@ -228,6 +228,7 @@ sub find_target {
 
         $target = $db->resultset('Lacuna::DB::Result::Map::Star')->find({$type => $value});
         $target_type = "star";
+        $target_word =~ s/:?orbit:?//g;
 
         if ($target && exists $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
             my $star = $target;
