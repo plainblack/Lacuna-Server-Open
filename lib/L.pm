@@ -16,6 +16,9 @@ use LR;
 use Exporter qw(import);
 our @EXPORT = qw( $quiet out );
 
+binmode STDOUT, ':encoding(UTF-8)';
+binmode STDERR, ':encoding(UTF-8)';
+
 our $quiet;
 sub out {
     my $message = shift;
