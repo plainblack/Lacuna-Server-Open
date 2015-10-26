@@ -229,7 +229,7 @@ sub find_target {
         $target = $db->resultset('Lacuna::DB::Result::Map::Star')->find({$type => $value});
         $target_type = "star";
 
-        if (exists $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
+        if ($target && exists $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
             my $star = $target;
             my $orbit = int($target_params->{orbit});
             my ($x, $y) = ($star->x + $orbits[$orbit][0], $star->y + $orbits[$orbit][1]); #++);
