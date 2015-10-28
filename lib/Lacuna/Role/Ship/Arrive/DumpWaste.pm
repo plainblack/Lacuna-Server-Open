@@ -120,6 +120,9 @@ after handle_arrival_procedures => sub {
 
 after send => sub {
     my ($self, %options ) = @_;
+
+    return if $options{emptyscow};
+
     my $waste_sent;
 
     if ($self->type eq "attack_group") {
