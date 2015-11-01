@@ -538,22 +538,66 @@ has rpc_rate => (
 
 sub get_status {
     my ($self) = @_;
-    my $planet_rs = $self->planets;
+    my $planet_rs = $self->planets->search({},{ -order_by => 'name' });
     if ($self->alliance_id) {
-        $planet_rs = Lacuna->db->resultset('Map::Body')->search({-or => { empire_id => $self->id, alliance_id => $self->alliance_id }});
+        $planet_rs = Lacuna->db->resultset('Map::Body')->
+            search(
+                   {-or => { empire_id => $self->id, alliance_id => $self->alliance_id }},
+                   { -order_by => 'name' },
+                  );
     }
     my %planets;
     my %stations;
     my %colonies;
+    my %bodies;
+
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
+        my $type = 'mine';
         if ($planet->get_type eq 'space station') {
             $stations{$planet->id} = $planet->name;
+            $type = 'station'
         }
         else {
             $colonies{$planet->id} = $planet->name;
         }
+
+        push @{$bodies{$type}}, {
+            id => $planet->id,
+            name => $planet->name,
+            x => $planet->x,
+            y => $planet->y, #,,,
+        };
     }
+
+    # shouldn't have to check this once sitter_password goes away.
+    if ($self->current_session() &&
+        !$self->current_session()->is_sitter())
+    {
+        $planet_rs = Lacuna->db->resultset('Map::Body')->
+            search(
+                   {
+                       'sitterauths.sitter_id' => $self->id,
+                       'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
+                   },
+                   {
+                       join => { empire => 'sitterauths' },
+                       -order_by => 'name',
+                       '+select' => [ qw/empire.name/ ],
+                       '+as'     => [ qw/empire_name/ ],
+                   });
+        while (my $planet = $planet_rs->next)
+        {
+            my $empire_name = $planet->get_column('empire_name');
+            push @{$bodies{babies}{$empire_name}}, {
+                id => $planet->id,
+                name => $planet->name,
+                x => $planet->x,
+                y => $planet->y, #,,,
+            };
+        }
+    }
+
     my $embassy     = $self->highest_embassy;
     my $embassy_id  = defined $embassy ? $embassy->id : undef;
 
@@ -571,6 +615,7 @@ sub get_status {
         planets             => \%planets,
         stations            => \%stations,
         colonies            => \%colonies,
+        bodies              => \%bodies,
         next_colony_cost    => $self->next_colony_cost("colony_ship"),
         next_colony_srcs    => $self->next_colony_cost("short_range_colony_ship"),
         next_station_cost   => $self->next_colony_cost("space_station"),

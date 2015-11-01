@@ -1296,7 +1296,7 @@ __PACKAGE__->register_rpc_method_names(
     get_full_status get_status
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
-    authorize_sitters view_authorized_sitters
+    authorize_sitters view_authorized_sitters deauthorize_sitters
     ),
 );
 

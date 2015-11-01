@@ -204,7 +204,7 @@ sub build_ship {
 
 sub build_ships {
     my ($self, $session_id, $opts) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $opts->{building_id} });
+    my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
 
     my $quantity = $opts->{quantity} // 1;
@@ -219,9 +219,9 @@ sub build_ships {
     my $building_view;
     if ($opts->{building_id}) {
         if (ref($opts->{building_id}) eq 'ARRAY') {
-            push @buildings, map { $self->get_building($empire, $_) } @{$opts->{building_id}}
+            push @buildings, map { $self->get_building($session, $_) } @{$opts->{building_id}}
         } else {
-            push @buildings, $self->get_building($empire, $opts->{building_id});
+            push @buildings, $self->get_building($session, $opts->{building_id});
         }
         $opts->{body_id} = $buildings[0]->body_id;
         $building_view = $buildings[0];
@@ -230,7 +230,7 @@ sub build_ships {
     } else {
         confess [1001, "Either building id(s) or body id must be provided"];
     }
-    my $body = $self->get_body($empire, $opts->{body_id});
+    my $body = $self->get_body($session, $opts->{body_id});
     @buildings = grep { $_->level > 0 && $_->efficiency >= 100 } @buildings;
 
     my @all_sys = grep {

@@ -31,7 +31,7 @@ sub get_session {
     $opts = { session_id => $session->id } unless ref $opts;
 
     if ($opts->{building_id}) {
-        my $building = $self->get_building($session->empire,
+        my $building = $self->get_building($session,
                                            $opts->{building_id},
                                            %$opts);
         $session->current_building($building);
@@ -47,7 +47,7 @@ sub get_session {
         }
     }
     elsif ($opts->{body_id}) {
-        my $body = $self->get_body($session->empire,
+        my $body = $self->get_body($session,
                                    $opts->{body_id});
         $session->clear_building;
         $session->current_body($body);
@@ -107,6 +107,10 @@ sub get_session {
     }
 
     if ($session->current_body) {
+        if ($session->current_body->id eq $session->current_empire->home_planet_id) {
+            $session->current_empire->home_planet($session->current_body);
+        }
+
         $session->current_body->tick;
         # do we need to discard the changes?
     }
@@ -115,66 +119,72 @@ sub get_session {
 }
 
 sub get_body { # makes for uniform error handling, and prevents staleness
-    my ($self, $empire, $body_id) = @_;
+    my ($self, $session, $body_id) = @_;
     my $body;
     if (ref $body_id && $body_id->isa('Lacuna::DB::Result::Map::Body')) {
         $body = $body_id;
-    }
-    else {
-        ($body) = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
-            'me.id' => $body_id,
-        },{
-            prefetch => 'empire',
-        });
-    }
-    unless (defined $body) {
-        confess [1002, 'Body does not exist.', $body_id];
-    }
-    if ($body->empire_id ne $empire->id) {
-        if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-            if ($body->empire->alliance_id eq $empire->alliance_id) {
-                return $body;
-            }
-        }
-        confess [1010, "Can't manipulate a planet you don't inhabit."];
-    }
-    if ($body->id eq $empire->home_planet_id) {
-        $empire->home_planet($body);
+    } else {
+        $body = Lacuna->db->resultset('Map::Body')->
+            search(
+                   {
+                       'me.id' => $body_id,
+                       -or => [
+                               { 'me.empire_id'        => $session->empire->id },
+                               { 'me.alliance_id'      => $session->empire->alliance_id },
+                               $session->_is_sitter ?
+                               {
+                                   'sitterauths.sitter_id' => $session->empire->id,
+                                   'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
+                               } : (),
+                              ]
+                   },
+                   {
+                       join => { 'empire' => 'sitterauths' },
+                       prefetch => [ 'empire' ],
+                   }
+                  )->first;
+        confess [ 1002, 'Body does not exist or is not owned by you or any empire you sit.', $body_id ]
+            unless $body;
+
     }
     return $body;
 }
 
 sub get_building { # makes for uniform error handling, and prevents staleness
-    my ($self, $empire, $building_id, %options) = @_;
+    my ($self, $session, $building_id, %options) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
         return $building_id;
     }
-    else {
-        my ($building) = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search({
-            'me.id' => $building_id,
-        },{ prefetch => 'body' }
-        );
 
-        unless (defined $building) {
-            confess [1002, 'Building does not exist.', $building_id];
-        }
-        if ($building->class ne $self->model_class) {
-            confess [1002, 'That building is not a '.$self->model_class->name];
-        }
-        $building->is_offline unless ($options{skip_offline});
-        my $body = $self->get_body($empire, $building->body);        
-        if ($body->empire_id ne $empire->id) { 
-            if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-                if ($body->empire->alliance_id eq $empire->alliance_id) {
-                    $building->body($body);
-                    return $building;
-                }
-            }
-            confess [1010, "Can't manipulate a building that you don't own.", $building_id];
-        }
-        $building->body($body);
-        return $building;
-    }
+    my $building =
+        Lacuna->db->resultset('Building')->
+        search(
+               {
+                   'me.id' => $building_id,
+                   -or => [
+                           { 'body.empire_id'        => $session->empire->id },
+                           { 'body.alliance_id'      => $session->empire->alliance_id },
+                           $session->_is_sitter ?
+                           {
+                               'sitterauths.sitter_id' => $session->empire->id,
+                               'body.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
+                           } : (),
+                          ]
+               },
+               {
+                   join => { body => { 'empire' => 'sitterauths' }},
+                   prefetch => { body => 'empire' },
+               }
+              )->first;
+    confess [ 1002, 'Building does not exist or is not owned by you or any empire you sit.', $building_id ]
+        unless $building;
+
+    confess [ 1002, 'That building is not a '. $self->model_class->name ]
+        unless $building->class eq $self->model_class;
+
+    $building->is_offline unless $options{skip_offline};
+
+    return $building;
 }
 
 sub format_status {

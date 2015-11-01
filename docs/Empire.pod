@@ -214,6 +214,27 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
     "server" : { ... },
     "empire" : {
         "id" : "xxxx",
+        "bodies" : {
+            "mine" : [
+                # bodies are provided sorted by name already.
+                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                ...
+            ],
+            "station" : [
+                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                ...
+            ],
+            "babies" : {
+                "baby name" : [
+                    { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                    ...
+                ],
+                "another baby name" : [
+                    { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                    ...
+                ]
+            }
+        },
         "colonies" : {
             "id-goes-here" : "Earth",
             "id-goes-here" : "Mars"

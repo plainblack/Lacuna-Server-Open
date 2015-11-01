@@ -74,7 +74,7 @@ sub _session
         $session = $_[0]->start_session;
         $_[0] = $session->id;
     }
-    if (ref $_[0] eq 'HASH' && exists $_[0]->{session_id} && ref $_[0]->{session_id})
+    if (ref $_[0] eq 'HASH' && exists $_[0]->{session_id} && ref $_[0]->{session_id} eq 'Lacuna::DB::Result::Empire')
     {
         # create a session for it.
         $session = $_[0]->{session_id}->start_session;
