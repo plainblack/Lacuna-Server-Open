@@ -240,7 +240,7 @@ sub demolish {
     my $body = $building->body;
     $building->can_demolish;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->effective_level >= 2) {
+        unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
         }
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
@@ -270,7 +270,7 @@ sub downgrade {
     my $body = $building->body;
     $building->can_downgrade;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        unless ($body->parliament->effective_level >= 2) {
+        unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
         }
         my $name = $building->name.' ('.$building->x.','.$building->y.')';
