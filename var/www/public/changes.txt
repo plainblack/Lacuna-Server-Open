@@ -1,3 +1,7 @@
+3.0916:
+ - Mod: Jackpot enhanced.
+ - Fix: If parliament missing, better error handling.
+
 3.0915:
  - Fix: Reduce the wild resource fluctuations during planet ticking.
  - Mod: Evein plans get an extra 5 days start time for building.
