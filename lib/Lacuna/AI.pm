@@ -393,7 +393,7 @@ sub train_spies {
 
         while ($can_train and $train_count < $room_for) {
             $train_count++;
-            next if (rand(100) < $chance);
+            next if ($chance < rand(100));
             my $can = eval{$intelligence->can_train_spy($costs)};
             my $reason = $@;
             if ($can) {
