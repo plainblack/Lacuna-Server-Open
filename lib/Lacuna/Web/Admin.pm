@@ -1130,7 +1130,7 @@ sub www_view_body {
     $out .= sprintf('<tr><th>X</th><td>%s</td><td></td></tr>', $body->x);
     $out .= sprintf('<tr><th>Y</th><td>%s</td><td></td></tr>', $body->y);
     $out .= sprintf('<tr><th>Orbit</th><td>%s</td><td></td></tr>', $body->orbit);
-    $out .= sprintf('<tr><th>Happiness</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/happiness"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 30px;" value="0"><input type="submit" value="add happiness"></form></td></tr>', $body->happiness, $body->id);
+    $out .= sprintf('<tr><th>Happiness</th><td>%s</td><td><form method="post" style="display: inline" action="/admin/add/happiness"><input type="hidden" name="id" value="%s"><input name="amount" style="width: 10em" value="0"><input type="submit" value="add happiness"></form></td></tr>', $body->happiness, $body->id);
     $out .= sprintf('<tr><th>Star</th><td><a href="/admin/view/star?id=%s">%s</a> (%s)</td><td><a href="/admin/search/bodies?star_id=%s">Bodies Orbiting This Star</a></td></tr>', $body->star_id, $body->star->name, $body->star_id, $body->star_id);
     if ($body->empire) {
         $out .= sprintf('<tr><th>Empire</th><td><a href="/admin/view/empire?id=%s">%s</a> (%s)</td><td></td></tr>', $body->empire_id, $body->empire->name, $body->empire_id);
