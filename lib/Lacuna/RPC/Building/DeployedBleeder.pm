@@ -15,9 +15,9 @@ sub model_class {
 
 around demolish => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    $empire->current_session->check_captcha;
-    return $orig->($self, $empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    $session->check_captcha;
+    return $orig->($self, $session, $building_id);
 };
 
 no Moose;

@@ -21,8 +21,8 @@ sub fetch {
 
 sub solve {
     my ($self, $session_id, $guid, $solution) = @_;
-    my $session = $self->get_session($session_id);
-    my $empire = $self->get_empire_by_session($session);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $cache = Lacuna->cache;
     if (defined $guid && defined $solution) {                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('captcha', $session_id);

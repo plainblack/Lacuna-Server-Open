@@ -9,7 +9,8 @@ use WWW::Firebase::TokenGenerator;
 sub get_token {
     my ($self, $session_id) = @_;
 
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $firebase_secret = Lacuna->config->get('firebase/secret');
     unless ($firebase_secret) {
         return { token => '', status => $self->format_status($empire)};

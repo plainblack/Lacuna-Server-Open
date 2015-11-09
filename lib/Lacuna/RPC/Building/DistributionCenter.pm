@@ -16,9 +16,10 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     if ($building->is_working) {
         $out->{reserve} = {
             resources           => $building->work->{reserved},
@@ -36,18 +37,20 @@ around 'view' => sub {
 
 sub reserve {
     my ($self, $session_id, $building_id, $resources) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $building->reserve($resources);
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 sub release_reserve {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $building->release_reserve;
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(reserve release_reserve get_stored_resources));

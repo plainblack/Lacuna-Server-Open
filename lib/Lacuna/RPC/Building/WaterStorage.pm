@@ -18,9 +18,9 @@ sub dump {
 	if ($amount <= 0) {
 		confess [1009, 'You must specify an amount greater than 0.'];
 	}
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $body = $building->body;
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
     $body->spend_type('water', $amount);
     $body->add_type('waste', $amount);
     $body->update;

@@ -15,9 +15,10 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     if ($building->is_working) {
         $out->{party} = {
             seconds_remaining   => $building->work_seconds_remaining,
@@ -32,16 +33,18 @@ around 'view' => sub {
 
 sub throw_a_party {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $building->throw_a_party;
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 sub subsidize_party {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     unless ($building->is_working) {
         confess [1010, "There is no party."];
@@ -58,7 +61,7 @@ sub subsidize_party {
     });
     $empire->update;
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(throw_a_party subsidize_party));

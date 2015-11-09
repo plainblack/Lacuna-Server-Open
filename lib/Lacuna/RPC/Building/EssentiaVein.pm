@@ -15,9 +15,10 @@ sub model_class {
 
 around view => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
 
     my $body = $building->body;
     $out->{building}{drain_capable} = $body->happiness >= 0 ?
@@ -28,8 +29,9 @@ around view => sub {
 
 sub drain {
     my ($self, $session_id, $building_id, $times) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my $body = $building->body;
     confess [1010, "Cannot drain essentia from unhappy mines."]

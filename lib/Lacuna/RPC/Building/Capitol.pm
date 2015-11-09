@@ -15,17 +15,19 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     $out->{rename_empire_cost} = $building->rename_empire_cost;
     return $out;
 };
 
 sub rename_empire {
     my ($self, $session_id, $building_id, $name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     if ($empire->essentia < $building->rename_empire_cost) {
         confess [1011, "You don't have enough essentia. You need ".$building->rename_empire_cost."."];

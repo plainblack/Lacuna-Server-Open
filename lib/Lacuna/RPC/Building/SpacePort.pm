@@ -51,8 +51,9 @@ sub find_target {
 sub get_fleet_for {
     my ($self, $session_id, $body_id, $target_params) = @_;
 
-    my $empire  = $self->get_empire_by_session($session_id);
-    my $body    = $self->get_body($empire, $body_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
     my $target  = $self->find_target($target_params);
 
     my $max_berth   = Lacuna->db->resultset('Lacuna::DB::Result::Building')->search( {
@@ -101,8 +102,9 @@ sub get_fleet_for {
 
 sub get_ships_for {
     my ($self, $session_id, $body_id, $target_params) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
     my $target = $self->find_target($target_params);
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships');
     
@@ -215,7 +217,8 @@ sub get_ships_for {
 
 sub send_ship {
     my ($self, $session_id, $ship_id, $target_params) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     my $target = $self->find_target($target_params);
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
@@ -283,8 +286,9 @@ sub find_arrival {
 sub send_ship_types {
     my ($self, $session_id, $body_id, $target_params, $type_params, $arrival_params) = @_;
 
-    my $empire  = $self->get_empire_by_session($session_id);
-    my $body    = $self->get_body($empire, $body_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id});
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
     my $target  = $self->find_target($target_params);
     my $arrival;
     if ($arrival_params->{earliest}) {
@@ -465,7 +469,8 @@ sub send_ship_types {
 sub send_fleet {
   my ($self, $session_id, $ship_ids, $target_params, $set_speed) = @_;
   $set_speed //= 0;
-  my $empire = $self->get_empire_by_session($session_id);
+  my $session  = $self->get_session({session_id => $session_id});
+  my $empire   = $session->current_empire;
   my $target = $self->find_target($target_params);
   my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
   if (@$ship_ids > $max_ships) {
@@ -545,8 +550,9 @@ sub send_fleet {
 
 sub recall_ship {
   my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, 'Could not locate that ship.'];
@@ -574,8 +580,9 @@ sub recall_ship {
 
 sub recall_all {
   my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
     my @ships = $body->ships_orbiting->search(undef)->all;
     my @ret;
@@ -608,13 +615,14 @@ sub recall_all {
 
 sub prepare_send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $on_body_id});
+    my $empire   = $session->current_empire;
+    my $on_body  = $session->current_body;
     if ($on_body_id == $to_body_id) {
         confess [1013, "Cannot send spies to one self."];
     }
-    my $on_body = $self->get_body($empire, $on_body_id);
     my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
-    
+
     unless ($to_body->empire_id) {
         confess [1009, "Cannot send spies to an uninhabited body."];
     }
@@ -683,11 +691,12 @@ sub prepare_send_spies {
 
 sub send_spies {
     my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $on_body_id});
+    my $empire   = $session->current_empire;
     if ($on_body_id == $to_body_id) {
         confess [1013, "Cannot send spies to one self."];
     }
-    my $on_body = $self->get_body($empire, $on_body_id);
+    my $on_body = $session->current_body();
     my $to_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($to_body_id);
     
     # make sure it's a valid target
@@ -767,11 +776,12 @@ sub send_spies {
 
 sub prepare_fetch_spies {
     my ($self, $session_id, $on_body_id, $to_body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $to_body_id});
+    my $empire   = $session->current_empire;
     if ($on_body_id == $to_body_id) {
         confess [1013, "Cannot fetch spies to one self."];
     }
-    my $to_body = $self->get_body($empire, $to_body_id);
+    my $to_body = $session->current_body;
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
     unless ($on_body->empire_id) {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
@@ -795,7 +805,7 @@ sub prepare_fetch_spies {
 
     my $dt_parser = Lacuna->db->storage->datetime_parser;
     my $now = $dt_parser->format_datetime( DateTime->now );
-    
+
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies')->search(
         {
             on_body_id => $on_body->id, 
@@ -829,11 +839,12 @@ sub prepare_fetch_spies {
 
 sub fetch_spies {
     my ($self, $session_id, $on_body_id, $to_body_id, $ship_id, $spy_ids) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $to_body_id});
+    my $empire   = $session->current_empire;
     if ($on_body_id == $to_body_id) {
         confess [1013, "Cannot fetch spies to one self."];
     }
-    my $to_body = $self->get_body($empire, $to_body_id);
+    my $to_body = $session->current_body;
     my $on_body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($on_body_id);
 
     my $max_berth = $to_body->max_berth;
@@ -899,8 +910,9 @@ sub fetch_spies {
 
 sub view_ships_travelling {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||= 1;
     my $body = $building->body;
     my @travelling;
@@ -1020,8 +1032,9 @@ sub view_all_ships {
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
     my @fleet;
     my $ships = $building->ships->search( $filter, $attrs );
@@ -1039,8 +1052,9 @@ sub view_all_ships {
 
 sub view_foreign_ships {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||= 1;
     my @fleet;
     my $now = time;
@@ -1092,8 +1106,9 @@ sub view_foreign_ships {
 
 sub view_ships_orbiting {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||= 1;
     my @fleet;
     my $now = time;
@@ -1141,8 +1156,9 @@ sub view_ships_orbiting {
 
 sub _view_ships {
     my ($self, $session_id, $building_id, $page_number, $method) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @fleet;
     my $now = time;
     my $ships = $building->$method->search({}, {rows=>25, page=>$page_number, join => 'body' });
@@ -1179,7 +1195,6 @@ sub _view_ships {
                     $ship_info{image}      = $ship->image;
                 }
             }
-warn Dumper(\%ship_info); use Data::Dumper;
             push @fleet, \%ship_info;
         }
     }
@@ -1197,8 +1212,9 @@ sub name_ship {
         ->no_profanity
         ->length_lt(31)
         ->no_restricted_chars;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -1210,13 +1226,14 @@ sub name_ship {
     $ship->update;
     return {
         status                      => $self->format_status($empire, $building->body),
-    };    
+    };
 }
 
 sub scuttle_ship {
     my ($self, $session_id, $building_id, $ship_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($ship_id);
     unless (defined $ship) {
         confess [1002, "Ship not found."];
@@ -1235,8 +1252,9 @@ sub scuttle_ship {
 
 sub mass_scuttle_ship {
     my ($self, $session_id, $building_id, $ship_ids) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     if (scalar @{$ship_ids} > 6000) {
         confess [ 1099, "More ships than can be docked on one planet!" ];
@@ -1257,8 +1275,9 @@ sub mass_scuttle_ship {
 
 sub view_battle_logs {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||= 1;
     my @logs;
     my $battle_logs = $building->battle_logs->search({}, { rows=>25, page=>$page_number, order_by => => { -desc => 'date_stamp' } });
@@ -1293,9 +1312,10 @@ sub view_battle_logs {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     return $out unless $building->effective_level > 0;
     my $docked = $building->ships->search({ task => 'Docked' });
     my %ships;

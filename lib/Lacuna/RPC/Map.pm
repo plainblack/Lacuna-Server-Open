@@ -10,7 +10,8 @@ use List::Util qw(max min);
 
 sub check_star_for_incoming_probe {
     my ($self, $session_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $date = 0;
     my @bodies = $empire->planets->get_column('id')->all;
     my $incoming = Lacuna->db->resultset('Ships')->search({foreign_star_id=>$star_id, task=>'Travelling', type=>'probe', body_id => {in => \@bodies }})->first;
@@ -52,7 +53,8 @@ sub get_star_map {
     if ((abs($args->{top} - $args->{bottom}) * abs($args->{right} - $args->{left})) > 3001) {
         confess [1003, 'Requested area larger than 3001.'];
     }
-    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session({session_id => $args->{session_id}});
+    my $empire   = $session->current_empire;
     my $alliance_id = $empire->alliance_id || 0;
 
     my $out = Lacuna->db->resultset('Map::StarLite')->get_star_map( $alliance_id, $empire->id, $args->{left}, $args->{right}, $args->{bottom}, $args->{top} );
@@ -69,7 +71,8 @@ sub get_stars {
     if ((abs($endx - $startx) * abs($endy - $starty)) > 900) {
         confess [1003, 'Requested area too large.'];
     }
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $stars = Lacuna->db->resultset('Map::Star')->search({y=> {between => [$starty, $endy]}, x=>{between => [$startx, $endx]}});
     my @out;
     while (my $star = $stars->next) {
@@ -80,7 +83,8 @@ sub get_stars {
 
 sub get_star {
     my ($self, $session_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
@@ -90,7 +94,8 @@ sub get_star {
 
 sub get_star_by_name {
     my ($self, $session_id, $star_name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $star = Lacuna->db->resultset('Map::Star')->search({name => $star_name})->first;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
@@ -100,7 +105,8 @@ sub get_star_by_name {
 
 sub get_star_by_xy {
     my ($self, $session_id, $x, $y) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $star = Lacuna->db->resultset('Map::Star')->search({x=>$x, y=>$y})->first;
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
@@ -113,7 +119,8 @@ sub search_stars {
     if (length($name) < 3) {
         confess [1009, "Your search term must be at least 3 characters."];
     }
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my @out;
     my $stars = Lacuna->db->resultset('Map::Star')->search({name => { like => $name.'%' }},{rows => 25});
     while (my $star = $stars->next) {
@@ -125,7 +132,8 @@ sub search_stars {
 sub probe_summary_fissures {
     my ($self, $args) = @_;
 
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session({session_id => $args->{session_id} });
+    my $empire   = $session->current_empire;
     my $zone    = $args->{zone};
     my $fissure_rs = Lacuna->db->resultset('Building')->search({
             'me.class'          => 'Lacuna::DB::Result::Building::Permanent::Fissure',
@@ -159,7 +167,8 @@ sub probe_summary_fissures {
 
 sub view_laws {
     my ($self, $session_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $star = Lacuna->db->resultset('Map::Star')->find($star_id);
     if ($star and $star->station_id) {
         my $station = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')

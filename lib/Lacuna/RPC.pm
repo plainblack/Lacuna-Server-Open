@@ -10,70 +10,91 @@ use Log::Any qw($log);
 has plack_request => ( is => 'rw' );
 
 sub get_session {
-    my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::Session') {
-        return $session_id;
-    }
-    else {
-        my $session = Lacuna::Session->new(id=>$session_id);
-        if ($session->empire_id) {
-            $session->extend;
-            return $session;
-        }
-        else {
-            confess [1006, 'Session expired.', $session_id];
-        }
-    }
-}
+    my ($self, $opts) = @_;
+    my $session = ref $opts ? $opts->{session_id} : $opts;
 
-sub get_empire_by_session {
-    my ($self, $session_id) = @_;
-    if (ref $session_id eq 'Lacuna::DB::Result::Empire') {
-        return $session_id;
-    }
-    else {
-        my $session = $self->get_session($session_id);
-        my $empire = $session->empire;
-        if (defined $empire) {
-            my $throttle = Lacuna->config->get('rpc_throttle') || 30;
-            if (my $delay = Lacuna->cache->get('rpc_block', $session_id)) {
-                confess [1010, 'Too fast response, ' . $empire->name . '!'];
-            }
-            if ($empire->rpc_rate > $throttle) {
-                Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
-                confess [1010, 'Slow down '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
-            }
-            my $max = Lacuna->config->get('rpc_limit') || 2500;
-            if ($empire->rpc_count > $max) {
-                confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
-            }
-            my $ipr = real_ip_address($self->plack_request);
-            if (!$session->ip_address) {
-                $log->debug("Missing IP address, adding $ipr");
-                $session->ip_address($ipr);
-                $session->update;
-            }
-            my $ipm = $session->ip_address eq $ipr;
-            my $i = 1;
-            my @caller = caller($i);
-            while (@caller)
-            {
-                last if $caller[0] =~ /Lacuna::RPC/;
-                @caller = caller(++$i);
-            }
-            $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $session_id, $session->is_sitter ? 1 : 0, $caller[3]);
-            #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
-            #   empire_id    => $empire->id,
-            #   empire_name  => $empire->name,
-            #   module       => ref $self,
-            #   api_key      => $empire->current_session->api_key,
-            #})->insert;
-            return $empire;
+    if (ref $session ne 'Lacuna::Session') {
+        if (ref $session eq 'Lacuna::DB::Result::Empire') {
+            $session = $session->start_session;
         }
         else {
-            confess [1002, 'Empire does not exist.'];
+            my $session_id = $session;
+            $session = Lacuna::Session->new(id=>$session);
+            if ($session && $session->empire_id) {
+                $session->extend;
+            }
+            else {
+                confess [1006, 'Session expired.', $session_id];
+            }
         }
     }
+    $opts = { session_id => $session->id } unless ref $opts;
+
+    if ($opts->{building_id}) {
+        my $building = $self->get_building($session->empire,
+                                           $opts->{building_id},
+                                           %$opts);
+        $session->current_building($building);
+        $session->current_body($building->body);
+        $session->current_empire($session->current_body->empire);
+    }
+    elsif ($opts->{body_id}) {
+        my $body = $self->get_body($session->empire,
+                                   $opts->{body_id});
+        $session->clear_building;
+        $session->current_body($body);
+        $session->current_empire($session->current_body->empire);
+    }
+
+    $session->current_empire($session->empire)
+        unless $session->current_empire;
+
+    my $empire = $session->current_empire;
+    if (defined $empire) {
+        my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+        if (my $delay = Lacuna->cache->get('rpc_block', $opts->{session_id})) {
+            confess [1010, 'Too fast response, ' . $empire->name . '!'];
+        }
+        if ($empire->rpc_rate > $throttle) {
+            Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
+            confess [1010, 'Slow down '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
+        }
+        my $max = Lacuna->config->get('rpc_limit') || 2500;
+        if ($empire->rpc_count > $max) {
+            confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
+        }
+        my $ipr = real_ip_address($self->plack_request);
+        if (!$session->ip_address && $ipr) {
+            $log->debug("Missing IP address, adding $ipr");
+            $session->ip_address($ipr);
+            $session->update;
+        }
+        my $ipm = $session->ip_address eq $ipr;
+        my $i = 1;
+        my @caller = caller($i);
+        while (@caller)
+        {
+            last if $caller[0] =~ /Lacuna::RPC/;
+            @caller = caller(++$i);
+        }
+        $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $opts->{session_id}, $session->is_sitter ? 1 : 0, $caller[3]);
+        #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
+        #   empire_id    => $empire->id,
+        #   empire_name  => $empire->name,
+        #   module       => ref $self,
+        #   api_key      => $empire->current_session->api_key,
+        #})->insert;
+    }
+    else {
+        confess [1002, 'Empire does not exist.'];
+    }
+
+    if ($session->current_body) {
+        $session->current_body->tick;
+        # do we need to discard the changes?
+    }
+
+    return $session;
 }
 
 sub get_body { # makes for uniform error handling, and prevents staleness
@@ -95,7 +116,6 @@ sub get_body { # makes for uniform error handling, and prevents staleness
     if ($body->empire_id ne $empire->id) {
         if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
             if ($body->empire->alliance_id eq $empire->alliance_id) {
-                $body->tick;
                 return $body;
             }
         }
@@ -104,7 +124,6 @@ sub get_body { # makes for uniform error handling, and prevents staleness
     if ($body->id eq $empire->home_planet_id) {
         $empire->home_planet($body);
     }
-    $body->tick;
     return $body;
 }
 
@@ -130,14 +149,12 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         if ($body->empire_id ne $empire->id) { 
             if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
                 if ($body->empire->alliance_id eq $empire->alliance_id) {
-                    $building->discard_changes; # in case it changed due to the tick
                     $building->body($body);
                     return $building;
                 }
             }
             confess [1010, "Can't manipulate a building that you don't own.", $building_id];
         }
-        $building->discard_changes; # in case it changed due to the tick
         $building->body($body);
         return $building;
     }

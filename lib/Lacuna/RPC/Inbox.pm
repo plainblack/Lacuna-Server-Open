@@ -12,11 +12,12 @@ use List::Util qw(none);
 
 sub read_message {
     my ($self, $session_id, $message_id) = @_;
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($message_id);
     unless (defined $message) {
         confess [1002, 'Message does not exist.', $message_id];
     }
-    my $empire = $self->get_empire_by_session($session_id);
     unless ($empire->id ~~ [$message->from_id, $message->to_id]) {
         confess [1010, "You can't read a message that isn't yours.", $message_id];
     }
@@ -48,7 +49,8 @@ sub read_message {
 
 sub archive_messages {
     my ($self, $session_id, $message_ids) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
         ->search(
                  {
@@ -74,7 +76,8 @@ sub archive_messages {
 
 sub trash_messages {
     my ($self, $session_id, $message_ids) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $messages = Lacuna->db->resultset('Lacuna::DB::Result::Message')
         ->search(
                  {
@@ -100,7 +103,8 @@ sub trash_messages {
 
 sub trash_messages_where {
     my ($self, $session_id, $opts) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     if (!$opts->{spec})
     {
         $opts = { spec => [ @_[2..$#_] ] };
@@ -206,7 +210,8 @@ sub send_message {
     Lacuna::Verify->new(content=>\$subject, throws=>[1005,'Message subject must be less than 100 characters.',$subject])->length_lt(100);
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot be empty.',$body])->not_empty;
     Lacuna::Verify->new(content=>\$body, throws=>[1005,'Message body cannot contain HTML tags or entities.',$body])->no_tags;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     if ($options->{in_reply_to}) {
         my $reply_to = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($options->{in_reply_to});
         unless ($empire->id ~~ [$reply_to->to_id, $reply_to->from_id]) {
@@ -287,7 +292,8 @@ sub send_message {
 sub view_inbox {
     my $self = shift;
     my $session_id = shift;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $where = {
         has_archived    => 0,
         has_trashed     => 0,
@@ -299,7 +305,8 @@ sub view_inbox {
 sub view_archived {
     my $self = shift;
     my $session_id = shift;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $where = {
         has_archived    => 1,
         has_trashed     => 0,
@@ -311,7 +318,8 @@ sub view_archived {
 sub view_trashed {
     my $self = shift;
     my $session_id = shift;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $where = {
         has_archived    => 0,
         has_trashed     => 1,
@@ -323,7 +331,8 @@ sub view_trashed {
 sub view_sent {
     my $self = shift;
     my $session_id = shift;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $where = {
         from_id         => $empire->id,
         to_id           => {'!=' => $empire->id},
@@ -334,7 +343,8 @@ sub view_sent {
 sub view_unread {
     my $self = shift;
     my $session_id = shift;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
     my $where = {
         has_archived    => 0,
         has_read        => 0,

@@ -20,8 +20,9 @@ sub to_app_with_url {
 
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -83,8 +84,9 @@ sub upgrade {
 
 sub view {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $upgrade_reason = $@;
@@ -142,8 +144,9 @@ sub view {
 
 sub build {
     my ($self, $session_id, $body_id, $unclean_x, $unclean_y) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $body = $self->get_body($empire, $body_id);
+    my $session  = $self->get_session({session_id => $session_id, body_id => $body_id });
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
 
     my $x = int( $unclean_x );
     my $y = int( $unclean_y );
@@ -235,26 +238,15 @@ sub build {
 
 sub demolish {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
     $building->can_demolish;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
         }
-        my $name = $building->name.' ('.$building->x.','.$building->y.')';
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'DemolishModule',
-            name            => 'Demolish '.$name,
-            description     => 'Demolish '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
-            scratch         => { building_id => $building->id },
-            proposed_by_id  => $empire->id,
-        });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
-        $proposition->insert;
-        confess [1017, 'The demolish order has been delayed pending a parliamentary vote.'];
     }
     $building->demolish;
     $body->tick;
@@ -265,26 +257,16 @@ sub demolish {
 
 sub downgrade {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
+
     $building->can_downgrade;
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
         }
-        my $name = $building->name.' ('.$building->x.','.$building->y.')';
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'DowngradeModule',
-            name            => 'Downgrade '.$name,
-            description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level - 1).'.',
-            scratch         => { building_id => $building->id },
-            proposed_by_id  => $empire->id,
-        });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
-        $proposition->insert;
-        confess [1017, 'The downgrade order has been delayed pending a parliamentary vote.'];
     }
     $building->downgrade;
     $body->tick;
@@ -293,8 +275,9 @@ sub downgrade {
 
 sub get_stats_for_level {
     my ($self, $session_id, $building_id, $level) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($level < 0 || $level > 100) {
         confess [1009, 'Level must be an integer between 1 and 100.'];
     }
@@ -330,25 +313,12 @@ sub get_stats_for_level {
 
 sub repair {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $costs = $building->get_repair_costs;
     $building->can_repair($costs);
     my $body = $building->body;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        my $name = $building->name.' ('.$building->x.','.$building->y.')';
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'RepairModule',
-            name            => 'Repair '.$name,
-            description     => 'Repair '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
-            scratch         => { building_id => $building->id },
-            proposed_by_id  => $empire->id,
-        });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
-        $proposition->insert;
-        confess [1017, 'The repair order has been delayed pending a parliamentary vote.'];
-    }
     $building->repair($costs);
     return $self->view($empire, $building);
 }

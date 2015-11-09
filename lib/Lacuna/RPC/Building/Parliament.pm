@@ -15,8 +15,9 @@ sub model_class {
 
 sub max_members {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $leader_emp = $building->body->alliance->leader;
     my $leader_planets = $leader_emp->planets;
     my @planet_ids;
@@ -36,8 +37,9 @@ sub max_members {
 
 sub get_stars_in_jurisdiction {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @out;
     my $stars = $building->body->stars->search({},{order_by => "name"});
     while (my $star = $stars->next) {
@@ -51,8 +53,9 @@ sub get_stars_in_jurisdiction {
 
 sub get_bodies_for_star_in_jurisdiction {
     my ($self, $session_id, $building_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($star_id) {
         confess [1002, 'You have to specify a star id.'];
     }
@@ -73,8 +76,9 @@ sub get_bodies_for_star_in_jurisdiction {
 
 sub get_mining_platforms_for_asteroid_in_jurisdiction {
     my ($self, $session_id, $building_id, $asteroid_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @out;
     my @star_ids = $building->body->stars->get_column('id')->all;
     unless ($asteroid_id) {
@@ -105,7 +109,9 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
 
 sub view_laws {
     my ($self, $session_id, $body_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
+
     my $body = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')
                 ->find($body_id);
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
@@ -133,12 +139,13 @@ sub view_laws {
 
 sub propose_fire_bfg {
     my ($self, $session_id, $building_id, $body_id, $reason) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
     $empire->current_session->check_captcha;
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 25) {
         confess [1013, 'Parliament must be level 25 to propose using the BFG.',25];
     }
@@ -178,11 +185,12 @@ sub propose_fire_bfg {
 
 sub propose_writ {
     my ($self, $session_id, $building_id, $title, $writ) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 4) {
         confess [1013, 'Parliament must be level 4 to propose a writ.',4];
     }
@@ -213,11 +221,12 @@ sub propose_writ {
 
 sub propose_transfer_station_ownership {
     my ($self, $session_id, $building_id, $to_empire_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 6) {
         confess [1013, 'Parliament must be level 6 to transfer station ownership.',6];
     }
@@ -255,11 +264,12 @@ sub propose_transfer_station_ownership {
 
 sub propose_repeal_law {
     my ($self, $session_id, $building_id, $law_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 5) {
         confess [1013, 'Parliament must be level 5 to repeal a law.',5];
     }
@@ -291,11 +301,12 @@ sub propose_repeal_law {
 
 sub propose_rename_star {
     my ($self, $session_id, $building_id, $star_id, $star_name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 8) {
         confess [1013, 'Parliament must be level 8 to rename a star.',8];
     }
@@ -337,11 +348,12 @@ sub propose_rename_star {
 
 sub propose_broadcast_on_network19 {
     my ($self, $session_id, $building_id, $message) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 9) {
         confess [1013, 'Parliament must be level 9 to propose a broadcast.',9];
     }
@@ -371,11 +383,12 @@ sub propose_broadcast_on_network19 {
 
 sub propose_rename_asteroid {
     my ($self, $session_id, $building_id, $asteroid_id, $name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 12) {
         confess [1013, 'Parliament must be level 12 to rename an asteroid.',12];
     }
@@ -417,11 +430,12 @@ sub propose_rename_asteroid {
 
 sub propose_rename_uninhabited {
     my ($self, $session_id, $building_id, $planet_id, $name) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 17) {
         confess [1013, 'Parliament must be level 17 to rename an uninhabited planet.',17];
     }
@@ -466,11 +480,12 @@ sub propose_rename_uninhabited {
 
 sub propose_members_only_mining_rights {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 13) {
         confess [1013, 'Parliament must be level 13 to propose members only mining rights.',13];
     }
@@ -494,11 +509,12 @@ sub propose_members_only_mining_rights {
 
 sub propose_members_only_excavation {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 20) {
         confess [1013, 'Parliament must be level 20 to propose members only excavation rights.',20];
     }
@@ -522,11 +538,12 @@ sub propose_members_only_excavation {
 
 sub propose_members_only_colonization {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 18) {
         confess [1013, 'Parliament must be level 18 to propose members only colonization.',18];
     }
@@ -551,11 +568,12 @@ sub propose_members_only_colonization {
 
 sub propose_members_only_stations {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 18) {
         confess [1013, 'Parliament must be level 18 to propose members only stations.',18];
     }
@@ -579,11 +597,12 @@ sub propose_members_only_stations {
 
 sub propose_neutralize_bhg {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 23) {
         confess [1013, 'Parliament must be level 23 to propose to neutralize black hole generators.',23];
     }
@@ -607,11 +626,12 @@ sub propose_neutralize_bhg {
 
 sub allow_bhg_by_alliance {
     my ($self, $session_id, $building_id, $alliance_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 28) {
         confess [1013, 'Parliament must be level 28 to propose to neutralize black hole generators.',28];
     }
@@ -640,11 +660,12 @@ sub allow_bhg_by_alliance {
 
 sub propose_evict_mining_platform {
     my ($self, $session_id, $building_id, $platform_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 14) {
         confess [1013, 'Parliament must be level 14 to evict a mining platform.',14];
     }
@@ -679,11 +700,12 @@ sub propose_evict_mining_platform {
 
 sub propose_evict_excavator {
     my ($self, $session_id, $building_id, $excav_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 21) {
         confess [1013, 'Parliament must be level 21 to evict an excavator.',21];
     }
@@ -718,11 +740,12 @@ sub propose_evict_excavator {
 
 sub propose_elect_new_leader {
     my ($self, $session_id, $building_id, $to_empire_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 11) {
         confess [1013, 'Parliament must be level 11 to elect a new alliance leader.',11];
     }
@@ -757,11 +780,12 @@ sub propose_elect_new_leader {
 
 sub propose_induct_member {
     my ($self, $session_id, $building_id, $empire_id, $message) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 10) {
         confess [1013, 'Parliament must be level 10 to induct a new alliance member.',10];
     }
@@ -803,11 +827,12 @@ sub propose_induct_member {
 
 sub propose_expel_member {
     my ($self, $session_id, $building_id, $empire_id, $message) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 10) {
         confess [1013, 'Parliament must be level 10 to expel an alliance member.',10];
     }
@@ -845,11 +870,12 @@ sub propose_expel_member {
 
 sub propose_taxation {
     my ($self, $session_id, $building_id, $taxes) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 15) {
         confess [1013, 'Parliament must be level 15 to propose taxation.',15];
     }
@@ -878,11 +904,12 @@ sub propose_taxation {
 
 sub propose_foreign_aid {
     my ($self, $session_id, $building_id, $planet_id, $resources) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot create propositions.'];
     }
-    my $building = $self->get_building($empire, $building_id);
     unless ($building->effective_level >= 16) {
         confess [1013, 'Parliament must be level 16 to send out foreign aid packages.',16];
     }
@@ -941,8 +968,9 @@ sub propose_foreign_aid {
 
 sub view_taxes_collected {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @out;
     my $taxes = Lacuna->db->resultset('Lacuna::DB::Result::Taxes')->search({station_id => $building->body_id});
     while (my $tax = $taxes->next) {

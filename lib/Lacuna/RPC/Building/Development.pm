@@ -16,9 +16,10 @@ sub model_class {
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     $out->{build_queue} = $building->format_build_queue;
     $out->{subsidy_cost} = $building->calculate_subsidy;
     return $out;
@@ -27,8 +28,9 @@ around 'view' => sub {
 sub subsidize_build_queue {
     my ($self, $session_id, $building_id) = @_;
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
         confess [1003, "You must have a functional development ministry!"];
     }
@@ -54,8 +56,9 @@ sub subsidize_one_build {
     if (ref($args) ne "HASH") {
         confess [1000, "You have not supplied a hash reference"];
     }
-    my $empire              = $self->get_empire_by_session($args->{session_id});
-    my $building            = $self->get_building($empire, $args->{building_id});
+    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($building->effective_level > 0 and $building->effective_efficiency == 100) {
         confess [1003, "You must have a functional development ministry!"];
     }
@@ -93,8 +96,9 @@ sub cancel_build {
     if (ref($args) ne "HASH") {
         confess [1000, "You have not supplied a hash reference"];
     }
-    my $empire              = $self->get_empire_by_session($args->{session_id});
-    my $building            = $self->get_building($empire, $args->{building_id});
+    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];

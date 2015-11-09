@@ -15,9 +15,10 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     if ($building->is_working) {
         $out->{recycle} = {
             seconds_remaining   => $building->work_seconds_remaining,
@@ -37,16 +38,18 @@ around 'view' => sub {
 
 sub recycle {
     my ($self, $session_id, $building_id, $water, $ore, $energy, $use_essentia) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $building->recycle($water, $ore, $energy, $use_essentia);
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 sub subsidize_recycling {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     unless ($building->is_working) {
         confess [1010, "The Waste Exchanger isn't recycling anything."];
@@ -63,7 +66,7 @@ sub subsidize_recycling {
     });
     $empire->update;
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(recycle subsidize_recycling));

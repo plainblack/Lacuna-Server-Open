@@ -12,7 +12,8 @@ use Ouch;
 sub init_chat {
     my ($self, $session_id) = @_;
 
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id });
+    my $empire   = $session->current_empire;
 
     my $config = Lacuna->config;
     my $firebase_config = $config->get('firebase');

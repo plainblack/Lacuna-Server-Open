@@ -17,9 +17,10 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     my $body = $building->body;
     
     my $throw = 0; my $reason = '';
@@ -265,8 +266,9 @@ sub find_target {
 
 sub get_actions_for {
     my ($self, $session_id, $building_id, $target_params) = @_;
-    my $empire   = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
     my ($target, $target_type) = $self->find_target($empire, $target_params);
     my @tasks = bhg_tasks($building);
@@ -677,8 +679,9 @@ sub generate_singularity {
             params        => shift,
         };
     }
-    my $empire    = $self->get_empire_by_session($args->{session_id});
-    my $building  = $self->get_building($empire, $args->{building_id});
+    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $task_name = $args->{task_name};
     my $subsidize = $args->{subsidize};
     
@@ -2361,9 +2364,10 @@ sub bhg_tasks {
 
 sub subsidize_cooldown {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+
     unless ($building->is_working) {
         confess [1010, "BHG is not in cooldown mode."];
     }
@@ -2378,8 +2382,8 @@ sub subsidize_cooldown {
         reason  => 'BHG cooldown subsidy after the fact',
     });
     $empire->update;
-    
-    return $self->view($empire, $building);
+
+    return $self->view($session, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(generate_singularity get_actions_for subsidize_cooldown));

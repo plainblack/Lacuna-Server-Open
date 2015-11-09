@@ -18,8 +18,9 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $out = $orig->($self, $empire, $building);
     $out->{transport}{max} = $building->determine_available_cargo_space;
     return $out;
@@ -27,8 +28,9 @@ around 'view' => sub {
 
 sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
@@ -67,8 +69,9 @@ sub push_items {
 
 sub add_to_market {
     my ($self, $session_id, $building_id, $offer, $ask) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     my $cache = Lacuna->cache;
     if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
@@ -101,8 +104,9 @@ sub withdraw_from_market {
     if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
         confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];
     }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $trade = $building->market->find($trade_id);
     unless (defined $trade) {
         confess [1002, 'Could not find that trade. Perhaps it has already been accepted.'];
@@ -126,8 +130,9 @@ sub accept_from_market {
         $cache->delete('trade_lock',$trade_id);
     };
 
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
 
     $empire->current_session->check_captcha;
@@ -179,8 +184,9 @@ sub accept_from_market {
 
 sub trade_one_for_one {
     my ($self, $session_id, $building_id, $have, $want, $quantity) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     $building->trade_one_for_one($have, $want, $quantity);
     return {

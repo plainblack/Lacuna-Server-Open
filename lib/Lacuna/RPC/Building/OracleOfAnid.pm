@@ -15,8 +15,9 @@ sub model_class {
 
 sub get_star {
     my ($self, $session_id, $building_id, $star_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $star = Lacuna->db->resultset('Lacuna::DB::Result::Map::Star')->find($star_id);
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
@@ -37,8 +38,9 @@ sub get_probed_stars {
         confess [1002, "Page size cannot exceed 200."];
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my @stars;
     my $probes = $building->probes->search(undef,{ rows => $page_size, page => $page_number });
@@ -55,7 +57,7 @@ sub get_probed_stars {
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_star
-    get_probed_stars    
+    get_probed_stars
 ));
 
 

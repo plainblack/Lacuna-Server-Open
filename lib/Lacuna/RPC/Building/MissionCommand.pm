@@ -15,8 +15,9 @@ sub model_class {
 
 sub get_missions {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @missions;
     my $missions = $building->missions;
     my $count;
@@ -51,8 +52,9 @@ sub get_missions {
 
 sub complete_mission {
     my ($self, $session_id, $building_id, $mission_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1002, 'Please specify a mission id.'] unless $mission_id;
     my $mission = $building->missions->find($mission_id);
     confess [1002, 'No such mission.'] unless $mission;
@@ -70,8 +72,9 @@ sub complete_mission {
 
 sub skip_mission {
     my ($self, $session_id, $building_id, $mission_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     confess [1002, 'Please specify a mission id.'] unless $mission_id;
     my $mission = $building->missions->find($mission_id);
     confess [1002, 'No such mission.'] unless $mission;

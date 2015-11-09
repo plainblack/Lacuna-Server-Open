@@ -16,8 +16,9 @@ sub model_class {
 
 sub view_spies {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||= 1;
     my @spies;
     my $body = $building->body;
@@ -55,8 +56,9 @@ sub view_spies {
 
 sub view_all_spies {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @spies;
     my $body = $building->body;
     my %planets = ( $body->id => $body );
@@ -85,8 +87,9 @@ sub view_all_spies {
 # This call is too intensive for server at this time. Disabled
 # sub view_empire_spies {
 #     my ($self, $session_id, $building_id) = @_;
-#     my $empire = $self->get_empire_by_session($session_id);
-#     my $building = $self->get_building($empire, $building_id);
+#    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+#    my $empire   = $session->current_empire;
+#    my $building = $session->current_building;
 #     my @spies;
 #     my $body = $building->body;
 #     my %planets = ( $body->id => $body );
@@ -114,8 +117,9 @@ sub view_all_spies {
 
 sub subsidize_training {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($building->efficiency == 100) {
         confess [1010, "You can not subsidize spies when the Intelligence Ministry is in need of repair."];
     }
@@ -142,14 +146,15 @@ sub subsidize_training {
     }
     $building->finish_work->update;
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 
 sub assign_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($building->efficiency == 100) {
         confess [1010, "You can not communicate with your spy when the Intelligence Ministry is in need of repair."];
     }
@@ -168,8 +173,9 @@ sub assign_spy {
 
 sub burn_spy {
     my ($self, $session_id, $building_id, $spy_id, $assignment) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $spy = $building->get_spy($spy_id);
     unless (defined $spy) {
         confess [1002, "Spy not found."];
@@ -191,8 +197,9 @@ sub burn_spy {
 
 sub train_spy {
     my ($self, $session_id, $building_id, $quantity) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     unless ($building->efficiency == 100) {
         confess [1010, "You can not train spies when the Intelligence Ministry is in need of repair."];
     }
@@ -243,9 +250,10 @@ sub train_spy {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     $out->{spies} = {
         maximum         => $building->max_spies,
         current         => $building->spy_count,
@@ -263,9 +271,10 @@ sub name_spy {
         ->length_lt(31)
         ->length_gt(2)
         ->no_restricted_chars;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
-    my $spy = $building->get_spy($spy_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $spy      = $building->get_spy($spy_id);
     $spy->name($name);
     $spy->update;
     return {

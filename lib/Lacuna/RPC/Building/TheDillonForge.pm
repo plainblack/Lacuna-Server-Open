@@ -17,8 +17,9 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
         my $work = $building->work;
@@ -121,29 +122,32 @@ PLAN:
 
 sub split_plan {
     my ($self, $session_id, $building_id, $plan_class, $level, $extra_build_level, $quantity) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $quantity = $quantity || 1;
 
     $building->split_plan($plan_class, $level, $extra_build_level, $quantity);
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 sub make_plan {
     my ($self, $session_id, $building_id, $plan_class, $level) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     $building->make_plan($plan_class, $level);
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
-        
+
 sub subsidize {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     unless ($building->is_working) {
         confess [1010, "Nothing is being done!"];
@@ -162,7 +166,7 @@ sub subsidize {
     });
     $empire->update;
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 __PACKAGE__->register_rpc_method_names(qw(split_plan make_plan subsidize));

@@ -7,8 +7,9 @@ use Lacuna::Util qw(randint);
 
 sub view_my_market {
     my ($self, $session_id, $building_id, $page_number) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||=1;
     my $my_trades = $building->my_market->search(undef, { rows => 25, page => $page_number });
     my @trades;
@@ -32,8 +33,9 @@ sub view_my_market {
 
 sub view_market {
     my ($self, $session_id, $building_id, $page_number, $filter) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $page_number ||=1;
     my $all_trades = $building->available_market->search(
         undef,{
@@ -84,8 +86,9 @@ sub view_market {
 
 sub get_ships {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {body_id => $building->body_id, task => 'docked'},
         {order_by => [ 'type', 'hold_size', 'speed']}
@@ -111,8 +114,9 @@ sub get_ships {
 sub get_ship_summary {
     my ($self, $session_id, $building_id) = @_;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $ships = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->search(
         {body_id => $building->body_id, task => 'docked'},
         {order_by => [ 'type', 'hold_size', 'speed']}
@@ -150,8 +154,9 @@ sub get_ship_summary {
 
 sub get_prisoners {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $dt_parser = Lacuna->db->storage->datetime_parser;
     my $now = $dt_parser->format_datetime( DateTime->now );
 
@@ -178,8 +183,9 @@ sub get_prisoners {
 sub get_plan_summary {
     my ($self, $session_id, $building_id) = @_;
 
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my @out;
     my $sorted_plans = $building->body->sorted_plans;
@@ -205,8 +211,9 @@ sub get_plan_summary {
 sub get_glyph_summary {
     my ($self, $session_id, $building_id) = @_;
 
-    my $empire   = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @glyphs   = sort {$a->type cmp $b->type} $building->body->glyph->all;
 
     my @out;
@@ -229,8 +236,9 @@ sub get_glyph_summary {
 
 sub get_stored_resources {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my @types = (FOOD_TYPES, ORE_TYPES, qw(water waste energy));
     my %out;
     my $body = $building->body;
@@ -252,8 +260,9 @@ sub report_abuse {
     unless ($trade_id) {
         confess [1002, 'You have not specified a trade to withdraw.'];
     }
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $cache = Lacuna->cache;
     if ($cache->get('trade_lock', $trade_id)) {
         confess [1013, 'A buyer has placed an offer on this trade. Please wait a few moments and try again.'];

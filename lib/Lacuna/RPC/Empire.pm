@@ -18,7 +18,8 @@ sub find {
     unless (length($name) >= 3) {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
@@ -221,7 +222,8 @@ sub change_password {
         ->length_gt(5)
         ->eq($password2);
 
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify the main account password.'];
     }
@@ -405,12 +407,15 @@ sub found {
 
 sub get_status {
     my ($self, $session_id) = @_;
-    return $self->format_status($self->get_empire_by_session($session_id));
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+    return $self->format_status($empire);
 }
 
 sub view_profile {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
@@ -460,7 +465,8 @@ sub view_profile {
 
 sub edit_profile {
     my ($self, $session_id, $profile) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     
     # preferences
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
@@ -667,7 +673,8 @@ sub set_status_message {
         ->not_empty
         ->no_restricted_chars
         ->no_profanity;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     $empire->status_message($message);
     $empire->update;
     return $self->format_status($empire);
@@ -675,7 +682,8 @@ sub set_status_message {
 
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
-    my $viewer_empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $viewer_empire   = $session->current_empire;
     my $viewed_empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $viewed_empire) {
         confess [1002, 'The empire you wish to view does not exist.', $empire_id];
@@ -776,7 +784,8 @@ sub boost_spy_training {
 
 sub boost {
     my ($self, $session_id, $type, $weeks) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     $weeks //= 1;
 
     confess [1001, "Weeks must be a positive integer"]
@@ -803,7 +812,8 @@ sub boost {
 
 sub view_boosts {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     return {
         status  => $self->format_status($empire),
         boosts  => {
@@ -821,7 +831,8 @@ sub view_boosts {
 
 sub enable_self_destruct {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
@@ -831,7 +842,8 @@ sub enable_self_destruct {
 
 sub disable_self_destruct {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     if ($empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
@@ -841,14 +853,16 @@ sub disable_self_destruct {
 
 sub redeem_essentia_code {
     my ($self, $session_id, $code) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     my $amount = $empire->redeem_essentia_code($code);
     return { amount => $amount, status => $self->format_status($empire) };
 }
 
 sub get_invite_friend_url {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     return {
         referral_url    => $empire->get_invite_friend_url,
         status          => $self->format_status($empire),
@@ -857,7 +871,8 @@ sub get_invite_friend_url {
 
 sub invite_friend {
     my ($self, $session_id, $addresses, $custom_message) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     unless ($empire->email) {
         confess [1010, 'You cannot invite friends because you have not set up your email address in your profile.'];
     }
@@ -932,7 +947,8 @@ sub vet_species {
 
 sub redefine_species_limits {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     my $out = $empire->determine_species_limits($empire);
     $out->{status} = $self->format_status($empire);
     return $out;
@@ -940,7 +956,8 @@ sub redefine_species_limits {
 
 sub redefine_species {
     my ($self, $session_id, $me) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
 
     unless ($empire->essentia >= 100) {
         confess [1011, 'You need at least 100 essentia to redefine your species.'];
@@ -1000,7 +1017,8 @@ sub update_species {
 
 sub view_species_stats {
     my ($self, $session_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     return {
         species => $empire->get_species_stats,
         status  => $self->format_status($empire),

@@ -15,9 +15,10 @@ sub model_class {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     $out->{make_plan} = {
         types           => $building->makeable_plans_formatted,
         level_costs     => $building->level_costs_formatted,
@@ -32,17 +33,19 @@ around 'view' => sub {
 
 sub make_plan {
     my ($self, $session_id, $building_id, $type, $level) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     $building->can_make_plan($type, $level);
     $building->make_plan($type, $level);
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 sub subsidize_plan {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     unless ($building->is_working) {
         confess [1010, "There is no plan being built."];
@@ -59,7 +62,7 @@ sub subsidize_plan {
     });
     $empire->update;
 
-    return $self->view($empire, $building);
+    return $self->view($session, $building);
 }
 
 

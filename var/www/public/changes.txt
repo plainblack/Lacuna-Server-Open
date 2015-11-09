@@ -2,6 +2,7 @@
  - Mod: Jackpot enhanced.
  - Fix: If parliament missing, better error handling.
  - Fix: Make sure scows display empty cargo on return.
+ - Mod: Reduce some red tape.
 
 3.0915:
  - Fix: Reduce the wild resource fluctuations during planet ticking.

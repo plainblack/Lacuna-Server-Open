@@ -16,8 +16,9 @@ sub model_class {
 
 sub view_news {
     my ($self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     my $body = $building->body;
     my @all = ($body->zone, $body->adjacent_zones);
     my @zones;
@@ -54,8 +55,9 @@ sub view_news {
 
 sub restrict_coverage {
     my ($self, $session_id, $building_id, $onoff) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
     if ($onoff ne '0' && $onoff ne '1') {
         confess [1009, 'The valid values for onoff are 1 or 0.'];
     }
@@ -79,9 +81,10 @@ sub restrict_coverage {
 
 around 'view' => sub {
     my ($orig, $self, $session_id, $building_id) = @_;
-    my $empire = $self->get_empire_by_session($session_id);
-    my $building = $self->get_building($empire, $building_id, skip_offline => 1);
-    my $out = $orig->($self, $empire, $building);
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $out = $orig->($self, $session, $building);
     $out->{restrict_coverage} = $building->body->restrict_coverage;
     return $out;
 };
