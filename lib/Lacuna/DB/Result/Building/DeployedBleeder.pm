@@ -11,6 +11,7 @@ use Lacuna::Constants qw(FOOD_TYPES ORE_TYPES GROWTH INFLATION);
 with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
 use constant controller_class => 'Lacuna::RPC::Building::DeployedBleeder';
+use constant subsidizable     => 0;
 
 around can_build => sub {
     my ($orig, $self, $body) = @_;

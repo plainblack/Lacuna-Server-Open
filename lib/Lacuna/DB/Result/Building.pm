@@ -82,6 +82,7 @@ sub produces_food_items { [] };
 use constant time_to_build          => 60;
 
 use constant build_with_halls       => 0;
+use constant subsidizable           => 1;
 
 use constant energy_to_build        => 0;
 use constant food_to_build          => 0;

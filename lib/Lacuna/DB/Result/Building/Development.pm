@@ -16,6 +16,7 @@ sub subsidize_build_queue {
     }
     else {
         foreach my $build (@{$self->body->builds}) {
+            next unless $build->subsidizable;
             $build->finish_upgrade;
         }
     }
@@ -31,6 +32,7 @@ sub calculate_subsidy {
     }
     else {
         foreach my $build (@{$self->body->builds}) {
+            next unless $build->subsidizable;
             $cost += max(1, int(($build->level + 1) / 3));
         }
     }
