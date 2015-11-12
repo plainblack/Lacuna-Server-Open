@@ -228,7 +228,7 @@ sub update_influence {
               WHERE
                 s.id = si.star_id
               AND
-                pow(pow(x - ?, 2) + pow(y - ?, 2), 0.5) > ?
+                pow(pow(x - ?, 2) + pow(y - ?, 2), 0.5) >= ?
              )
 EOSQL
     $sth->execute(
