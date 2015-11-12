@@ -313,8 +313,6 @@ sub www_search_bodies {
     my $name = decode_utf8($request->param('name') || '');
     my $pager = 'name';
 
-    printf "NAME: %s\n",$name;
-
     if ($name) {
         my $query = "$name%";
         $query =~ s/\*/%/g;
