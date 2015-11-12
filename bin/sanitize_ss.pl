@@ -21,7 +21,7 @@ our $db = Lacuna->db;
 out('Sanitize derilict space stations');
 # sanitize derilict space stations
 my $stations_rs = $db->resultset('Lacuna::DB::Result::Map::Body');
-my @stations = $stations_rs->search({ empire_id => {'>' => 0 }, class => 'Lacuna::DB::Result::Map::Body::Planet::Station' })->get_column('id')->all;
+my @stations = $stations_rs->search({ class => 'Lacuna::DB::Result::Map::Body::Planet::Station' })->get_column('id')->all;
 foreach my $id (@stations) {
     my $station = $stations_rs->find($id);
     out('Checking '.$station->name);
