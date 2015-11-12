@@ -349,7 +349,7 @@ sub send_ship_types {
                                       {order_by => 'speed', rows => $quantity }
                                       );
         my $ship = $ships[0]; #Need to grab slowest ship
-        confess [1009, "Sitters cannot send this type of ship."] if $empire->current_session->is_sitter and not $ship->sitter_can_send;
+        confess [1009, "Sitters cannot send this type of ship."] if $session->is_sitter and not $ship->sitter_can_send;
         # We only need to check one of the ships
         $ship->can_send_to_target($target);
 

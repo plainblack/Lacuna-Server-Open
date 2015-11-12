@@ -48,6 +48,7 @@ sub get_session {
 
     $session->current_empire($session->empire)
         unless $session->current_empire;
+    $session->current_empire->current_session($session);
 
     my $empire = $session->current_empire;
     if (defined $empire) {
