@@ -912,25 +912,12 @@ sub start_upgrade {
     
     # set time to build, plus what's in the queue
     my $now = DateTime->now;
-    my $upgrade_ends = $in_parallel || $body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')
-        ? $now : $body->get_existing_build_queue_time;
+    my $upgrade_ends = $in_parallel ? $now : $body->get_existing_build_queue_time;
     if ($upgrade_ends < $now) {
         $upgrade_ends = $now;
     }
 
-    my $time_to_add;
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station') ) {
-        if ($self->class eq 'Lacuna::DB::Result::Building::DeployedBleeder') {
-            $time_to_add = $cost->{time};
-        }
-        else {
-            $time_to_add = 60 * 60 * 72;
-        }
-    }
-    else {
-        $time_to_add = $cost->{time};
-    }
-    $upgrade_ends->add(seconds=>$time_to_add);
+    $upgrade_ends->add(seconds=>$cost->{time});
     # add to queue
     $self->update({
         is_upgrading    => 1,

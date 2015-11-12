@@ -5,6 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Constants qw(GROWTH);
+use List::Util qw(max);
 
 with 'Lacuna::Role::Building::IgnoresUniversityLevel';
 
@@ -58,13 +59,15 @@ around spend_efficiency => sub {
 };
 
 sub cost_to_upgrade {
+    my ($self) = @_;
+    my $time_cost = max($self->level, 15);
     return {
         food    => 0,
         ore     => 0,
         water   => 0,
         energy  => 0,
         waste   => 0,
-        time    => 60,
+        time    => $time_cost,
     };
 }
 

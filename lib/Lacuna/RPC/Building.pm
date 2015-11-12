@@ -18,6 +18,14 @@ sub to_app_with_url {
     return ($self->app_url => $self->to_app);
 }
 
+sub _is_owner {
+    my ($self, $session, $building) = @_;
+    return
+        $session->current_empire->id == $building->body->empire->id or
+        $session->current_empire->id == $building->body->empire->alliance->leader_id
+        ;
+}
+
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
@@ -55,21 +63,6 @@ sub upgrade {
 
     $building->start_upgrade($cost);
     
-    # add vote
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        my $name = $building->name.' ('.$building->x.','.$building->y.')';
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'UpgradeModule',
-            name            => 'Upgrade '.$name,
-            description     => 'Upgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level + 1).'.',
-            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
-            proposed_by_id  => $empire->id,
-        });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
-        $proposition->insert;
-    }
-
     # The cache needs clearing so the build queue length can be set properly
     $body->clear_building_cache;
     return {
@@ -198,21 +191,6 @@ sub build {
     $body->build_building($building);
     $building->finish_building();
 
-    # add vote
-    if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
-        my $name = $building->name.' ('.$building->x.','.$building->y.')';
-        my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
-            type            => 'InstallModule',
-            name            => 'Install '.$name,
-            description     => 'Install '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
-            scratch         => { building_id => $building->id, to_level => $building->level + 1 },
-            proposed_by_id  => $empire->id,
-        });
-        $proposition->station($body);
-        $proposition->proposed_by($empire);
-        $proposition->insert;
-    }
-    
     # The cache needs clearing so the plots counts are updated correctly
     $body->clear_building_cache;
     $body->clear_building_count;
@@ -247,6 +225,20 @@ sub demolish {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
         }
+        unless ($self->_is_owner($session, $building)) {
+            my $name = $building->name.' ('.$building->x.','.$building->y.')';
+            my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+                type            => 'DemolishModule',
+                name            => 'Demolish '.$name,
+                description     => 'Demolish '.$name.' on {Planet '.$body->id.' '.$body->name.'}.',
+                scratch         => { building_id => $building->id },
+                proposed_by_id  => $empire->id,
+            });
+            $proposition->station($body);
+            $proposition->proposed_by($empire);
+            $proposition->insert;
+            confess [1017, 'The demolish order has been delayed pending a parliamentary vote.'];
+        }
     }
     $building->demolish;
     $body->tick;
@@ -266,6 +258,20 @@ sub downgrade {
     if ($body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
+        }
+        unless ($self->is_owner($session, $building)) {
+            my $name = $building->name.' ('.$building->x.','.$building->y.')';
+            my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
+                type            => 'DowngradeModule',
+                name            => 'Downgrade '.$name,
+                description     => 'Downgrade '.$name.' on {Planet '.$body->id.' '.$body->name.'} from level '.$building->level.' to '.($building->level - 1).'.',
+                scratch         => { building_id => $building->id },
+                proposed_by_id  => $empire->id,
+            });
+            $proposition->station($body);
+            $proposition->proposed_by($empire);
+            $proposition->insert;
+            confess [1017, 'The downgrade order has been delayed pending a parliamentary vote.'];
         }
     }
     $building->downgrade;
