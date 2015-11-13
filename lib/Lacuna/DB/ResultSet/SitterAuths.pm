@@ -22,18 +22,15 @@ sub remove_auths_from_alliance
                }
               )->get_column('id')->all;
 
-    $self->search({ baby_id => { -in => \@ids }, sitter_id => $user->id })->delete;
-    $self->search({ sitter_id => { -in => \@ids }, baby_id => $user->id })->delete;
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $now = $dtf->format_datetime(DateTime->now);
+
+    # set the expiry to immediate.
+    $self->search({ baby_id => { -in => \@ids }, sitter_id => $user->id })->update({expiry => $now});
+    $self->search({ sitter_id => { -in => \@ids }, baby_id => $user->id })->update({expiry => $now});
 }
 
 sub new_auth_date { DateTime->now->add(days => VALID_AUTH_DAYS) }
-
-sub clean_expired
-{
-    my ($self) = @_;
-
-    $self->search({ expiry => { '<', \q[UTC_TIMESTAMP()] } })->delete;
-}
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

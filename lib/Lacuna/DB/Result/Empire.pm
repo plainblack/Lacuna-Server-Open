@@ -1153,6 +1153,9 @@ before delete => sub {
     $self->sent_messages->delete;
     $self->received_messages->delete;
     $self->medals->delete;
+    $self->babyauths->delete;
+    $self->sitterauths->delete;
+
     my $planets = $self->planets;
     while ( my $planet = $planets->next ) {
         $planet->sanitize if ($planet->empire_id == $self->id); #In case of a cached space station

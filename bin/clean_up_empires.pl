@@ -60,14 +60,22 @@ while (my $empire = $to_be_deleted->next) {
 out('Enabling Self Destruct For Inactivity');
 my $abandons_tally;
 my $inactivity_time_out = Lacuna->config->get('self_destruct_after_inactive_days') || 20;
+my $inactivity_time_out_formatted = $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) );
 my $inactives = $empires->search({ 
-    last_login           => { '<' => $dtf->format_datetime(DateTime->now->subtract( days => $inactivity_time_out) ) }, 
+    last_login           => { '<' => $inactivity_time_out_formatted }, 
     self_destruct_active => 0, 
     id                   => { '>' => 1},
     is_admin             => 0,
 #    disable_self_destruct=> 0,
 });
 while (my $empire = $inactives->next) {
+    # this checks if there were any sitters for this account that have not yet
+    # expired, or that have expired in the last 20 days.  If so, then this
+    # account isn't ready to be checked for reaping yet.
+    my $recent_expires = $empire->sitterauths->
+        search({ expiry => { '>' => $inactivity_time_out_formatted } })->count;
+    next if $recent_expires;
+
     if ($empire->essentia >= 1) {
       unless (Lacuna->cache->get('empire_inactive',$empire->id)) {
         out('Preventing self-destruct by spending essentia.');

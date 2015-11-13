@@ -16,18 +16,17 @@ my $rs = LD->resultset("SitterAuths");
 
 # we do not warn about expired auths since we've already warned them for the
 # previous AUTH_WARNING_DAYS days.
-out("Cleaning expired.");
-$rs->clean_expired;
-
 out("Checking for messages to send.");
 
 my $soon = DateTime->now()->add(days => $rs->AUTH_WARNING_DAYS);
 my $dtf = Lacuna->db->storage->datetime_parser;
 
-# probably should join names in here.
 my $warnings = $rs->search(
                            {
-                               expiry => { '<' => $dtf->format_datetime($soon) }
+                               expiry => {
+                                   '<' => $dtf->format_datetime($soon),
+                                   '>' => $dtf->format_datetime(DateTime->now),
+                               },
                            },
                            {
                                join => ['sitter', 'baby'],
@@ -39,7 +38,6 @@ my $warnings = $rs->search(
 my %expiring_sitters;
 my %expiring_babies;
 my $now = DateTime->now;
-#my $formatter = DateTime::Format::Duration->new(pattern => "%e days, %H:%M:%S");
 while (my $auth = $warnings->next)
 {
     my $baby_name   = $auth->get_column('baby_name');
@@ -66,8 +64,6 @@ for my $baby_name (sort keys %expiring_sitters)
                  } sort keys %{$expiring_sitters{$baby_name}}
                 );
 
-    use Data::Dump;
-    dd \@table;
     LD->empire({name => $baby_name})->send_predefined_message(
         tags        => ['Alert'],
         params      => [ @table > 2 ? "Treaties" : "Treaty", 
@@ -93,7 +89,6 @@ for my $sitter_name (keys %expiring_babies)
                  } sort keys %{$expiring_babies{$sitter_name}}
                 );
 
-    dd \@table;
     LD->empire({name => $sitter_name})->send_predefined_message(
         tags        => ['Alert'],
         filename    => 'expiring_babies.txt',

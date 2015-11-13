@@ -1266,8 +1266,12 @@ sub deauthorize_sitters
         unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
         none { /\D/ } @{$opts->{empires}};
 
+    my $dtf = Lacuna->db->storage->datetime_parser;
+    my $now = $dtf->format_datetime(DateTime->now);
+
+    # set expiry to immediate
     $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
-        ->delete();
+        ->update({expiry => $now});
 
     return $self->view_authorized_sitters($session);
 }
