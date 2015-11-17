@@ -6,6 +6,7 @@
  - Fix: Deployed bleeders shouldn't get subbed.
  - Fix: Destroying IBS removes all influence.
  - Fix: AIs' stations can now be destroyed.
+ - Fix: Make owner of star a bit more predictable in case of ties.
 
 3.0915:
  - Fix: Reduce the wild resource fluctuations during planet ticking.
