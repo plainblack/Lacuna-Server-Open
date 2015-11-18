@@ -99,7 +99,10 @@ sub cancel_build {
     my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
-    my $scheduled_building  = Lacuna->db->resultset('Building')->find({id => $args->{scheduled_id}});
+    my $scheduled_building  = $self->get_building($session,$args->{scheduled_id},nocheck_type=>1);
+    if (!$scheduled_building) {
+        confess [1003, "That building does not exist, or is not yours."];
+    }
     if ($scheduled_building->body_id != $building->body_id) {
         confess [1003, "That building is not on the same planet as your development ministry."];
     }

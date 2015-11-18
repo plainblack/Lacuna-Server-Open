@@ -107,6 +107,9 @@ An integer representing which page of the inbox you'd like to view. Defaults to 
 
 An array reference of tags. Only messages containing these tags will be displayed in the results.
 
+=head4 empire
+
+A name or ID of the baby empire to check the inbox of.
 
 =head2 view_archived ( session_id, [ options ])
 

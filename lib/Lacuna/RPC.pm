@@ -30,7 +30,15 @@ sub get_session {
     }
     $opts = { session_id => $session->id } unless ref $opts;
 
-    if ($opts->{building_id}) {
+    # mark the real player as active, allowing sitters to aid
+    # him/her more fully, not as an inactive.
+    $session->empire->set_active;
+
+    if ($opts->{empire_id}) {
+        my $empire = $self->get_baby($session, $opts->{empire_id});
+        $session->current_empire($empire);
+    }
+    elsif ($opts->{building_id}) {
         my $building = $self->get_building($session,
                                            $opts->{building_id},
                                            %$opts);
@@ -65,6 +73,7 @@ sub get_session {
     $session->current_empire($session->empire)
         unless $session->current_empire;
     $session->current_empire->current_session($session);
+    $session->empire->current_session($session);
 
     my $empire = $session->current_empire;
     if (defined $empire) {
@@ -118,43 +127,60 @@ sub get_session {
     return $session;
 }
 
+sub get_baby {
+    my ($self, $session, $empire_id) = @_;
+    if (ref $empire_id && $empire_id->isa('Lacuna::DB::Result::Empire')) {
+        return $empire_id;
+    }
+    return $session->empire if $session->empire->id == $empire_id;
+
+    my $empire = $session->empire->babies->find({empire_id => $empire_id});
+    confess [ 1002, "Empire does not exist or is not sat by you." ]
+        unless $empire;
+
+    $empire;
+}
+
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $session, $body_id) = @_;
-    my $body;
     if (ref $body_id && $body_id->isa('Lacuna::DB::Result::Map::Body')) {
-        $body = $body_id;
-    } else {
-        $body = Lacuna->db->resultset('Map::Body')->
-            search(
-                   {
-                       'me.id' => $body_id,
-                       -or => [
-                               { 'me.empire_id'        => $session->empire->id },
-                               { 'me.alliance_id'      => $session->empire->alliance_id },
-                               $session->_is_sitter ?
-                               {
-                                   'sitterauths.sitter_id' => $session->empire->id,
-                                   'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
-                               } : (),
-                              ]
-                   },
-                   {
-                       join => { 'empire' => 'sitterauths' },
-                       prefetch => [ 'empire' ],
-                   }
-                  )->first;
-        confess [ 1002, 'Body does not exist or is not owned by you or any empire you sit.', $body_id ]
-            unless $body;
-
+        return $body_id;
     }
+
+    my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
+
+    my $body = Lacuna->db->resultset('Map::Body')->
+        search(
+               {
+                   'me.id' => $body_id,
+                   -or => [
+                           { 'me.empire_id'        => $session->empire->id },
+                           { 'me.alliance_id'      => $session->empire->alliance_id },
+                           $session->_is_sitter ? () : {
+                               'sitterauths.sitter_id' => $session->empire->id,
+                               'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
+                           },
+                          ]
+               },
+               {
+                   join => $join, #{ 'empire' => 'sitterauths' },
+                   prefetch => [ 'empire' ],
+               }
+              )->first;
+    confess [ 1002, 'Body does not exist or is not owned by you or any empire you sit.', $body_id ]
+        unless $body;
+
     return $body;
 }
+
 
 sub get_building { # makes for uniform error handling, and prevents staleness
     my ($self, $session, $building_id, %options) = @_;
     if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
         return $building_id;
     }
+
+    my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
 
     my $building =
         Lacuna->db->resultset('Building')->
@@ -164,23 +190,24 @@ sub get_building { # makes for uniform error handling, and prevents staleness
                    -or => [
                            { 'body.empire_id'        => $session->empire->id },
                            { 'body.alliance_id'      => $session->empire->alliance_id },
-                           $session->_is_sitter ?
-                           {
+                           $session->_is_sitter ? () : {
                                'sitterauths.sitter_id' => $session->empire->id,
                                'body.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
-                           } : (),
+                           },
                           ]
                },
                {
-                   join => { body => { 'empire' => 'sitterauths' }},
+                   join => { body => $join }, #{ 'empire' => 'sitterauths' }},
                    prefetch => { body => 'empire' },
                }
               )->first;
     confess [ 1002, 'Building does not exist or is not owned by you or any empire you sit.', $building_id ]
         unless $building;
 
-    confess [ 1002, 'That building is not a '. $self->model_class->name ]
-        unless $building->class eq $self->model_class;
+    unless ($options{nocheck_type}) {
+        confess [ 1002, 'That building is not a '. $self->model_class->name ]
+            unless $building->class eq $self->model_class;
+    }
 
     $building->is_offline unless $options{skip_offline};
 
@@ -197,10 +224,24 @@ sub format_status {
             rpc_limit       => Lacuna->config->get('rpc_limit') || 2500,
         },
     );
+
+    # can just pass in the session, we'll extract the body and empire from it
+    my $real_empire;
+    if ($empire->isa('Lacuna::Session'))
+    {
+        $body   = $empire->current_body;
+        $empire = $empire->current_empire;
+        $real_empire = $empire->empire;
+    }
+    else
+    {
+        $real_empire = $empire->current_session->empire;
+    }
+
     if (defined $empire) {
         my $cache = Lacuna->cache;
         my $alert = $cache->get('announcement','alert');
-        if ($alert && !$cache->get('announcement'.$alert, $empire->id)) {
+        if ($alert && !$cache->get('announcement'.$alert, $real_empire->id)) {
             $out{server}{announcement} = 1;
         }
         $out{empire} = $empire->get_status;

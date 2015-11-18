@@ -41,7 +41,7 @@ sub _clean(@)
              }
          } elsif (ref $_ eq 'HASH') {
              my $x = $_;
-             {
+             +{
                  map {
                      my $o = $x->{$_};
                      if (eval { $o->can('id') })

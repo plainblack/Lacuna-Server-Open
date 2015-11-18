@@ -123,7 +123,7 @@ sub view {
             },
             pending_build       => $building->upgrade_status,
         },
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session),
     );
     if ($building->is_working) {
         $out{building}{work} = {

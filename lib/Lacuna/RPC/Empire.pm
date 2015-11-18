@@ -409,8 +409,7 @@ sub found {
 sub get_status {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
-    my $empire   = $session->current_empire;
-    return $self->format_status($empire);
+    return $self->format_status($session);
 }
 
 sub view_profile {
@@ -1022,7 +1021,7 @@ sub view_species_stats {
     my $empire   = $session->current_empire;
     return {
         species => $empire->get_species_stats,
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     };
 }
 
@@ -1154,7 +1153,7 @@ sub get_species_templates {
 sub authorize_sitters
 {
     my ($self, $session_id, $opts) = @_;
-    my $session = $self->get_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
     $session->check_captcha;
 
     my $baby = $self->get_empire_by_session($session);
@@ -1220,47 +1219,19 @@ sub authorize_sitters
         }
     }
 
-    my $rc = $self->view_authorized_sitters($session);
-    $rc->{rejected_ids} = \@bad_ids;
-    return $rc;
-}
-
-sub view_authorized_sitters
-{
-    my ($self, $session_id) = @_;
-    my $session = $self->get_session($session_id);
-    my $baby = $self->get_empire_by_session($session);
-
-    my $rs = $baby->sitters()
-        ->search(
-                 { expiry => { '>' => \q[UTC_TIMESTAMP()] } },
-                 {
-                     '+select' => [ 'me.expiry' ],
-                     '+as'     => [ 'expiry' ],
-                 }
-                );
-
-    my @auths;
-    while (my $e = $rs->next)
-    {
-        push @auths, {
-            id     => $e->id,
-            name   => $e->name,
-            expiry => $e->get_column('expiry'),
-        };
-    }
-
-    return { status => $self->format_status($session->empire), auths => \@auths };
+    return {
+        status => $self->format_status($session),
+        rejected_ids => \@bad_ids,
+    };
 }
 
 sub deauthorize_sitters
 {
     my ($self, $session_id, $opts) = @_;
-    my $session = $self->get_session($session_id);
-    my $baby = $self->get_empire_by_session($session);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $baby = $self->current_empire;
 
     my $baby_id = $session->empire_id;
-    my $rs = Lacuna->db->resultset('SitterAuths');
 
     confess [1009, "The 'empires' option must be an array of empire IDs"]
         unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
@@ -1270,10 +1241,13 @@ sub deauthorize_sitters
     my $now = $dtf->format_datetime(DateTime->now);
 
     # set expiry to immediate
+    my $rs = Lacuna->db->resultset('SitterAuths');
     $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
         ->update({expiry => $now});
 
-    return $self->view_authorized_sitters($session);
+    return {
+        status => $self->format_status($session),
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(
@@ -1300,7 +1274,7 @@ __PACKAGE__->register_rpc_method_names(
     get_full_status get_status
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
-    authorize_sitters view_authorized_sitters deauthorize_sitters
+    authorize_sitters deauthorize_sitters
     ),
 );
 

@@ -225,14 +225,23 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
                 ...
             ],
             "babies" : {
-                "baby name" : [
-                    { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
-                    ...
-                ],
-                "another baby name" : [
-                    { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
-                    ...
-                ]
+                "baby name" : {
+                    "alliance_id" : 3, # key doesn't exist if not in alliance
+                    "id" : 12355, # empire ID
+                    "has_new_messages" : 30,
+                    "bodies" : [
+                        { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                        ...
+                    ],
+                },
+                "another baby name" : {
+                    "has_new_messages" : 30,
+                    "id" : 12884,
+                    "bodies" : [
+                        { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                        ...
+                    ],
+                }
             }
         },
         "colonies" : {
@@ -982,22 +991,6 @@ Returns an array ref of species templates that can be used to help the user popu
     },
     ...
  ]
-
-=head2 view_authorized_sitters
-
-Returns the currently authorized sitters for this baby.
-
- {
-    "status" : { ... },
-    "auths" : [
-      {
-        "id" : 12345,
-        "name" : "Some Empire",
-        "expiry" : "2015-10-10 17:20:03"
-      },
-      ...
-    ]
- }
 
 =head2 authorize_sitters ( session_id, options )
 
