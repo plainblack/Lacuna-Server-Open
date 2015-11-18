@@ -229,9 +229,9 @@ sub format_status {
     my $real_empire;
     if ($empire->isa('Lacuna::Session'))
     {
+        $real_empire = $empire->empire;
         $body   = $empire->current_body;
         $empire = $empire->current_empire;
-        $real_empire = $empire->empire;
     }
     else
     {
