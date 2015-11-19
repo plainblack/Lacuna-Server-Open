@@ -545,12 +545,10 @@ sub is_available {
                     my $uni_level = $self->on_body->empire->university_level;
                     if ($self->on_body->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
                         $building = 'Module::PoliceStation';
-                        $uni_level = 30;  #This way, uni level doesn't matter with SS
                     }
                     my $gauntlet = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::'.$building);
                     if (defined $gauntlet) {
                         my $level = $gauntlet->effective_level;
-                        $level = $uni_level if ($level > $uni_level);
                         $seconds += int(3600 * (($level * 3 * $gauntlet->efficiency)/100 + 1));
                     }
 
