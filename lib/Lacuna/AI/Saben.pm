@@ -155,16 +155,28 @@ sub destroy_world {
         return;
     }
     say "Looking for world to destroy...";
-    my $targets = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search({
-            zone        => $colony->zone,
+    my $targets = Lacuna->db->resultset('Map::Body')->search({
+            "me.zone"   => $colony->zone,
             size        => { between => [46, 75] },
             empire_id   => undef,
+            # where there isn't a bhgneut law.
+            "bhgneut_laws.id" => undef,
         },
-        { rows => 20}
+        {
+            join => { star => 'bhgneut_laws' },
+        }
     );
-    my $blownup = 0;
-    while (my $target = $targets->next) {
-        next if $target->is_bhg_neutralized;
+
+    # two queries to find a random element which is supposed to
+    # be faster than order by rand().  Since we're only getting back
+    # one number and one row, this should be fairly light on the
+    # database communication level as well.
+    my $numtargets = $targets->count();
+    my $targetidx  = Lacuna::Util::randint(0,$numtargets - 1);
+
+    my $target = $targets->search({}, { offset => $targetidx, rows => 1, order_by => 'me.id' })->first;
+
+    if ($target) {
         say "Found ".$target->name;
         my @to_demolish = @{$target->building_cache};
         $target->delete_buildings(\@to_demolish);
@@ -175,10 +187,8 @@ sub destroy_world {
         });
         say "Turned into ".$target->class;
         $colony->add_news(100, 'We are Sābēn. We have destroyed '.$target->name.'. Leave now.');
-        $blownup = 1;
-        last;
     }
-    if ($blownup == 0) {
+    else {
         say "Nothing to destroy.";
     }
 }

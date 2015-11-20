@@ -8,6 +8,7 @@
  - Fix: AIs' stations can now be destroyed.
  - Fix: Make owner of star a bit more predictable in case of ties.
  - Fix: Gauntlet now works at uni+1 level, too.
+ - Fix: Saben will destroy planets with a bit more randomness.
 
 3.0915:
  - Fix: Reduce the wild resource fluctuations during planet ticking.
