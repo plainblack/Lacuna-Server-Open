@@ -32,12 +32,12 @@ after handle_arrival_procedures => sub {
         $claimer_id = $planet->is_claimed;
         $claimed_by = $planet->claimed_by->name;
     }
-    if ($claimed) {
+    if ($claimed && $claimer_id != $empire->id) {
         $empire->send_predefined_message(
             tags        => ['Colonization','Alert'],
             filename    => 'cannot_stake.txt',
             params      => [$self->name, $planet->x, $planet->y, $planet->name, $claimer_id, $claimed_by],
-        );        
+        );
     }
     elsif ($asteroid) {
         $empire->send_predefined_message(
