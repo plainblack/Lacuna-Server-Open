@@ -16,7 +16,7 @@ sub www_default {
     unless (defined $empire) {
         confess [401, 'Empire not found.'];
     }
-    if ($empire->current_session->is_sitter) {
+    if ($session->is_sitter) {
         confess [1015, 'Sitters cannot enter the lottery.'];
     }
     my $url = $request->param('site_url');

@@ -31,7 +31,7 @@ sub get_lottery_voting_options {
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
 
-    if ($empire->current_session->is_sitter) {
+    if ($session->is_sitter) {
         confess [1015, 'Sitters cannot enter the lottery.'];
     }
     $empire->current_session->check_captcha;

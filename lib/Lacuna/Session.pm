@@ -154,7 +154,7 @@ sub start {
     my ($self, $empire, $options) = @_;
     $self->empire_id($empire->id);
     $self->api_key($options->{api_key});
-    $self->is_sitter($options->{is_sitter});
+    $self->_is_sitter($options->{is_sitter});
     $self->is_from_admin($options->{is_from_admin});
     $empire->current_session($self);
     $self->empire($empire);
