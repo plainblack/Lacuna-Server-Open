@@ -215,12 +215,16 @@ B<NOTE:> You should probably B<never> call this method directly, as it is a wast
     "empire" : {
         "id" : "xxxx",
         "bodies" : {
-            "mine" : [
+            "colonies" : [
                 # bodies are provided sorted by name already.
                 { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
                 ...
             ],
-            "station" : [
+            "mystations" : [
+                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
+                ...
+            ],
+            "ourstations" : [
                 { "id" : "xxxx", "name" : "...", "x": "#", "y": "#" },
                 ...
             ],

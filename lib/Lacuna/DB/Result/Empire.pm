@@ -590,7 +590,7 @@ sub get_status {
         $planet_rs = Lacuna->db->resultset('Map::Body')->
             search(
                    { -or => { empire_id => $real_empire->id, alliance_id => $real_empire->alliance_id } },
-                   { order_by => 'name' },
+                   { prefetch => 'star', order_by => 'me.name' },
                   );
     }
     my %planets;
@@ -598,24 +598,33 @@ sub get_status {
     my %colonies;
     my %bodies;
 
+    my $gen_body_info = sub {
+        my $planet = shift;
+
+        return {
+            id => $planet->id,
+            name => $planet->name,
+            zone => $planet->zone,
+            star_id => $planet->star_id,
+            star_name => $planet->star->name,
+            orbit => $planet->orbit,
+            x => $planet->x,
+            y => $planet->y, #,,,
+        }
+    };
+
     while (my $planet = $planet_rs->next) {
         $planets{$planet->id} = $planet->name;
-        my $type = 'colony';
+        my $type = 'colonies';
         if ($planet->get_type eq 'space station') {
             $stations{$planet->id} = $planet->name;
-            $type = 'station'
+            $type = $planet->empire_id == $real_empire->id ? 'mystations' : 'ourstations'
         }
         else {
             $colonies{$planet->id} = $planet->name;
         }
 
-        push @{$bodies{$type}}, {
-            id => $planet->id,
-            name => $planet->name,
-            zone => $planet->zone,
-            x => $planet->x,
-            y => $planet->y, #,,,
-        };
+        push @{$bodies{$type}}, $gen_body_info->($planet);
     }
 
     # shouldn't have to check this once sitter_password goes away.
@@ -630,7 +639,7 @@ sub get_status {
                        'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
                    },
                    {
-                       prefetch => { 'empire', 'sitterauths' },
+                       prefetch => [ 'star', { 'empire', 'sitterauths' } ],
                        order_by => ['me.name', 'me.id'],
                    });
 
@@ -653,13 +662,7 @@ sub get_status {
                 maybe alliance_id => $empire->alliance_id,
             };
 
-            push @{$bodies{babies}{$empire->name}{planets}}, {
-                id => $planet->id,
-                name => $planet->name,
-                zone => $planet->zone,
-                x => $planet->x,
-                y => $planet->y, #,,,
-            };
+            push @{$bodies{babies}{$empire->name}{planets}}, $gen_body_info->($planet);
         }
     }
 
