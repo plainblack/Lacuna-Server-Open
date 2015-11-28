@@ -10,6 +10,7 @@
  - Fix: Gauntlet now works at uni+1 level, too.
  - Fix: Saben will destroy planets with a bit more randomness.
  - Mod: Can stake your own stake.
+ - Mod: Show plans in SSL in a predictable order (sorted!).
 
 3.0915:
  - Fix: Reduce the wild resource fluctuations during planet ticking.

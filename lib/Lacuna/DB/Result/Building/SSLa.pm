@@ -83,6 +83,7 @@ sub makeable_plans_formatted {
             type    => $type,
         };
     }
+    @out = sort { $a->{name} cmp $b->{name} } @out;
     return \@out;
 }
 
