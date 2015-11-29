@@ -36,14 +36,30 @@ sub get_session {
                                            %$opts);
         $session->current_building($building);
         $session->current_body($building->body);
-        $session->current_empire($session->current_body->empire);
+        if ($session->current_body->isa('Lacuna::DB::Result::Map::Body::Planet::Station'))
+        {
+            # all station access is as yourself.
+            $session->current_empire($session->empire);
+        }
+        else
+        {
+            $session->current_empire($session->current_body->empire);
+        }
     }
     elsif ($opts->{body_id}) {
         my $body = $self->get_body($session->empire,
                                    $opts->{body_id});
         $session->clear_building;
         $session->current_body($body);
-        $session->current_empire($session->current_body->empire);
+        if ($session->current_body->isa('Lacuna::DB::Result::Map::Body::Planet::Station'))
+        {
+            # all station access is as yourself.
+            $session->current_empire($session->empire);
+        }
+        else
+        {
+            $session->current_empire($session->current_body->empire);
+        }
     }
 
     $session->current_empire($session->empire)
