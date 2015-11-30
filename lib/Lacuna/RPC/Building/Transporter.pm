@@ -28,7 +28,7 @@ around 'view' => sub {
 
 sub push_items {
     my ($self, $session_id, $building_id, $target_id, $items) = @_;
-    my $session  = $self->get_session({session_id => $session_id});
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
