@@ -1,3 +1,6 @@
+3.0917:
+ - Fix: Recalc stats when building 1+x plans.
+
 3.0916:
  - Mod: Jackpot enhanced.
  - Fix: If parliament missing, better error handling.

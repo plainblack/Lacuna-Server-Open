@@ -174,7 +174,9 @@ sub build {
     my $plan = $body->get_plan($building->class, 1);
     if (defined $plan) {
         if ($plan->extra_build_level) {
-            $building->level( $plan->extra_build_level);
+            $building->level($plan->extra_build_level);
+            $body->needs_recalc(1);
+            $body->update;
         }
         $body->delete_one_plan($plan);
     }
