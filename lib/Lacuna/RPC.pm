@@ -201,7 +201,7 @@ sub format_status {
         }
     }
     if (defined $body) {
-        $out{body} = $body->get_status($empire);
+        $out{body} = $body->get_status($empire->current_session->empire);
     }
     return \%out;
 }

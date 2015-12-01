@@ -432,7 +432,7 @@ around get_status => sub {
                         foreign_body_id     => $self->id,
                         direction           => 'out',
                         task                => 'Travelling',
-                        'body.empire_id'    => {'!=' => $self->empire_id},
+                        'body.empire_id'    => {'!=' => $empire->id},
                         'empire.alliance_id'  => $self->empire->alliance_id,
                     },{
                         join                => {body => 'empire'},
@@ -446,7 +446,7 @@ around get_status => sub {
                     foreign_body_id     => $self->id,
                     direction           => 'out',
                     task                => 'Travelling',
-                    'body.empire_id'    => $self->empire_id,
+                    'body.empire_id'    => $empire->id,
                 },{
                     join                => 'body',
                     order_by            => 'date_available',
@@ -459,7 +459,7 @@ around get_status => sub {
                     foreign_body_id     => $self->id,
                     direction           => 'out',
                     task                => 'Travelling',
-                    'body.empire_id'    => {'!=' => $self->empire_id},
+                    'body.empire_id'    => {'!=' => $empire->id},
                 },{
                     join                => {body => 'empire'},
                     order_by            => 'date_available',
