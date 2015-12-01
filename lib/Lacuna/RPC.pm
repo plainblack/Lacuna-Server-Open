@@ -252,7 +252,7 @@ sub format_status {
         }
     }
     if (defined $body) {
-        $out{body} = $body->get_status($empire->current_session->empire);
+        $out{body} = $body->get_status($real_empire);
     }
     return \%out;
 }
