@@ -5,6 +5,26 @@ The Trade Ministry is accessible via the URL C</trade>. It allows you to send ca
 
 The list of methods below represents changes and additions to the methods that all L<Buildings> share.
 
+=head2 view ( session_id, building_id )
+
+ {
+   "building" : { ... },
+   "status" : { ... },
+   "transport" : {
+     "max" : 2500,
+     "pushable" : [
+         "id" : 1234, # body ID
+         "name" : "Planet Name",
+         "x" : -35,
+         "y" : 47,
+         "zone" : "0|0",
+     ]
+   }
+ }
+
+The alphabetical (on name) pushable list will only include planets and stations that this planet
+can push to, even if being sat (correct list of stations for their alliance).
+
 =head2 add_to_market ( session_id, building_id, offer, ask, options )
 
 Queues a trade for others to see. Returns:

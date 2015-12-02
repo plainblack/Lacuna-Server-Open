@@ -21,7 +21,42 @@ around 'view' => sub {
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
-    my $out = $orig->($self, $empire, $building);
+
+    my $out = $orig->($self, $session, $building);
+
+    my $bodies = Lacuna->db->resultset('Map::Body')->
+        search(
+               {
+                   'me.id' => { '!=' => $session->current_body->id },
+                   'me.empire_id' => $empire->id,
+                   # can only push to other SSTs, that are finished building
+                   # and aren't completely broken down.
+                   '_buildings.class' => 'Lacuna::DB::Result::Building::Transporter',
+                   '_buildings.level'      => { '>' => 0 },
+                   '_buildings.efficiency' => { '>' => 0 },
+               },
+               {
+                   join => '_buildings',
+                   order_by => 'me.name',
+                   '+select' => {count => '_buildings.id'},
+                   '+as' => 'count_sst',
+                   group_by => 'me.id',
+                   having => { 'count(_buildings.id)' => { '>' => 0 } }
+               }
+              );
+
+    $out->{transport}{pushable} = [];
+    while (my $body = $bodies->next)
+    {
+        push @{$out->{transport}{pushable}}, {
+            name => $body->name,
+            id   => $body->id,
+            x    => $body->x,
+            y    => $body->y, #,,,
+            zone => $body->zone,
+        };
+    }
+
     $out->{transport}{max} = $building->determine_available_cargo_space;
     return $out;
 };

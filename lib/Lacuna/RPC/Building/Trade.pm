@@ -19,6 +19,40 @@ sub model_class {
     return 'Lacuna::DB::Result::Building::Trade';
 }
 
+around 'view' => sub {
+    my ($orig, $self, $session_id, $building_id) = @_;
+
+    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1 });
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+
+    my $out = $orig->($self, $session, $building);
+
+    my $bodies = Lacuna->db->resultset('Map::Body')->
+        search(
+               {
+                   'me.id' => { '!=' => $session->current_body->id },
+                   -or => [
+                           { 'me.empire_id'        => $empire->id },
+                           { 'me.alliance_id'      => $empire->alliance_id },
+                          ]
+               }, { order_by => 'me.name' }
+              );
+
+    while (my $body = $bodies->next)
+    {
+        push @{$out->{transport}{pushable}}, {
+            name => $body->name,
+            id   => $body->id,
+            x    => $body->x,
+            y    => $body->y, #,,,
+            zone => $body->zone,
+        };
+    }
+
+    return $out;
+};
+
 sub get_trade_ships {
     my ($self, $session_id, $building_id, $target_id) = @_;
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });

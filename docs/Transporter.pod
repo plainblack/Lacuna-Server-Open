@@ -23,9 +23,18 @@ The list of methods below represents changes and additions to the methods that a
    "building" : { ... },
    "status" : { ... },
    "transport" : {
-     "max" : 2500
+     "max" : 2500,
+     "pushable" : [
+         "id" : 1234, # body ID
+         "name" : "Planet Name",
+         "x" : -35,
+         "y" : 47,
+         "zone" : "0|0",
+     ]
    }
  }
+
+The alphabetical (on name) pushable list will only include planets with currently-online Transporters.
 
 
 =head2 add_to_market ( session_id, building_id, offer, ask )
