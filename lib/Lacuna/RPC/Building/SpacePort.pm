@@ -248,6 +248,11 @@ sub find_arrival {
     my $now     = DateTime->now;
     my $year = $arrival_params->{year} ? $arrival_params->{year} : $now->year;
     my $month = $arrival_params->{month} ? $arrival_params->{month} : $now->month;
+
+    if ($month < 1 or 12 < $month) {
+        confess [1002, 'Invalid month'];
+    }
+
     my $mon_end = DateTime->last_day_of_month(year => $year, month => $month);
     my $day     = $arrival_params->{day};
     my $hour    = $arrival_params->{hour};

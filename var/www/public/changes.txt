@@ -1,6 +1,7 @@
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
  - Fix: Station incoming shows your incoming as own, not station owner's incoming.
+ - Fix: Better input validation for fleet.
 
 3.0916:
  - Mod: Jackpot enhanced.
