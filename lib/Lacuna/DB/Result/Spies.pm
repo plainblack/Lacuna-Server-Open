@@ -1971,6 +1971,9 @@ sub steal_planet {
                 $trade->withdraw;
         }
     }
+    # Remove all Excavator outposts from planet
+    Lacuna->db->resultset('Excavators')
+          ->search({planet_id => $self->on_body->id})->delete_all;
     # Remove Supply chains to and from planet
     foreach my $chain ($self->on_body->out_supply_chains) {
         $chain->delete;

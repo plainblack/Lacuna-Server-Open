@@ -2,6 +2,7 @@
  - Fix: Recalc stats when building 1+x plans.
  - Fix: Station incoming shows your incoming as own, not station owner's incoming.
  - Fix: Better input validation for fleet.
+ - Fix: On flip, remove any excavator sites.
 
 3.0916:
  - Mod: Jackpot enhanced.
