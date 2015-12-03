@@ -600,7 +600,7 @@ sub add_excavator {
   Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->new({
     planet_id   => $self->body_id,
     body_id     => $body->id,
-    empire_id   => $self->body->empire->id,
+    empire_id   => $self->body->empire_id,
   })->insert;
   return $self;
 }
