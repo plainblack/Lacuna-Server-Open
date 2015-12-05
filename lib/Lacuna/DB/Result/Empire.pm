@@ -658,7 +658,7 @@ sub get_status {
                 id                => $empire->id,
                 has_new_messages  => $empire->has_new_messages,
                 sitter_expiry     => format_date($empire->sitterauths->first->expiry),
-                provided $empire->highest_embassy, primary_embassy_id => $empire->highest_embassy->id,
+                provided $empire->highest_embassy, primary_embassy_id => $empire->highest_embassy && $empire->highest_embassy->id,
                 maybe alliance_id => $empire->alliance_id,
             };
 
