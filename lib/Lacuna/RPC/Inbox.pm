@@ -17,7 +17,7 @@ use PerlX::Maybe qw(provided);
 
 # options:
 #  * from => false if from real empire is not to be looked at.
-sub message_rs {
+sub messages_rs {
     my ($self, $session, $message_ids, %opts) = @_;
     my $dtf = Lacuna->db->storage->datetime_parser;
     my $now = $dtf->format_datetime(DateTime->now);
@@ -412,7 +412,7 @@ sub view_messages {
         search(
                $where,
                {
-                   order_by    => { -desc => 'date_sent' },
+                   order_by    => [{ -desc => 'date_sent' },'me.id'],
                    rows        => 25,
                    page        => $options->{page_number},
                }
