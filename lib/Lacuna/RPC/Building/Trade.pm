@@ -31,7 +31,8 @@ around 'view' => sub {
     my $bodies = Lacuna->db->resultset('Map::Body')->
         search(
                {
-                   'me.id' => { '!=' => $session->current_body->id },
+                   # if we add this in, mysql gets really confused and slow.
+                   #'me.id' => { '!=' => $session->current_body->id },
                    -or => [
                            { 'me.empire_id'        => $empire->id },
                            { 'me.alliance_id'      => $empire->alliance_id },
@@ -39,16 +40,27 @@ around 'view' => sub {
                }, { order_by => 'me.name' }
               );
 
+    my (@colonies,@stations);
+
     while (my $body = $bodies->next)
     {
-        push @{$out->{transport}{pushable}}, {
+        next if $body->id == $session->current_body->id;
+
+        my $info = {
             name => $body->name,
             id   => $body->id,
             x    => $body->x,
             y    => $body->y, #,,,
             zone => $body->zone,
         };
+        if ($body->get_type eq 'space station') {
+            push @stations, $info;
+        }
+        else {
+            push @colonies, $info;
+        }
     }
+    $out->{transport}{pushable} = [ @colonies, @stations ];
 
     return $out;
 };

@@ -45,18 +45,30 @@ around 'view' => sub {
                }
               );
 
-    $out->{transport}{pushable} = [];
+    # ok, so, technically, stations can't have an SST.  Currently.
+    # but if we have one, and put it in the above, then this
+    # will handle it.  The code is shared with Trade.pm
+    my (@colonies,@stations);
+
     while (my $body = $bodies->next)
     {
-        push @{$out->{transport}{pushable}}, {
+        next if $body->id == $session->current_body->id;
+
+        my $info = {
             name => $body->name,
             id   => $body->id,
             x    => $body->x,
             y    => $body->y, #,,,
             zone => $body->zone,
         };
+        if ($body->get_type eq 'space station') {
+            push @stations, $info;
+        }
+        else {
+            push @colonies, $info;
+        }
     }
-
+    $out->{transport}{pushable} = [ @colonies, @stations ];
     $out->{transport}{max} = $building->determine_available_cargo_space;
     return $out;
 };
