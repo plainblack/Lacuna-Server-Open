@@ -688,7 +688,7 @@ sub get_status {
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
         maybe alliance_id   => $self->alliance_id,
-        maybe primary_embassy_id  => $empire->highest_embassy && $self->highest_embassy->id,
+        maybe primary_embassy_id  => $self->highest_embassy && $self->highest_embassy->id,
     };
     return $status;
 }
