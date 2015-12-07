@@ -34,8 +34,8 @@ around 'view' => sub {
                    # if we add this in, mysql gets really confused and slow.
                    #'me.id' => { '!=' => $session->current_body->id },
                    -or => [
-                           { 'me.empire_id'        => $empire->id },
-                           { 'me.alliance_id'      => $empire->alliance_id },
+                           {  'me.empire_id'   => $empire->id },
+                           ({ 'me.alliance_id' => $empire->alliance_id }) x!! $empire->alliance_id,
                           ]
                }, { order_by => 'me.name' }
               );
