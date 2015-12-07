@@ -51,6 +51,11 @@ The unique id of the entertainment district.
 
 Returns a string that must retain its formatting (whitespace and carriage returns) when displayed to the user.
 
+ {
+    "quack" : "quack text",
+    "status" : { ... }
+ }
+
 =head3 session_id
 
 A session id.

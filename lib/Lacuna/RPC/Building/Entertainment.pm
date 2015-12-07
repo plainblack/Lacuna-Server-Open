@@ -78,7 +78,10 @@ sub duck_quack {
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     Lacuna->cache->increment('ducks', 'quacked', 1, 60 * 60 * 24);
-    return $quacks[ rand @quacks ];
+    return {
+        status => $self->format_status($session, $building->body),
+        quack  => $quacks[ rand @quacks ],
+    };
 }
 
 __PACKAGE__->register_rpc_method_names(qw(duck_quack get_lottery_voting_options));
