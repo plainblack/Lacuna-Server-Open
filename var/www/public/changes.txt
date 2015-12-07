@@ -4,6 +4,7 @@
  - Fix: Better input validation for fleet.
  - Fix: On flip, remove any excavator sites.
  - UI : SST list only shows valid SST targets.
+ - Fix: Duck quacking now shows RPC updates in UI. (API change.)
 
 3.0916:
  - Mod: Jackpot enhanced.
