@@ -45,7 +45,7 @@ sub subsidize_build_queue {
     $empire->update;
     $building->subsidize_build_queue;
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         essentia_spent  => $subsidy,
     };
 }
@@ -85,7 +85,7 @@ sub subsidize_one_build {
     $building->subsidize_build_queue($scheduled_building);
 
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         essentia_spent  => $subsidy,
     };
 }

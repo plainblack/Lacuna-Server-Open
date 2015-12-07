@@ -75,7 +75,7 @@ sub read_message {
             tags        => [$message->tag],
             attachments => $message->attachments,
         },
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     };
 }
 
@@ -101,7 +101,7 @@ sub archive_messages {
         $empire->recalc_messages;
     }
 
-    return { success=>\@updating, status=>$self->format_status($empire) };
+    return { success=>\@updating, status=>$self->format_status($session) };
 }
 
 sub trash_messages {
@@ -126,7 +126,7 @@ sub trash_messages {
         $empire->recalc_messages;
     }
 
-    return { success=>\@updating, status=>$self->format_status($empire) };
+    return { success=>\@updating, status=>$self->format_status($session) };
 }
 
 sub trash_messages_where {
@@ -228,7 +228,7 @@ sub trash_messages_where {
 
     $empire->recalc_messages if $return{deleted_count};
 
-    $return{status} = $self->format_status($empire);
+    $return{status} = $self->format_status($session);
     return \%return;
 }
 
@@ -314,7 +314,7 @@ sub send_message {
             sent    => \@sent,
             unknown => \@unknown,
         },
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     };
 }
 
@@ -348,7 +348,7 @@ sub view_inbox {
         #    delete $options->{tags} unless @{$options->{tags}};
         #}
     }
-    return $self->view_messages($where, $empire, $options, @_);
+    return $self->view_messages($where, $session, $empire, $options, @_);
 }
 
 sub view_archived {
@@ -361,7 +361,7 @@ sub view_archived {
         has_trashed     => 0,
         to_id           => $empire->id,
     };
-    return $self->view_messages($where, $empire, @_);
+    return $self->view_messages($where, $session, $empire, @_);
 }
 
 sub view_trashed {
@@ -374,7 +374,7 @@ sub view_trashed {
         has_trashed     => 1,
         to_id           => $empire->id,
     };
-    return $self->view_messages($where, $empire, @_);
+    return $self->view_messages($where, $session, $empire, @_);
 }
 
 sub view_sent {
@@ -386,7 +386,7 @@ sub view_sent {
         from_id         => $empire->id,
         to_id           => {'!=' => $empire->id},
     };
-    return $self->view_messages($where, $empire, @_);
+    return $self->view_messages($where, $session, $empire, @_);
 }
 
 sub view_unread {
@@ -399,11 +399,11 @@ sub view_unread {
         has_read        => 0,
         to_id           => $empire->id,
     };
-    return $self->view_messages($where, $empire, @_);
+    return $self->view_messages($where, $session, $empire, @_);
 }
 
 sub view_messages {
-    my ($self, $where, $empire, $options) = @_;
+    my ($self, $where, $session, $empire, $options) = @_;
     $options->{page_number} ||= 1;
     if ($options->{tags}) {
         $where->{tag} = ['in',$options->{tags}];
@@ -436,7 +436,7 @@ sub view_messages {
     return {
         messages        => \@box,
         message_count   => $messages->pager->total_entries,
-        status          => $self->format_status($empire),
+        status          => $self->format_status($session),
     };
 }
 
