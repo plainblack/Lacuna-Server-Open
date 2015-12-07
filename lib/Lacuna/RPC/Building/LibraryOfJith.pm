@@ -30,7 +30,7 @@ sub research_species {
     $building->start_work({}, 15 + ((60 * 60) * ((30-$building->effective_level)/30)));
 
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
         species => {
             name                    => $view_empire->species_name,
             description             => $view_empire->species_description,

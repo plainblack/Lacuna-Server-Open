@@ -41,7 +41,7 @@ sub view_planet {
         };
     }
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
         map     => {
             surface_image   => $planet->surface,
             buildings       => \@map
@@ -78,7 +78,7 @@ sub list_planets {
     }
     
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
         planets => \@planets,
     };
 }

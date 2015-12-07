@@ -37,7 +37,7 @@ sub view_foreign_spies {
         };
     }
     return {
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($session, $building->body),
         spies                   => \@out,
         spy_count               => $spies->pager->total_entries,
     };
@@ -65,7 +65,7 @@ sub execute_prisoner {
     );
     $prisoner->delete;
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
     }
 }
 
@@ -91,7 +91,7 @@ sub release_prisoner {
         params      => [$empire->id, $empire->name, $body->x, $body->y, $body->name, $prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name],
     );
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
     }
 }
 
@@ -120,7 +120,7 @@ sub view_prisoners {
         };
     }
     return {
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($session, $building->body),
         prisoners               => \@out,
         captured_count          => $spies->pager->total_entries,
     };
@@ -140,7 +140,7 @@ sub view_ships_travelling {
         push @travelling, $ship->get_status;
     }
     return {
-        status                      => $self->format_status($empire, $body),
+        status                      => $self->format_status($session, $body),
         number_of_ships_travelling  => $ships->pager->total_entries,
         ships_travelling            => \@travelling,
     };
@@ -190,7 +190,7 @@ sub view_foreign_ships {
         }
     }
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };
@@ -238,7 +238,7 @@ sub view_ships_orbiting {
             push @fleet, \%ship_info;
     }
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };

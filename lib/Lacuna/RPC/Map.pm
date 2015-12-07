@@ -19,7 +19,7 @@ sub check_star_for_incoming_probe {
         $date = $incoming->date_available_formatted;
     }
     return {
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
         incoming_probe  => $date,
     };
 }
@@ -58,7 +58,7 @@ sub get_star_map {
     my $alliance_id = $empire->alliance_id || 0;
 
     my $out = Lacuna->db->resultset('Map::StarLite')->get_star_map( $alliance_id, $empire->id, $args->{left}, $args->{right}, $args->{bottom}, $args->{top} );
-    $out->{status} = $self->format_status($empire);
+    $out->{status} = $self->format_status($session);
 
     return $out;
 }
@@ -78,7 +78,7 @@ sub get_stars {
     while (my $star = $stars->next) {
         push @out, $star->get_status($empire);
     }
-    return { stars=>\@out, status=>$self->format_status($empire) };
+    return { stars=>\@out, status=>$self->format_status($session) };
 }
 
 sub get_star {
@@ -89,7 +89,7 @@ sub get_star {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
+    return { star=>$star->get_status($empire), status=>$self->format_status($session) };
 }
 
 sub get_star_by_name {
@@ -100,7 +100,7 @@ sub get_star_by_name {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
+    return { star=>$star->get_status($empire), status=>$self->format_status($session) };
 }
 
 sub get_star_by_xy {
@@ -111,7 +111,7 @@ sub get_star_by_xy {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$self->format_status($empire) };
+    return { star=>$star->get_status($empire), status=>$self->format_status($session) };
 }
 
 sub search_stars {
@@ -126,7 +126,7 @@ sub search_stars {
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }
-    return { stars => \@out , status => $self->format_status($empire) };
+    return { stars => \@out , status => $self->format_status($session) };
 }
 
 sub probe_summary_fissures {
@@ -183,7 +183,7 @@ sub view_laws {
         }
         return {
             star            => $star->get_status($empire),
-            status          => $self->format_status($empire, $station),
+            status          => $self->format_status($session, $station),
             laws            => \@out,
         };
     }
@@ -192,7 +192,7 @@ sub view_laws {
         if ($star) {
             $output->{star} = $star->get_status($empire);
         }
-        $output->{status} = $self->format_status($empire);
+        $output->{status} = $self->format_status($session);
         $output->{laws} = [ { name => "Not controlled by a station",
                               descripition => "Not controlled by a station",
                               date_enacted => "00 00 0000 00:00:00 +0000",

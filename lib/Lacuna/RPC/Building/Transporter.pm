@@ -110,7 +110,7 @@ sub push_items {
     });
     $empire->update; # has to go after due to validation in push_goods
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -138,7 +138,7 @@ sub add_to_market {
     $empire->update;
     return {
         trade_id    => $trade->id,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -160,7 +160,7 @@ sub withdraw_from_market {
     }
     $trade->withdraw($building->body);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -224,7 +224,7 @@ sub accept_from_market {
     $body->update;
     $trade->body->update;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -237,7 +237,7 @@ sub trade_one_for_one {
     confess [1013, 'You cannot use a transporter that has not yet been built.'] unless $building->effective_level > 0;
     $building->trade_one_for_one($have, $want, $quantity);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 

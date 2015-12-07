@@ -25,7 +25,7 @@ sub get_star {
     unless ($building->body->calculate_distance_to_target($star) < $building->range) {
         confess [1009, 'That star is too far away.'];
     }
-    return { star=>$star->get_status($empire, 1), status=>$self->format_status($empire, $building->body) };
+    return { star=>$star->get_status($empire, 1), status=>$self->format_status($session, $building->body) };
 }
 
 sub get_probed_stars {
@@ -50,7 +50,7 @@ sub get_probed_stars {
     return {
         stars           => \@stars,
         star_count      => $probes->pager->total_entries,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         max_distance    => $building->level * 10,
     };
 }

@@ -31,7 +31,7 @@ sub abandon_probe {
         $probe->delete;
     }
     $empire->clear_probed_stars;
-    return {status => $self->format_status($empire, $building->body)};
+    return {status => $self->format_status($session, $building->body)};
 }
 
 sub abandon_all_probes {
@@ -41,7 +41,7 @@ sub abandon_all_probes {
     my $building = $session->current_building;
     $building->probes->delete;
     $empire->clear_probed_stars;
-    return {status => $self->format_status($empire, $building->body)};
+    return {status => $self->format_status($session, $building->body)};
 }
 
 sub get_probed_stars {
@@ -59,7 +59,7 @@ sub get_probed_stars {
     return {
         stars       => \@stars,
         star_count  => $probes->pager->total_entries,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         max_probes  => $building->max_probes,
         travelling  => $travelling,
     };

@@ -43,7 +43,7 @@ sub get_glyphs {
     }
     return {
         glyphs  => \@out,
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -66,7 +66,7 @@ sub get_glyph_summary {
 
     return {
         glyphs  => \@out,
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -77,7 +77,7 @@ sub get_ores_available_for_processing {
     my $building = $session->current_building;
     return {
         ore                 => $building->get_ores_available_for_processing,
-        status              => $self->format_status($empire, $building->body),
+        status              => $self->format_status($session, $building->body),
     };
 }
 
@@ -107,7 +107,7 @@ sub assemble_glyphs {
     return {
         item_name           => $plan->class->name,
         quantity            => $quantity,
-        status              => $self->format_status($empire, $building->body),
+        status              => $self->format_status($session, $building->body),
     };
 }
 
@@ -183,7 +183,7 @@ sub view_excavators {
         excavators       => \@sites,
         max_excavators   => $building->max_excavators,
         travelling       => $travel,
-        status           => $self->format_status($empire, $building->body),
+        status           => $self->format_status($session, $building->body),
     };
 }
 
@@ -201,7 +201,7 @@ sub abandon_excavator {
     }
     $building->remove_excavator($site);
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -212,7 +212,7 @@ sub mass_abandon_excavator {
     my $building = $session->current_building;
     $building->excavators->delete;
 	return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     }; 
 }
 

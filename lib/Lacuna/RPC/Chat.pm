@@ -100,7 +100,7 @@ sub init_chat {
         rating  => 'g',
 	);
     my $ret = {
-        status          => $self->format_status($empire),
+        status          => $self->format_status($session),
         gravatar_url    => $gravatar_url,
         chat_name       => $chat_name,
         chat_auth       => $chat_auth->create_token,

@@ -48,7 +48,7 @@ sub rename_empire {
     $cache->set('rename_empire_lock', $empire->id, 1, 60 * 60 * 24);
 
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 

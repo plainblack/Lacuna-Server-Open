@@ -32,7 +32,7 @@ sub find {
         $limit--;
         last unless $limit;
     }
-    return { empires => \@list_of_empires, status => $self->format_status($empire) };
+    return { empires => \@list_of_empires, status => $self->format_status($session) };
 }
 
 sub is_name_available {
@@ -142,9 +142,11 @@ sub login {
         )->create_token;
     }
 
+    my $session = $empire->start_session(\%session_params);
+
     return {
-        session_id  => $empire->start_session(\%session_params)->id,
-        status      => $self->format_status($empire),
+        session_id  => $session->id,
+        status      => $self->format_status($session),
     };
 
 }
@@ -174,7 +176,7 @@ sub benchmark {
     $out{validation} = Time::HiRes::tv_interval($t);
 
     $t = [Time::HiRes::gettimeofday];
-    $empire->start_session({ api_key => $api_key, request => $plack_request });
+    my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
     $out{session} = Time::HiRes::tv_interval($t);
 
     $t = [Time::HiRes::gettimeofday];
@@ -190,7 +192,7 @@ sub benchmark {
     $out{pcc} = Time::HiRes::tv_interval($t);
  
     $t = [Time::HiRes::gettimeofday];
-    $self->format_status($empire, $home);
+    $self->format_status($session, $home);
     $out{status} = Time::HiRes::tv_interval($t);
  
     return \%out;
@@ -231,7 +233,7 @@ sub change_password {
     
     $empire->password($empire->encrypt_password($password1));
     $empire->update;
-    return { status => $self->format_status($empire) };
+    return { status => $self->format_status($session) };
 }
 
 
@@ -289,7 +291,8 @@ sub reset_password {
     $empire->update;
     
     # authenticate
-    return { session_id => $empire->start_session({ api_key => $api_key, request => $plack_request })->id, status => $self->format_status($empire) };
+    my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
+    return { session_id => $session->id, status => $self->format_status($session) };
 }
 
 sub create {
@@ -399,9 +402,10 @@ sub found {
     $empire->attach_invite_code($invite_code);
     
     my $welcome = $empire->found;
+    my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
     return {
-        session_id          => $empire->start_session({ api_key => $api_key, request => $plack_request })->id,
-        status              => $self->format_status($empire),
+        session_id          => $session->id,
+        status              => $self->format_status($session),
         welcome_message_id  => $welcome->id,
     };
 }
@@ -460,7 +464,7 @@ sub view_profile {
         skip_incoming_ships     => $empire->skip_incoming_ships,
     );
 
-    return { profile => \%out, status => $self->format_status($empire) };    
+    return { profile => \%out, status => $self->format_status($session) };    
 }
 
 sub edit_profile {
@@ -677,7 +681,7 @@ sub set_status_message {
     my $empire   = $session->current_empire;
     $empire->status_message($message);
     $empire->update;
-    return $self->format_status($empire);
+    return $self->format_status($session);
 }
 
 sub view_public_profile {
@@ -739,7 +743,7 @@ sub view_public_profile {
     }
     $out{known_colonies} = \@colonies;
 
-    return { profile => \%out, status => $self->format_status($viewer_empire) };
+    return { profile => \%out, status => $self->format_status($session) };
 }
 
 sub boost_ore {
@@ -805,7 +809,7 @@ sub boost {
     $empire->$type($start);
     $empire->update;
     return {
-        status => $self->format_status($empire),
+        status => $self->format_status($session),
         $type => format_date($empire->$type),
     };
 }
@@ -815,7 +819,7 @@ sub view_boosts {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     return {
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
         boosts  => {
             food         => format_date($empire->food_boost),
             happiness    => format_date($empire->happiness_boost),
@@ -837,7 +841,7 @@ sub enable_self_destruct {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
     $empire->enable_self_destruct;
-    return { status => $self->format_status($empire) };
+    return { status => $self->format_status($session) };
 }
 
 sub disable_self_destruct {
@@ -848,7 +852,7 @@ sub disable_self_destruct {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
     $empire->disable_self_destruct;
-    return { status => $self->format_status($empire) };
+    return { status => $self->format_status($session) };
 }
 
 sub redeem_essentia_code {
@@ -856,7 +860,7 @@ sub redeem_essentia_code {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $amount = $empire->redeem_essentia_code($code);
-    return { amount => $amount, status => $self->format_status($empire) };
+    return { amount => $amount, status => $self->format_status($session) };
 }
 
 sub get_invite_friend_url {
@@ -865,7 +869,7 @@ sub get_invite_friend_url {
     my $empire   = $session->current_empire;
     return {
         referral_url    => $empire->get_invite_friend_url,
-        status          => $self->format_status($empire),
+        status          => $self->format_status($session),
     };
 }
 
@@ -897,7 +901,7 @@ sub invite_friend {
     else {
         confess [1009, 'Could not read the address(es) entered. Perhaps you formatted something incorrectly?', $addresses];
     }
-    return { status => $self->format_status($empire), sent => \@sent, not_sent => \@not_sent };
+    return { status => $self->format_status($session), sent => \@sent, not_sent => \@not_sent };
 }
 
 sub vet_species {
@@ -950,7 +954,7 @@ sub redefine_species_limits {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $out = $empire->determine_species_limits($empire);
-    $out->{status} = $self->format_status($empire);
+    $out->{status} = $self->format_status($session);
     return $out;
 }
 
@@ -988,7 +992,7 @@ sub redefine_species {
     $empire->planets->update({needs_recalc=>1});
     
     return {
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     };
 }
 

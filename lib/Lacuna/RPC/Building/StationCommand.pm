@@ -47,7 +47,7 @@ sub view_plans {
     }
 
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
         plans   => \@out,
     }
 }

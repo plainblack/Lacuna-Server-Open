@@ -20,7 +20,7 @@ sub transmit_food {
     my $building = $session->current_building;
     $building->transmit_food;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -38,7 +38,7 @@ sub transmit_energy {
     my $building = $session->current_building;
     $building->transmit_energy;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -56,7 +56,7 @@ sub transmit_ore {
     my $building = $session->current_building;
     $building->transmit_ore;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -74,7 +74,7 @@ sub transmit_water {
     my $building = $session->current_building;
     $building->transmit_water;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,
@@ -92,7 +92,7 @@ sub complete_build_queue {
     my $building = $session->current_building;
     $building->complete_build_queue;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         building                    => {
             work        => {
                 seconds_remaining   => $building->work_seconds_remaining,

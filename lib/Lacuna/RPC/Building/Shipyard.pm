@@ -38,7 +38,7 @@ sub view_build_queue {
     }
     my $number_of_ships = $ships->pager->total_entries;
     return {
-        status                      => $self->format_status($empire, $body),
+        status                      => $self->format_status($session, $body),
         number_of_ships_building    => $number_of_ships,
         ships_building              => \@building,
         cost_to_subsidize           => $number_of_ships,
@@ -114,7 +114,7 @@ sub delete_build {
     }
 
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         cancelled_count => $cancelled_count,
     };
 }
@@ -331,7 +331,7 @@ sub build_ships {
     #}
 
     #return $self->view_build_queue($session, $building_view);
-    Lacuna::RPC::Body->new->get_buildings($empire, $body);
+    Lacuna::RPC::Body->new->get_buildings($session, $body);
 }
 
 
@@ -379,7 +379,7 @@ sub get_buildable {
         docks_available => $docks,
         build_queue_max => $max_ships,
         build_queue_used => $total_ships_building,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         };
 }
 

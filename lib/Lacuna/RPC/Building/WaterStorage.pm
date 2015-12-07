@@ -25,7 +25,7 @@ sub dump {
     $body->add_type('waste', $amount);
     $body->update;
     return {
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
         };
 }
 

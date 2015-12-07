@@ -18,7 +18,7 @@ sub get_status {
     my $session = $self->get_session({session_id => $session_id, body_id => $body_id});
     my $empire = $session->current_empire;
     my $body =   $session->current_body;
-    return $self->format_status($empire, $body);
+    return $self->format_status($session, $body);
 }
 
 sub get_body_status {
@@ -31,7 +31,7 @@ sub get_body_status {
 
     return {
         body    => $body->get_status,
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     };
 }
 
@@ -54,7 +54,7 @@ sub abandon {
     }
     $body->abandon;
     $empire->add_medal('abandoned_colony');
-    return $self->format_status($empire);
+    return $self->format_status($session);
 }
 
 sub rename {
@@ -135,7 +135,7 @@ sub get_buildings {
         }
     }
     
-    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($empire, $body)};
+    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($session, $body)};
 }
 
 sub repair_list {
@@ -188,7 +188,7 @@ sub repair_list {
     }
     return {
         buildings=>\%out,
-        status=>$self->format_status($empire, $body)
+        status=>$self->format_status($session, $body)
     };
 }
 
@@ -292,7 +292,7 @@ sub rearrange_buildings {
   }
   return { moved => \@moved,
            body => {surface_image => $body->surface},
-           status => $self->format_status($empire, $body)};
+           status => $self->format_status($session, $body)};
 }
 
 sub check_positions {
@@ -523,7 +523,7 @@ sub get_buildable {
         }
     }
 
-    return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($empire, $body)};
+    return {buildable=>\%out, build_queue => { max => $max_items_in_build_queue, current => $items_in_build_queue}, status=>$self->format_status($session, $body)};
 }
 
 sub get_buildable_locations {
@@ -536,7 +536,7 @@ sub get_buildable_locations {
     $args{size} = $opts->{size} if $opts->{size} and $opts->{size} ~~ [1,4,9];
 
     return {
-        status => $self->format_status($empire, $body),
+        status => $self->format_status($session, $body),
         unoccupied => $body->find_free_spaces(\%args),
     }
 }
@@ -554,13 +554,13 @@ sub view_laws {
             push @out, $law->get_status($empire);
         }
         return {
-            status          => $self->format_status($empire, $body),
+            status          => $self->format_status($session, $body),
             laws            => \@out,
         };
     }
     else {
         return {
-            status => $self->format_status($empire, $body),
+            status => $self->format_status($session, $body),
             laws   => [ { name => "Not a Station",
                           descripition => "Not a Station",
                           date_enacted => "00 00 0000 00:00:00 +0000",
@@ -585,7 +585,7 @@ sub set_colony_notes
     $body->update;
 
     return {
-        status => $self->format_status($empire, $body),
+        status => $self->format_status($session, $body),
     };
 }
 

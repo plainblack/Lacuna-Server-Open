@@ -20,7 +20,7 @@ sub prepare_experiment {
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         survival_odds   => $building->survival_odds,
         graft_odds      => $building->graft_odds,
         grafts          => $building->get_possible_grafts,

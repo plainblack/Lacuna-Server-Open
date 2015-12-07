@@ -46,7 +46,7 @@ sub view_spies {
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
         spies                   => \@spies,
         possible_assignments    => \@assignments,
         spy_count               => $spy_list->pager->total_entries,
@@ -76,7 +76,7 @@ sub view_all_spies {
     }
     my @assignments = Lacuna::DB::Result::Spies->assignments;
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
         spies                   => \@spies,
         possible_assignments    => \@assignments,
         spy_count               => scalar @spies,
@@ -107,7 +107,7 @@ sub view_all_spies {
 #     }
 #     my @assignments = Lacuna::DB::Result::Spies->assignments;
 #     return {
-#         status                  => $self->format_status($empire, $body),
+#         status                  => $self->format_status($session, $body),
 #         spies                   => \@spies,
 #         possible_assignments    => \@assignments,
 #         spy_count               => scalar @spies,
@@ -165,7 +165,7 @@ sub assign_spy {
     }
     my $mission = $spy->assign($assignment);
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
         mission => $mission,
         spy     => $spy->get_status,
     };
@@ -191,7 +191,7 @@ sub burn_spy {
     }
     $spy->burn;
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -233,7 +233,7 @@ sub train_spy {
         }
     }
     my $ret = {
-        status  => $self->format_status($empire, $body),
+        status  => $self->format_status($session, $body),
         trained => $trained,
         not_trained => $quantity - $trained,
         building                    => {
@@ -278,7 +278,7 @@ sub name_spy {
     $spy->name($name);
     $spy->update;
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
     
 }

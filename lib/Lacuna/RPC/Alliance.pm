@@ -28,7 +28,7 @@ sub find {
         $limit--;
         last unless $limit;
     }
-    return { alliances => \@list_of_alliances, status => $self->format_status($empire) };
+    return { alliances => \@list_of_alliances, status => $self->format_status($session) };
 }
 
 
@@ -71,7 +71,7 @@ sub view_profile {
         space_stations  => \@stations_list,
         influence       => $influence,
     );
-    return { profile => \%out, status => $self->format_status($empire) };
+    return { profile => \%out, status => $self->format_status($session) };
 }
 
 

@@ -49,7 +49,7 @@ sub view_news {
     return {
         news    => \@stories,
         feeds   => \%feeds,
-        status  => $self->format_status($empire, $body),
+        status  => $self->format_status($session, $body),
     };
 }
 
@@ -75,7 +75,7 @@ sub restrict_coverage {
     $body->restrict_coverage($onoff);
     $body->update;
     return {
-        status  => $self->format_status($empire, $body),
+        status  => $self->format_status($session, $body),
     };
 }
 

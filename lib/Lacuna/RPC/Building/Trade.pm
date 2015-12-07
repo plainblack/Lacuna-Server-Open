@@ -78,7 +78,7 @@ sub get_trade_ships {
         push @ships, $ship->get_status($target);
     }
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         ships       => \@ships,
     };
 }
@@ -114,7 +114,7 @@ sub add_supply_ship_to_fleet {
     }
     $building->add_supply_ship($ship);
     return {
-        status  =>$self->format_status($empire, $building->body),
+        status  =>$self->format_status($session, $building->body),
     };
 }
 
@@ -149,7 +149,7 @@ sub add_waste_ship_to_fleet {
     }
     $building->add_waste_ship($ship);
     return {
-        status  =>$self->format_status($empire, $building->body),
+        status  =>$self->format_status($session, $building->body),
     };
 }
 
@@ -182,7 +182,7 @@ sub remove_supply_ship_from_fleet {
         $ship->land->update;
     }
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -215,7 +215,7 @@ sub remove_waste_ship_from_fleet {
         $ship->land->update;
     }
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -232,7 +232,7 @@ sub get_supply_ships {
         push @ships, $ship->get_status;
     }
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         ships       => \@ships,
     };
 }
@@ -251,7 +251,7 @@ sub get_waste_ships {
         push @ships, $ship->get_status($target);
     }
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         ships       => \@ships,
     };
 }
@@ -272,7 +272,7 @@ sub view_supply_chains {
         push @supply_chains, $chain->get_status;
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         supply_chains  => \@supply_chains,
         max_supply_chains => $max_chains,
     };
@@ -290,7 +290,7 @@ sub view_waste_chains {
         push @waste_chains, $waste_push->get_status;
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         waste_chain     => \@waste_chains,
     };
 }
@@ -470,7 +470,7 @@ sub push_items {
     }
     my $ship = $building->push_items($target, $items, $options);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         ship        => $ship->get_status,
     };
 }
@@ -493,7 +493,7 @@ sub withdraw_from_market {
     }
     $trade->withdraw($building->body);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -558,7 +558,7 @@ sub accept_from_market {
     $trade->delete;
 
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -578,7 +578,7 @@ sub add_to_market {
     my $trade = $building->add_to_market($offer, $ask, $options);
     return {
         trade_id    => $trade->id,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 

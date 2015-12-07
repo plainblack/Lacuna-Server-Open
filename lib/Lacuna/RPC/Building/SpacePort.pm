@@ -94,7 +94,7 @@ sub get_fleet_for {
         push @$summary, $summation;
     }
     my %out = (
-        status  => $self->format_status($empire, $body),
+        status  => $self->format_status($session, $body),
         ships   => $summary,
     );
     return \%out;
@@ -156,7 +156,7 @@ sub get_ships_for {
     my $max_ships = Lacuna->config->get('ships_per_fleet') || 600;
 
     my %out = (
-        status              => $self->format_status($empire, $body),
+        status              => $self->format_status($session, $body),
         incoming            => \@incoming,
         available           => \@available,
         unavailable         => \@unavailable,
@@ -238,7 +238,7 @@ sub send_ship {
     $body->add_to_neutral_entry($ship->combat);
     return {
         ship    => $ship->get_status,
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     }
 }
 
@@ -549,7 +549,7 @@ sub send_fleet {
   }
   return {
       fleet  => \@ret,
-      status  => $self->format_status($empire),
+      status  => $self->format_status($session),
   };
 }
 
@@ -579,7 +579,7 @@ sub recall_ship {
     $ship->body->update;
     return {
         ship    => $ship->get_status,
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     }
 }
 
@@ -614,7 +614,7 @@ sub recall_all {
     }
     return {
     ships  => \@ret,
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
     }
 }
 
@@ -688,7 +688,7 @@ sub prepare_send_spies {
     undef $spies;
 
     return {
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
         ships   => \@ships,
         spies   => \@spies,
     };
@@ -775,7 +775,7 @@ sub send_spies {
         ship            => $ship->get_status,
         spies_sent      => \@ids_sent,
         spies_not_sent  => \@ids_not_sent,
-        status          => $self->format_status($empire, $on_body)
+        status          => $self->format_status($session, $on_body)
     };
 }
 
@@ -836,7 +836,7 @@ sub prepare_fetch_spies {
     undef $spies;
     
     return {
-        status  => $self->format_status($empire),
+        status  => $self->format_status($session),
         ships   => \@ships,
         spies   => \@spies,
     };
@@ -907,7 +907,7 @@ sub fetch_spies {
         ship    => $ship->get_status,
         spies_fetched      => \@ids_fetched,
         spies_not_fetched  => \@ids_not_fetched,
-        status  => $self->format_status($empire, $to_body),
+        status  => $self->format_status($session, $to_body),
     };
 }
 
@@ -927,7 +927,7 @@ sub view_ships_travelling {
         push @travelling, $ship->get_status;
     }
     return {
-        status                      => $self->format_status($empire, $body),
+        status                      => $self->format_status($session, $body),
         number_of_ships_travelling  => $ships->pager->total_entries,
         ships_travelling            => \@travelling,
     };
@@ -1049,7 +1049,7 @@ sub view_all_ships {
     }
 
     return {
-        status                      => $self->format_status($empire, $body),
+        status                      => $self->format_status($session, $body),
         number_of_ships             => defined $paging->{page_number} ? $ships->pager->total_entries : $ships->count,
         ships                       => \@fleet,
     };
@@ -1103,7 +1103,7 @@ sub view_foreign_ships {
         }
     }
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };
@@ -1153,7 +1153,7 @@ sub view_ships_orbiting {
             push @fleet, \%ship_info;
     }
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };
@@ -1204,7 +1204,7 @@ sub _view_ships {
         }
     }
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
         number_of_ships             => $ships->pager->total_entries,
         ships                       => \@fleet,
     };
@@ -1230,7 +1230,7 @@ sub name_ship {
     $ship->name($name);
     $ship->update;
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
     };
 }
 
@@ -1251,7 +1251,7 @@ sub scuttle_ship {
     }
     $ship->delete;
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
     };    
 }
 
@@ -1274,7 +1274,7 @@ sub mass_scuttle_ship {
     )->delete;
 
     return {
-        status                      => $self->format_status($empire, $building->body),
+        status                      => $self->format_status($session, $building->body),
     };    
 }
 
@@ -1309,7 +1309,7 @@ sub view_battle_logs {
         };
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         number_of_logs  => $battle_logs->pager->total_entries,
         battle_log      => \@logs,
     };

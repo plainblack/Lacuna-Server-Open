@@ -13,7 +13,7 @@ sub get_token {
     my $empire   = $session->current_empire;
     my $firebase_secret = Lacuna->config->get('firebase/secret');
     unless ($firebase_secret) {
-        return { token => '', status => $self->format_status($empire)};
+        return { token => '', status => $self->format_status($session)};
     }
     my $token_generator = WWW::Firebase::TokenGenerator->new({
         secret  => $firebase_secret,
@@ -28,7 +28,7 @@ sub get_token {
         alliance_name   => $empire->alliance_id ? $empire->alliance->name : '',
     });
 
-    return { token => $token, status => $self->format_status($empire)};
+    return { token => $token, status => $self->format_status($session)};
 }
 
 __PACKAGE__->register_rpc_method_names(

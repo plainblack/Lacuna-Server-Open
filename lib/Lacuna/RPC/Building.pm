@@ -66,7 +66,7 @@ sub upgrade {
     # The cache needs clearing so the build queue length can be set properly
     $body->clear_building_cache;
     return {
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
         building    => {
             id              => $building->id,
             level           => $building->level,
@@ -198,7 +198,7 @@ sub build {
     $body->clear_building_count;
     # show the user
     my %out = (
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
         building    => {
             id              => $building->id,
             level           => $building->level,
@@ -245,7 +245,7 @@ sub demolish {
     $building->demolish;
     $body->tick;
     return {
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
     };
 }
 
@@ -315,7 +315,7 @@ sub get_stats_for_level {
                 image           => $image_after_upgrade,
             },
         },
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 

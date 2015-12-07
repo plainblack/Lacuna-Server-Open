@@ -37,7 +37,7 @@ sub view_ships {
     }
     return {
         ships           => \@fleet,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -78,7 +78,7 @@ sub view_platforms {
     return {
         platforms       => \@fleet,
         max_platforms   => $building->max_platforms,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -96,7 +96,7 @@ sub abandon_platform {
     }
     $building->remove_platform($platform);
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 
@@ -107,7 +107,7 @@ sub mass_abandon_platform {
     my $building = $session->current_building;
     $building->platforms->delete;
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     }; 
 }
 
@@ -134,7 +134,7 @@ sub add_cargo_ship_to_fleet {
     }
     $building->add_ship($ship);
     return {
-        status  =>$self->format_status($empire, $building->body),
+        status  =>$self->format_status($session, $building->body),
     };
 }
 
@@ -165,7 +165,7 @@ sub remove_cargo_ship_from_fleet {
         $ship->land->update;
     }
     return {
-        status  => $self->format_status($empire, $building->body),
+        status  => $self->format_status($session, $building->body),
     };
 }
 

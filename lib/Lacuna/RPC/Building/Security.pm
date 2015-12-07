@@ -37,7 +37,7 @@ sub view_foreign_spies {
         };
     }
     return {
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($session, $building->body),
         spies                   => \@out,
         spy_count               => $spies->pager->total_entries,
     };
@@ -66,7 +66,7 @@ sub execute_prisoner {
     );
     $prisoner->delete;
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
     }
 }
 
@@ -92,7 +92,7 @@ sub release_prisoner {
         params      => [$empire->id, $empire->name, $body->x, $body->y, $body->name, $prisoner->name, $prisoner->from_body->id, $prisoner->from_body->name],
     );
     return {
-        status                  => $self->format_status($empire, $body),
+        status                  => $self->format_status($session, $body),
     }
 }
 
@@ -121,7 +121,7 @@ sub view_prisoners {
         };
     }
     return {
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($session, $building->body),
         prisoners               => \@out,
         captured_count          => $spies->pager->total_entries,
     };

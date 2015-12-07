@@ -42,7 +42,7 @@ sub assign_alliance_leader {
     }
     $building->assign_alliance_leader($new_leader);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         alliance        => $building->alliance->get_status,
     };
 }
@@ -54,7 +54,7 @@ sub create_alliance {
     my $building = $session->current_building;
     my $alliance = $building->create_alliance($name);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         alliance        => $alliance->get_status,
     };
 }
@@ -65,7 +65,7 @@ sub get_alliance_status {
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         alliance        => $building->get_alliance_status,
     };
 }
@@ -78,7 +78,7 @@ sub dissolve_alliance {
     $building->dissolve_alliance;
     $empire->discard_changes;
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -89,7 +89,7 @@ sub leave_alliance {
     my $building = $session->current_building;
     $building->leave_alliance($message);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -142,7 +142,7 @@ sub reject_invite {
     }
     $building->reject_invite($invite, $message);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -160,7 +160,7 @@ sub withdraw_invite {
     }
     $building->withdraw_invite($invite, $message);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -178,7 +178,7 @@ sub send_invite {
     }
     $building->send_invite($invitee, $message);
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -189,7 +189,7 @@ sub get_pending_invites {
     my $building = $session->current_building;
     return {
         invites         => $building->get_pending_invites,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -200,7 +200,7 @@ sub get_my_invites {
     my $building = $session->current_building;
     return {
         invites         => $building->get_my_invites,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -213,7 +213,7 @@ sub update_alliance {
     my $alliance = $building->update_alliance($params);
     return {
         alliance        => $alliance->get_status,
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
     };
 }
 
@@ -229,7 +229,7 @@ sub view_stash {
     }
     return {
         stash           => $building->alliance->stash || {},
-        status          => $self->format_status($empire, $body),
+        status          => $self->format_status($session, $body),
         max_exchange_size   => $building->max_exchange_size,
         exchanges_remaining_today   => $building->exchanges_remaining_today,
         stored          => \%stored,
@@ -266,7 +266,7 @@ sub view_propositions {
         push @out, $proposition->get_status($empire);
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         propositions    => \@out,
     };
 }
@@ -293,7 +293,7 @@ sub cast_vote {
 
     $proposition->cast_vote($empire, $vote);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }

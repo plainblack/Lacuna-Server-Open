@@ -46,7 +46,7 @@ sub get_stars_in_jurisdiction {
         push @out, $star->get_status;
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         stars           => \@out,
     };
 }
@@ -69,7 +69,7 @@ sub get_bodies_for_star_in_jurisdiction {
         push @out, $body->get_status($empire);
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         bodies          => \@out,
     };
 }
@@ -102,7 +102,7 @@ sub get_mining_platforms_for_asteroid_in_jurisdiction {
         };
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         platforms       => \@out,
     };
 }
@@ -121,7 +121,7 @@ sub view_laws {
             push @out, $law->get_status($empire);
         }
         return {
-            status          => $self->format_status($empire, $body),
+            status          => $self->format_status($session, $body),
             laws            => \@out,
         };
     }
@@ -178,7 +178,7 @@ sub propose_fire_bfg {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -214,7 +214,7 @@ sub propose_writ {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -257,7 +257,7 @@ sub propose_transfer_station_ownership {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -294,7 +294,7 @@ sub propose_repeal_law {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -341,7 +341,7 @@ sub propose_rename_star {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -375,7 +375,7 @@ sub propose_broadcast_on_network19 {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -423,7 +423,7 @@ sub propose_rename_asteroid {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -473,7 +473,7 @@ sub propose_rename_uninhabited {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -502,7 +502,7 @@ sub propose_members_only_mining_rights {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -531,7 +531,7 @@ sub propose_members_only_excavation {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -560,7 +560,7 @@ sub propose_members_only_colonization {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -590,7 +590,7 @@ sub propose_members_only_stations {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -619,7 +619,7 @@ sub propose_neutralize_bhg {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -653,7 +653,7 @@ sub allow_bhg_by_alliance {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -693,7 +693,7 @@ sub propose_evict_mining_platform {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -733,7 +733,7 @@ sub propose_evict_excavator {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -773,7 +773,7 @@ sub propose_elect_new_leader {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -820,7 +820,7 @@ sub propose_induct_member {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -863,7 +863,7 @@ sub propose_expel_member {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -897,7 +897,7 @@ sub propose_taxation {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -961,7 +961,7 @@ sub propose_foreign_aid {
     $proposition->proposed_by($empire);
     $proposition->insert;
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         proposition => $proposition->get_status($empire),
     };
 }
@@ -977,7 +977,7 @@ sub view_taxes_collected {
         push @out, $tax->get_status();
     }
     return {
-        status          => $self->format_status($empire, $building->body),
+        status          => $self->format_status($session, $building->body),
         taxes_collected    => \@out,
     };
 }

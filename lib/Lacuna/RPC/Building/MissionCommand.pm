@@ -45,7 +45,7 @@ sub get_missions {
         last if ($count >= $building->effective_level);
     }
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         missions    => \@missions,
     };
 }
@@ -66,7 +66,7 @@ sub complete_mission {
     $mission->check_objectives($body);
     $mission->complete($body);
     return {
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
     }
 }
 
@@ -81,7 +81,7 @@ sub skip_mission {
     my $body = $building->body;
     $mission->skip($body);
     return {
-        status      => $self->format_status($empire, $body),
+        status      => $self->format_status($session, $body),
     }
 }
 

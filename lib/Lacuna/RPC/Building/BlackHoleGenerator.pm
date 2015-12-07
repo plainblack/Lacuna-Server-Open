@@ -292,7 +292,7 @@ sub get_actions_for {
         }
     }
     return {
-        status => $self->format_status($empire, $body),
+        status => $self->format_status($session, $body),
         tasks  => \@tasks
     };
 }
@@ -757,7 +757,7 @@ sub generate_singularity {
                 $body->add_news(75, 'Scientists revolt against %s for despicable practices.', $empire->name);
                 $effect->{fail} = bhg_self_destruct($building);
                 return {
-                    status => $self->format_status($empire, $body),
+                    status => $self->format_status($session, $body),
                     effect => $effect,
                 };
             }
@@ -772,7 +772,7 @@ sub generate_singularity {
             );
             $effect->{fail} = bhg_self_destruct($building);
             return {
-                status => $self->format_status($empire, $body),
+                status => $self->format_status($session, $body),
                 effect => $effect,
             };
         }
@@ -1201,7 +1201,7 @@ sub generate_singularity {
     }
     
     return {
-        status => $self->format_status($empire, $body),
+        status => $self->format_status($session, $body),
         effect => $effect,
     };
 }

@@ -26,7 +26,7 @@ sub get_trade_ships {
         push @ships, $ship->get_status($target);
     }
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
         ships       => \@ships,
     };
 }
@@ -50,7 +50,7 @@ sub withdraw_from_market {
     }
     $trade->withdraw($building->body);
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -132,7 +132,7 @@ sub accept_from_market {
     $trade->delete;
 
     return {
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -154,7 +154,7 @@ sub add_to_market {
     $empire->update;
     return {
         trade_id    => $trade->id,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -178,7 +178,7 @@ sub view_my_market {
         trades      => \@trades,
         trade_count => $my_trades->pager->total_entries,
         page_number => $page_number,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -216,7 +216,7 @@ sub view_market {
         trades      => \@trades,
         trade_count => $all_trades->pager->total_entries,
         page_number => $page_number,
-        status      => $self->format_status($empire, $building->body),
+        status      => $self->format_status($session, $building->body),
     };
 }
 
@@ -244,7 +244,7 @@ sub get_spies {
     }
     return {
         spies                   => \@out,
-        status                  => $self->format_status($empire, $building->body),
+        status                  => $self->format_status($session, $building->body),
     };
 }
 
@@ -276,7 +276,7 @@ sub report_abuse {
             $trade->withdraw($trade->body);
         }
         return {
-            status      => $self->format_status($empire, $building->body),
+            status      => $self->format_status($session, $building->body),
         };
     }
 }
