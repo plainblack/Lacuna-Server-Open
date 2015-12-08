@@ -54,7 +54,7 @@ sub www_postback {
 
 sub www_authorize {
     my ($self, $request) = @_;
-    return [$self->facebook->authorize->extend_permissions(qw(offline_access))->uri_as_string, { status => 302 }];
+    return [$self->facebook->authorize->extend_permissions(qw(email))->uri_as_string, { status => 302 }];
 }
 
 sub www_server_list {
