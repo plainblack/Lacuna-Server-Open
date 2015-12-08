@@ -18,6 +18,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 300000;
 use constant base_berth_level       => 25;
 use constant build_tags             => [qw(War WasteChain)];
+use constant image_subdir => 'v2';
 
 with "Lacuna::Role::Ship::Send::NeutralArea";
 with "Lacuna::Role::Ship::Send::PlanetAndStar";
