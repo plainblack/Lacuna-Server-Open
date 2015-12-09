@@ -1511,7 +1511,7 @@ sub www_view_economy {
 
     my $revenue_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_revenue
         .'&chxt=x,y&chds=0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue.',0,'.$max_revenue
-        .'&chdl=$3|$6|$10|$25|$50&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3'
+        .'&chdl=$3+(30)|$6+(100)|$10+(200)|$25+(600)|$50+(1300)&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3'
         .'&chxtc=1,-900&chs=900x300&cht=bvs&chco=00ff00,ffb400,b400ff,00b4ff,ff0000&chd=t:'
         .join('|',
             join(',', @r30),
@@ -1525,7 +1525,7 @@ sub www_view_economy {
 
     my $purchases_chart = 'http://chart.apis.google.com/chart?chxr=1,0,'.$max_purchases
         .'&chxt=x,y&chds=0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases.',0,'.$max_purchases
-        .'&chdl=30|100|200|600|1300&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3&chxtc=1,-900&chs=900x300&cht=bvs&chco=00ff00,ffb400,b400ff,00b4ff,ff0000&chd=t:'
+        .'&chdl=$3+(30)|$6+(100)|$10+(200)|$25+(600)|$50+(1300)&chf=bg,s,014986&chxs=0,ffffff|1,ffffff&chls=3|3|3|3|3&chxtc=1,-900&chs=900x300&cht=bvs&chco=00ff00,ffb400,b400ff,00b4ff,ff0000&chd=t:'
         .join('|',
             join(',', @p30),
             join(',', @p100),
