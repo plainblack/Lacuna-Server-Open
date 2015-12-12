@@ -6,6 +6,7 @@
  - UI : SST list only shows valid SST targets.
  - Fix: Duck quacking now shows RPC updates in UI. (API change.)
  - UI : Scow images updated (thanks Husky).
+ - Fix: Remove item from SST trade now shows proper hold size requirement.
 
 3.0916:
  - Mod: Jackpot enhanced.
