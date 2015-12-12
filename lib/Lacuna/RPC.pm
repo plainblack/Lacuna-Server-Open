@@ -15,7 +15,7 @@ sub get_session {
 
     if (ref $session ne 'Lacuna::Session') {
         if (ref $session eq 'Lacuna::DB::Result::Empire') {
-            $session = $session->start_session;
+            $session = $session->current_session || $session->start_session;
         }
         else {
             my $session_id = $session;
