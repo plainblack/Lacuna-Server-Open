@@ -164,6 +164,12 @@ sub assign_spy {
         confess [1002, "Spy not found."];
     }
     my $mission = $spy->assign($assignment);
+
+    # changing poliprop changes stats.
+    $building->body->discard_changes;
+    if ($building->body->needs_recalc) {
+        $building->body->tick;
+    }
     return {
         status  => $self->format_status($session, $building->body),
         mission => $mission,
