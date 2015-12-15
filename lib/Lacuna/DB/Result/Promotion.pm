@@ -24,6 +24,8 @@ __PACKAGE__->typecast_map(type => {
     map { $_ => __PACKAGE__ . '::' . $_ } @types
 });
 
+use constant category => 'none';
+
 sub ui_details {
     my ($self) = @_;
 
@@ -32,28 +34,32 @@ sub ui_details {
     push @with, sprintf "maximum purchase of %d", $self->max_purchase if defined $self->max_purchase;
 
     my $description = '';
-    if (@with) {
-        if (@with == 2 && $self->min_purchase == $self->max_purchase)
-        {
-            $description = sprintf "With a purchase of %d essentia, ";
+
+    if ($self->category eq 'essentia_purchase') {
+        if (@with) {
+            if (@with == 2 && $self->min_purchase == $self->max_purchase)
+            {
+                $description = sprintf "With a purchase of %d essentia, ";
+            }
+            else
+            {
+                $description = sprintf "With a %s essentia, ", join ' and ', @with if @with;
+            }
+            $description .= $self->description;
         }
         else
         {
-            $description = sprintf "With a %s essentia, ", join ' and ', @with if @with;
+            $description = "With any purchase of essentia, " . $self->description;
         }
-        $description .= $self->description;
     }
-    else
-    {
-        $description = "With a purchase of essentia, " . $self->description;
+    else {
+        $description = $self->description;
     }
 
     return {
         start_date   => format_date($self->start_date),
         end_date     => format_date($self->end_date),
         type         => $self->type,
-        min_purchase => $self->min_purchase,
-        max_purchase => $self->max_purchase,
         description  => ucfirst $description,
     };
 }

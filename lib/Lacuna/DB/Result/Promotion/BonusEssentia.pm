@@ -5,6 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Promotion';
 
+use constant category => 'essentia_purchase';
+
 sub essentia_purchased
 {
     my ($self, $opts) = @_;

@@ -134,12 +134,10 @@ Most methods will provide a status block as part of the response. This is used t
             },
             "promotions" : [
                 {
-                    "description" : "With a purchase of essentia, receive a 50% bonus!",
+                    "description" : "With any purchase of essentia, receive a 50% bonus!",
                     "end_date" : "31 10 2015 00:00:00 +0000",
                     "start_date : "01 10 2015 00:00:00 +0000",
                     "type" : "Bonus50",
-                    "min_purchase" : null,  # essentia, not $
-                    "max_purchase" : null   # essentia, not $
                 }
             ]
         },
