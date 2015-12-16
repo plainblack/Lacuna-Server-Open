@@ -508,7 +508,9 @@ sub set_defenders {
     $on_sweep = 10 if ($enemies == 0);
     while (my $spy = $local_spies->next) {
         if ($spy->is_available) {
-            if ($spy->task eq 'Security Sweep' or $on_sweep < 10) {
+            if ( $spy->date_created < DateTime->now->subtract(hours => 8) and
+                ($spy->task eq 'Security Sweep' or $on_sweep < 10)) {
+
                 say "    Spy ID: ".$spy->id." sweeping";
                 my $spy_result = $spy->assign('Security Sweep');
                 $spy->update;

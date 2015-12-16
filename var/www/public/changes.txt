@@ -9,6 +9,7 @@
  - Fix: Remove item from SST trade now shows proper hold size requirement.
  - UI : Add propaganda boost to the happy popup (spy icon).
  - UI : Promotional events show up during the event.
+ - Mod: AI spies get easy jobs their first shift.
 
 3.0916:
  - Mod: Jackpot enhanced.
