@@ -238,13 +238,13 @@ sub format_status {
         $real_empire = $empire->current_session->empire;
     }
 
-    if (defined $empire) {
+    if (defined $real_empire) {
         my $cache = Lacuna->cache;
         my $alert = $cache->get('announcement','alert');
         if ($alert && !$cache->get('announcement'.$alert, $real_empire->id)) {
             $out{server}{announcement} = 1;
         }
-        $out{empire} = $empire->get_status;
+        $out{empire} = $real_empire->get_status;
 
         if (my @promos = Lacuna->db->resultset('Promotion')->current_promotions)
         {
