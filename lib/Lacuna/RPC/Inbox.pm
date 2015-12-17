@@ -408,7 +408,7 @@ sub view_messages {
     if ($options->{tags}) {
         $where->{tag} = ['in',$options->{tags}];
     }
-    my $messages = $self->messages_rs($empire->current_session, undef, from => 0)->
+    my $messages = $self->messages_rs($empire->current_session, undef)->
         search(
                $where,
                {
