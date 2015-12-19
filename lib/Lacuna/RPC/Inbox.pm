@@ -19,8 +19,6 @@ use PerlX::Maybe qw(provided);
 #  * from => false if from real empire is not to be looked at.
 sub messages_rs {
     my ($self, $session, $message_ids, %opts) = @_;
-    my $dtf = Lacuna->db->storage->datetime_parser;
-    my $now = $dtf->format_datetime(DateTime->now);
 
     # build a list of filters to OR together.
     my @or  = { 'me.to_id'   => $session->empire->id };
@@ -28,7 +26,7 @@ sub messages_rs {
         not exists $opts{from} or $opts{from};
     push @or, {
         'sitterauths.sitter_id' => $session->empire->id,
-        'sitterauths.expiry' => { '<' => $now },
+        'sitterauths.expiry' => { '>=' => \q[UTC_TIMESTAMP()] },
         'me.tag' => { '!=' => 'Correspondence' },
     } unless $session->_is_sitter;
 
@@ -154,8 +152,8 @@ sub trash_messages_where {
         $where{tag}       = $spec->{tags}     if $spec->{tags} &&  ref $spec->{tags} eq 'ARRAY';
         $where{tag}     ||= $spec->{tag}      if $spec->{tag}  && !ref $spec->{tag};
         $where{from_name} = [ $spec->{from} ] if $spec->{from} && !ref $spec->{from};
-        $where{empire_id} = $empire->id       unless $spec->{all_babies};
-        $where{empire_id} = $spec->{empire_id} if $spec->{empire_id} and !ref $spec->{empire_id} or none { ref $_ } @{$spec->{empire_id}};
+        $where{to_id} = $empire->id       unless $spec->{all_babies};
+        $where{to_id} = $spec->{empire_id} if $spec->{empire_id} and (!ref $spec->{empire_id} or none { ref $_ } @{$spec->{empire_id}});
 
         if ($spec->{subject})
         {
