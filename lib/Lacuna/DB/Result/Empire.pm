@@ -589,10 +589,10 @@ sub get_status {
     if ($self->alliance_id) {
         $planet_rs = Lacuna->db->resultset('Map::Body')->
             search(
-                   { -or => { empire_id => $real_empire->id, alliance_id => $real_empire->alliance_id } },
+                   { -or => { 'me.empire_id' => $real_empire->id, 'me.alliance_id' => $real_empire->alliance_id } },
                   );
     }
-    $planet_rs = $planet_rs->search({},{ prefetch => 'star', order_by => 'me.name' });
+    $planet_rs = $planet_rs->search({},{ prefetch => ['empire','star'], order_by => 'me.name' });
     my %planets;
     my %stations;
     my %colonies;
@@ -610,6 +610,8 @@ sub get_status {
             orbit => $planet->orbit,
             x => $planet->x,
             y => $planet->y, #,,,
+            empire_name => $planet->empire->name,
+            empire_id => $planet->empire_id,
         }
     };
 

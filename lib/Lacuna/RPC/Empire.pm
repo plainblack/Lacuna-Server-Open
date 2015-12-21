@@ -1154,13 +1154,42 @@ sub get_species_templates {
     ]
 }
 
+sub view_authorized_sitters
+{
+    my ($self, $session_id) = @_;
+    my $session = $self->get_session($session_id);
+    my $baby = $session->current_empire();
+
+    my $rs = $baby->sitters()
+        ->search(
+                 { expiry => { '>' => \q[UTC_TIMESTAMP()] } },
+                 {
+                     '+select' => [ 'me.expiry' ],
+                     '+as'     => [ 'expiry' ],
+                     order_by  => 'sitter.name',
+                 }
+                );
+
+    my @auths;
+    while (my $e = $rs->next)
+    {
+        push @auths, {
+            id     => $e->id,
+            name   => $e->name,
+            expiry => $e->get_column('expiry'),
+        };
+    }
+
+    return { status => $self->format_status($session->empire), sitters => \@auths };
+}
+
 sub authorize_sitters
 {
     my ($self, $session_id, $opts) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     $session->check_captcha;
 
-    my $baby = $self->get_empire_by_session($session);
+    my $baby = $session->current_empire;
     my $baby_id = $session->empire_id;
     my $rs = $baby->sitters;
     my $auths = Lacuna->db->resultset('SitterAuths');
@@ -1223,10 +1252,9 @@ sub authorize_sitters
         }
     }
 
-    return {
-        status => $self->format_status($session),
-        rejected_ids => \@bad_ids,
-    };
+    my $rc = $self->view_authorized_sitters($session);
+    $rc->{rejected_ids} = \@bad_ids;
+    return $rc;
 }
 
 sub deauthorize_sitters
@@ -1249,9 +1277,7 @@ sub deauthorize_sitters
     $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
         ->update({expiry => $now});
 
-    return {
-        status => $self->format_status($session),
-    };
+    return $self->view_authorized_sitters($session);
 }
 
 __PACKAGE__->register_rpc_method_names(
@@ -1278,7 +1304,7 @@ __PACKAGE__->register_rpc_method_names(
     get_full_status get_status
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
-    authorize_sitters deauthorize_sitters
+    view_authorized_sitters authorize_sitters deauthorize_sitters
     ),
 );
 
