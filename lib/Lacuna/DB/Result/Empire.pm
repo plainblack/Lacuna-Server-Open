@@ -535,14 +535,16 @@ sub get_latest_message_id {
 }
 
 # The number of times a RPC has been made to this empire
-has rpc_count => (
-    is      => 'ro',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
-    }
-);
+sub rpc_count {
+    my $self = shift;
+    Lacuna->cache->get('rpc_count_'.format_date(undef,'%d'), $self->id);
+}
+
+sub inc_rpc_count {
+    my $self = shift;
+    Carp::cluck "incrementing RPC";
+    return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
+}
 
 # Reseting the RPC count for an empire should be done only under dire
 # circumstances, or for testing purposes.  In that case, this can

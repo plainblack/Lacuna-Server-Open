@@ -183,5 +183,9 @@ sub start {
     return $self->extend;
 }
 
+# this is to double-ensure we don't rpc-count twice, so we don't want
+# this saved as part of the overall session in memcached.
+has rpc_counted => ( is => 'rw' );
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
