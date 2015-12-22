@@ -2333,7 +2333,7 @@ sub prevent_insurrection {
                                                            'Prisoner Transport'] },
                                     empire_id => { 'in' => \@member_ids },
                                   },
-                                  { order_by => 'level', 'rand()' });
+                                  { order_by => [ 'level', 'rand()'] });
     my $max_cnt = $defender->level;
     $max_cnt = ($max_cnt < 3) ? 3 : $max_cnt;
     my $count = randint(3,$max_cnt);

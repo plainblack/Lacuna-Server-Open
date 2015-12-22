@@ -54,7 +54,7 @@ after can_send_to_target => sub {
     $archaeology->can_add_excavator($target);
     if ($target->star->station_id) {
         if ($target->star->station->laws->search({type => 'MembersOnlyExcavation'})->count) {
-            unless ($target->star->station->alliance_id == $self->body->empire->alliance_id) {
+            unless ($target->star->station->alliance_id == ($self->body->empire->alliance_id||0)) {
                 confess [1010, 'Only '.$target->star->station->alliance->name.' members can excavate bodies in the jurisdiction of the space station.'];
             }
         }

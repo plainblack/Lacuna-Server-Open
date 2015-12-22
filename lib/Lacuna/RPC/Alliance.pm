@@ -37,6 +37,10 @@ sub view_profile {
     my ($self, $session_id, $alliance_id) = @_;
     my $session = $self->get_session({session_id => $session_id});
     my $empire = $session->current_empire;
+
+    unless (defined $alliance_id && length $alliance_id) {
+        confess [1002, "You must specify an alliance ID."];
+    }
     my $alliance = Lacuna->db->resultset('Lacuna::DB::Result::Alliance')->find($alliance_id);
     unless (defined $alliance) {
         confess [1002, 'The alliance you wish to view does not exist.', $alliance_id];

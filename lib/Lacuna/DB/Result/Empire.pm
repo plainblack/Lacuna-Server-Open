@@ -542,7 +542,6 @@ sub rpc_count {
 
 sub inc_rpc_count {
     my $self = shift;
-    Carp::cluck "incrementing RPC";
     return Lacuna->cache->increment('rpc_count_'.format_date(undef,'%d'), $self->id, 1, 60 * 60 * 30);
 }
 

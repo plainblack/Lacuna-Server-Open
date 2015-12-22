@@ -404,7 +404,7 @@ sub update_waste_chain {
     unless ($waste_chain_id) {
         confess [1002, "You must specify a waste chain id."];
     }
-    unless (defined $waste_hour) {
+    unless (defined $waste_hour && length $waste_hour) {
         confess [1002, "You must specify an amount for waste_hour."];
     }
     unless ($waste_hour >= 0) {
