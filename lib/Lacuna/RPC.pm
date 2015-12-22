@@ -77,39 +77,42 @@ sub get_session {
 
     my $empire = $session->current_empire;
     if (defined $empire) {
-        my $throttle = Lacuna->config->get('rpc_throttle') || 30;
-        if (my $delay = Lacuna->cache->get('rpc_block', $opts->{session_id})) {
-            confess [1010, 'Too fast response, ' . $empire->name . '!'];
+        if (!$session->rpc_counted) {
+            $session->rpc_counted(1);
+            my $throttle = Lacuna->config->get('rpc_throttle') || 30;
+            if (my $delay = Lacuna->cache->get('rpc_block', $opts->{session_id})) {
+                confess [1010, 'Too fast response, ' . $empire->name . '!'];
+            }
+            if ($empire->rpc_rate > $throttle) {
+                Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
+                confess [1010, 'Slow down '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
+            }
+            my $max = Lacuna->config->get('rpc_limit') || 2500;
+            if ($empire->inc_rpc_count > $max) {
+                confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
+            }
+            my $ipr = real_ip_address($self->plack_request);
+            if (!$session->ip_address && $ipr) {
+                $log->debug("Missing IP address, adding $ipr");
+                $session->ip_address($ipr);
+                $session->update;
+            }
+            my $ipm = $session->ip_address eq $ipr;
+            my $i = 1;
+            my @caller = caller($i);
+            while (@caller)
+            {
+                last if $caller[0] =~ /Lacuna::RPC/;
+                @caller = caller(++$i);
+            }
+            $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $opts->{session_id}, $session->is_sitter ? 1 : 0, $caller[3]);
+            #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
+            #   empire_id    => $empire->id,
+            #   empire_name  => $empire->name,
+            #   module       => ref $self,
+            #   api_key      => $empire->current_session->api_key,
+            #})->insert;
         }
-        if ($empire->rpc_rate > $throttle) {
-            Lacuna->cache->increment('rpc_limit_'.format_date(undef,'%d'), $empire->id, 1, 60 * 60 * 30);
-            confess [1010, 'Slow down '.$empire->name.'! No more than '.$throttle.' requests per minute.'];
-        }
-        my $max = Lacuna->config->get('rpc_limit') || 2500;
-        if ($empire->rpc_count > $max) {
-            confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
-        }
-        my $ipr = real_ip_address($self->plack_request);
-        if (!$session->ip_address && $ipr) {
-            $log->debug("Missing IP address, adding $ipr");
-            $session->ip_address($ipr);
-            $session->update;
-        }
-        my $ipm = $session->ip_address eq $ipr;
-        my $i = 1;
-        my @caller = caller($i);
-        while (@caller)
-        {
-            last if $caller[0] =~ /Lacuna::RPC/;
-            @caller = caller(++$i);
-        }
-        $log->info(sprintf "ACTUAL:ipr=%s,ipe=%s,ipm=%s,ses=%s,sat:%d,rpc=%s", $ipr, $session->ip_address, $ipm, $opts->{session_id}, $session->is_sitter ? 1 : 0, $caller[3]);
-        #Lacuna->db->resultset('Lacuna::DB::Result::Log::RPC')->new({
-        #   empire_id    => $empire->id,
-        #   empire_name  => $empire->name,
-        #   module       => ref $self,
-        #   api_key      => $empire->current_session->api_key,
-        #})->insert;
     }
     else {
         confess [1002, 'Empire does not exist.'];
