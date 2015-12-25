@@ -6,6 +6,10 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Promotion';
 
 use constant category => 'essentia_purchase';
+sub title {
+    my ($self) = @_;
+    sprintf '%d%% Essentia Bonus', $self->bonus_percent;
+}
 
 sub essentia_purchased
 {

@@ -1,0 +1,9 @@
+Promotional Essentia Code
+~~~
+
+Due to the current %s%% bonus promotion, an {essentia} essentia code worth %s {essentia} has been created.  You may use this code yourself, or you may give it to another player of your choosing.
+
+Code: %s
+
+Each code can only be redeemed once.
+

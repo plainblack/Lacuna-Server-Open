@@ -18,6 +18,8 @@ __PACKAGE__->add_columns(
 
 our @types = qw(
     Bonus50
+    ECode50
+    Valentine50
     );
 
 __PACKAGE__->typecast_map(type => {
@@ -61,6 +63,7 @@ sub ui_details {
         end_date     => format_date($self->end_date),
         type         => $self->type,
         description  => ucfirst $description,
+        title        => $self->title
     };
 }
 
