@@ -1,3 +1,6 @@
+3.0918:
+ - Fix: Unallied players should never see anyone else in purple on the starmap.
+
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
  - Fix: Station incoming shows your incoming as own, not station owner's incoming.
