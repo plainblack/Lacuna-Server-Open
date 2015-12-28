@@ -258,7 +258,7 @@ sub get_stored_resources {
 sub report_abuse {
     my ($self, $session_id, $building_id, $trade_id) = @_;
     unless ($trade_id) {
-        confess [1002, 'You have not specified a trade to withdraw.'];
+        confess [1002, 'You have not specified a trade to report.'];
     }
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
     my $empire   = $session->current_empire;
