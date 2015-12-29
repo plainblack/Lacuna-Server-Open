@@ -870,12 +870,12 @@ sub cost_to_upgrade {
     }
     else {
         return {
-            food    => sprintf('%.0f',$self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
-            energy  => sprintf('%.0f',$self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
-            ore     => sprintf('%.0f',$self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
-            water   => sprintf('%.0f',$self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
-            waste   => sprintf('%.0f',$self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
-            time    => sprintf('%.0f',$time_cost),
+            food    => int($self->food_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            energy  => int($self->energy_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            ore     => int($self->ore_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            water   => int($self->water_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            waste   => int($self->waste_to_build * $upgrade_cost * $upgrade_cost_reduction),
+            time    => int($time_cost),
         };
     }
 }

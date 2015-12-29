@@ -68,8 +68,8 @@ sub upgrade {
     return {
         status      => $self->format_status($session, $body),
         building    => {
-            id              => $building->id,
-            level           => $building->level,
+            id              => 0+$building->id,
+            level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
     };
@@ -90,25 +90,25 @@ sub view {
 
     my %out = ( 
         building    => {
-            id                  => $building->id,
+            id                  => 0+$building->id,
             name                => $building->name,
             image               => $building->image_level,
-            x                   => $building->x,
-            y                   => $building->y,
-            level               => $building->level,
-            food_hour           => $building->food_hour,
-            food_capacity       => $building->food_capacity,
-            ore_hour            => $building->ore_hour,
-            ore_capacity        => $building->ore_capacity,
-            water_hour          => $building->water_hour,
-            water_capacity      => $building->water_capacity,
-            waste_hour          => $building->waste_hour,
-            waste_capacity      => $building->waste_capacity,
-            energy_hour         => $building->energy_hour,
-            energy_capacity     => $building->energy_capacity,
-            happiness_hour      => $building->happiness_hour,
-            efficiency          => $building->efficiency,
-            repair_costs        => $building->get_repair_costs,
+            x                   => 0+$building->x,
+            y                   => 0+$building->y,
+            level               => 0+$building->level,
+            food_hour           => 0+$building->food_hour,
+            food_capacity       => 0+$building->food_capacity,
+            ore_hour            => 0+$building->ore_hour,
+            ore_capacity        => 0+$building->ore_capacity,
+            water_hour          => 0+$building->water_hour,
+            water_capacity      => 0+$building->water_capacity,
+            waste_hour          => 0+$building->waste_hour,
+            waste_capacity      => 0+$building->waste_capacity,
+            energy_hour         => 0+$building->energy_hour,
+            energy_capacity     => 0+$building->energy_capacity,
+            happiness_hour      => 0+$building->happiness_hour,
+            efficiency          => 0+$building->efficiency,
+            repair_costs        => 0+$building->get_repair_costs,
             upgrade             => {
                 can             => ($can_upgrade ? 1 : 0),
                 reason          => $upgrade_reason,
@@ -127,7 +127,7 @@ sub view {
     );
     if ($building->is_working) {
         $out{building}{work} = {
-            seconds_remaining   => $building->work_seconds_remaining,
+            seconds_remaining   => 0+$building->work_seconds_remaining,
             start               => $building->work_started_formatted,
             end                 => $building->work_ends_formatted,
         };
@@ -200,14 +200,14 @@ sub build {
     my %out = (
         status      => $self->format_status($session, $body),
         building    => {
-            id              => $building->id,
-            level           => $building->level,
+            id              => 0+$building->id,
+            level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
     );
     if ($building->is_working) {
         $out{building}{work} = {
-            seconds_remaining   => $building->work_seconds_remaining,
+            seconds_remaining   => 0+$building->work_seconds_remaining,
             start               => $building->work_started_formatted,
             end                 => $building->work_ends_formatted,
         };
@@ -294,21 +294,21 @@ sub get_stats_for_level {
     my $image_after_upgrade = $building->image_level($building->level + 1);
     return {
         building    => {
-            id                  => $building->id,
+            id                  => 0+$building->id,
             name                => $building->name,
             image               => $building->image_level,
-            level               => $building->level,
-            food_hour           => $building->food_hour,
-            food_capacity       => $building->food_capacity,
-            ore_hour            => $building->ore_hour,
-            ore_capacity        => $building->ore_capacity,
-            water_hour          => $building->water_hour,
-            water_capacity      => $building->water_capacity,
-            waste_hour          => $building->waste_hour,
-            waste_capacity      => $building->waste_capacity,
-            energy_hour         => $building->energy_hour,
-            energy_capacity     => $building->energy_capacity,
-            happiness_hour      => $building->happiness_hour,
+            level               => 0+$building->level,
+            food_hour           => 0+$building->food_hour,
+            food_capacity       => 0+$building->food_capacity,
+            ore_hour            => 0+$building->ore_hour,
+            ore_capacity        => 0+$building->ore_capacity,
+            water_hour          => 0+$building->water_hour,
+            water_capacity      => 0+$building->water_capacity,
+            waste_hour          => 0+$building->waste_hour,
+            waste_capacity      => 0+$building->waste_capacity,
+            energy_hour         => 0+$building->energy_hour,
+            energy_capacity     => 0+$building->energy_capacity,
+            happiness_hour      => 0+$building->happiness_hour,
             upgrade             => {
                 cost            => $building->cost_to_upgrade,
                 production      => $building->stats_after_upgrade,
