@@ -309,7 +309,7 @@ use Encode;
 sub www_search_bodies {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['me.name'], rows => 25, page => $page_number, prefetch=>[qw/star/] });
+    my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['me.name'], rows => 25, page => $page_number, prefetch=>[qw/empire star/] });
     my $name = decode_utf8($request->param('name') || '');
     my $pager = 'name';
 
@@ -331,10 +331,10 @@ sub www_search_bodies {
     }
     my $out = '<h1>Search Bodies</h1>';
     $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
-    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
+    $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>Zone</th><th>Star</th><th>O</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/star?id=%d">%s (%d)</a></td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
-                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->star->name,$body->star_id, $body->image_name, kmbtq($body->happiness),
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/star?id=%d">%s (%d)</a></td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
+                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->zone, $body->star_id, $body->star->name,$body->star_id, $body->orbit, $body->image_name, kmbtq($body->happiness),
                         $body->empire_id || '', $body->empire_id ? sprintf("%s (%s)",$body->empire->name,$body->empire_id) : '' );
     }
     $out .= '</table>';
