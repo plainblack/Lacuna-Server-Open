@@ -9,6 +9,7 @@ use Lacuna::Verify;
 use Lacuna::Util qw(format_date);
 use List::Util qw(none);
 use PerlX::Maybe qw(provided);
+use Time::HiRes qw(usleep);
 
 # This function basically handles all the "or baby" logic for
 # messages.  Can be further refined by the caller with extra ->search
@@ -115,12 +116,23 @@ sub trash_messages {
     my @updating = $messages->get_column('id')->all;
     if (@updating)
     {
-        $messages->update(
-                          {
-                              has_read => 1,
-                              has_archived => 0,
-                              has_trashed => 1,
-                          });
+        my $updated;
+        for (1..3) {
+            # Sometimes there's a deadlock here, so we'll just retry it
+            # a few times if it fails.
+            last if eval {
+                $messages->update(
+                                  {
+                                      has_read => 1,
+                                      has_archived => 0,
+                                      has_trashed => 1,
+                                  });
+                $updated = 1; };
+
+            # on failure, give it a tiny bit of time for a retry.
+            usleep 250;
+        }
+        @updating = () unless $updated;
         $empire->recalc_messages;
     }
 
@@ -215,12 +227,23 @@ sub trash_messages_where {
         # delete it
         if ($count)
         {
-            $return{deleted_count} += $count;
-            $messages->update(
-                              {
-                                  has_read => 1,
-                                  has_trashed => 1,
-                              });
+
+            for (1..3) {
+                # Sometimes there's a deadlock here, so we'll just retry it
+                # a few times if it fails.
+                last if eval {
+                    $messages->update(
+                                      {
+                                          has_read => 1,
+                                          has_trashed => 1,
+                                      });
+                    $return{deleted_count} += $count;
+
+                    1; };
+
+                # on failure, give it a tiny bit of time for a retry.
+                usleep 250;
+            }
         }
     }
 
