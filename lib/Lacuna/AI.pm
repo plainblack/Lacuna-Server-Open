@@ -371,6 +371,7 @@ sub train_spies {
                 from_body_id    => $colony->id,
                 on_body_id      => $colony->id,
                 task            => 'Idle',
+                date_created    => DateTime->now,
                 started_assignment  => DateTime->now,
                 available_on    => DateTime->now,
                 empire_id       => $colony->empire_id,

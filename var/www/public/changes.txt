@@ -2,6 +2,7 @@
  - Fix: Unallied players should never see anyone else in purple on the starmap.
  - Fix: Some of the numbers in the APIs are now returned as numbers instead of strings.
  - Mod: Add commas to total cargo in TM and SST.
+ - Fix: Initialize date_created field for spies.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
