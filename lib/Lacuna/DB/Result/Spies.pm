@@ -46,6 +46,10 @@ __PACKAGE__->add_columns(
     next_task               => { data_type => 'varchar', size => 30, is_nullable => 0, default_value => 'Idle' },
 );
 
+sub _default_date_created {
+    DateTime->now
+}
+
 __PACKAGE__->belongs_to('empire', 'Lacuna::DB::Result::Empire', 'empire_id');
 __PACKAGE__->belongs_to('from_body', 'Lacuna::DB::Result::Map::Body', 'from_body_id');
 __PACKAGE__->belongs_to('on_body', 'Lacuna::DB::Result::Map::Body', 'on_body_id');

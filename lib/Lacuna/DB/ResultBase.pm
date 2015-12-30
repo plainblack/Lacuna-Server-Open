@@ -12,7 +12,15 @@ sub new {
     my $self = $class->SUPER::new(@_);
     foreach my $col ($self->result_source->columns) {
         my $default = $self->result_source->column_info($col)->{default_value};
-        $self->$col($default) if (defined $default && !defined $self->$col());
+        if (defined $default && !defined $self->$col()) {
+            $self->$col($default);
+        }
+
+        # if the class has a method for _default_$col, call it to determine the default
+        # in code.
+        if (!defined $self->$col() && (my $can = $self->can("_default_$col"))) {
+            $self->$col($can->($self));
+        }
     }
     return $self;
 }
