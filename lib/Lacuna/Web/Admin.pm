@@ -309,32 +309,32 @@ use Encode;
 sub www_search_bodies {
     my ($self, $request) = @_;
     my $page_number = $request->param('page_number') || 1;
-    my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['name'], rows => 25, page => $page_number });
+    my $bodies = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->search(undef, {order_by => ['me.name'], rows => 25, page => $page_number, prefetch=>[qw/star/] });
     my $name = decode_utf8($request->param('name') || '');
     my $pager = 'name';
 
     if ($name) {
         my $query = "$name%";
         $query =~ s/\*/%/g;
-        $bodies = $bodies->search({name => { like => $query }});
+        $bodies = $bodies->search({'me.name' => { like => $query }});
     }
     if ($request->param('empire_id')) {
         $pager = 'empire_id';
         $name  = $request->param('empire_id');
-        $bodies = $bodies->search({empire_id => $name});
+        $bodies = $bodies->search({'me.empire_id' => $name});
     }
     if ($request->param('zone')) {
-        $bodies = $bodies->search({zone => $request->param('zone')});
+        $bodies = $bodies->search({'me.zone' => $request->param('zone')});
     }
     if ($request->param('star_id')) {
-        $bodies = $bodies->search({star_id => $request->param('star_id')});
+        $bodies = $bodies->search({'me.star_id' => $request->param('star_id')});
     }
     my $out = '<h1>Search Bodies</h1>';
     $out .= '<form method="post" action="/admin/search/bodies"><input name="name" value="'.$name.'"><input type="submit" value="search"></form>';
     $out .= '<table style="width: 100%;"><tr><th>Id</th><th>Name</th><th>X</th><th>Y</th><th>O</th><th>Zone</th><th>Star</th><th>Type</th><th>Happiness</th><th>Empire</th></tr>';
     while (my $body = $bodies->next) {
-        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
-                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->image_name, kmbtq($body->happiness),
+        $out .= sprintf('<tr><td><a href="/admin/view/body?id=%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/admin/view/star?id=%d">%s (%d)</a></td><td>%s</td><td>%s</td><td><a href="/admin/view/empire?id=%s">%s</a></td></tr>',
+                        $body->id, $body->id, $body->name, $body->x, $body->y, $body->orbit, $body->zone, $body->star_id, $body->star->name,$body->star_id, $body->image_name, kmbtq($body->happiness),
                         $body->empire_id || '', $body->empire_id ? sprintf("%s (%s)",$body->empire->name,$body->empire_id) : '' );
     }
     $out .= '</table>';
