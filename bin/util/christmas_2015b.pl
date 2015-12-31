@@ -59,6 +59,9 @@ while (my $b = $bodies->next)
     $b->delete_one_plan($plan);
     $pyr->level(31); # no build time, Christmas magic
     $pyr->update;
+    $b->needs_recalc(1);
+    $b->needs_surface_refresh(1);
+    $b->update;
 
     $b->empire->send_message(
         tag         => 'Correspondence',
