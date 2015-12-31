@@ -40,7 +40,7 @@ Ho! Ho! Ho!
 
 My elves have reported back to me that they found a request for a pyramid upgrade to level 31 on %s and have completed their work!
 
-Don't forget to remove the magic word from the colony notes!
+Now you can remove the magic word from the colony notes!
 
 Merry Christmas!
 MESSAGE
