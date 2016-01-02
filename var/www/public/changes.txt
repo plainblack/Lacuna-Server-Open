@@ -3,6 +3,8 @@
  - Fix: Some of the numbers in the APIs are now returned as numbers instead of strings.
  - Mod: Add commas to total cargo in TM and SST.
  - Fix: Initialize date_created field for spies.
+ - Mod: Can cancel more than one build at a time via API.
+ - Add: Cancel All button to dev ministry.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.

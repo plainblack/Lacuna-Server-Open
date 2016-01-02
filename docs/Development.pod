@@ -126,9 +126,15 @@ A session ID,
 
 The ID of the development ministry.
 
-=head3 scheduled_id (required)
+=head3 scheduled_id (optional)
 
-The ID of the building scheduled to be build/upgraded that you wish to cancel.
+The ID, or array of IDs, of the building(s) scheduled to be build/upgraded that you wish to cancel.
+
+=head3 cancel_all (optional)
+
+If set to a true value, cancels all builds currently scheduled.
+
+One of C<scheduled_id> and C<cancel_all> is required.
 
 =head3 RESPONSE
 

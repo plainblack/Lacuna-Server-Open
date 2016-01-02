@@ -90,6 +90,8 @@ sub subsidize_one_build {
     };
 }
 
+my %non_cancel = map { $_=>1 } ('Lacuna::DB::Result::Building::DeployedBleeder');
+
 sub cancel_build {
     my ($self, $args) = @_;
 
@@ -99,21 +101,39 @@ sub cancel_build {
     my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
-    my $scheduled_building  = $self->get_building($session,$args->{scheduled_id},nocheck_type=>1);
-    if (!$scheduled_building) {
-        confess [1003, "That building does not exist, or is not yours."];
+
+    my $ids = $args->{scheduled_id};
+    if ($ids && not ref $ids) {
+        $ids = [ $ids ];
     }
-    if ($scheduled_building->body_id != $building->body_id) {
-        confess [1003, "That building is not on the same planet as your development ministry."];
+
+    my @order;
+    if ($args->{cancel_all}) {
+        @order = reverse @{$building->body->builds};
     }
-    if (not $scheduled_building->is_upgrading) {
-        confess [1000, "That building is not currently being ugraded."];
+    else {
+        @order = sort { $b->upgrade_ends cmp $a->upgrade_ends } map {
+            my $scheduled_id = $_;
+            my $scheduled_building = ref $scheduled_id ?
+                $scheduled_id :
+                $self->get_building($session,$scheduled_id,nocheck_type=>1);
+
+            if (!$scheduled_building) {
+                confess [1003, "That building does not exist, or is not yours."];
+            }
+            if ($scheduled_building->body_id != $building->body_id) {
+                confess [1003, "That building is not on the same planet as your development ministry."];
+            }
+            if (not $scheduled_building->is_upgrading) {
+                confess [1000, "That building is not currently being ugraded."];
+            }
+            if ($non_cancel{$scheduled_building->class}) {
+                confess [1003, "That building can not have an upgrade cancelled."];
+            }
+            $scheduled_building;
+        } @$ids;
     }
-    my @non_cancel = ('Lacuna::DB::Result::Building::DeployedBleeder');
-    if (grep { $scheduled_building->class eq "$_" } @non_cancel) {
-        confess [1003, "That building can not have an upgrade cancelled."];
-    }
-    $scheduled_building->cancel_upgrade;
+    $_->cancel_upgrade for @order;
 
     return $self->view($args->{session_id}, $args->{building_id});
 
