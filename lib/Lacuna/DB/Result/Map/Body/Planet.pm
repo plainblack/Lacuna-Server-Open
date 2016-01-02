@@ -258,6 +258,10 @@ sub sanitize {
     my ($self) = @_;
     my @buildings = grep {$_->class !~ /Permanent/} @{$self->building_cache};
     $self->delete_buildings(\@buildings);
+    for my $building (@{$self->building_cache}) {
+        $building->is_upgrading(0);
+        $building->update;
+    }
     $self->alliance_id(undef);
     $self->_plans->delete;
     $self->glyph->delete;

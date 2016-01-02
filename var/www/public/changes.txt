@@ -5,6 +5,7 @@
  - Fix: Initialize date_created field for spies.
  - Mod: Can cancel more than one build at a time via API.
  - Add: Cancel All button to dev ministry.
+ - Fix: Abandoned planets' build queues are now cancelled.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
