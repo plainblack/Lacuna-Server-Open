@@ -556,6 +556,21 @@ sub view_laws {
         return {
             status          => $self->format_status($session, $body),
             laws            => \@out,
+            station         => {
+                id   => $body->id,
+                name => $body->name,
+                zone => $body->zone,
+                x    => $body->x,
+                y    => $body->y,,,
+                empire => {
+                    id   => $body->empire_id,
+                    name => $body->empire->name,
+                },
+                alliance => {
+                    id   => $body->alliance_id,
+                    name => $body->alliance->name,
+                },
+            },
         };
     }
     else {
