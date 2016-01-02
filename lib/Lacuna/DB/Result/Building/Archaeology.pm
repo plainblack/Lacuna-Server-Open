@@ -280,7 +280,7 @@ sub dig_it {
                         'It\'s dead Jim.',
                         'It\'s just a harmless little bunny...',
                         'It\'s full of stars.',
-                        'Just once, I wish we would encounter an alien menace that was\'t immune to bullets.',
+                        'Just once, I wish we would encounter an alien menace that wasn\'t immune to bullets.',
                         'Looks like I picked the wrong week to stop drinking coffee.',
                         'Klaatu Barada Ni*cough*',
                         'No, Mr. Excav, I expect you to die.',
