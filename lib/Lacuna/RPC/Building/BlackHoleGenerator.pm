@@ -1803,6 +1803,7 @@ sub bhg_random_fissure {
             });
             $target->build_building($building, undef, 1);
             $body->add_news(50, 'Astronomers detect a gravitational anomoly on %s.', $target->name);
+            $body->empire->add_medal('Fissure');
             $return->{message} = "Fissure formed";
             my $minus_x = 0 - $target->x;
             my $minus_y = 0 - $target->y;;;
