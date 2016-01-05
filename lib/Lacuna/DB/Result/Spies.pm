@@ -398,22 +398,44 @@ sub tick_all_spies {
     my $db = Lacuna->db;
     my $dtf = $db->storage->datetime_parser;
     my $spies = $db->resultset('Spies')
-                    ->search( { available_on  => { '<' => $dtf->format_datetime(DateTime->now) },
-                                task => { 'not in' => ['Idle',
-                                                       'Counter Espionage',
-                                                       'Mercenary Transport',
-                                                       'Prisoner Transport',
-                                                       'Intel Training',
-                                                       'Mayhem Training',
-                                                       'Politics Training',
-                                                       'Theft Training'] },
-#                                                       'Political Propaganda'] },
-                              });
+                    ->search(
+                        {
+                          -or => [
+                                 -and => [
+                                          available_on  => { '<' => $dtf->format_datetime(DateTime->now) },
+                                          task => { 'not in' => [
+                                                      'Idle',
+                                                      'Counter Espionage',
+                                                      'Mercenary Transport',
+                                                      'Prisoner Transport',
+                                                      'Intel Training',
+                                                      'Mayhem Training',
+                                                      'Politics Training',
+                                                      'Theft Training',
+                                                      'Political Propaganda',
+                                                   ] },
+                                         ],
+                                 -and => [
+                                          started_assignment => { '<' => 
+                                              $dtf->format_datetime(DateTime->now->subtract(days => 2)) },
+                                          task => { 'in' => [
+                                                      'Intel Training',
+                                                      'Mayhem Training',
+                                                      'Politics Training',
+                                                      'Theft Training',
+                                                      'Political Propaganda',
+                                                   ] },
+                                         ],
+                                 ]
+                        });
 
     # TODO further efficiencies could be made by ignoring spies not yet 'available'
+    say "Number of spies selected: ".$spies->count;
     while (my $spy = $spies->next) {
         if ($verbose) {
-            say format_date(DateTime->now), " ", "Tick spy ".$spy->name." task ".$spy->task;
+            say format_date(DateTime->now), 
+                sprintf(" Tick Spy %s:%s %s Task: %s since %s",
+                        $spy->id, $spy->name, $spy->empire_id, $spy->task, format_date($spy->started_assignment));
         }
         my $starting_task = $spy->task;
         $spy->is_available;
@@ -508,7 +530,7 @@ sub is_available {
         if ($mission_count_add > 0) {
             my $remain_min = $minutes - ($mission_count_add * 360);
             $self->started_assignment($now->clone->subtract(minutes => $remain_min)); # Put time at now with remainder
-            my $fskill = $self->politics_xp + $mission_count_add;
+            my $fskill = $self->politics_xp + (10 * $mission_count_add);
             $fskill = 2600 if ($fskill > 2600);
             $self->politics_xp($fskill);
             $self->defense_mission_count( $self->defense_mission_count + $mission_count_add);
