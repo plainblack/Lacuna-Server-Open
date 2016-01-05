@@ -406,8 +406,8 @@ sub tick_all_spies {
                                                        'Intel Training',
                                                        'Mayhem Training',
                                                        'Politics Training',
-                                                       'Theft Training',
-                                                       'Political Propaganda'] },
+                                                       'Theft Training'] },
+#                                                       'Political Propaganda'] },
                               });
 
     # TODO further efficiencies could be made by ignoring spies not yet 'available'
