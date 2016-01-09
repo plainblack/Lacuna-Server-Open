@@ -20,6 +20,24 @@ experience thes can take up to 16 hours to do and to resolve any issues.
 By comparison you can download the docker image (perhaps 10 to 20
 minutes) and run up the server in just a few seconds in Docker.
 
+TODO
+====
+
+This initial implementation of Docker is just a build of a complete
+development environment. As such it does not follow the principle of
+each docker container doing just one thing. It does however work...
+
+This implementation will shortly be changed so as to separate out
+the various components into their own Docker containers.
+
+  * web-application
+  * beanstalk
+  * mysql-server
+  * memcache
+  * nginx
+
+This will make the system easier to build and deploy. 
+
 
 Install Docker
 ==============
