@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 
 # This is a data-only container which holds the mysql database.
 #

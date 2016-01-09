@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 # This container starts up your TLE web server. It maps the port 5000
 # from the container to your host port 5000
 #
