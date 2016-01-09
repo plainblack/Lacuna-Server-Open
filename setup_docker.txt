@@ -1,0 +1,155 @@
+Introduction
+============
+
+Docker documentation can be found at:-
+
+  https://docs.docker.com
+
+Docker works with 'containers' which you can think of as lightweight
+virtual machines. They can be built once, and deployed in many places.
+
+A docker image has been created to allow the Lacuna Expanse Server to
+be run from linux, in OS-X or in Windows.
+
+By comparison, if you were to set up a Lacuna Expanse Server, you would
+need to do so either on a Linux server, or a virtual machine running
+Centos. You would need to install all the packages, including building
+Perl and loading all the support libraries and CPAN modules. From
+experience thes can take up to 16 hours to do and to resolve any issues.
+
+By comparison you can download the docker image (perhaps 10 to 20
+minutes) and run up the server in just a few seconds in Docker.
+
+
+Install Docker
+==============
+
+Installation on various systems can be found at
+
+  https://docs.docker.com/engine/installation/
+
+Please check the requirements. In particular on Windows you need to
+ensure that your PC supports virtualization technology and that it
+is enabled in the BIOS.
+
+
+Special considerations for OS X
+-------------------------------
+
+Docker cannot run natively on OS X so it runs in VirtualBox.
+
+By default, the 'default' image created has a base memory of 1024 MB.
+
+You should delete the image created during the installation process and
+recreate it with a base memory of 8192 MB.
+
+  docker-machine create --driver virtualbox --virtualbox_memory 8192 default
+
+
+Creating the Docker Images
+==========================
+
+The git repository, Lacuna-Server-Open includes a Dockerfile and a number
+of scripts which can be used to create the image.
+
+
+Create a data-only container for mysql
+--------------------------------------
+
+Normally when you stop or close a container any data within it will be
+destroyed. However by using a separate data-only container it is possible
+to keep the data even if you stop/kill/rebuild any container using it.
+
+  docker create --name tle-mysql-data arungupta/mysql-data-container
+
+This will create the data container to which the web application will 
+connect when it is run. This will be used by mysql to maintain the database.
+
+If you ever have a need to refresh the database then you can delete this
+image and recreate it.
+
+
+To build the application image from scratch
+-------------------------------------------
+
+You don't need to build an image yourself, you can download and run the
+pre-built image (see below). You may only need to do this if you want to
+make changes to the server setup (note, you don't need to do this if you
+are just changing the source code).
+
+  ./docker_build.sh
+
+This will load the base image (Centos) and automatically do all the steps to
+load and build the web server software. Note, this code will download some
+libraries (such a memcache) and it is possible that it will fail due to a
+change in the version number of these packages. (This is the same issue you
+may have if you build it manually.) The whole process will take a couple of
+hours (depending on your download speed).
+
+Once you have built it you can run the image as follows.
+
+  ./docker_run.sh
+
+The server will start and put you in the command prompt almost instantly.
+
+
+To download and run the pre-built image
+---------------------------------------
+
+This is the preferred approach, the image has been built already, all you
+need to do is download it and run it from docker-hub. The download takes
+about 20 minutes (depending upon network speed).
+
+  ./docker_run_prebuilt.sh
+
+Once downloaded, it remains cached locally so that you don't need to download
+it again.
+
+
+Initializing the database
+=========================
+
+You can connect to the running server (see above) with another bash session.
+
+  ./docker_exec.sh
+
+This will put you in the bin directory.
+
+The first time you run your image there will be no database and so you should
+run the following scripts
+
+  $ mysql
+  mysql> source docker.sql
+  mysql> exit
+  $ cd setup
+  $ perl init_lacuna.pl
+  $ perl generate_captcha.pl
+
+The two perl scripts will take a while to complete (20 minutes?) but once
+completed your web server should be ready to go. 
+
+The database is preserved in the data only container you created earlier.
+
+
+Making code changes to the TLE application
+==========================================
+
+The container running the web application is mapping the directories
+'lib','bin','etc' and 'var' from the host. This means that you can make
+changes to those files using your normal host environment/editors etc.
+You can also use git commands to change branches, commit etc. in you host. 
+There should be no need to edit files from within your docker container.
+
+However, as normal, if you change your code you will need to restart your
+web server (that should still be running in your session where you did the
+'./docker_run.sh' command. (ctrl-c, $ ./startdev.sh).
+
+(It is a common mistake to change your code, and forget to restart your
+server and wonder why your changes are not working!)
+
+If you *do* need to make changes in your container (for example to 
+do SQL queries) then you can use the './docker_exec.sh' script to open 
+another session.
+
+
+
