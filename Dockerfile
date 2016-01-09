@@ -73,6 +73,9 @@ ENV ANYMOOSE Moose
 
 RUN cpan App::cpanminus
 
+# without a terminal the tests fail
+RUN cpanm --force Term::ReadKey 
+
 RUN cpanm Test::Most Test::Trap AnyEvent Beanstalk::Client Business::PayPal::API Chat::Envolve Clone Config::JSON Config::YAML
 RUN cpanm DateTime DateTime::Format::Duration DateTime::Format::MySQL DateTime::Format::Strptime DBD::mysql DBIx::Class 
 RUN cpanm DBIx::Class::DynamicSubclass DBIx::Class::InflateColumn::Serializer DBIx::Class::Schema DBIx::Class::TimeStamp 
@@ -86,9 +89,6 @@ RUN cpanm Term::ProgressBar Term::ProgressBar::Quiet PerlX::Maybe Firebase::Auth
 
 # without verbose it times out and aborts due to long compilation
 RUN cpanm --verbose Memcached::libmemcached
-
-# without a terminal the tests fail
-RUN cpanm --force Term::ReadKey 
 
 # Starman does not seem to test without a terminal
 RUN cpanm --notest Starman
