@@ -1,9 +1,4 @@
-# This script runs the docker image that you have created locally
-# by the use of the script 'docker_build.sh'.
-#
-# If you don't want the trouble of building it yourself, use the script
-# 'docker_run_prebuilt.sh' which will download and run the pre-built
-# image stored on docker hub. This is the recommended method.
+# This runs the pre-built docker image, downloaded from docker-hub
 #
 # This container starts up your TLE web server. It maps the port 5000
 # from the container to your host port 5000
@@ -33,4 +28,4 @@ echo 'server. You can do this with the following.
 echo '  $ ctrl-c'
 echo '  $ ./startdev.sh'
 echo
-docker run --rm -it --name=tle-server -p 5000:5000 --volumes-from tle-mysql-data -v ${PWD}/bin:/data/Lacuna-Server/bin -v ${PWD}/lib:/data/Lacuna-Server/lib -v ${PWD}/etc:/data/Lacuna-Server/etc -v ${PWD}/var:/data/Lacuna-Server/var tle-server /bin/bash
+docker run --rm -it --name=tle-server -p 5000:5000 --volumes-from tle-mysql-data -v ${PWD}/bin:/data/Lacuna-Server/bin -v ${PWD}/lib:/data/Lacuna-Server/lib -v ${PWD}/etc:/data/Lacuna-Server/etc -v ${PWD}/var:/data/Lacuna-Server/var icydee/tle-server /bin/bash
