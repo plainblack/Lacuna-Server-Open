@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 # This script allows to you attach to the currently
 # running TLE server (see docker_run.sh) and poke
 # around etc.
