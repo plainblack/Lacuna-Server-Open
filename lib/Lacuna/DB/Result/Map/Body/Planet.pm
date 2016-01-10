@@ -2618,6 +2618,7 @@ sub add_happiness {
 
 sub spend_happiness {
     my ($self, $value) = @_;
+    $self->tick;
     my $new = $self->happiness - $value;
     my $empire = $self->empire;
     if ($empire and $new < 0) {
