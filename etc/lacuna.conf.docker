@@ -10,7 +10,7 @@
     },
    "beanstalk" : {
       "debug" : 0,
-      "server" : "localhost",
+      "server" : "tle-beanstalkd",
       "ttr" : 120,
       "max_timeouts" : 10,
       "max_reserves" : 10
@@ -24,7 +24,7 @@
       "total" : 65664
    },
    "db" : {
-      "dsn" : "DBI:mysql:lacuna",
+      "dsn" : "DBI:mysql:host=tle-mysql-server;database=lacuna",
       "password" : "lacuna",
       "username" : "lacuna"
    },
@@ -69,7 +69,7 @@
    },
    "memcached" : [
       {
-         "host" : "127.0.0.1",
+         "host" : "tle-memcached",
          "port" : "11211"
       }
    ],

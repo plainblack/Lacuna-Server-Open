@@ -6,8 +6,8 @@
 #
 # If for any reason you do want to delete the container be sure
 # to first stop and remove all containers with a reference to
-# the data container (docker_run.sh for example) and then do
-# the folowing command.
+# the data container (run_app.sh for example) and then do
+# the following command.
 #
 #   $ docker rm -v tle-mysql-data
 #
