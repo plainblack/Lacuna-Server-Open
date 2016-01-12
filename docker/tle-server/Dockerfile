@@ -1,6 +1,7 @@
 FROM perl:5.12
 
 RUN mkdir -p /data/Lacuna-Server/third_party
+RUN mkdir -p /data/Lacuna-Captcha/public
 RUN mkdir /data/apps
 RUN mkdir /data/captcha
 
