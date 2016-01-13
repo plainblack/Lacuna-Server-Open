@@ -9,7 +9,8 @@ after send => sub {
     return if ( $self->payload->{mercenary} ); # Mercenary already loaded
     return if ( $self->payload->{spies} ); # Spies already loaded
     return if ( $self->payload->{fetch_spies} ); # Don't send spies if we are fetching
-    my $arrives = DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
+    my $arrives = $self->date_available;
+        #DateTime->now->add(seconds=>$self->calculate_travel_time($self->foreign_body));
     my @spies;
     my $to_body = $self->direction eq 'out' ? $self->foreign_body : $self->body;
     foreach my $spy (@{$self->get_available_spies_to_send}) {

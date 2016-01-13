@@ -12,6 +12,7 @@
  - Cht: /planet is more forgiving for new players to use.
  - Fix: Renaming a planet changes top-right planet name.
  - Fix: SSL resources and timers use lowest level of all tiles.
+ - Fix: Spies start infiltrating when they arrive.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
