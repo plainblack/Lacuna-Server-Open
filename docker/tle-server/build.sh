@@ -1,3 +1,1 @@
-date
-docker build -t tle-server .
-date
+docker build -t icydee/tle-server .

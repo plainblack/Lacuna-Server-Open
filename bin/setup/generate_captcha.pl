@@ -120,7 +120,7 @@ say "Riddle Count: ".scalar(keys %riddles);
 
 say "Cleaning up old captchas...";
 $captchas->delete;
-remove_tree('/data/captcha');
+remove_tree('/data/captcha', { keep_root => 1 });
 make_path('/data/captcha');
 
 say "Generating Captchas...";

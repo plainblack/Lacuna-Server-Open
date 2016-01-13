@@ -1,0 +1,1 @@
+docker run --rm -it -p ${TLE_NETWORK_LISTEN:-127.0.0.1}:${TLE_NETWORK_PORT:-8080}:80 --name=tle-nginx -v ${PWD}/../etc:/data/Lacuna-Server/etc -v ${PWD}/../var:/data/Lacuna-Server/var icydee/tle-nginx /bin/bash

@@ -33,4 +33,4 @@ echo 'server. You can do this with the following.
 echo '  $ ctrl-c'
 echo '  $ ./startdev.sh'
 echo
-docker run --rm -it -p 5000:5000 --name=tle-server -v ${PWD}/../bin:/data/Lacuna-Server/bin -v ${PWD}/../lib:/data/Lacuna-Server/lib -v ${PWD}/../etc:/data/Lacuna-Server/etc -v ${PWD}/../var:/data/Lacuna-Server/var icydee/tle-server /bin/bash
+docker run --rm -it -p 5000:5000 --name=tle-server -v ${PWD}/../captcha:/data/captcha -v ${PWD}/../bin:/data/Lacuna-Server/bin -v ${PWD}/../lib:/data/Lacuna-Server/lib -v ${PWD}/../etc:/data/Lacuna-Server/etc -v ${PWD}/../var:/data/Lacuna-Server/var icydee/tle-server /bin/bash
