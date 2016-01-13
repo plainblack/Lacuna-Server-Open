@@ -129,8 +129,8 @@ has plan_time_cost => (
 
 sub plan_time_at_level {
     my ($self, $level, $base) = @_;
-    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_manufacturing_affinity * 5)/200);
-    my $time_cost = sprintf('%.0f', $base * ($inflate ** $level));
+    my $inflate = INFLATION - (($self->max_level + $self->body->empire->effective_manufacturing_affinity * 5)/200);
+    my $time_cost = int($base * ($inflate ** $level));
     $time_cost = 15 if ($time_cost < 15);
     $time_cost = 5184000 if ($time_cost > 5184000);
     return $time_cost;
@@ -138,8 +138,8 @@ sub plan_time_at_level {
 
 sub plan_cost_at_level {
     my ($self, $level, $base) = @_;
-    my $inflate = INFLATION - (($self->level + $self->body->empire->effective_research_affinity * 5)/200);
-    my $cost = sprintf('%.0f', $base * ($inflate ** $level));
+    my $inflate = INFLATION - (($self->max_level + $self->body->empire->effective_research_affinity * 5)/200);
+    my $cost = int($base * ($inflate ** $level));
     return $cost;
 }
 

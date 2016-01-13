@@ -11,6 +11,7 @@
  - Cht: /wiki replaces spaces with + so you can search for multiple words.
  - Cht: /planet is more forgiving for new players to use.
  - Fix: Renaming a planet changes top-right planet name.
+ - Fix: SSL resources and timers use lowest level of all tiles.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
