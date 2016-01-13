@@ -8,6 +8,9 @@
  - Fix: Abandoned planets' build queues are now cancelled.
  - Fix: Fissure medal when you cause a fissure with BHG.
  - Fix: Training and Propaganda pays attention to the clock.
+ - Cht: /wiki replaces spaces with + so you can search for multiple words.
+ - Cht: /planet is more forgiving for new players to use.
+ - Fix: Renaming a planet changes top-right planet name.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
