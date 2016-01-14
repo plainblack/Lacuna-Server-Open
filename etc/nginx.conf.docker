@@ -59,7 +59,7 @@ http {
         }
 
         location ~ /.* {
-            proxy_pass http://localhost:5000;
+            proxy_pass http://tle-server:5000;
             proxy_set_header X-Real-IP $remote_addr;
         }
     }
