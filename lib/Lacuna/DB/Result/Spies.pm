@@ -742,7 +742,10 @@ sub burn {
     my $body = $self->from_body;
     my $unhappy = int($self->level * 1000 * 200/75); # Not factoring in Deception, always costs this much happiness.
     $unhappy = 2000 if ($unhappy < 2000);
-    $body->spend_happiness($unhappy);
+
+    # need to save off the unhappy if the burned spy is PP on homeworld
+    # because uprising will load a separate object for the same row.
+    $body->spend_happiness($unhappy)->update;
     if ($self->task eq 'Political Propaganda') {
         $body->add_news(200, 'The government of %s made the mistake of trying to burn one of their own loyal propaganda ministers.', $old_empire->name);
         $self->on_body->propaganda_boost(0);
@@ -750,9 +753,8 @@ sub burn {
     }
     elsif ($body->add_news(25, 'This reporter has just learned that %s has a policy of burning its own loyal spies.', $old_empire->name)) {
 # If the media finds out, even more unhappy.
-        $body->spend_happiness(int($unhappy/2));
+        $body->spend_happiness(int($unhappy/2))->update;
     }
-    $body->update;
     if ($self->on_body->empire_id != $old_empire->id) {
         my $new_emp = $self->on_body->empire_id;
         my $new_int_min = $self->on_body->get_building_of_class('Lacuna::DB::Result::Building::Intelligence');

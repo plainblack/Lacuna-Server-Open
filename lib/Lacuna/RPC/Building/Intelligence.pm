@@ -196,8 +196,10 @@ sub burn_spy {
         confess [1010, "You can't burn a spy that has been killed in action; he's dead, Jim."];
     }
     $spy->burn;
+    my $body = $building->body;
+    $body->discard_changes;
     return {
-        status  => $self->format_status($session, $building->body),
+        status  => $self->format_status($session, $body),
     };
 }
 

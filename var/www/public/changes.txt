@@ -13,6 +13,7 @@
  - Fix: Renaming a planet changes top-right planet name.
  - Fix: SSL resources and timers use lowest level of all tiles.
  - Fix: Spies start infiltrating when they arrive.
+ - Fix: Burning PP spies really does make planet unhappy.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
