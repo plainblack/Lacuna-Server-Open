@@ -1,6 +1,5 @@
-log4perl.logger = DEBUG, mainlog
-log4perl.appender.mainlog = Log::Log4perl::Appender::File
-log4perl.appender.mainlog.filename = /tmp/lacuna.log
-log4perl.appender.mainlog.layout = PatternLayout
-log4perl.appender.mainlog.layout.ConversionPattern = %d - %p - %M[%L] - %m%n
+log4perl.logger = DEBUG, SCREEN
+log4perl.appender.SCREEN = Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.stderr = 1
+log4perl.appender.SCREEN.layout = Log::Log4perl::Layout::SimpleLayout
 

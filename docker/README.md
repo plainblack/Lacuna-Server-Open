@@ -1,0 +1,146 @@
+## A quick start to running Lacuna Expanse Server in Docker
+
+Docker is a quick and easy way (well, compared to trying to build a server from 
+scratch!) of getting a development system up and running so you can experiment
+and modify the Lacuna Expanse server code.
+
+Please read the documents at ![Install Docker Engine](https://docs.docker.com/engine/installation/)
+for your specific system.
+
+(There are a few additional notes below based on our experience of installing Docker)
+
+### Installing on OS X.
+
+On OS X Docker runs in a Virtual Box, the default base memory is 1024 MB but
+it might be too little, in which case you need to set higher, say 8196 as 
+follows. (Note this will blow-away your current docker containers if you have
+any!)
+
+    $ docker-machine rm default
+    $ docker-machine create --driver virtualbox --virtualbox-memory 8096 default
+    $ eval "$(docker-machine env default)"
+
+## Setting up your dev environment
+
+You need to checkout the code from github into a local directory as normal, I
+will assume you are checking out to 
+
+    ~/Lacuna-Server-Open
+    ~/Lacuna-Web-Client
+
+You need to create some config files for the docker config,
+
+    $ cd ~/Lacuna-Server-Open/etc
+    $ cp lacuna.conf.docker lacuna.conf
+    $ cp log4perl.conf.docker log4perl.conf
+    $ cp nginx.conf.docker nginx.conf
+
+It is unlikely that you will need to change these config files from their
+defaults.
+
+### Starting up the docker containers.
+
+In Lacuna-Server-Open there is a sub-directory 'docker' (where you are now!)
+
+Setting up a server is as simple as running the following scripts, in this
+order
+
+    $ ./create_tle_data.sh
+    $ ./run_tle_beanstalk.sh
+    $ ./run_tle_memcached.sh
+    $ ./run_tle_mysql_server.sh
+    $ ./run_tle_server.sh (note. you can 'exit' this for now)
+    $ ./run_tle_nginx.sh
+
+If this has worked, you can now do the following to see what is running.
+
+    $ docker ps -a
+
+This should show you have several docker containers running (i.e. Status
+of 'Up xx minutes').
+
+These containers are fairly self-explanitory.
+
+### tle-beanstalk
+
+This runs the beanstalk message queue. It is a standard Docker container.
+
+### tle-memcached
+
+Again a standard Docker container with default ports.
+
+### tle-mysql-server
+
+This is a standard Docker MySql server. You can also connect to this
+container to run a mysql client to inspect and modify your database.
+
+### tle-mysql-data
+
+This is a container, but it is data-only. It is never run. This allows you
+to have a persistent database for mysql. You can start/stop other containers
+but your mysql data will remain.
+
+If you ever want to 'blow-away' your database and start again then you
+should first stop and remove all containers that refer to it (tle-mysql)
+and then do the following.
+
+    $ docker rm -v tle-mysql-data
+    $ ./create_tle_data.sh
+
+### tle-nginx
+
+This is your web server which exposes the docker port to the outside world.
+By default this will run the web server on localhost port 8080 (but this can
+be configured).
+
+### tle-server
+
+This is the Server Code. You can start and restart your development server
+from within this container. This will put you into the Docker container in the 
+bash shell. Normally you will just run the command
+
+    $ ./startdev
+
+But there are a few things you need to do first (see below, Initial Configuration).
+
+
+## Initial configuration
+
+There are a few things you need to do to set up your development system.
+
+If you have just created your tle-mysql-data container then it will be empty.
+
+The first time you run up the tle-server you need to run a few commands.
+
+    $ cd /data/lacuna-server/bin
+    $ mysql --host=tle-mysql-server -uroot -placuna
+    mysql> source docker.sql
+    mysql> exit
+
+This sets up the user account 'lacuna' which is used by the web application.
+
+(Note that the root account has been given the password 'lacuna').
+
+You now need to initialize the database. (this will take a few minutes).
+
+    $ cd ~/Lacuna-Server-Open/bin/setup
+    $ perl init_lacuna.pl
+    
+Create the captchas. (this will take many more  minutes, perhaps 30, go
+get a coffee). Don't worry about entering the mysql root password at the
+end, this is not needed in a dev environment.
+
+    $ perl generate_captcha.pl
+
+You will want to generate the html version of the documentation so you
+can view it in your web browser.
+
+    $ cd ~/Lacuna-Server-Open/bin
+    $ perl generate_docs.pl
+
+
+
+
+
+
+
