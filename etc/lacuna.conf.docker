@@ -21,7 +21,7 @@
       # .ttf fonts in above path
       "fonts" : [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ],
       # this is 16416 x number of fonts
-      "total" : 65664
+      "total" : 1
    },
    "db" : {
       "dsn" : "DBI:mysql:host=tle-mysql-server;database=lacuna",

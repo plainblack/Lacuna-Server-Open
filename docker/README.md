@@ -49,7 +49,7 @@ order
     $ ./run_tle_beanstalk.sh
     $ ./run_tle_memcached.sh
     $ ./run_tle_mysql_server.sh
-    $ ./run_tle_server.sh (note. you can 'exit' this for now)
+    $ ./run_tle_server.sh (leave this running in a terminal mession for now, otherwise nginx will not work!)
     $ ./run_tle_nginx.sh
 
 If this has worked, you can now do the following to see what is running.
@@ -125,12 +125,13 @@ You now need to initialize the database. (this will take a few minutes).
 
     $ cd ~/Lacuna-Server-Open/bin/setup
     $ perl init_lacuna.pl
-    
-Create the captchas. (this will take many more  minutes, perhaps 30, go
-get a coffee). Don't worry about entering the mysql root password at the
-end, this is not needed in a dev environment.
 
-    $ perl generate_captcha.pl
+
+We don't really need captchas in development. Run this script to create
+captchas all with a result of '1'.
+
+    $ perl generate_captcha_docker.pl
+
 
 You will want to generate the html version of the documentation so you
 can view it in your web browser.
@@ -139,8 +140,17 @@ can view it in your web browser.
     $ perl generate_docs.pl
 
 
+You can now run the development server
 
+    $ ./startdev.sh
 
+This will run in the current terminal session, type ctrl-c to terminate
+the server at any time. type 'exit' to exit the docker container and return
+to the host and close the container.
+
+If you make changes to the server code (in the host environment) you will need
+to do so from a separate terminal session and then restart the server in this
+terminal session.
 
 
 
