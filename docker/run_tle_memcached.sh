@@ -1,2 +1,2 @@
-docker run --name=tle-memcached -d memcached
+docker run --name=tle-memcached --net=tle-network -d memcached
 
