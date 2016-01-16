@@ -9,6 +9,15 @@ for your specific system.
 
 (There are a few additional notes below based on our experience of installing Docker)
 
+### Docker Version
+
+There is a difference between Docker 1.8 and Docker 1.9 in the use of networks.
+
+The scripts in the ./docker directory refer to the latest version of Docker (1.9)
+however if you are running Docker 1.8 you should use the scripts in the 
+./docker_1.8 directory. Otherwise the following instructions apply to both
+versions.
+
 ### Installing on OS X.
 
 On OS X Docker runs in a Virtual Box, the default base memory is 1024 MB but
@@ -45,6 +54,7 @@ In Lacuna-Server-Open there is a sub-directory 'docker' (where you are now!)
 Setting up a server is as simple as running the following scripts, in this
 order
 
+    $ ./create_tle_network.sh
     $ ./create_tle_data.sh
     $ ./run_tle_beanstalk.sh
     $ ./run_tle_memcached.sh
