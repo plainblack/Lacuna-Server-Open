@@ -140,6 +140,26 @@ can view it in your web browser.
     $ perl generate_docs.pl
 
 
+## Running schedulers
+
+There are some processes which run as daemons on the server, these control
+the arrival of ships or the completion of a building upgrade. These take
+their jobs off the beanstalk queue at the time when the task is to be
+completed.
+
+Normally you would run these as a daemon as follows.
+
+    $ perl schedule_building.pl --noquiet
+    $ perl schedule_ship_arrival.pl --noquiet
+
+The --noquiet argument ensures that their actions are logged into log files
+which you can choose to tail in another terminal session.
+
+    /tmp/schedule_building.log
+    /tmp/schedule_ship_arrival.log
+
+## Running the server (finally!)
+
 You can now run the development server
 
     $ ./startdev.sh
@@ -151,6 +171,5 @@ to the host and close the container.
 If you make changes to the server code (in the host environment) you will need
 to do so from a separate terminal session and then restart the server in this
 terminal session.
-
 
 
