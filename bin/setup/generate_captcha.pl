@@ -169,6 +169,7 @@ foreach my $riddle (keys %riddles) {
                     open my $file, '>', $dir.'/'.$guid.'.png';
                     print {$file} $image;
                     close $file;
+                    $counter++;
                     $captchas->new({
                         id      => $counter,
                         guid    => $guid,
