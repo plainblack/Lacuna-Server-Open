@@ -271,6 +271,84 @@ around 'view' => sub {
     return $out;
 };
 
+sub name_spies {
+    my ($self, $opts) = @_;
+    Lacuna::Verify->new(content=>\$opts->{prefix}, throws=>[1005, 'Invalid prefix for a spy.'])
+        ->not_empty
+        ->no_profanity
+        ->length_lt(28)
+        ->no_restricted_chars
+        if $opts->{prefix};
+    Lacuna::Verify->new(content=>\$opts->{suffix}, throws=>[1005, 'Invalid suffix for a spy.'])
+        ->not_empty
+        ->no_profanity
+        ->length_lt(28)
+        ->no_restricted_chars
+        if $opts->{suffix};
+
+    confess [1005, 'Prefix or suffix must be provided']
+        if !$opts->{prefix} && !$opts->{suffix};
+    confess [1005, 'Prefix length plus suffix length is too long.']
+        if (defined $opts->{prefix} && length $opts->{prefix} ? 1 + length $opts->{prefix} : 0) +
+           (defined $opts->{suffix} && length $opts->{suffix} ? 1 + length $opts->{suffix} : 0) +
+            2 > 30;
+
+    my $session = $self->get_session({session_id => $opts->{session_id}, building_id => $opts->{building_id} });
+    my $building = $session->current_building;
+
+    my @spies = $building->get_spies()->all;
+    my %spies;
+    my @dupes;
+
+    for my $spy (@spies)
+    {
+        if ($spies{$spy->name})
+        {
+            push @dupes, $spy;
+        }
+        else
+        {
+            $spies{$spy->name} = $spy;
+        }
+    }
+
+    # look for names not set properly.
+    my @names_left;
+    for my $n (1..@spies)
+    {
+        my $desired_name = sprintf("%s%s%02d%s%s",
+                                   $opts->{prefix} // '',
+                                   defined $opts->{prefix} && length $opts->{prefix} ? ' ' : '',
+                                   $n,
+                                   defined $opts->{suffix} && length $opts->{suffix} ? ' ' : '',
+                                   $opts->{suffix} // '',
+                                  );
+        if ($spies{$desired_name})
+        {
+            delete $spies{$desired_name};
+        }
+        else
+        {
+            push @names_left, $desired_name;
+        }
+    }
+
+    my $renamed = 0;
+    for my $spy (sort { $a->{id} <=> $b->{id} } @dupes, values %spies)
+    {
+        # Agent Null spies?
+        next if $opts->{rename_null_only} && $spy->name ne 'Agent Null';
+
+        $renamed++;
+        $spy->name(shift @names_left);
+        $spy->update;
+    }
+
+    my $rc = $self->view_all_spies($session, $building);
+    $rc->{renamed} = $renamed;
+    $rc;
+}
+
 sub name_spy {
     my ($self, $session_id, $building_id, $spy_id, $name) = @_;
     Lacuna::Verify->new(content=>\$name, throws=>[1005, 'Invalid name for a spy.'])
@@ -291,7 +369,14 @@ sub name_spy {
     
 }
 
-__PACKAGE__->register_rpc_method_names(qw(view_spies view_all_spies assign_spy train_spy burn_spy name_spy subsidize_training));
+__PACKAGE__->register_rpc_method_names(
+qw(view_spies
+view_all_spies
+assign_spy
+train_spy
+burn_spy
+name_spy name_spies
+subsidize_training));
 
 
 no Moose;

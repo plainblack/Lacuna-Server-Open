@@ -192,6 +192,16 @@ Set the name of the spy. Returns:
  
 Throws 1002, 1005, 1013.
 
+=head2 name_spies ( { session_id: session_id, building_id: building_id, prefix: "p", suffix: "s", rename_null_only: bool } )
+
+Sets the name of (almost) all spies.  The new name of the spy will be of the form "p ## s" if both prefix and suffix are given, "p ##" if only prefix is given, and "## s" if only suffix is given.
+
+If rename_null_only is given, only spies currently named "Agent Null" will be renamed.  If you want some spies set to specific values, and the rest can be given generic names, you can use this flag.
+
+Note that spies that already have valid names according to the prefix and/or suffix given will not be renamed (unless they are duplicates).  If you've already got spy "p 08 s", that spy will not get renamed as long as "p" and "s" are given as prefix and suffix, respectively, and no new spy will get that name until the current "p 08 s" is retired and replaced.
+
+Returns C<view_all_spies> plus a C<renamed> key with the count of spies renamed.
+
 =head3 session_id
 
 A session id.
