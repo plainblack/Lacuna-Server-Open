@@ -103,7 +103,7 @@ An array reference containing an ordered list of up to four glyph types.
 
 =head3 quantity
 
-An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs up to a maximum of 5000.
+An optional quantity; if left blank it defaults to 1, otherwise specify the number of times to assemble the indicated glyphs.
 
 
 =head2 get_ores_available_for_processing (session_id, building_id)
