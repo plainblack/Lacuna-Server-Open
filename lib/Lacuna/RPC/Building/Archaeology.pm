@@ -93,9 +93,6 @@ sub search_for_glyph {
 sub assemble_glyphs {
     my ($self, $session_id, $building_id, $glyphs, $quantity) = @_;
     $quantity = defined $quantity ? $quantity : 1;
-    if ($quantity > 5000) {
-        confess [1011, "You can only assemble up to 5000 plans at a time"];
-    }
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
     }
