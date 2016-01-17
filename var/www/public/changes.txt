@@ -15,6 +15,7 @@
  - Fix: Spies start infiltrating when they arrive.
  - Fix: Burning PP spies really does make planet unhappy.
  - Mod: Remove limit for number of plans created at a time in Arch. Min.
+ - Fix: After flipping, layoff police.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.

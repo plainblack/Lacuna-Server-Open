@@ -546,7 +546,12 @@ sub is_available {
     }
     elsif (time > $self->available_on->epoch) {
         if ($task eq 'Debriefing') {
-            $self->task('Counter Espionage');
+            if ($self->on_body->empire_id == $self->empire_id) {
+                $self->task('Counter Espionage');
+            }
+            else {
+                $self->task('Idle');
+            }
             $self->started_assignment(DateTime->now);
             $self->update;
             return 1;
@@ -2014,10 +2019,10 @@ sub steal_planet {
     Lacuna->db->resultset('Spies')->search({
         on_body_id => $self->on_body_id,
         task => { 'in' => [ 'Training',
-                                'Intel Training',
-                                'Mayhem Training',
-                                'Politics Training',
-                                'Theft Training'] },
+                            'Intel Training',
+                            'Mayhem Training',
+                            'Politics Training',
+                            'Theft Training'] },
     })->delete_all; # All spies in training are executed including those training in intel,mayhem,politics, and theft
 
     my $spies = Lacuna->db->resultset('Spies')
@@ -2045,6 +2050,15 @@ sub steal_planet {
                         available_on => DateTime->now->add(days => 30),
                        });
         }
+    }
+    $spies = Lacuna->db->resultset('Spies')
+                  ->search({on_body_id => $self->on_body_id,
+                            task => 'Counter Espionage'});
+    while (my $spy = $spies->next) {
+          $spy->update({
+                        task => 'Idle',
+                        started_assignment => DateTime->now,
+                       });
     }
 
     my $ships = Lacuna->db->resultset('Ships')
