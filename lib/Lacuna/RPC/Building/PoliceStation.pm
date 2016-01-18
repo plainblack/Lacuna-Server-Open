@@ -184,6 +184,7 @@ sub view_foreign_ships {
                     $ship_info{name} = $ship->name;
                     $ship_info{type} = $ship->type;
                     $ship_info{type_human} = $ship->type_formatted;
+                    $ship_info{image}      = $ship->image;
                 }
             }
             push @fleet, \%ship_info;
