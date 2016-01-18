@@ -5,7 +5,7 @@
         "/culinaryinstitute" : { "description" : "A source of cultural influence for your space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/culinary-institute" },
         "/stationcommand" : { "description" : "The internal operations of a space station. Controls how big the station can be expanded.", "wiki" : "http://community.lacunaexpanse.com/wiki/station-command-center" },
         "/parliament" : { "description" : "The central government for the star systems that are controlled by a space station. Laws for the jurisdiction are made here.", "wiki" : "http://community.lacunaexpanse.com/wiki/parliament" },
-        "/policestation" : { "description" : "The police station serves much the same purpose as a security ministry, but on a Space Station.", "wiki" : "http://community.lacunaexpanse.com/wiki/police-station" },
+        "/policestation" : { "description" : "The police station manages security on a Space Station.  It can help defend the Station against spies as well as detect incoming ships.", "wiki" : "http://community.lacunaexpanse.com/wiki/police-station" },
         "/warehouse" : { "description" : "Resource storage for a space station.", "wiki" : "http://community.lacunaexpanse.com/wiki/warehouse" },
         "/ibs" : { "description" : "A means of spreading the culture and influence of a space station's government.", "wiki" : "http://community.lacunaexpanse.com/wiki/interstellar-broadcast-system" },
         "/ssla" : { "description" : "Allows the construction of Space Station Lab modules. Requires four plots, and this is the top left corner of the building.", "wiki" : "http://community.lacunaexpanse.com/wiki/space-station-lab" },
