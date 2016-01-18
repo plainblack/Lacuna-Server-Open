@@ -20,7 +20,7 @@ Each server in this list is an instance of the game, an individual universe sepa
 
 =head1 JSON-RPC
 
-The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about JSON-RPC 2.0 at L<http://groups.google.com/group/json-rpc/web/json-rpc-2-0>.
+The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about JSON-RPC 2.0 at L<http://www.jsonrpc.org/specification>.
 
 You can access these methods either as HTTP POSTs or GETs. 
 
