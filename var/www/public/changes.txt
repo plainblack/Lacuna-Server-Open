@@ -19,6 +19,7 @@
  - Add: Intel Min can rename all spies at once (new API).
  - Add: Incoming view to police station.
  - Mod: Remove RPC total from options panel, put in iso status.
+ - Mod: Moved explanation texts from root to info directory.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.

@@ -1591,7 +1591,7 @@ sub bhg_make_asteroid {
     my @fissures = $body->get_buildings_of_class('Lacuna::DB::Result::Building::Permanent::Fissure');
     my @to_demolish = @{$body->building_cache};
     $body->delete_buildings(\@to_demolish);
-    my $new_size = int($building->effective_level/5); #/
+    my $new_size = int($building->effective_level/5);
     $new_size = 10 if $new_size > 10;
     $body->update({
         class                     => 'Lacuna::DB::Result::Map::Body::Asteroid::A'.randint(1,Lacuna::DB::Result::Map::Body->asteroid_types),
@@ -1806,7 +1806,7 @@ sub bhg_random_fissure {
             $body->empire->add_medal('Fissure');
             $return->{message} = "Fissure formed";
             my $minus_x = 0 - $target->x;
-            my $minus_y = 0 - $target->y;;;
+            my $minus_y = 0 - $target->y;
             my $alert = Lacuna->db->resultset('Map::Body')->search({
                 -and => [
                     {empire_id => { '!=' => 'Null' }}
@@ -1835,7 +1835,7 @@ sub bhg_random_fissure {
                     $to_alert->empire->send_predefined_message(
                         tags        => ['Fissure', 'Alert'],
                         filename    => 'fissure_alert_spawn.txt',
-                        params      => [$target->x, $target->y, $target->name],,
+                        params      => [$target->x, $target->y, $target->name],
                     );
                 }
             }
