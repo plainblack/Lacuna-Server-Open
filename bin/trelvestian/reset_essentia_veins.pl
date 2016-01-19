@@ -26,6 +26,7 @@ while (my $colony = $colonies->next) {
     my $vein = $colony->get_building_of_class('Lacuna::DB::Result::Building::Permanent::EssentiaVein');
     if (defined $vein) {
         my $ends = DateTime->now->add(seconds => 60*60*24*60);
+        $vein->level(28);
         $vein->reschedule_work($ends)->update;
     }
     else {
