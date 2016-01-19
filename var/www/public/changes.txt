@@ -16,8 +16,9 @@
  - Fix: Burning PP spies really does make planet unhappy.
  - Mod: Remove limit for number of plans created at a time in Arch. Min.
  - Fix: After flipping, layoff police.
- - Add: Intel Min can rename all spies at once (new API)
+ - Add: Intel Min can rename all spies at once (new API).
  - Add: Incoming view to police station.
+ - Mod: Remove RPC total from options panel, put in iso status.
 
 3.0917:
  - Fix: Recalc stats when building 1+x plans.
