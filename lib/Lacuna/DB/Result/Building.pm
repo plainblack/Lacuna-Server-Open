@@ -131,6 +131,8 @@ use constant food_storage           => 0;
 use constant ore_storage            => 0;
 use constant waste_storage          => 0;
 
+use constant can_really_be_built    => 1;
+
 # BASE FORMULAS
 
 has effective_level => (

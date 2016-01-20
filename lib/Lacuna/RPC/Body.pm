@@ -473,6 +473,7 @@ sub get_buildable {
     my %plans;
     my @buildable_plans = sort {$a->extra_build_level <=> $b->extra_build_level} grep{$_->level == 1} @{$body->plan_cache};
     for my $plan (@buildable_plans) {
+        next unless eval { $plan->class->can_really_be_built };
         push @buildable, $plan->class->controller_class;
         $plans{$plan->class} = $plan->extra_build_level;
     }
@@ -482,7 +483,7 @@ sub get_buildable {
         my $building = $building_rs->new(\%properties);
         my @tags = $building->build_tags;
         if ($properties{class} ~~ [keys %plans]) {
-            push @tags, 'Plan',
+            push @tags, 'Plan';
         }
         if ($tag) {
             next unless ($tag ~~ \@tags);
@@ -491,7 +492,7 @@ sub get_buildable {
         my $can_build = eval{$body->has_met_building_prereqs($building, $cost)};
         my $reason = $@;
         if ($can_build) {
-            push @tags, 'Now';          
+            push @tags, 'Now';
         }
         elsif (ref $reason ne 'ARRAY') {
             confess $reason;
@@ -506,7 +507,7 @@ sub get_buildable {
             url         => $class->app_url,
             image       => $building->image_level,
             build       => {
-                can         => ($can_build) ? 1 : 0,                
+                can         => ($can_build) ? 1 : 0,
                 cost        => $cost,
                 reason      => $reason,
                 tags        => \@tags,

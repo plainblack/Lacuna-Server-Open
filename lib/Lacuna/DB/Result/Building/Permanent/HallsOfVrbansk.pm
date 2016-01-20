@@ -10,6 +10,7 @@ extends 'Lacuna::DB::Result::Building::Permanent';
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
 
 use constant controller_class => 'Lacuna::RPC::Building::HallsOfVrbansk';
+use constant can_really_be_built => 0;
 
 around can_build => sub {
     confess [1013,"You can't build the Halls of Vrbansk."];
