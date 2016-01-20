@@ -6,6 +6,7 @@ no warnings qw(uninitialized);
 extends 'JSON::RPC::Dispatcher::App';
 use Lacuna::Util qw(format_date real_ip_address);
 use Log::Any qw($log);
+use Scalar::Util qw(blessed);
 
 has plack_request => ( is => 'rw' );
 
@@ -146,6 +147,10 @@ sub get_baby {
 
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $session, $body_id) = @_;
+
+    confess [ 1002, "body_id must be not null" ]
+        unless defined $body_id;
+
     if (ref $body_id && $body_id->isa('Lacuna::DB::Result::Map::Body')) {
         return $body_id;
     }
@@ -179,8 +184,13 @@ sub get_body { # makes for uniform error handling, and prevents staleness
 
 sub get_building { # makes for uniform error handling, and prevents staleness
     my ($self, $session, $building_id, %options) = @_;
-    if (ref $building_id && $building_id->isa('Lacuna::DB::Result::Building')) {
-        return $building_id;
+    if (ref $building_id) {
+        if (blessed($building_id) && $building_id->isa('Lacuna::DB::Result::Building')) {
+            return $building_id;
+        }
+        # how do we get here?
+        $log->trace(Carp::longmess "internal error: building_id is a ref, but not blessed?");
+        confess [ 552, "Internal Error [get_building]" ];
     }
 
     my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
