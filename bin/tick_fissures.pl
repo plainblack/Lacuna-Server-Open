@@ -418,7 +418,7 @@ sub fissure_explode {
             $to_grab_mass->empire->send_predefined_message(
                 tags        => ['Fissure','Colonization','Alert'],
                 filename    => 'changed_size.txt',
-                params      => [$to_grab_mass->name, $size, $new_size],
+                params      => [$to_grab_mass->x, $to_grab_mass->y, $to_grab_mass->name, $size, $new_size],
             );
         }
         last GASSY if (++$grown >= 5);
