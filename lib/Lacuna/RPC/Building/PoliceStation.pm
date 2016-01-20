@@ -170,6 +170,7 @@ sub view_foreign_ships {
                     type            => 'unknown',
                     date_arrives    => $ship->date_available_formatted,
                     from            => {},
+                    image           => 'unknown',
                 );
             if ($ship->body_id ~~ \@my_planets || $see_ship_path >= $ship->stealth) {
                 $ship_info{from} = {
