@@ -1,4 +1,4 @@
-FROM centos:6
+FROM centos:8
 
 RUN yum install -y cpan wget tar gcc gcc-c++ zlib-devel openssl-devel expat expat-devel ncurses-devel
 RUN yum install -y glibc-devel git mysql mysql-devel libxml2 libxml2-devel mysql-server gd gd-devel
