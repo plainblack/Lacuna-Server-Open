@@ -112,7 +112,7 @@ out('Started');
 # Timeout after an hour
 eval {
     local $SIG{ALRM} = sub { die "alarm\n" };
-    alarm $timeout_seconds;
+    alarm $timeout_seconds if $timeout;
     
     LOOP: do {
         my $job     = $queue->consume('arrive_queue');
