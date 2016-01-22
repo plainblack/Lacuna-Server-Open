@@ -13,6 +13,10 @@ use Text::CSV_XS;
 use Firebase::Auth;
 use Gravatar::URL;
 use List::Util qw(none);
+use PerlX::Maybe qw(provided);
+
+# logging features are new in this level.
+use JSON::RPC::Dispatcher 0.0508;
 
 sub find {
     my ($self, $session_id, $name) = @_;
@@ -1280,13 +1284,42 @@ sub deauthorize_sitters
     return $self->view_authorized_sitters($session);
 }
 
+sub _rewrite_request_for_logging
+{
+    my ($method, $params) = @_;
+    if ($method eq 'login') {
+        $params->[1] = 'xxx';
+    }
+    elsif ($method eq 'change_password') {
+        $params->[$_] = 'xxx' for 0..2;
+    }
+    elsif ($method eq 'reset_password') {
+        $params->[$_] = 'xxx' for 1..2;
+    }
+    elsif ($method eq 'create') {
+        $params = {
+            @$params,
+            password => 'xxx',
+        };
+    }
+    elsif ($method eq 'edit_profile') {
+        $params->[1] = {
+            %{$params->[1]},
+            provided $params->[1]->{sitter_password}, sitter_password => 'xxx',
+        }
+    }
+    return $params;
+}
+
 __PACKAGE__->register_rpc_method_names(
-    { name => "create", options => { with_plack_request => 1 } },
+    { name => "create", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
-    { name => "login", options => { with_plack_request => 1 } },
+    { name => "login", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
     { name => "benchmark", options => { with_plack_request => 1 } },
     { name => "found", options => { with_plack_request => 1 } },
-    { name => "reset_password", options => { with_plack_request => 1 } },
+    { name => "reset_password", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
+    { name => 'change_password', options => { log_request_as => \&_rewrite_request_for_logging } },
+    { name => 'edit_profile', options => { log_request_as => \&_rewrite_request_for_logging } },
     qw(
     redefine_species redefine_species_limits
     get_invite_friend_url
@@ -1295,10 +1328,9 @@ __PACKAGE__->register_rpc_method_names(
     invite_friend
     redeem_essentia_code
     enable_self_destruct disable_self_destruct
-    change_password
     set_status_message
     find
-    view_profile edit_profile view_public_profile
+    view_profile view_public_profile
     is_name_available
     logout
     get_full_status get_status
