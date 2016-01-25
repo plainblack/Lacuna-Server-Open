@@ -92,6 +92,27 @@ eval {
             $captcha->construct;
             out("Captcha created [".$captcha->guid."]");
 
+            # Remove all captchas older than 1hr (except for one)
+            #
+            # select * from captcha where created < DATE_SUB(now(), INTERVAL 1 HOUR) order by id desc;
+            #
+            my $captchas = Lacuna->db->resultset('Captcha')->search({
+                created => \"< DATE_SUB(now(), INTERVAL 1 HOUR)",
+            },{
+                order_by => { -desc => 'id' },
+            });
+            # Ignore the first one (if any)
+            my $captcha = $captchas->next;
+            while ($captcha = $captchas->next) {
+                out("Deleting captcha [".$captcha->id."]");
+
+                my $prefix  = substr($captcha->guid, 0,2);
+                my $file    = "/data/captcha/$prefix/".$captcha->guid.".png";
+                out("Deleting file [$file]");
+                unlink($file);
+                $captcha->delete;
+            }
+
             out("Processing done. Delete job ".$job->id);
             $job->delete;
         }
