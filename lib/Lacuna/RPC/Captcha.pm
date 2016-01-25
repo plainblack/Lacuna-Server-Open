@@ -9,10 +9,16 @@ use DateTime;
 
 sub fetch {
     my ($self, $session_id) = @_;
-    my $captcha = Lacuna->db->resultset('Lacuna::DB::Result::Captcha')->find(randint(1,Lacuna->config->get('captcha/total')||65664));
+
+    
+    my ($captcha) = Lacuna->db->resultset('Captcha')->search(undef, { rows => 1, order_by => { -desc => 'id'} });
     my $cache   = Lacuna->cache;
     $cache->set('captcha', $session_id, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 30 );
     $cache->delete('captcha_valid', $session_id);
+
+    # Now trigger a new captcha generation
+    my $job = Lacuna->queue->publish('captcha');
+    
     return {
         guid    => $captcha->guid,
         url     => $captcha->uri,

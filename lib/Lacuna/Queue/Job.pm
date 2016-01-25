@@ -15,11 +15,15 @@ sub payload {
     my ($self) = @_;
 
     my $args    = $self->job->args;
-    my $class   = $args->{parent_table};
-    my $id      = $args->{parent_id};
 
-    my $thing   = Lacuna->db->resultset($class)->find($id);
-    return $thing;
+    if (defined $args && $args->{parent_table}) {
+        my $class   = $args->{parent_table};
+        my $id      = $args->{parent_id};
+        print STDERR "class = [$class] id = [$id]\n";
+        my $thing   = Lacuna->db->resultset($class)->find($id);
+        return $thing;
+    }
+    return {};
 }
 
 __PACKAGE__->meta->make_immutable;

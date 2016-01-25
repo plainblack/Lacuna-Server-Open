@@ -1,21 +1,9 @@
-FROM centos:8
+FROM centos:6
 
-RUN yum install -y cpan wget tar gcc gcc-c++ zlib-devel openssl-devel expat expat-devel ncurses-devel
+RUN yum install -y make cpan wget tar gcc gcc-c++ zlib-devel openssl-devel expat expat-devel ncurses-devel
 RUN yum install -y glibc-devel git mysql mysql-devel libxml2 libxml2-devel mysql-server gd gd-devel
 
 RUN mkdir /downloads
-
-WORKDIR /downloads
-RUN wget -q --output-document=perl-5.12.1.tar.gz http://www.cpan.org/src/5.0/perl-5.12.1.tar.gz
-RUN tar xfz perl-5.12.1.tar.gz
-RUN rm --interactive=never perl-5.12.1.tar.gz
-WORKDIR perl-5.12.1
-RUN ./Configure -Dprefix=/data/apps -des
-RUN make
-RUN make install
-WORKDIR /downloads
-RUN rm -rf perl-5.12.1
-
 
 RUN cpan App::cpanminus
 
@@ -40,8 +28,9 @@ RUN cpanm Test::Most Test::Trap AnyEvent Beanstalk::Client Business::PayPal::API
 RUN cpanm DateTime DateTime::Format::Duration DateTime::Format::MySQL DateTime::Format::Strptime DBD::mysql DBIx::Class
 RUN cpanm DBIx::Class::DynamicSubclass DBIx::Class::InflateColumn::Serializer DBIx::Class::Schema DBIx::Class::TimeStamp
 RUN cpanm Digest::HMAC_SHA1 Digest::MD5 Email::Stuff Email::Valid Facebook::Graph File::Copy File::Path Guard IO::Socket::SSL
-RUN cpanm JSON JSON::Any JSON::RPC::Dispatcher JSON::RPC::Dispatcher::App JSON::WebToken JSON::XS List::MoreUtils List::Util
+RUN cpanm JSON JSON::Any JSON::WebToken JSON::XS List::MoreUtils List::Util
 RUN cpanm List::Util::WeightedChoice Log::Any::Adapter Log::Any::Adapter::Log4perl Log::Log4perl LWP::Protocol::https LWP::UserAgent
+RUN cpanm JSON::RPC::Dispatcher JSON::RPC::Dispatcher::App
 
 # without verbose it times out and aborts due to long compilation
 RUN cpanm --verbose Memcached::libmemcached Net::Server::SS::PreFork

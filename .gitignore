@@ -1,5 +1,6 @@
 bin/schedule_building.pid
 bin/schedule_ship_arrival.pid
+bin/schedule_captcha.pid
 bin/setup/server/*.gz
 bin/setup/server/*.rpm
 bin/setup/server/*/

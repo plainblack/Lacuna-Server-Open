@@ -1,1 +1,1 @@
-docker build -t icydee/tle-nginx .
+docker build -t plainblack/tle-nginx .

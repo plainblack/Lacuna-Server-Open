@@ -14,6 +14,8 @@ use Firebase::Auth;
 use Gravatar::URL;
 use List::Util qw(none);
 use PerlX::Maybe qw(provided);
+use Log::Any qw($log);
+use Data::Dumper;
 
 # logging features are new in this level.
 use JSON::RPC::Dispatcher 0.0508;
@@ -203,11 +205,25 @@ sub benchmark {
 }
 
 
+# Each 'fetch' of a captcha will recover the most recent captcha from the database.
+# it will also trigger a job to create a new captcha (for the next person to make
+# a request).
+#
+
 sub fetch_captcha {
     my ($self, $plack_request) = @_;
+
+    $log->debug("fetch_captcha");
     my $ip = $plack_request->address;
-    my $captcha = Lacuna->db->resultset('Captcha')->find(randint(1,Lacuna->config->get('captcha/total')));
+    my ($captcha) = Lacuna->db->resultset('Captcha')->search(undef, { rows => 1, order_by => { -desc => 'id'} });
+
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
+
+    # Now trigger a new captcha generation
+
+    my $job = Lacuna->queue->publish('captcha');
+    $log->debug(Dumper($job));
+
     return {
         guid    => $captcha->guid,
         url     => $captcha->uri,

@@ -5,6 +5,8 @@ use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
+use Lacuna::CaptchaFactory;
+
 use Getopt::Long;
 use App::Daemon qw(daemonize );
 use Data::Dumper;
@@ -25,7 +27,7 @@ GetOptions(
 );
 
 $App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
-$App::Daemon::logfile  = '/tmp/schedule_building.log';
+$App::Daemon::logfile  = '/tmp/schedule_captcha.log';
 
 chdir '/data/Lacuna-Server/bin';
 
@@ -78,19 +80,18 @@ eval {
     
     LOOP: do {
         my $job     	= $queue->consume('captcha');
-        my $args    	= $job->args;
-        $job->delete, next unless ref $args eq 'HASH';
-        my $task    	= $args->{task};
-        my $task_args 	= $args->{args};
     
         out('job received ['.$job->id.']');
 
-        my $payload = $job->payload;
-
         try {
             # process the job
-            out("Process class=$payload task=$task");
-            $payload->$task($task_args);
+
+            my $captcha = Lacuna::CaptchaFactory->new({
+                riddle      => ["1", 1],
+            });
+            $captcha->construct;
+            out("Captcha created [".$captcha->guid."]");
+
             out("Processing done. Delete job ".$job->id);
             $job->delete;
         }
@@ -118,6 +119,7 @@ exit 0;
 sub out {
     my ($message) = @_;
     my $logger = Log::Log4perl->get_logger;
+    print STDERR $message."\n";
     $logger->info($message);
 }
 
