@@ -1272,7 +1272,16 @@ sub _build_population {
 }
 
 {
-    local *ensure_class_loaded = sub {}; # graham's crazy fix for circular dependency, may break if DynamicSubclass gets upgraded
+    # Because some buildings inherit from ::Permanent instead of inheriting
+    # from ::Building directly, we end up with
+    # Class::C3::Componentised::ensure_class_loaded getting confused as to
+    # whether Permanent-derived modules are loaded or not.  However, since
+    # they're going to be loaded anyway, this hack avoids the extra loading
+    # that DynamicSubclass tries to do.
+    # Alternatives: fix DS to defer loading until first use, "our @ISA;" in
+    # Permanent (and any other intermediate class we create in the future).
+    # This still seems to be the least-intrusive hack.
+    local *ensure_class_loaded = sub {};
     __PACKAGE__->typecast_map(class => {
         'Lacuna::DB::Result::Building::CloakingLab' => 'Lacuna::DB::Result::Building::CloakingLab',
         'Lacuna::DB::Result::Building::MissionCommand' => 'Lacuna::DB::Result::Building::MissionCommand',
