@@ -21,7 +21,7 @@ sub to_app_with_url {
 sub _is_owner {
     my ($self, $session, $building) = @_;
     return
-        $session->current_empire->id == $building->body->empire->id or
+        $session->current_empire->id == $building->body->empire->id ||
         $session->current_empire->id == $building->body->empire->alliance->leader_id
         ;
 }
