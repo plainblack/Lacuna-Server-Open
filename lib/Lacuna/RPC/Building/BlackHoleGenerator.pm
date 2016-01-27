@@ -855,11 +855,12 @@ sub generate_singularity {
         if ($target->id == $body->star->id) {
             confess [1009, "You are already in that system"];
         }
-        if ($target->station_id) {
-            unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
-                confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.'];
-            }
-        }
+# This is handled now by check_member_laws
+#        if ($target->station_id) {
+#            unless ($body->empire->alliance_id && $target->station->alliance_id == $body->empire->alliance_id) {
+#                confess [1009, 'That star system is claimed by '.$tstar->station->alliance->name.'.'];
+#            }
+#        }
         # Let's check all planets in our system and target system
         qualify_moving_sys($building, $target);
 #Need to add to qualify
