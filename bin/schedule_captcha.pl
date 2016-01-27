@@ -87,7 +87,7 @@ eval {
             # process the job
 
             my $captcha = Lacuna::CaptchaFactory->new({
-                riddle      => ["1", 1],
+                develop_mode    => 1,
             });
             $captcha->construct;
             out("Captcha created [".$captcha->guid."]");

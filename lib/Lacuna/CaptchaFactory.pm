@@ -52,6 +52,10 @@ has 'font_path' => (
     lazy        => 1,
     builder     => '_build_font_path',
 );
+has 'develop_mode' => (
+    is          => 'rw',
+    default     => 0,
+);
 
 my %riddles = (
     "1x1x1=_"     => "1",
@@ -139,8 +143,17 @@ for my $a ('a'..'i') {
 sub _build_riddle {
     my ($self) = @_;
 
-    my $key = random_element(keys %riddles);
-    return [ $key => $riddles{$key} ];
+    my ($key, $value);
+
+    if ($self->develop_mode) {
+        $key    = "Answer 1";
+        $value  = 1;
+    }
+    else {
+        $key    = random_element(keys %riddles);
+        $value  = $riddles{$key};
+    }
+    return [ $key, $value ];
 }
 
 # The array of fonts from which to choose
@@ -196,36 +209,50 @@ sub construct {
 
     my $captchas = Lacuna->db->resultset('Lacuna::DB::Result::Captcha');
 
-    my ($image,$mime,$string) = GD::SecurityImage
-        ->new(
-            width   => 300,
-            height  => 80,
-            lines   => 20,
-            font    => $self->font_path.'/'.$self->font.'.ttf',
-            bgcolor => $self->bg_color,
-            ptsize  => 32,
-            rndmax  => 3,
-            #send_ctobg => 1,
-            #thickness => 4,
-            #scramble => 1,
-            angle => 3,
+    my $security_image;
+    if ($self->develop_mode) {
+        $security_image = GD::SecurityImage->new(
+            width       => 300,
+            height      => 80,
+            lines       => 1,
+            thickness   => 1,
+            bgcolor     => $self->bg_color,
+            gt_font     => 'giant',
+        )
+        ->random("Answer = 1")
+        ->create( normal => 'rect' );
+    }
+    else {
+        $security_image = GD::SecurityImage->new(
+            width       => 300,
+            height      => 80,
+            lines       => 10,
+            thickness   => 1,
+            font        => $self->font_path.'/'.$self->font.'.ttf',
+            bg_color    => $self->bg_color,
+            ptsize      => 32,
+            rndmax      => 3,
+            angle       => 3,
         )
         ->random($self->riddle->[0])
-        ->create( 'ttf', $self->style, $self->fg_color, ($self->bg_color+10) )
-        ->particle
-        ->info_text(
-            x      => 'left',
-            y      => 'up',
-            gd     => 1,
-            strip  => 1,
-            color  => '#000000',
-            scolor => '#FFFFFF',
-            text   => 'Fill in the blank:',
-        )
-        ->out(
-            force   => 'png',
-            compress=> 1,
-        );
+        ->create( ttf => $self->style, $self->fg_color, ($self->bg_color+10) )
+        ->particle;
+    }
+    
+    my ($image, $mime, $string) = $security_image->info_text(
+        x      => 'left',
+        y      => 'up',
+        gd     => 1,
+        strip  => 1,
+        color  => '#000000',
+        scolor => '#FFFFFF',
+        text   => 'Fill in the blank:',
+    )
+    ->out(
+        force   => 'png',
+        compress=> 1,
+    );
+    
     my $prefix = substr($self->guid, 0,2);
     my $dir = '/data/captcha/'.$prefix;
     unless (-d $dir) {
