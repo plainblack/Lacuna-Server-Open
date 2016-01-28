@@ -1,5 +1,6 @@
 # config-file-type: JSON 1
 {
+   "develop_mode" : 0,
    "access_key" : "XXXX",
     "bhg_param" : {
 # If any are set to 0, use default.
@@ -20,8 +21,6 @@
       "fontpath" : "/Library/Fonts",
       # .ttf fonts in above path
       "fonts" : [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ],
-      # this is 16416 x number of fonts
-      "total" : 65664
    },
    "db" : {
       "dsn" : "DBI:mysql:XXXX",

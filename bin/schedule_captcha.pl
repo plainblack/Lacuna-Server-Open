@@ -89,7 +89,9 @@ eval {
             # process the job
 
             my $captcha = Lacuna::CaptchaFactory->new({
-                develop_mode    => 1,
+                develop_mode    => $config->get('develop_mode') ? 1 : 0,
+                fonts           => $config->get('captcha/fonts'),
+                font_path       => $config->get('captcha/fontpath'),
             });
             $captcha->construct;
             out("Captcha created [".$captcha->guid."]");
@@ -103,8 +105,9 @@ eval {
             },{
                 order_by => { -desc => 'id' },
             });
-            # Ignore the first one (if any)
+            # Make sure there is at least one left irrespective of it's age
             my $captcha = $captchas->next;
+
             while ($captcha = $captchas->next) {
                 out("Deleting captcha [".$captcha->id."]");
 
