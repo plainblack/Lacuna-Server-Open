@@ -17,7 +17,6 @@ use Log::Log4perl qw(:levels);
 my $daemonize   = 1;    # run the script as a daemon
 my $loop        = 1;    # loop continuously waiting for jobs
 my $initialize  = 1;    # (re)initialize the queue from the database
-my $timeout     = 1;    # timeout after an hour
 our $quiet      = 1;    # don't output any text
 
 GetOptions(
@@ -25,7 +24,6 @@ GetOptions(
     'loop!'         => \$loop,
     'quiet!'        => \$quiet,
     'initialize!'   => \$initialize,
-    'timeout!'      => \$timeout,
 );
 
 $App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
@@ -33,7 +31,6 @@ $App::Daemon::logfile  = '/tmp/schedule_ship_arrival.log';
 
 chdir '/data/Lacuna-Server/bin';
 
-my $timeout_seconds = 60 * 60; # (one hour)
 my $pid_file        = '/data/Lacuna-Server/bin/schedule_ship_arrival.pid';
 
 my $start = time;
@@ -111,8 +108,6 @@ out("queue = $queue");
 out('Started');
 # Timeout after an hour
 eval {
-    local $SIG{ALRM} = sub { die "alarm\n" };
-    alarm $timeout_seconds if $timeout;
     
     LOOP: do {
         my $job     = $queue->consume('arrive_queue');
