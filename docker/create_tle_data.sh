@@ -1,13 +1,15 @@
-
-# This is a data-only container which holds the mysql database.
+# This creates some data-only containers.
 #
-# This means that the mysql data will persist even if you stop or
-# even delete the running TLE server.
+# tle-mysql-data contains the mysql database. This ensures that
+# the database is persistent even if the container using it
+# is stopped and removed.
 #
-# If for any reason you do want to delete the container be sure
+# tle-captcha-data contains a shared volume since both tle-server
+# and tle-nginx will need to share it.
+#
+# If for any reason you do want to delete a container be sure
 # to first stop and remove all containers with a reference to
-# the data container (run_app.sh for example) and then do
-# the following command.
+# the data container and then do the following command.
 #
 #   $ docker rm -v tle-mysql-data
 #
@@ -18,4 +20,5 @@
 # run it. This script will create it for you.
 #
 docker create --name tle-mysql-data arungupta/mysql-data-container
+docker create --name tle-captcha-data -v /data/captcha lacuna/tle-captcha-data
 

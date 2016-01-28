@@ -217,6 +217,16 @@ sub fetch_captcha {
     my $ip = $plack_request->address;
     my ($captcha) = Lacuna->db->resultset('Captcha')->search(undef, { rows => 1, order_by => { -desc => 'id'} });
 
+    if (not defined $captcha) {
+        # then we have not (yet) created any captchas. Let's make a fake one
+        # but not put it in the database
+        $captcha = Lacuna->db->resultset('Captcha')->new({
+            riddle      => 'Answer 1',
+            solution    => 1,
+            guid        => 'dummy',
+        });
+    }
+
     Lacuna->cache->set('create_empire_captcha', $ip, { guid => $captcha->guid, solution => $captcha->solution }, 60 * 15 );
 
     # Now trigger a new captcha generation

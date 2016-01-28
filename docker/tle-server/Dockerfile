@@ -30,6 +30,10 @@ RUN cpanm DBIx::Class::DynamicSubclass DBIx::Class::InflateColumn::Serializer DB
 RUN cpanm Digest::HMAC_SHA1 Digest::MD5 Email::Stuff Email::Valid Facebook::Graph File::Copy File::Path Guard IO::Socket::SSL
 RUN cpanm JSON JSON::Any JSON::WebToken JSON::XS List::MoreUtils List::Util
 RUN cpanm List::Util::WeightedChoice Log::Any::Adapter Log::Any::Adapter::Log4perl Log::Log4perl LWP::Protocol::https LWP::UserAgent
+
+# Fails when it cannot make a network connection
+RUN cpanm --notest IO::Socket::IP
+
 RUN cpanm JSON::RPC::Dispatcher JSON::RPC::Dispatcher::App
 
 # without verbose it times out and aborts due to long compilation

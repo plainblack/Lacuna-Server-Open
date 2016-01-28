@@ -9,15 +9,6 @@ for your specific system.
 
 (There are a few additional notes below based on our experience of installing Docker)
 
-### Docker Version
-
-There is a difference between Docker 1.8 and Docker 1.9 in the use of networks.
-
-The scripts in the ./docker directory refer to the latest version of Docker (1.9)
-however if you are running Docker 1.8 you should use the scripts in the 
-./docker_1.8 directory. Otherwise the following instructions apply to both
-versions.
-
 ### Installing on OS X.
 
 On OS X Docker runs in a Virtual Box, the default base memory is 1024 MB but
@@ -49,7 +40,7 @@ defaults.
 
 ### Starting up the docker containers.
 
-In Lacuna-Server-Open there is a sub-directory 'docker' (where you are now!)
+In Lacuna-Server-Open there is a sub-directory 'docker'
 
 Setting up a server is as simple as running the following scripts, in this
 order
@@ -59,7 +50,7 @@ order
     $ ./run_tle_beanstalk.sh
     $ ./run_tle_memcached.sh
     $ ./run_tle_mysql_server.sh
-    $ ./run_tle_server.sh (leave this running in a terminal mession for now, otherwise nginx will not work!)
+    $ ./run_tle_server.sh (leave this running in a terminal session for now, otherwise nginx will not work!)
     $ ./run_tle_nginx.sh
 
 If this has worked, you can now do the following to see what is running.
@@ -69,11 +60,13 @@ If this has worked, you can now do the following to see what is running.
 This should show you have several docker containers running (i.e. Status
 of 'Up xx minutes').
 
-These containers are fairly self-explanitory.
+These containers are fairly self-explanatory.
 
 ### tle-beanstalk
 
 This runs the beanstalk message queue. It is a standard Docker container.
+It is used to run job queues for building upgrade completion, ship arrival
+and captcha generation.
 
 ### tle-memcached
 
@@ -100,7 +93,7 @@ and then do the following.
 ### tle-nginx
 
 This is your web server which exposes the docker port to the outside world.
-By default this will run the web server on localhost port 8080 (but this can
+By default this will run the web server on localhost port 8000 (but this can
 be configured).
 
 ### tle-server
@@ -122,31 +115,32 @@ If you have just created your tle-mysql-data container then it will be empty.
 
 The first time you run up the tle-server you need to run a few commands.
 
-    $ cd /data/lacuna-server/bin
+    $ cd /data/Lacuna-Server/bin
     $ mysql --host=tle-mysql-server -uroot -placuna
     mysql> source docker.sql
     mysql> exit
 
-This sets up the user account 'lacuna' which is used by the web application.
+This sets up the mysql user account 'lacuna' which is used by the web application.
 
-(Note that the root account has been given the password 'lacuna').
+(Note that the root mysql account has been given the password 'lacuna').
 
 You now need to initialize the database. (this will take a few minutes).
 
-    $ cd ~/Lacuna-Server-Open/bin/setup
+    $ cd /data/Lacuna-Server-Open/bin/setup
     $ perl init_lacuna.pl
 
 
-We don't really need captchas in development. Run this script to create
-captchas all with a result of '1'.
+Captchas no longer need to be generated up-front. They will be generated
+on demand (so long as the schedule_captcha.pl script is running).
 
-    $ perl generate_captcha_docker.pl
+Note however, the first request for a captcha will fail, subsequent
+requests will however succeed, so long as the schedule_captcha.pl 
+daemon is running.
 
-
-You will want to generate the html version of the documentation so you
+You may want to generate the html version of the documentation so you
 can view it in your web browser.
 
-    $ cd ~/Lacuna-Server-Open/bin
+    $ cd /data/Lacuna-Server-Open/bin
     $ perl generate_docs.pl
 
 
@@ -161,12 +155,14 @@ Normally you would run these as a daemon as follows.
 
     $ perl schedule_building.pl --noquiet
     $ perl schedule_ship_arrival.pl --noquiet
+    $ perl schedule_captcha.pl --noquiet
 
 The --noquiet argument ensures that their actions are logged into log files
 which you can choose to tail in another terminal session.
 
     /tmp/schedule_building.log
     /tmp/schedule_ship_arrival.log
+    /tmp/schedule_captcha.log
 
 ## Running the server (finally!)
 
@@ -175,11 +171,12 @@ You can now run the development server
     $ ./startdev.sh
 
 This will run in the current terminal session, type ctrl-c to terminate
-the server at any time. type 'exit' to exit the docker container and return
-to the host and close the container.
+the script at any time.
 
-If you make changes to the server code (in the host environment) you will need
-to do so from a separate terminal session and then restart the server in this
-terminal session.
+If you want to make changes to the code, it is best to do so from your host
+environment (simply because you will have better tools and editors).
 
+When you are ready to test, just stop this script with ctrl-c and restart it.
+
+Type 'exit' to exit the docker container and return to the host and stop the container.
 
