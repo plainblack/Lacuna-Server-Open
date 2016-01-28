@@ -230,13 +230,14 @@ sub construct {
             lines       => 10,
             thickness   => 1,
             font        => $self->font_path.'/'.$self->font.'.ttf',
-            bg_color    => '#'.$self->bg_color,
+            bgcolor     => '#'.$self->bg_color,
             ptsize      => 32,
             rndmax      => 3,
-            angle       => 3,
+            send_ctobg  => 1,
+            angle       => int(rand(20) - 10),
         )
         ->random($self->riddle->[0])
-        ->create( ttf => $self->style, $self->fg_color, '#'.($self->bg_color+10) )
+        ->create( ttf => $self->style, $self->fg_color, $self->fg_color )
         ->particle;
     }
     
@@ -255,7 +256,7 @@ sub construct {
     );
     
     my $prefix = substr($self->guid, 0,2);
-    my $dir = '/data/captcha/'.$prefix;
+    my $dir = '/data/Lacuna-Captcha/public/'.$prefix;
     unless (-d $dir) {
         mkdir $dir;
     }

@@ -19,9 +19,9 @@
    },
    "captcha" : {
       # path to the fonts being used.
-      "fontpath" : "/Library/Fonts",
+      "fontpath" : "/usr/share/fonts",
       # .ttf fonts in above path
-      "fonts" : [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ],
+      "fonts" : ["dejavu/DejaVuSans"],
    },
    "db" : {
       "dsn" : "DBI:mysql:host=tle-mysql-server;database=lacuna",
