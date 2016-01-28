@@ -6,6 +6,7 @@ use utf8;
 no warnings qw(uninitialized);
 use UUID::Tiny ':std';
 use GD::SecurityImage;
+use Data::Dumper;
 
 use Lacuna;
 use Lacuna::Util qw(random_element);
@@ -150,7 +151,7 @@ sub _build_riddle {
         $value  = 1;
     }
     else {
-        $key    = random_element(keys %riddles);
+        $key    = random_element([ keys %riddles ]);
         $value  = $riddles{$key};
     }
     return [ $key, $value ];
@@ -166,28 +167,28 @@ sub _build_fonts {
 sub _build_font {
     my ($self) = @_;
 
-    return random_element(@{$self->fonts});
+    return random_element($self->fonts);
 }
 
 # return a random style
 sub _build_style {
     my ($self) = @_;
 
-    return random_element(qw(default rect circle ellipse ec blank));
+    return random_element([ qw(default rect circle ellipse ec blank) ]);
 }
 
 # return a random background color
 sub _build_bg_color {
     my ($self) = @_;
 
-    return random_element('#666600', '#660066', '#006666');
+    return random_element([ '666600', '660066', '006666' ]);
 }
 
 # return a random foreground color
 sub _build_fg_color {
     my ($self) = @_;
     
-    return random_element('#ddffff', '#ffddff', '#ffffdd');
+    return random_element([ '#ddffff', '#ffddff', '#ffffdd' ]);
 }
 
 # return a random UUID
@@ -216,7 +217,7 @@ sub construct {
             height      => 80,
             lines       => 1,
             thickness   => 1,
-            bgcolor     => $self->bg_color,
+            bgcolor     => '#'.$self->bg_color,
             gt_font     => 'giant',
         )
         ->random("Answer = 1")
@@ -229,13 +230,13 @@ sub construct {
             lines       => 10,
             thickness   => 1,
             font        => $self->font_path.'/'.$self->font.'.ttf',
-            bg_color    => $self->bg_color,
+            bg_color    => '#'.$self->bg_color,
             ptsize      => 32,
             rndmax      => 3,
             angle       => 3,
         )
         ->random($self->riddle->[0])
-        ->create( ttf => $self->style, $self->fg_color, ($self->bg_color+10) )
+        ->create( ttf => $self->style, $self->fg_color, '#'.($self->bg_color+10) )
         ->particle;
     }
     

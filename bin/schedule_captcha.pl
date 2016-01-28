@@ -1,6 +1,7 @@
 use 5.010;
 use strict;
-use feature "switch";
+use warnings;
+
 use lib '/data/Lacuna-Server/lib';
 use Lacuna::DB;
 use Lacuna;
@@ -88,13 +89,13 @@ eval {
         try {
             # process the job
 
-            my $captcha = Lacuna::CaptchaFactory->new({
+            my $captcha_factory = Lacuna::CaptchaFactory->new({
                 develop_mode    => $config->get('develop_mode') ? 1 : 0,
                 fonts           => $config->get('captcha/fonts'),
                 font_path       => $config->get('captcha/fontpath'),
             });
-            $captcha->construct;
-            out("Captcha created [".$captcha->guid."]");
+            $captcha_factory->construct;
+            out("Captcha created [".$captcha_factory->guid."]");
 
             # Remove all captchas older than 1hr (except for one)
             #
