@@ -1310,33 +1310,6 @@ sub deauthorize_sitters
     return $self->view_authorized_sitters($session);
 }
 
-sub _rewrite_request_for_logging
-{
-    my ($method, $params) = @_;
-    if ($method eq 'login') {
-        $params->[1] = 'xxx';
-    }
-    elsif ($method eq 'change_password') {
-        $params->[$_] = 'xxx' for 0..2;
-    }
-    elsif ($method eq 'reset_password') {
-        $params->[$_] = 'xxx' for 1..2;
-    }
-    elsif ($method eq 'create') {
-        $params = {
-            @$params,
-            password => 'xxx',
-        };
-    }
-    elsif ($method eq 'edit_profile') {
-        $params->[1] = {
-            %{$params->[1]},
-            provided $params->[1]->{sitter_password}, sitter_password => 'xxx',
-        }
-    }
-    return $params;
-}
-
 __PACKAGE__->register_rpc_method_names(
     { name => "create", options => { with_plack_request => 1, log_request_as => \&_rewrite_request_for_logging } },
     { name => "fetch_captcha", options => { with_plack_request => 1 } },
