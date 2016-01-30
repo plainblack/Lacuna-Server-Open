@@ -1455,7 +1455,7 @@ sub recalc_stats {
     if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::GasGiant')) {
         $max_plots = min($gas_giant_platforms, $max_plots);
     }
-    if ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
+    elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet::Station')) {
         $max_plots = $stats{size} = $station_command * 3;
     }
     elsif ($self->isa('Lacuna::DB::Result::Map::Body::Planet')) {

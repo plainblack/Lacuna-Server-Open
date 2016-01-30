@@ -5,6 +5,7 @@
  - Fix: Downgrade of SS modules fixed.
  - Fix: Merc Guild shouldn't call not allowed RPCs when damaged.
  - Mod: Repair tab moved to first.
+ - Mod: Terraforming platforms only form terra, GG plats can handle all gas giants.
 
 3.0918:
  - Fix: Unallied players should never see anyone else in purple on the starmap.
