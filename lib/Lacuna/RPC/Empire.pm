@@ -1187,7 +1187,7 @@ sub get_species_templates {
 sub view_authorized_sitters
 {
     my ($self, $session_id) = @_;
-    my $session = $self->get_session($session_id);
+    my $session = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire();
 
     my $rs = $baby->sitters()
@@ -1200,13 +1200,15 @@ sub view_authorized_sitters
                  }
                 );
 
+    my $parser = Lacuna->db->storage->datetime_parser;
+
     my @auths;
     while (my $e = $rs->next)
     {
         push @auths, {
             id     => $e->id,
             name   => $e->name,
-            expiry => $e->get_column('expiry'),
+            expiry => format_date($parser->parse_datetime($e->get_column('expiry'))),
         };
     }
 
@@ -1263,7 +1265,7 @@ sub authorize_sitters
     my @bad_ids;
     for my $sitter (@sitters)
     {
-        my $sit = eval { $sitter->isa('Lacuna::DB::Result::Empire') } ?
+        my $sit = eval { ref $sitter && $sitter->isa('Lacuna::DB::Result::Empire') } ?
             $sitter :
             Lacuna->db->empire($sitter);
         if ($sit)
@@ -1291,7 +1293,7 @@ sub deauthorize_sitters
 {
     my ($self, $session_id, $opts) = @_;
     my $session  = $self->get_session({session_id => $session_id});
-    my $baby = $self->current_empire;
+    my $baby = $session->current_empire;
 
     my $baby_id = $session->empire_id;
 
