@@ -3,6 +3,8 @@
  - Fix: Emails to GG owners during fissure explosion were missing numbers.
  - Fix: Halls don't need to show up as buildable.
  - Fix: Downgrade of SS modules fixed.
+ - Fix: Merc Guild shouldn't call not allowed RPCs when damaged.
+ - Mod: Repair tab moved to first.
 
 3.0918:
  - Fix: Unallied players should never see anyone else in purple on the starmap.
