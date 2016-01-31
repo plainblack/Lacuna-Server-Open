@@ -1192,7 +1192,7 @@ sub view_authorized_sitters
 
     my $rs = $baby->sitters()
         ->search(
-                 { expiry => { '>' => \q[UTC_TIMESTAMP()] } },
+                 { },
                  {
                      '+select' => [ 'me.expiry' ],
                      '+as'     => [ 'expiry' ],

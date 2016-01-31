@@ -167,8 +167,8 @@ __PACKAGE__->has_many('sitterauths',    'Lacuna::DB::Result::SitterAuths', sub {
                                    );
                         });
 
-__PACKAGE__->many_to_many('babies', 'sitterauths', 'baby');
-__PACKAGE__->many_to_many('sitters', 'babyauths', 'sitter');
+__PACKAGE__->many_to_many('babies', 'babyauths', 'baby');
+__PACKAGE__->many_to_many('sitters', 'sitterauths', 'sitter');
 
 for my $affin (qw(
     manufacturing_affinity
