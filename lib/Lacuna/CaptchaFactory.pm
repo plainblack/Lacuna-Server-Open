@@ -260,7 +260,8 @@ sub construct {
     unless (-d $dir) {
         mkdir $dir;
     }
-    open my $file, '>', $dir.'/'.$self->guid.'.png';
+    open my $file, '>', $dir.'/'.$self->guid.'.png' or
+       die "Can't write to $dir/".$self->guid.".png: $!";
     print {$file} $image;
     close $file;
     $captchas->create({
