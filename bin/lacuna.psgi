@@ -42,6 +42,24 @@ my $gameover = [ 500,
 ];
 
 my $app = builder {
+    unless ($^O eq 'darwin') {
+        ##Wrapper to fully enable size limiting.  The psgix.harakiri has to be set for it to work.
+        enable sub {
+            my $app = shift;
+            return sub {
+                my ($env) = @_;
+                $env->{'psgix.harakiri'} = 1;
+                return $app->($env);
+            }
+        };
+        enable "Plack::Middleware::SizeLimit" => (
+            max_unshared_size_in_kb => '51200', # 50MB
+            # min_shared_size_in_kb => '8192', # 8MB
+            max_process_size_in_kb => '125000', # 125MB
+            check_every_n_requests => 3
+        );
+        enable "Plack::Middleware::LightProfile";
+    }  
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
 
