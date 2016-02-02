@@ -6,6 +6,7 @@
  - Fix: Merc Guild shouldn't call not allowed RPCs when damaged.
  - Mod: Repair tab moved to first.
  - Mod: Terraforming platforms only form terra, GG plats can handle all gas giants.
+ - Fix: SSL shouldn't show waste in red, it's not being consumed.
 
 3.0918:
  - Fix: Unallied players should never see anyone else in purple on the starmap.
