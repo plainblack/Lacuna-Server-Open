@@ -231,7 +231,7 @@ sub find_target {
         $target_type = "star";
         $target_word =~ s/:?orbit:?//g;
 
-        if ($target && exists $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
+        if ($target && $target_params->{orbit} && 1 <= $target_params->{orbit} && $target_params->{orbit} <= 8) {
             my $star = $target;
             my $orbit = int($target_params->{orbit});
             my ($x, $y) = ($star->x + $orbits[$orbit][0], $star->y + $orbits[$orbit][1]); #++);
