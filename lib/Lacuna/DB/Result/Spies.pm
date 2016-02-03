@@ -660,7 +660,11 @@ my @class_failures = (
                      );
 
 sub assign {
-    my ($self, $assignment) = @_;
+    my ($self, $assignment_options) = @_;
+    $assignment_options = {
+        assignment => $assignment_options
+    } unless ref $assignment_options eq 'HASH';
+    my $assignment = $assignment_options->{assignment};
 
     my $is_available = $self->is_available;
 
@@ -731,7 +735,7 @@ sub assign {
         }
     }
     elsif ($assignment eq 'Security Sweep') {
-        return $self->run_security_sweep($mission);
+        return $self->run_security_sweep($mission, $assignment_options);
     }
     elsif ($assignment eq 'Bugout') {
         return $self->bugout($mission);
@@ -973,7 +977,7 @@ sub run_mission {
 }
 
 sub run_security_sweep {
-  my $self = shift;
+    my $self = shift;
 
   # calculate success, failure, or bounce
   my $mission_skill = 'intel_xp';
@@ -3471,7 +3475,8 @@ sub surface_report {
 }
 
 sub spy_report {
-    my ($self, $defender) = @_;
+    my ($self, $defender, $assignment_options) = @_;
+    $assignment_options ||= {};
     my @peeps = (['Name','From','Assignment','Level']);
     my %planets = ( $self->on_body->id => $self->on_body->name );
     my $spies = Lacuna->db
@@ -3486,21 +3491,26 @@ sub spy_report {
         }
         push @peeps, [$spook->name, $planets{$spook->from_body_id}, $spook->task, $spook->level];
     }
-    unless (scalar @peeps > 1) {
-        $peeps[0] = ["No", "Enemy", "Spies", "Found" ];
+    if (@peeps <= 1 and $assignment_options->{noempty}) {
+        return;
+    } else {
+        unless (scalar @peeps > 1) {
+            $peeps[0] = ["No", "Enemy", "Spies", "Found" ];
+        }
+        my $title = sprintf "Spy Report (%d)", $#peeps;
+        return $self->empire->send_predefined_message(
+            tags        => ['Intelligence'],
+            filename    => 'intel_report.txt',
+            params      => [$title,
+                            $self->on_body->x,
+                            $self->on_body->y,
+                            $self->on_body->name,
+                            $self->name,
+                            $self->from_body->id,
+                            $self->from_body->name],
+            attachments=> { table => \@peeps},
+        )->id;
     }
-    return $self->empire->send_predefined_message(
-        tags        => ['Intelligence'],
-        filename    => 'intel_report.txt',
-        params      => ['Spy Report',
-                        $self->on_body->x,
-                        $self->on_body->y,
-                        $self->on_body->name,
-                        $self->name,
-                        $self->from_body->id,
-                        $self->from_body->name],
-        attachments=> { table => \@peeps},
-    )->id;
 }
 
 sub economic_report {

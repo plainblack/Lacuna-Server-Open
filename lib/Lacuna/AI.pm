@@ -518,7 +518,7 @@ sub set_defenders {
                 if ($spy_result->{message_id}) {
                     my $message = Lacuna->db->resultset('Lacuna::DB::Result::Message')->find($spy_result->{message_id});
                     say "message: ".$message->subject;
-                    if ($message && $message->subject eq "Spy Report") {
+                    if ($message && $message->subject =~ /^Spy Report/) {
                         $on_sweep += 10; #No spies to find
                         say "        spy report, no more sweeps.";
                     }

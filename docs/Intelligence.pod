@@ -311,6 +311,14 @@ The unique id of the spy you wish to assign.
 
 =head3 assignment
 
+This can be either a hash (object) or a string.  If it's a string, it is
+treated as a hash whose sole key is C<assignment> and the value is the string
+given.  If it's a hash, it accepts the following keys:
+
+=over 4
+
+=item assignment
+
 A string containing the new assignment name. These are the possible assignments:
 
 =over
@@ -422,5 +430,13 @@ Steal a planet.
 =back
 
 B<NOTE:> You can do bad things to allies using these assignments.
+
+=item noempty
+
+For C<Security Sweep>s, a true value here indicates that you do not want
+an email when there are no spies found.  Emails when spies are found, or
+when the mission fails will still be posted.
+
+=back
 
 =cut
