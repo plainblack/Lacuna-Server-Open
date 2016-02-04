@@ -396,10 +396,14 @@ around get_status => sub {
             is_isolationist => $self->empire->is_isolationist,
         };
         if (defined $empire) {
-            if ($empire->id eq $self->empire_id or (
-                $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') &&
-                $empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id )
-                ) {
+            if ($empire->id eq $self->empire_id or
+                (
+                 $self->isa('Lacuna::DB::Result::Map::Body::Planet::Station') &&
+                 $empire->alliance_id && $self->empire->alliance_id == $empire->alliance_id
+                ) or
+                # maybe current empire is a sitter for the empire that owns this body?
+                $empire->babies->search({id => $self->empire_id})->count
+               ) {
                 if ($self->needs_recalc) {
                     $self->tick; # in case what we just did is going to change our stats
                 }
