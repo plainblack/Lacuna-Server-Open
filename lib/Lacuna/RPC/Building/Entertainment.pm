@@ -70,6 +70,7 @@ my @quacks = (
     "    ,,,,,\n   (o   o)\n    /. .\ \n   (_____)\n     : :\n    ##O##\n  ,,,: :,,,\n _)\ : : /(____\n{  \     /  ___}\n \/)     ((/\n  (_______)\n    :   :\n    :   :\n   / \ / \\n   \"\"\" \"\"\"",
     "What's up, doc?",
     "I may quack like a duck and walk like a duck, but I'm really a rabbit in disguise!",
+    "Rabbit season!",
 );
 
 sub duck_quack {
