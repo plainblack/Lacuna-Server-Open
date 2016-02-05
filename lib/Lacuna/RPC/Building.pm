@@ -18,14 +18,6 @@ sub to_app_with_url {
     return ($self->app_url => $self->to_app);
 }
 
-sub _is_owner {
-    my ($self, $session, $building) = @_;
-    return
-        $session->current_empire->id == $building->body->empire->id ||
-        $session->current_empire->id == $building->body->empire->alliance->leader_id
-        ;
-}
-
 sub upgrade {
     my ($self, $session_id, $building_id) = @_;
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id});
@@ -227,7 +219,7 @@ sub demolish {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to demolish a module.'];
         }
-        unless ($self->_is_owner($session, $building)) {
+        if ($building->class =~ /^Lacuna::DB::Result::Building::Module::/) {
             my $name = $building->name.' ('.$building->x.','.$building->y.')';
             my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
                 type            => 'DemolishModule',
@@ -261,7 +253,7 @@ sub downgrade {
         unless ($body->parliament && $body->parliament->effective_level >= 2) {
             confess [1013, 'You need to have a level 2 Parliament to downgrade a module.'];
         }
-        unless ($self->_is_owner($session, $building)) {
+        if ($building->class =~ /^Lacuna::DB::Result::Building::Module::/) {
             my $name = $building->name.' ('.$building->x.','.$building->y.')';
             my $proposition = Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->new({
                 type            => 'DowngradeModule',

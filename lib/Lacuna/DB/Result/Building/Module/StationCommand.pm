@@ -14,6 +14,10 @@ use constant ore_consumption    =>  90;
 use constant water_consumption  => 110;
 use constant energy_consumption => 110;
 
+before 'can_demolish' => sub {
+   confess [1010, 'You cannot demolish the Station Command Center. Use the abandon station function if you no longer want this station.'];
+};
+
 sub incoming_supply_chains {
     my ($self) = @_;
 

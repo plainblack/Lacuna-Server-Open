@@ -4,6 +4,7 @@
  - UI : New captcha panel.
  - Fix: Resource bar bouncing quelled.
  - UI : Clean up on logout, should make logout/login more reliable.
+ - Fix: Slightly more red tape.
 
 3.0919:
  - Add: Adding docker support.

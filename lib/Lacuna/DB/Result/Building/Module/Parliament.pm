@@ -14,6 +14,10 @@ use constant ore_consumption    => 110;
 use constant water_consumption  =>  90;
 use constant energy_consumption =>  90;
 
+before 'can_demolish' => sub {
+    confess [1010, 'You cannot demolish the Parliament. Use the abandon station function if you no longer want this station.'];
+};
+
 sub propositions {
     my ($self) = @_;
     return Lacuna->db->resultset('Lacuna::DB::Result::Propositions')->search({station_id => $self->body->id}, {prefetch => 'station'});

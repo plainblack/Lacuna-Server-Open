@@ -21,10 +21,6 @@ before 'can_demolish' => sub {
    confess [1010, 'You cannot demolish the Planetary Command Center. Use the abandon colony function if you no longer want this colony.'];
 };
 
-before 'can_demolish' => sub {
-    confess [1013, "You cannot demolish the Planetary Commmand Center."];
-};
-
 use constant image => 'command';
 
 use constant name => 'Planetary Command Center';
