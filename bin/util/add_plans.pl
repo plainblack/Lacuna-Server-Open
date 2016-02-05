@@ -8,27 +8,18 @@ use Getopt::Long;
 use JSON;
 $|=1;
 our $quiet;
-our $body_id;
-our $class;
-our $count = 1;
-our $level = 1;
-our $extra = 0;
+our @body_id;
 our $file;
 our $verbose;
 
 GetOptions(
     'quiet'    => \$quiet,  
-    'body=i'   => \$body_id,
-    'class=s'  => \$class,
-    'level=i'  => \$level,
-    'extra=i'  => \$extra,
-    'count=i'  => \$count,
+    'bid=i@'   => \@body_id,
     'file=s'   => \$file,
     'verbose'  => \$verbose,
 );
 
-die "Usage: perl $0 body_id class count\n" unless (( defined $body_id && defined $class && defined $count ) or 
-                                                   ( defined $body_id && defined $file));
+die "Usage: perl $0 body_id class count\n" unless (defined $file);
 
 out('Started');
 my $start = time;
@@ -36,35 +27,45 @@ my $start = time;
 out('Loading DB');
 our $db = Lacuna->db;
 
-my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($body_id);
-unless ($body) {
-    die "Cannot find body id $body_id\n";
+
+my $phash;
+if ($file) {
+    $phash = slurp($file);
 }
 
-my $plans = [];
-if ($file) {
-    $plans = get_plans($file);
+if (scalar @body_id) {
+  die "Only give bid arguments if there is one planet in plan file,\n" if (keys %$phash > 1);
 }
 else {
-    die "Cannot have extra level if base level is greater than 1!" if ($extra > 0 and $level > 1);
-    $plans->[0]->{level} = $level;
-    $plans->[0]->{extra} = $extra;
-    $plans->[0]->{class} = $class;
-    $plans->[0]->{quantity} = $count;
+  @body_id = keys %$phash;
 }
 
 my $json = JSON->new->utf8(1);
-print $json->pretty->canonical->encode($plans) if ($verbose);
+say $json->pretty->canonical->encode($phash) if ($verbose);
 
-for my $plan (@$plans) {
-print $json->pretty->canonical->encode($plan) if ($verbose);
-    say sprintf("Adding %d level %d+%d %s to %s:%d",
-            $plan->{quantity}, $plan->{level}, $plan->{extra}, $plan->{class}, $body->name, $body->id);
+for my $bid (sort @body_id) {
+  my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($bid);
+  unless ($body) {
+      say "Cannot find body id $bid : $phash->{$bid}->{name}\n";
+      next;
+  }
+  my $cname = $body->name;
+  if ($cname ne $phash->{$bid}->{name}) {
+    say "Name mismatch between $cname and $phash->{$bid}->{name} : $bid\n";
+    next;
+  }
+  say sprintf("Adding plans to %s : %d\n", $cname, $bid);
+  my @plans = @{$phash->{$bid}->{mods}};
+  for my $plan (@plans) {
+    say $json->pretty->canonical->encode($plan) if ($verbose);
+    say sprintf("    Adding %d level %d+%d %s to %s:%d",
+            $plan->{quantity}, $plan->{level}, $plan->{extra}, $plan->{class}, $body->name, $body->id) if ($verbose);
     if ($plan->{extra} > 0 and $plan->{level} > 1) {
         say "Cannot have extra level if base level is greater than 1!";
         next;
     }
     $body->add_plan($plan->{class}, $plan->{level}, $plan->{extra}, $plan->{quantity});
+  }
 }
 
 my $finish = time;
@@ -83,7 +84,7 @@ sub out {
     }
 }
 
-sub get_plans {
+sub slurp {
   my ( $data_file ) = @_;
 
   my $plan_data = get_json($data_file);
