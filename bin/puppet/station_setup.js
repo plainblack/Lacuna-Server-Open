@@ -17,7 +17,7 @@
     { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-1", "y" : "-1" },
     { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "0", "y" : "-1" },
     { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "1", "y" : "-1" },
-    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "0", "y" :  "1" },
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "0", "y" :  "2" },
     { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "1", "y" :  "1" },
-    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" : "-5", "y" : "-2" }
+    { "class" : "Lacuna::DB::Result::Building::Module::Warehouse",        "level" :  "7", "x" :  "1", "y" :  "2" }
 ]
