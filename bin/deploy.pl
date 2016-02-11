@@ -106,7 +106,7 @@ END_TEXT
                 system("node_modules/bower/bin/bower","install","--config.interactive=false","--allow-root")
                     if -e "node_modules/bower/bin/bower";
                 system("gulp clean");
-                system("gulp build");
+                system("gulp");
 
                 my $lacuna_dir = $dir->subdir('lacuna');
                 $lacuna_dir->recurse(
