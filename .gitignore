@@ -4,10 +4,7 @@ bin/schedule_captcha.pid
 bin/setup/server/*.gz
 bin/setup/server/*.rpm
 bin/setup/server/*/
-etc/lacuna.conf
-etc/log4perl.conf
-etc/mime.types
-etc/nginx.conf
+etc
 var/www/public/index.html
 var/www/public/server_overview.json
 var/www/public/starmap.json
