@@ -27,7 +27,7 @@ sub find_empire {
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     confess [1009, 'Empire name too short. Your search must be at least 3 characters.'] if length($args->{name}) < 3;
     
-    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $empire = $self->get_empire($args);
 
     my $empires = Lacuna->db->resultset('Empire')->search({
         name    => {'like' => $args->{name}.'%'},
@@ -475,7 +475,7 @@ sub get_status {
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
 
-    return $self->format_status($self->get_empire_by_session($args->{session_id}));
+    return $self->format_status($self->get_empire($args));
 }
 
 sub view_profile {
@@ -827,7 +827,7 @@ sub get_boosts {
         
     my $session_id = $args->{session_id};
     my $session  = $self->get_session({session_id => $session_id});
-    my $empire = $self->get_empire_by_session($session_id);
+    my $empire = $self->get_empire($args);
     return {
         status  => $self->format_status($session),
         boosts  => {

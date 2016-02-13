@@ -148,6 +148,14 @@ sub get_baby {
     $empire;
 }
 
+sub get_empire {
+    my ($self, $args) = @_;
+
+    my $session = $self->get_session($args);
+    return $session->current_empire;
+}
+
+
 sub get_body { # makes for uniform error handling, and prevents staleness
     my ($self, $session, $body_id) = @_;
 

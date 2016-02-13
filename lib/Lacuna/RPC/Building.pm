@@ -31,9 +31,9 @@ sub upgrade {
         };
     }
 
-    my $session     = $self->get_session( {session_id => $args->{session_id}, building_id => $args->{building_id} });
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     # check the upgrade lock
     if ($building->is_upgrade_locked) {
@@ -105,9 +105,9 @@ sub view {
         return {};
     }
 
-    my $session         = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id}});
-    my $empire          = $self->get_empire_by_session($args->{session_id});
-    my $building        = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+    my $session         = $self->get_session($args);
+    my $empire          = $session->current_empire;
+    my $building        = $session->current_building;
     my $cost            = $building->cost_to_upgrade;
 
     my $can_upgrade     = eval{$building->can_upgrade($cost)};
@@ -181,8 +181,8 @@ sub build {
     }
 
     my $session = $self->get_session({session_id => $args->{session_id}, body_id => $args->{body_id}});
-    my $empire  = $self->get_empire_by_session($args->{session_id});
-    my $body    = $self->get_body($empire, $args->{body_id});
+    my $empire  = $session->current_empire;
+    my $body    = $session->current_body;
     my $x       = $args->{x};
     my $y       = $args->{y};
 
@@ -281,7 +281,7 @@ sub demolish {
     }
                                                                                             
     my $session = $self->get_session({session_id => $args->{building_id}, body_id => $args->{building_id}});
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $empire      = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
 
     my $body = $building->body;
@@ -323,9 +323,9 @@ sub downgrade {
         };
     }
                                                                                             
-
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     my $body = $building->body;
 
@@ -366,9 +366,9 @@ sub get_stats_for_level {
         };
     }
                                                                                             
-    my $session     = $self->get_session({session_id => $args->{building_id}, body_id => $args->{building_id}});
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
     my $level       = $args->{level};
     
     if ($level < 0 || $level > 100) {
@@ -415,9 +415,9 @@ sub repair {
         };
     }
                                                                                             
-
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     my $costs = $building->get_repair_costs;
     $building->can_repair($costs);

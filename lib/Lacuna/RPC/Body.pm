@@ -25,8 +25,9 @@ sub get_status {
         };
     }
 
-    my $empire = $self->get_empire_by_session($args->{session_id});
-    my $body = $self->get_body($empire, $args->{body_id});
+    my $empire  = $self->get_empire($args);
+    my $session = $self->get_session($args);
+    my $body    = $self->get_body($session, $empire, $args->{body_id});
     return $self->format_status($empire, $body);
 }
 
@@ -113,9 +114,9 @@ sub get_buildings {
 
     confess [1019, 'Use of positional arguments is illegal.'] if ! ref $args;
 
-    my $empire  = $self->get_empire_by_session($args->{session_id});
-    my $body    = $self->get_body($empire, $args->{body_id});
-    my $session = $self->get_session({ session_id => $args->{session_id} });
+    my $session = $self->get_session($args);
+    my $empire  = $session->current_empire;
+    my $body    = $session->current_body;
 
 
     if ($body->needs_surface_refresh) {
