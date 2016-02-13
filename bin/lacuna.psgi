@@ -52,6 +52,12 @@ my $app = builder {
                 return $app->($env);
             }
         };
+        enable "Plack::Middleware::SizeLimit" => (
+            max_unshared_size_in_kb => '51200', # 50MB
+            max_process_size_in_kb => '125000', # 125MB
+            check_every_n_requests => 3,
+        );
+        enable "Plack::Middleware::LightProfile";
     }  
     enable 'CrossOrigin',
         origins => '*', methods => ['GET', 'POST'], max_age => 60*60*24*30, headers => '*';
