@@ -1017,8 +1017,8 @@ sub reschedule_queue {
     my $start_time  = DateTime->now;
     my $end_time;
     my @build_queue = @{$self->body->builds};
-    BUILD:
     my $build;
+    BUILD:
     while ($build = shift @build_queue) {
         if ($build->id == $self->id) {
             $end_time   = $build->upgrade_ends;

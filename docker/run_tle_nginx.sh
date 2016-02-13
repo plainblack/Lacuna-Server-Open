@@ -1,4 +1,4 @@
-docker run -it -p ${TLE_SERVER_LISTEN:-127.0.0.1}:${TLE_SERVER_PORT:-8000}:80 	\
+docker run -it -p ${TLE_SERVER_LISTEN:-0.0.0.0}:${TLE_SERVER_PORT:-8000}:80 	\
   --name=tle-nginx 					\
   --net=tle-network 					\
   -v ${PWD}/../etc/nginx.conf:/etc/nginx/nginx.conf:ro 	\
