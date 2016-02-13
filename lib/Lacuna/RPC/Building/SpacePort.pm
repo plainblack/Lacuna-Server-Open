@@ -315,6 +315,8 @@ sub send_spies {
     $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
  
     my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session = $self->get_session({ session_id => $args->{session_id} });
+
     if ($args->{to_body_id}) {
         $args->{to_body} = { body_id => $args->{to_body_id}};
     }
@@ -467,7 +469,6 @@ sub prepare_fetch_spies {
         }
         last if (scalar @spies >= 100);
     }
-    undef $spies;
     
     return {
         status  => $self->format_status($empire),
@@ -507,9 +508,9 @@ sub fetch_spies {
     my @ids_fetched;
     my @ids_not_fetched;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    foreach my $id (@{$spy_ids}) {
+    foreach my $id (@{$args->{spy_ids}}) {
         my $spy = $spies->find($id);
-        if ($spy->on_body_id == $on_body_id) {
+        if ($spy->on_body_id == $args->{on_body_id}) {
             push @ids_fetched, $id;
         }
         else {
@@ -1020,6 +1021,7 @@ sub view_battle_logs {
     }
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session({ session_id => $args->{session_id} });
 
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
 

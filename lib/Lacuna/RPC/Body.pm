@@ -113,8 +113,11 @@ sub get_buildings {
 
     confess [1019, 'Use of positional arguments is illegal.'] if ! ref $args;
 
-    my $empire = $self->get_empire_by_session($args->{session_id});
-    my $body = $self->get_body($empire, $args->{body_id});
+    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $body    = $self->get_body($empire, $args->{body_id});
+    my $session = $self->get_session({ session_id => $args->{session_id} });
+
+
     if ($body->needs_surface_refresh) {
         $body->needs_surface_refresh(0);
         $body->update;
@@ -143,11 +146,11 @@ sub get_buildings {
             };
         }
         if ($building->efficiency < 100) {
-            $out{$building->id}{repair_costs} = $building->get_repair_costs;
+            $out->{$building->id}{repair_costs} = $building->get_repair_costs;
         }
     }
     
-    return {buildings=>\%out, body=>{surface_image => $body->surface}, status=>$self->format_status($session, $body)};
+    return {buildings=>$out, body=>{surface_image => $body->surface}, status=>$self->format_status($session, $body)};
 }
 
 sub repair_list {

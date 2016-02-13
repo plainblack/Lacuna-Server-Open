@@ -50,6 +50,9 @@ sub solve {
     my $session_id  = $args->{session_id};
     my $guid        = $args->{guid};
     my $solution    = $args->{solution};
+    
+    my $cache   = Lacuna->cache;
+    my $session = $self->get_session({session_id => $session_id });
 
     if (defined $guid && defined $solution) {
         my $captcha = Lacuna->cache->get_and_deserialize('captcha', $session_id);

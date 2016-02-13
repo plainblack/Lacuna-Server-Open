@@ -51,6 +51,7 @@ sub get_glyphs {
     }
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
 
     my @out;
     my $glyphs = $building->body->glyph;
@@ -87,6 +88,7 @@ sub get_ores_available_for_processing {
     }
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
 
     return {
         ore                 => $building->get_ores_available_for_processing,
@@ -129,6 +131,7 @@ sub assemble_glyphs {
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
     my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
+    my $session     = $self->get_session($args);
 
     if ($quantity > 50) {
         confess [1011, "You can only assemble up to 50 plans at a time"];
@@ -159,6 +162,7 @@ sub subsidize_search {
     }
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session     = $self->get_session($args);
 
     unless ($building->is_working) {
         confess [1010, "No one is searching."];
@@ -256,6 +260,7 @@ sub abandon_excavator {
     my $building    = $self->get_building($empire, $args->{building_id});
     my $site_id     = $args->{site_id};
     my $site        = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($site_id);
+    my $session     = $self->get_session($args);
 
     unless (defined $site) {
         confess [1002, "Excavator Site :".$site_id.": not found."];

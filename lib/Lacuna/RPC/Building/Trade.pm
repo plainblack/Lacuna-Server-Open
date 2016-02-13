@@ -153,9 +153,9 @@ sub add_fleet_to_supply_duty {
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
     my $fleet_id    = $args->{fleet_id};
+    my $session     = $self->get_session($args);
 
     if (not defined $building) {
->>>>>>> Started to modify Trade Ministry for fleets
         confess [1002, "Building not found."];
     }
     my $fleet = Lacune->db->resultset('Fleet')->find($fleet_id);
@@ -203,6 +203,8 @@ sub add_fleet_to_waste_duty {
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session      = $self->get_session($args);
+
     my $fleet_id    = $args->{fleet_id};
 
     if (not defined $building) {
@@ -285,54 +287,53 @@ sub create_supply_chain {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    if (not defined $building) {
-        confess [1002, "You must specify a building."];
-    }
-    if ($building->level < 1) {
-        confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
-    }
-    # 'target_id' over-rides 'target'
-    if ($args->{target_id}) {
-        $args->{target} = { body_id => $args->{target_id}};
-    }
-    my $body        = $building->body;
-    my $max_chains  = $building->level * 3;
+    my $session         = $self->get_session($args);
+    my $empire          = $session->current_empire;
+    my $building        = $session->current_building;
+    my $body            = $building->body;
+    my $max_chains      = $building->effective_level * 3;
+    my $resource_hour   = $args->{resource_hour};
+    my $resource_type   = $args->{resource_type};
+    my $target_id       = $args->{target_id};
+    my $building_id     = $args->{building_id};
+    my $session_id      = $args->{session_id};
+
     if ($body->out_supply_chains->count >= $max_chains) {
         confess [1002, "You cannot create any more supply chains outgoing from this planet."];
     }
 
-    my $resource_hour = $args->{resource_hour};
-    if (not defined $resource_hour) {
+    unless (defined $resource_hour) {
         confess [1002, "You must specify an amount for resource_hour."];
     }
     if ($resource_hour < 0) {
-        confess [1002, "Resource per hour must be positive or zero."];
+        confess [1002, "Resource per Hour must be positive or zero."];
     }
-    my $resource_type = $args->{resource_hour};
-    if (not first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
+    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
         confess [1002, "That is not a valid resource_type."];
     }
-    my $target = $self->find_target($args->{target});
-
-    if ($body->id == $target->id) {
+    if ($body->id == $target_id) {
         confess [1002, "You can't set up a supply chain to yourself."];
     }
-
-    # Target must be own empire or an allies
-    # TODO Allow supply chains to other empires?
-    #
+    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
+    unless ($target) {
+        confess [1002, "Cannot find that target body."];
+    }
+    # Target must be own empire, or alliance SS
     if ($target->empire_id != $empire->id) {
-        if ($target->alliance_id != $empire->alliance_id) {
-            confess [1002, "You can only target one of your own or an allies colony or Space Station."];
+        if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
+            if ($target->alliance_id != $empire->alliance_id) {
+                confess [1002, "You can only target one of your own alliances Space Stations."];
+            }
+        }
+        else {
+            confess [1002, "You must only target one of your own colonies."];
         }
     }
 
     my $chain       = $building->supply_chains->create({
         planet_id           => $body->id,
-        building_id         => $building->id,
-        target_id           => $target->id,
+        building_id         => $building_id,
+        target_id           => $target_id,
         resource_hour       => $resource_hour,
         resource_type       => $resource_type,
         percent_transferred => 0,
@@ -342,8 +343,9 @@ sub create_supply_chain {
     }
     $building->recalc_supply_production;
 
-    return $self->view_supply_chains($args->{session_id}, $building->id);
+    return $self->view_supply_chains($session_id, $building_id);
 }
+
 
 # Get fleets that are available to transport a trade
 #
@@ -457,6 +459,8 @@ sub view_supply_chains {
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session      = $self->get_session($args);
+
     if (not defined $building) {
         confess [1002, "You must specify a building."];
     }
@@ -490,6 +494,8 @@ sub view_waste_chains {
 
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
+    my $session      = $self->get_session($args);
+
     if (not defined $building) {
         confess [1002, "You must specify a building."];
     }
@@ -534,62 +540,6 @@ sub delete_supply_chain {
         $building->remove_supply_chain($chain);
     }
     return $self->view_supply_chains($args->{session_id}, $args->{building_id});
-}
-
-sub create_supply_chain {
-    my ($self, $session_id, $building_id, $target_id, $resource_type, $resource_hour) = @_;
-
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body        = $building->body;
-    my $max_chains = $building->effective_level * 3;
-    if ($body->out_supply_chains->count >= $max_chains) {
-        confess [1002, "You cannot create any more supply chains outgoing from this planet."];
-    }
-
-    unless (defined $resource_hour) {
-        confess [1002, "You must specify an amount for resource_hour."];
-    }
-    if ($resource_hour < 0) {
-        confess [1002, "Resource per Hour must be positive or zero."];
-    }
-    unless (first {$resource_type eq $_} (FOOD_TYPES, ORE_TYPES, qw(water waste energy))) {
-        confess [1002, "That is not a valid resource_type."];
-    }
-    if ($body->id == $target_id) {
-        confess [1002, "You can't set up a supply chain to yourself."];
-    }
-    my $target = Lacuna->db->resultset('Lacuna::DB::Result::Map::Body')->find($target_id);
-    unless ($target) {
-        confess [1002, "Cannot find that target body."];
-    }
-    # Target must be own empire, or alliance SS
-    if ($target->empire_id != $empire->id) {
-        if ($target->class eq 'Lacuna::DB::Result::Map::Body::Planet::Station') {
-            if ($target->alliance_id != $empire->alliance_id) {
-                confess [1002, "You can only target one of your own alliances Space Stations."];
-            }
-        }
-        else {
-            confess [1002, "You must only target one of your own colonies."];
-        }
-    }
-
-    my $chain       = $building->supply_chains->create({
-        planet_id           => $body->id,
-        building_id         => $building_id,
-        target_id           => $target_id,
-        resource_hour       => $resource_hour,
-        resource_type       => $resource_type,
-        percent_transferred => 0,
-    });
-    unless ($chain) {
-        confess [1002, "Cannot create a supply chain."];
-    }
-    $building->recalc_supply_production;
-
-    return $self->view_supply_chains($session_id, $building_id);
 }
 
 sub update_supply_chain {
@@ -874,91 +824,6 @@ sub withdraw_from_market {
         status      => $self->format_status($session, $building->body),
     };
 }
-
-sub accept_from_market {
-    my ($self, $session_id, $building_id, $trade_id) = @_;
-    unless ($trade_id) {
-        confess [1002, 'You have not specified a trade to accept.'];
-    }
-    my $cache = Lacuna->cache;
-    if (! $cache->add('trade_lock', $trade_id, 1, 5)) {
-        confess [1013, 'Another buyer has placed an offer on this trade. Please wait a few moments and try again.'];
-    }
-    my $guard = guard {
-        $cache->delete('trade_lock',$trade_id);
-    };
-
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
-
-    $empire->current_session->check_captcha;
-
-    my $trade = $building->market->find($trade_id);
-    unless (defined $trade) {
-        confess [1002, 'Could not find that trade. Perhaps it has already been accepted.',$trade_id];
-    }
-    my $offer_ship = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->find($trade->ship_id);
-    unless (defined $offer_ship) {
-        $trade->withdraw;
-        confess [1009, 'Trade no longer available.'];
-    }
-
-    my $body = $building->body;
-    unless ($empire->essentia >= $trade->ask) {
-        confess [1011, 'You need at least '.$trade->ask.' essentia to make this trade.']
-    }
-
-    $self->check_payload_ships_id($trade->payload->{ships}, $body);
-
-    $guard->cancel;
-
-    $empire->transfer_essentia({
-        amount      => $trade->ask,
-        from_reason => 'Trade Price',
-        to_empire   => $trade->body->empire,
-        to_reason   => 'Trade Income',
-    });
-    $empire->update;
-
-    $offer_ship->send(
-        target  => $body,
-        payload => $trade->payload,
-    );
-    
-    $trade->body->empire->send_predefined_message(
-        tags        => ['Trade','Alert'],
-        filename    => 'trade_accepted.txt',
-        params      => [join("; ",@{$trade->format_description_of_payload}), $trade->ask.' essentia', $empire->id, $empire->name],
-    );
-    $trade->delete;
-
-    return {
-        status      => $self->format_status($session, $building->body),
-    };
-}
-
-sub add_to_market {
-    my ($self, $session_id, $building_id, $offer, $ask, $options) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    confess [1013, 'You cannot use a trade ministry that has not yet been built.'] unless $building->effective_level > 0;
-    my $cache = Lacuna->cache;
-    if (! $cache->add('trade_add_lock', $building_id, 1, 5)) {
-        confess [1013, 'You have a trade setup in progress.  Please wait a few moments and try again.'];
-    }
-    my $guard = guard {
-        $cache->delete('trade_add_lock',$building_id);
-    };
-    my $trade = $building->add_to_market($offer, $ask, $options);
-    return {
-        trade_id    => $trade->id,
-        status      => $self->format_status($session, $building->body),
-    };
-}
-
 
 __PACKAGE__->register_rpc_method_names(qw(
     get_supply_ships 

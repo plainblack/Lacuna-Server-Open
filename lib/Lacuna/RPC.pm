@@ -3,7 +3,9 @@ package Lacuna::RPC;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
+
 extends 'JSON::RPC::Dispatcher::App';
+
 use Lacuna::Util qw(format_date real_ip_address);
 use Log::Any qw($log);
 use Scalar::Util qw(blessed);
@@ -71,8 +73,9 @@ sub get_session {
         }
     }
 
-    $session->current_empire($session->empire)
-        unless $session->current_empire;
+    if (not $session->current_empire) {
+        $session->current_empire($session->empire);
+    }
     $session->current_empire->current_session($session);
     $session->empire->current_session($session);
 
@@ -192,11 +195,6 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         $log->trace(Carp::longmess "internal error: building_id is a ref, but not blessed?");
         confess [ 552, "Internal Error [get_building]" ];
     }
-    else {
-        my ($building) = Lacuna->db->resultset('Building')->search({
-            'me.id' => $building_id,
-        },{ prefetch => 'body' }
-        );
 
     my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
 
@@ -300,3 +298,4 @@ sub to_app {
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
+

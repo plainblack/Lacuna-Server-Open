@@ -817,14 +817,6 @@ EOSQL
     return $o;
 }
 
-# is a specific plot free
-sub is_space_free {
-    my ($self, $x, $y) = @_;
-
-    my $count = grep {$_->x == $x and $_->y == $y} @{$self->building_cache};
-    return $count == 0;
-}
-
 sub find_free_space {
     my $self = shift;
     my $open_spaces = $self->find_free_spaces();

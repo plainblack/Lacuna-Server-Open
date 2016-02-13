@@ -107,6 +107,10 @@ sub login {
             browser     => shift,
         };
     }
+    my $name        = $args->{name};
+    my $password    = $args->{password};
+    my $api_key     = $args->{api_key};
+    my $browser     = $args->{browser};
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     
@@ -529,7 +533,10 @@ sub view_profile {
 }
 
 sub edit_profile {
-    my ($self, $session_id, $profile) = @_;
+    my ($self, $session_id, $args) = @_;
+
+    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     
@@ -786,6 +793,8 @@ sub boost {
         unless $weeks >=0 and int($weeks) == $weeks;
 
     unless ($empire->essentia >= 5 * $weeks) {
+        confess [1011, 'Not enough essentia.'];
+    }
     $empire->spend_essentia({
         amount  => 5 * $weeks,
         reason  => $type.' boost',
@@ -806,7 +815,7 @@ sub view_boosts {
     my ($self, $session_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
-    return $self->get_boosts($args);
+    return $self->get_boosts({ session_id => $session_id });
 }
 
 # View the current empire's boosts
@@ -817,6 +826,7 @@ sub get_boosts {
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
         
     my $session_id = $args->{session_id};
+    my $session  = $self->get_session({session_id => $session_id});
     my $empire = $self->get_empire_by_session($session_id);
     return {
         status  => $self->format_status($session),
@@ -970,8 +980,6 @@ sub redefine_species_limits {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
 
-    my $session_id      = $args->{session_id};
-
     my $out = $empire->determine_species_limits($empire);
     $out->{status} = $self->format_status($session);
     return $out;
@@ -980,13 +988,9 @@ sub redefine_species_limits {
 
 
 sub redefine_species {
-    my ($self, $session_id, $me) = @_;
+    my ($self, $session_id, $args) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
-
-    my $session_id      = $args->{session_id};
-    
-    my $empire = $self->get_empire_by_session($session_id);
 
     unless ($empire->essentia >= 100) {
         confess [1011, 'You need at least 100 essentia to redefine your species.'];
@@ -1156,8 +1160,7 @@ sub get_species_templates {
     ]
 }
 
-sub view_authorized_sitters
-{
+sub view_authorized_sitters {
     my ($self, $session_id) = @_;
     my $session = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire();
@@ -1187,8 +1190,7 @@ sub view_authorized_sitters
     return { status => $self->format_status($session->empire), sitters => \@auths };
 }
 
-sub authorize_sitters
-{
+sub authorize_sitters {
     my ($self, $session_id, $opts) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     $session->check_captcha;
@@ -1261,8 +1263,7 @@ sub authorize_sitters
     return $rc;
 }
 
-sub deauthorize_sitters
-{
+sub deauthorize_sitters {
     my ($self, $session_id, $opts) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire;
@@ -1284,8 +1285,7 @@ sub deauthorize_sitters
     return $self->view_authorized_sitters($session);
 }
 
-sub _rewrite_request_for_logging
-{
+sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
         $params->[1] = 'xxx';

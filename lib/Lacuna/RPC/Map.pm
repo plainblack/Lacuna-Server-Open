@@ -138,6 +138,7 @@ sub get_star {
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     my $session_id  = $args->{session_id};
+    my $session     = $self->get_session({ session_id => $session_id });
     my $empire      = $self->get_empire_by_session($session_id);
     my $stars = Lacuna->db->resultset('Map::Star')->search();
     if ($args->{star_id}) {
@@ -170,6 +171,7 @@ sub find_star {
         confess [1009, "Your search term must be at least 3 characters."];
     }
     my $session_id  = $args->{session_id};
+    my $session     = $self->get_session({ session_id => $session_id });
     my $empire      = $self->get_empire_by_session($session_id);
     my $stars       = Lacuna->db->resultset('Map::Star')->search({name => { like => $args->{name}.'%' }},{rows => 25});
 

@@ -216,7 +216,6 @@ sub can_build_fleet {
                 $reason .= ' and a level '.$prereq->{level}.' '.$prereq->{class}->name;
             }
         }
->>>>>>> Went through Planet/Body/Shipyard/SpacePort converting code to use fleets
     }
     if ($reason ne '') {
         confess [1013, "$reason" ];

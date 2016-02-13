@@ -119,6 +119,7 @@ sub subsidize_build_queue {
         building_id => $building, 
         no_status   => $args->{no_status},
     });
+}
 
 sub delete_build {
     my ($self, $session_id, $building_id, $ship_id) = @_;
@@ -195,9 +196,6 @@ sub subsidize_fleet {
     });
     $empire->update;
 
-    $scheduled_ship->reschedule_queue;
-    $scheduled_ship->finish_construction;
-
     return $self->view({session => $empire, building => $building, no_status => $args->{no_status}});
 }
 
@@ -262,8 +260,6 @@ sub repair_fleet {
     $building->can_repair_fleet($fleet, $costs);
     $building->spend_resources_to_repair_fleet($costs);
     $building->repair_fleet($fleet, $costs->{seconds});
-
-
 
 }
 

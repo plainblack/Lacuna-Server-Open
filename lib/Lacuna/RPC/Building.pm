@@ -31,6 +31,7 @@ sub upgrade {
         };
     }
 
+    my $session     = $self->get_session( {session_id => $args->{session_id}, building_id => $args->{building_id} });
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
 
@@ -104,6 +105,7 @@ sub view {
         return {};
     }
 
+    my $session         = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id}});
     my $empire          = $self->get_empire_by_session($args->{session_id});
     my $building        = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
     my $cost            = $building->cost_to_upgrade;
@@ -171,14 +173,15 @@ sub build {
         
     if (ref($args) ne "HASH") {
         $args = {
-            session         => $args,
+            session_id      => $args,
             body_id         => shift,
             x               => shift,
             y               => shift,
         };
     }
 
-    my $empire  = $self->get_empire_by_session($args->{session});
+    my $session = $self->get_session({session_id => $args->{session_id}, body_id => $args->{body_id}});
+    my $empire  = $self->get_empire_by_session($args->{session_id});
     my $body    = $self->get_body($empire, $args->{body_id});
     my $x       = $args->{x};
     my $y       = $args->{y};
@@ -277,7 +280,7 @@ sub demolish {
         };
     }
                                                                                             
-
+    my $session = $self->get_session({session_id => $args->{building_id}, body_id => $args->{building_id}});
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
 
@@ -363,7 +366,7 @@ sub get_stats_for_level {
         };
     }
                                                                                             
-
+    my $session     = $self->get_session({session_id => $args->{building_id}, body_id => $args->{building_id}});
     my $empire      = $self->get_empire_by_session($args->{session_id});
     my $building    = $self->get_building($empire, $args->{building_id});
     my $level       = $args->{level};
@@ -433,7 +436,6 @@ sub repair {
         $proposition->insert;
         confess [1017, 'The repair order has been delayed pending a parliamentary vote.'];
     }
->>>>>>> Updated docs, added code to view incoming in SpacePort
     $building->repair($costs);
     return $self->view($empire, $building);
 }

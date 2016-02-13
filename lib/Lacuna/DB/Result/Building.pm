@@ -952,7 +952,6 @@ sub finish_upgrade {
         my $empire = $body->empire;
         my $new_level = $self->level+1;
 
-        my $empire = $body->empire; 
         if ($empire) {
             # 31 is the actual Max level for the Terra & Gas Platforms.
             if ($new_level >= 1 and $new_level <= 31) {
@@ -961,6 +960,10 @@ sub finish_upgrade {
             elsif ($new_level > 31) {
                 $empire->add_medal('buildingX');
             }
+            my $type = $self->controller_class;
+            $type =~ s/^Lacuna::RPC::Building::(\w+)$/$1/;
+            $empire->add_medal($type);
+            $self->finish_upgrade_news($new_level, $empire);
         }
 
         $self->reschedule_queue;
@@ -972,15 +975,6 @@ sub finish_upgrade {
         $body->needs_recalc(1);
         $body->needs_surface_refresh(1);
         $body->update;
-
-        if ($empire) {
-            $empire->add_medal($type);
-            if ($new_level % 5 == 0) {
-                my %levels = (5=>'a quiet',10=>'an extravagant',15=>'a lavish',20=>'a magnificent',25=>'a historic',30=>'a magical');
-                $self->body->add_news($new_level*4,"In %s ceremony, %s unveiled its newly augmented %s.", $levels{$new_level}, $empire->name, $self->name);
-            }
-        }
-        $self->reschedule_queue;
     }
     
     Lacuna->cache->delete('upgrade_contention_lock', $self->id);
