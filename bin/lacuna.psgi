@@ -42,7 +42,7 @@ my $gameover = [ 500,
 ];
 
 my $app = builder {
-    unless ($^O eq 'darwin') {
+    if ($^O ne 'darwin' && not defined $ENV{'TLE_NO_MIDDLEWARE'} ) {
         ##Wrapper to fully enable size limiting.  The psgix.harakiri has to be set for it to work.
         enable sub {
             my $app = shift;
