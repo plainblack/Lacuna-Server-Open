@@ -8,5 +8,6 @@ docker run                                      \
   -v ${PWD}/../t:/data/Lacuna-Server/t          \
   -v ${PWD}/../var:/data/Lacuna-Server/var      \
   --volumes-from tle-captcha-data               \
+  -v ${PWD}/../var/www/public/api/api.css:/data/Lacuna-Server/var/www/public/api/api.css \
   lacuna/tle-server /bin/bash
 
