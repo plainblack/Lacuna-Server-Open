@@ -9,5 +9,6 @@ docker run                                      \
   -v ${PWD}/../var:/data/Lacuna-Server/var      \
   --volumes-from tle-captcha-data               \
   -v ${PWD}/../var/www/public/api/api.css:/data/Lacuna-Server/var/www/public/api/api.css \
+  -e TLE_NO_MIDDLEWARE=1 \
   lacuna/tle-server /bin/bash
 

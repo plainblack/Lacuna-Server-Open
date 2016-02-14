@@ -1288,7 +1288,10 @@ sub deauthorize_sitters {
 sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
-        $params->[1] = 'xxx';
+        $params = {
+            @$params,
+            password => 'xxx',
+        };
     }
     elsif ($method eq 'change_password') {
         $params->[$_] = 'xxx' for 0..2;
