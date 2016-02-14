@@ -95,47 +95,32 @@ sub logout {
 # Login with credentials
 # 
 sub login {
-    my $self            = shift;
-    my $plack_request   = shift;
-    my $args            = shift;
+    my ($self, $plack_request, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            name        => $args,
-            password    => shift,
-            api_key     => shift,
-            browser     => shift,
-        };
-    }
-    my $name        = $args->{name};
-    my $password    = $args->{password};
-    my $api_key     = $args->{api_key};
-    my $browser     = $args->{browser};
+    my $name        = $args{name};
+    my $password    = $args{password};
+    my $api_key     = $args{api_key};
+    my $browser     = $args{browser};
 
-    confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
-    
-    unless ($args->{api_key}) {
+    unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
-    my $empire = Lacuna->db->resultset('Empire')->search({
-        name    =>  $args->{name},
-    })->next;
-    unless (defined $empire) {
-         confess [1002, 'Empire does not exist.', $args->{name}];
+    my $empire;
+    if ($name =~ /^#(-?\d+)$/) {
+        $empire = Lacuna->db->resultset('Empire')->find({id=>$1});
     }
-    else
-    {
+    else {
         $empire = Lacuna->db->resultset('Empire')->find({name=>$name});
     }
-    unless (defined $empire) {
+    if (not defined $empire) {
          confess [1002, 'Empire does not exist.', $name];
     }
 
     my %session_params = (
-                          api_key => $api_key,
-                          request => $plack_request,
-                          browser => $browser,
-                         );
+        api_key => $api_key,
+        request => $plack_request,
+        browser => $browser,
+    );
 
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
@@ -153,11 +138,11 @@ sub login {
         unless (Lacuna->cache->get('invalid_login_attempt_' . $ip, $empire->id)) {
             Lacuna->cache->set('invalid_login_attempt_' . $ip, $empire->id, 1, 12 * 60 * 60);
             $empire->send_predefined_message(
-                                             filename => 'invalid_login_attempt.txt',
-                                             params   => [ $ip ],
-                                             from     => $empire->lacuna_expanse_corp,
-                                             tags     => [ 'Alert' ],
-                                            );
+                filename => 'invalid_login_attempt.txt',
+                params   => [ $ip ],
+                from     => $empire->lacuna_expanse_corp,
+                tags     => [ 'Alert' ],
+            );
         }
 
         confess [1004, 'Password incorrect (' . $ip . ')', $password];
@@ -174,8 +159,7 @@ sub login {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
     my $firebase_config = $config->get('firebase');
-    if ($firebase_config)
-    {
+    if ($firebase_config) {
         my $auth_code = Firebase::Auth->new( 
             secret  => $firebase_config->{auth}{secret}, 
             data    => {
@@ -192,7 +176,6 @@ sub login {
         session_id  => $session->id,
         status      => $self->format_status($session),
     };
-
 }
 
 sub benchmark {
@@ -377,77 +360,123 @@ sub reset_password {
 }
 
 
-# Create, defined species and found all in one go
-# 
-sub create {
-    my ($self, $plack_request, $args) = @_;
-
-    # TODO need to understand how we integrate Facebook!
-    #
-
-    # verify password
-    Lacuna::Verify->new(content=>\$args->{password}, throws=>[1001,'Invalid password. It must be at least 6 characters and both passwords must match.', 'password'])
-        ->length_gt(5)
-        ->eq($args->{password1});
-                                    
-    # verify username
-    $self->is_name_unique($args->{name});
-    $self->is_name_valid($args->{name});
-
-    # verify email
-    if (exists $args->{email} && $args->{email} ne '') {
-        Lacuna::Verify->new(content=>\$args->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
-            ->is_email;
-        if (Lacuna->db->resultset('Empire')->search({email=>$args->{email}})->count > 0) {
-            confess [1005, 'That email address is already in use by another empire.', 'email'];
+sub validate_captcha {
+    my ($self, $plack_request, $guid, $solution) = @_;
+    my $ip = $plack_request->address;
+    if (defined $guid && defined $solution) {                                               # offered a solution
+        my $captcha = Lacuna->cache->get_and_deserialize('create_empire_captcha', $ip);
+        if (ref $captcha eq 'HASH') {                                                       # a captcha has been set
+            if ($captcha->{guid} eq $guid) {                                                # the guid is the one set
+                if ($captcha->{solution} eq $solution) {                                    # the solution is correct
+                    return 1;
+                }
+            }
         }
     }
+    confess [1014, 'Captcha not valid.', $self->fetch_captcha($plack_request)];
+}
 
-    $self->vet_species($args);
+sub found {
+    my ($self, $plack_request, $empire_id, $api_key, $invite_code) = @_;
+    unless ($api_key) {
+        confess [1002, 'You need an API Key.'];
+    }
+    if ($empire_id eq '') {
+        confess [1002, "You must specify an empire id."];
+    }
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Invalid empire.", $empire_id];
+    }
+    unless ($empire->stage eq 'new') {
+        confess [1010, "This empire cannot be founded again.", $empire_id];
+    }
+
+    # handle invitation
+    $empire->attach_invite_code($invite_code);
+    
+    my $welcome = $empire->found;
+    my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
+    return {
+        session_id          => $session->id,
+        status              => $self->format_status($session),
+        welcome_message_id  => $welcome->id,
+    };
+}
+
+
+sub create {
+    my ($self, $plack_request, %args) = @_;
+
+    my %params = (
+        status_message      => 'Making Lacuna a better Expanse.',
+        sitter_password     => random_string('CC.c!ccn'),
+    );
+
+    # check facebook    
+    my $has_facebook = (exists $args{facebook_uid} && $args{facebook_uid} =~ m/^\d+$/ && exists $args{facebook_token} && length($args{facebook_token}) > 60);
+    if ($has_facebook) {
+        $params{facebook_uid}   = $args{facebook_uid};
+        $params{facebook_token} = $args{facebook_token};
+    }
 
     # verify captcha
-    $self->validate_recaptcha($plack_request, $args->{captcha_challenge}, $args->{captcha_response});
-    my $now = DateTime->now();
+    unless ($has_facebook) {
+        $self->validate_captcha($plack_request, $args{captcha_guid}, $args{captcha_solution});
+    }
 
-    my $empire = Lacuna->db->resultset('Empire')->create({
-        name                    => $args->{name},
-        stage                   => 'new',
-        date_created            => $now,
-        description             => '',          # We don't capture the empire description during empire-create any more
-        password                => Lacuna::DB::Result::Empire->encrypt_password($args->{password}),
-        sitter_password         => random_string('CC.c!ccn'),
-        status_message          => 'Making Lacuna a better Expanse.',
-        email                   => $args->{email},
-        last_login              => $now,
-        species_name            => $args->{species_name},
-        species_description     => $args->{species_description},
-        min_orbit               => $args->{species_min_orbit},
-        max_orbit               => $args->{species_max_orbit},
-        manufacturing_affinity  => $args->{species_manufacturing},
-        deception_affinity      => $args->{species_deception},
-        research_affinity       => $args->{species_research},
-        management_affinity     => $args->{species_management},
-        farming_affinity        => $args->{species_farming},
-        mining_affinity         => $args->{species_mining},
-        science_affinity        => $args->{species_science},
-        environmental_affinity  => $args->{species_environmental},
-        political_affinity      => $args->{species_political},
-        trade_affinity          => $args->{species_trade},
-        growth_affinity         => $args->{species_growth},
-    });
+    # verify password
+    if (exists $args{password} || !$has_facebook) {
+        Lacuna::Verify->new(content=>\$args{password}, throws=>[1001,'Invalid password. It must be at least 6 characters and both passwords must match.', 'password'])
+            ->length_gt(5)
+            ->eq($args{password1});
+        $params{password} = Lacuna::DB::Result::Empire->encrypt_password($args{password});
+    }
+    
+    # verify username
+    eval { $self->is_name_unique($args{name}) };
+    if ($@) { # maybe they're trying to finish an incomplete empire
+        my $empire = Lacuna->db->resultset('Empire')->search({name=>$args{name}})->next;
+        if (defined $empire) {
+            if ($empire->stage eq 'new') {
+                if ($empire->is_password_valid($args{password})) {
+                    confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
+                }
+                else {
+                    confess [1101, "Your empire has not been completed created, but you have also entered the wrong password."];
+                }
+            }
+            else {
+                confess [1000, 'Empire name is in use by another player.', 'name'];
+            }
+        }
+        else {
+            confess [1002, 'Empire has gone away.'];
+        }
+    }    
+    $self->is_name_valid($args{name});
+    $params{name} = $args{name};
+
+    # verify email
+    if (exists $args{email} && $args{email} ne '') {
+        Lacuna::Verify->new(content=>\$args{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+            ->is_email;
+        if (Lacuna->db->resultset('Empire')->search({email=>$args{email}})->count > 0) {
+            confess [1005, 'That email address is already in use by another empire.', 'email'];
+        }
+        $params{email} = $args{email};
+    }
+
+    # create account
+    my $empire = Lacuna->db->resultset('Empire')->new(\%params)->insert;
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
 
     # handle invitation
-    $empire->attach_invite_code($args->{invite_code});
-
-    my $welcome = $empire->found;
-
-    return {
-        session_id          => $empire->start_session({ api_key => $args->{api_key}, request => $plack_request })->id,
-        status              => $self->format_status($empire),
-        welcome_message_id  => $welcome->id,
-    }
+    $empire->attach_invite_code($args{invite_code});
+    
+    return $empire->id;
 }
+
 
 # Validate the recaptcha
 #
@@ -932,6 +961,8 @@ sub vet_species {
     my ($self, $args) = @_;
 
     $args->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove leading/trailing white space
+    $log->debug("vet_species name=[".$args->{species_name}."]"); 
+
     Lacuna::Verify->new(content => \$args->{species_name}, throws=>[1000,'Species name is not available.', 'name'])
         ->length_lt(31)
         ->length_gt(2)
@@ -1022,6 +1053,28 @@ sub redefine_species {
     return {
         status  => $self->format_status($session),
     };
+}
+
+sub update_species {
+    my ($self, $empire_id, $me) = @_;
+
+    # make sure it's a valid empire
+    unless ($empire_id ne '') {
+        confess [1002, "You must specify an empire id."];
+    }
+    my $empire = Lacuna->db->resultset('Empire')->find($empire_id);
+    unless (defined $empire) {
+        confess [1002, "Not a valid empire.",'empire_id'];
+    }
+
+    # deal with an empire in motion
+    if ($empire->stage ne 'new') {
+        confess [1010, "You can't establish a new species for an empire that's already founded.",'empire_id'];
+    }
+
+    $self->vet_species($me);
+    $empire->update_species($me)->update;
+    return 1;
 }
 
 
@@ -1302,7 +1355,8 @@ sub _rewrite_request_for_logging {
     elsif ($method eq 'create') {
         $params = {
             @$params,
-            password => 'xxx',
+            password    => 'xxx',
+            password1   => 'xxx',
         };
     }
     elsif ($method eq 'edit_profile') {
