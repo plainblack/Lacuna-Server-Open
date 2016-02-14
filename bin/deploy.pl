@@ -175,8 +175,8 @@ END_TEXT
                 });
             }
 
-            my $server_git = Git::Wrapper->new('/data/Lacuna-Server/');
-            $server_git->pull;
+#            my $server_git = Git::Wrapper->new('/data/Lacuna-Server/');
+#            $server_git->pull;
             my $index_file = '/data/Lacuna-Server/var/www/public/index.html';
             my $index = do {
                 open my $fh, '<', $index_file;
@@ -187,8 +187,8 @@ END_TEXT
             open my $fh, '>', $index_file;
             print {$fh} $index;
             close $fh;
-            $server_git->commit({all => 1, message => 'updating for new ui code'});
-            $server_git->push('origin', $branch);
+#            $server_git->commit({all => 1, message => 'updating for new ui code'});
+#            $server_git->push('origin', $branch);
 
             my $allfiles = $s3bucket->list_all({prefix => 'code/'});
             for my $key (@{ $allfiles->{keys} }) {
