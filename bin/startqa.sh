@@ -1,1 +1,1 @@
-../../Lacuna-Server-Private/startqa.sh
+../../Lacuna-Server-Private/bin/startqa.sh

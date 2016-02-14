@@ -1,1 +1,1 @@
-../../Lacuna-Server-Private/run_hourly.sh
+../../Lacuna-Server-Private/bin/run_hourly.sh
