@@ -133,7 +133,6 @@ END_TEXT
             );
 
             # Update the index file to point to the new store.
-            my $index_file = $index_file;
             my $index = do {
                 open my $fh, '<', $index_file;
                 local $/;
@@ -143,6 +142,9 @@ END_TEXT
             open my $fh, '>', $index_file;
             print {$fh} $index;
             close $fh;
+
+            unlink('/data/Lacuna-Server/var/www/public/index.html');
+            symlink($index, '/data/Lacuna-Server/var/www/public/index.html');
 
             my $allfiles = $s3bucket->list_all({prefix => $prefix.'/'});
             for my $key (@{ $allfiles->{keys} }) {
