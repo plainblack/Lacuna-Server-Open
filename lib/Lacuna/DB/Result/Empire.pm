@@ -15,6 +15,8 @@ use Email::Valid;
 use UUID::Tiny ':std';
 use Lacuna::Constants qw(INFLATION);
 use PerlX::Maybe qw(provided maybe);
+use Log::Any qw($log);
+use Data::Dumper;
 
 __PACKAGE__->table('empire');
 __PACKAGE__->add_columns(
@@ -311,21 +313,22 @@ sub allies {
 
 sub update_species {
     my ($self, $me) = @_;
-    $self->species_name($me->{species_name});
-    $self->species_description($me->{species_description});
-    $self->min_orbit($me->{species_min_orbit});
-    $self->max_orbit($me->{species_max_orbit});
-    $self->manufacturing_affinity($me->{species_manufacturing});
-    $self->deception_affinity($me->{species_deception});
-    $self->research_affinity($me->{species_research});
-    $self->management_affinity($me->{species_management});
-    $self->farming_affinity($me->{species_farming});
-    $self->mining_affinity($me->{species_mining});
-    $self->science_affinity($me->{species_science});
-    $self->environmental_affinity($me->{species_environmental});
-    $self->political_affinity($me->{species_political});
-    $self->trade_affinity($me->{species_trade});
-    $self->growth_affinity($me->{species_growth});
+
+    $self->species_name($me->{name});
+    $self->species_description($me->{description});
+    $self->min_orbit($me->{min_orbit});
+    $self->max_orbit($me->{max_orbit});
+    $self->manufacturing_affinity($me->{manufacturing_affinity});
+    $self->deception_affinity($me->{deception_affinity});
+    $self->research_affinity($me->{research_affinity});
+    $self->management_affinity($me->{management_affinity});
+    $self->farming_affinity($me->{farming_affinity});
+    $self->mining_affinity($me->{mining_affinity});
+    $self->science_affinity($me->{science_affinity});
+    $self->environmental_affinity($me->{environmental_affinity});
+    $self->political_affinity($me->{political_affinity});
+    $self->trade_affinity($me->{trade_affinity});
+    $self->growth_affinity($me->{growth_affinity});
     return $self;
 }
 
@@ -892,32 +895,64 @@ sub found {
 
 sub find_home_planet {
     my ($self) = @_;
+    my $planets = Lacuna->db->resultset('Map::Body');
+    my %body_search = (
+        'me.orbit'     => { between => [ $self->min_orbit, $self->max_orbit] },
+        'me.empire_id' => undef,
+        'me.class'     => { like => 'Lacuna::DB::Result::Map::Body::Planet::P%' }, 
+    );
+    my %star_search = (
+        station_id => undef,
+    );
+    my $invite = Lacuna->db->resultset('Invite')->search({invitee_id => $self->id})->first;
+    my $sz_param = Lacuna->config->get('starter_zone');
+    my @stars;
+    if (defined $invite) {
+        $body_search{'me.zone'} = $invite->zone;
+        $star_search{zone} = $invite->zone;
+    }
+    elsif ($sz_param and $sz_param->{active}) {
+       if ($sz_param->{zone}) {
+           $body_search{'me.zone'} = { in => $sz_param->{zone_list} };
+           $star_search{zone} = { in => $sz_param->{zone_list} };
+       }
+       if ($sz_param->{coord}) {
+           $body_search{'me.x'} = { between => $sz_param->{x} };
+           $body_search{'me.y'} = { between => $sz_param->{y} };
+           $star_search{x} = { between => $sz_param->{x} };
+           $star_search{y} = { between => $sz_param->{y} };
+       }
+    }
+    else {
+         $body_search{'me.usable_as_starter_enabled'} = 1;
+    }
+    @stars  = Lacuna->db->resultset('Map::Star')->search(\%star_search)->get_column('id')->all;
+    $body_search{'me.star_id'} = { 'in' => \@stars };
+    my @bodies = shuffle $planets->search( \%body_search, { join => 'star' } );
+    
+    my $home_planet;
+    for my $planet (@bodies) {
+        next unless (defined $planet);
+        next if ($planet->empire);
+        next if ($planet->is_claimed);
+        next if ($planet->x == -4 && $planet->y == -444); #Unlucky Planet
+        next if ($planet->is_locked);
+        $planet->lock;
+        $home_planet = $planet;
+        last;
+    }
 
-    # available planets in unseized systems
-    # only planets in the range P1-P20 can be used as starter planets.
-    # it's easier to check for unseized systems rather than systems that might be seized with a
-    # 'members only' enacted law.
-    #
-    my $planets = Lacuna->db->resultset('Map::Body')->search({
-        orbit               => { between => [ $self->min_orbit, $self->max_orbit] },
-        empire_id           => undef,
-        'star.station_id'   => undef,
-        'me.class'          => {
-            -like           => ['Lacuna::DB::Result::Map::Body::Planet::P1%', 'Lacuna::DB::Result::Map::Body::Planet::P2%'],
-        },
-        -or                 => [
-            -and            => ['me.x' => {between => [0,100]},      'me.y' => {between => [0, 100]} ],
-            -and            => ['me.x' => {between => [150,250]},    'me.y' => {between => [150, 250]} ],
-        ],
-    },{
-        join        => 'star',
-    });
-    my $total = $planets->count;
-    print STDERR "Total planets = $total\n";
-    $planets = $planets->search({},{
-        offset  => randint(0, $total - 1),
-    });
-    return $planets->next;
+    # didn't find one
+    unless (defined $home_planet) {
+        # unlock
+        $self->update({stage => 'new'});
+        if (defined $invite) {
+            $invite->update({invitee_id => undef});
+        }
+        confess [1002, 'Could not find a home planet. Try again in a few moments.'];
+    }
+    
+    return $home_planet;
 }
 
    

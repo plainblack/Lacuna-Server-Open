@@ -1047,6 +1047,10 @@ sub update_species {
 
     $self->vet_species(\%args);
     $empire->update_species(\%args)->update;
+
+
+    $log->debug(Dumper($empire->{_column_data}));
+
     return 1;
 }
 

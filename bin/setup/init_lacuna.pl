@@ -334,6 +334,7 @@ sub update_database_chunk {
                     orbit       => $orbit,
                     x           => $x_body,
                     y           => $y_body,
+                    zone        => $star->zone,
                     star_id     => $star->id,
                     class       => $class,
                     size        => $size,
@@ -714,7 +715,7 @@ sub generate_ores_png() {
             }
         }
 
-        open(my $fh, '>',  "${ore}_map.png") || die "Cannot create ore image file $!";
+        open(my $fh, '>',  "../../var/starmaps/${ore}_map.png") || die "Cannot create ore image file $!";
         binmode $fh;
         print $fh $im->png;
         close $fh;
@@ -746,7 +747,7 @@ sub generate_stars_png() {
             $im->filledEllipse($x, $y, 5.5, 5.5, $star_colour);
         }
     }
-    open(my $fh, '>',  'starmap.png') || die "Cannot create star image file $!";
+    open(my $fh, '>',  '../../var/starmaps/starmap.png') || die "Cannot create star image file $!";
     binmode $fh;
     print $fh $im->png;
     close $fh;
