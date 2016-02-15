@@ -76,7 +76,13 @@ sub logout {
 }
 
 sub login {
-    my ($self, $plack_request, $name, $password, $api_key, $browser) = @_;
+    my ($self, $plack_request, %args) = @_;
+
+    my $name        = $args{name};
+    my $password    = $args{password};
+    my $api_key     = $args{api_key};
+    my $browser     = $args{browser};
+
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
