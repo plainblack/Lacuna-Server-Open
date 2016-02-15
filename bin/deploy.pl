@@ -144,7 +144,7 @@ END_TEXT
             close $fh;
 
             out('Deleting file: /data/Lacuna-Server/var/www/public/index.html');
-            out("Link: [$index] to /data/Lacuna-Server/var/www/public/index.html");
+            out("Link: [$index_file] to /data/Lacuna-Server/var/www/public/index.html");
 
             unlink('/data/Lacuna-Server/var/www/public/index.html');
             symlink($index_file, '/data/Lacuna-Server/var/www/public/index.html');
