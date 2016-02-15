@@ -143,8 +143,11 @@ END_TEXT
             print {$fh} $index;
             close $fh;
 
+            out('Deleting file: /data/Lacuna-Server/var/www/public/index.html');
+            out("Link: [$index] to /data/Lacuna-Server/var/www/public/index.html");
+
             unlink('/data/Lacuna-Server/var/www/public/index.html');
-            symlink($index, '/data/Lacuna-Server/var/www/public/index.html');
+            symlink($index_file, '/data/Lacuna-Server/var/www/public/index.html');
 
             my $allfiles = $s3bucket->list_all({prefix => $prefix.'/'});
             for my $key (@{ $allfiles->{keys} }) {
