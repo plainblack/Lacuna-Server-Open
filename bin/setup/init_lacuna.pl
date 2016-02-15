@@ -14,7 +14,7 @@ use GD::Image;
 
 # Generate a 'more natural' layout of stars where stars are clustered and there are voids
 # Generate a distribution of ores within the expanse so that we have abundance and rarity
-# This is achieved by splitting the expanse into chunks which is used to calculate star density and ore distribution
+# This is achieved by splitting the expanse into chunks which are used to calculate star density and ore distribution
 # Once we have the density of stars in each chunk we randomly place stars
 # Once we have the relative amount of ore in each chunk we try to use a variation of the back-packers algorithm to place planets
 
@@ -678,12 +678,12 @@ sub generate_ores_png() {
     foreach my $ore (ORE_TYPES) {
         say "Generating ore distribution map for $ore";
         my $im = new GD::Image($map_width,$map_height);
-        my $white   = $im->colorAllocate(255,255,255);
-        my $grey    =$im->colorAllocate(72,72,72);
-        my $black   = $im->colorAllocate(0,0,0);
+        my $white       = $im->colorAllocate(255,255,255);
+        my $grey        = $im->colorAllocate(72,72,72);
+        my $black       = $im->colorAllocate(0,0,0);
         my $star_colour = $im->colorAllocate(127,255,212);
-        my $colour = generate_colour();
-        my $ore_colour = $im->colorAllocate(@$colour);
+        my $ore_colour  = $im->colorAllocate(@$colour);
+        my $colour      = generate_colour();
 
         $im->filledRectangle(0,0,$map_width,$map_height,$grey);
         # draw the zone boundaries
@@ -728,9 +728,9 @@ sub generate_ores_png() {
 sub generate_stars_png() {
 
     my $im = new GD::Image($map_width,$map_height);
-    my $white   = $im->colorAllocate(255,255,255);
-    my $grey    =$im->colorAllocate(72,72,72);
-    my $black   = $im->colorAllocate(0,0,0);
+    my $white       = $im->colorAllocate(255,255,255);
+    my $grey        = $im->colorAllocate(72,72,72);
+    my $black       = $im->colorAllocate(0,0,0);
     my $star_colour = $im->colorAllocate(127,255,212);
 
     $im->filledRectangle(0,0,$map_width,$map_height,$grey);
