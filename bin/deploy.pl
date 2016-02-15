@@ -84,11 +84,13 @@ sub run {
 
     given ($repo) {
         when ('Lacuna-Web-Client') {
-            my $bucket = $branch_config->{bucket};
-            my $s3bucket = $s3->bucket($bucket)
-                or die $s3->err . ": " . $s3->errstr;
-            my ($new_rev) = $git->rev_parse({short => 1}, 'HEAD');
-            my $url_root = $branch_config->{url_root};
+            my $bucket      = $branch_config->{bucket};
+            my $s3bucket    = $s3->bucket($bucket) or die $s3->err . ": " . $s3->errstr;
+            my ($new_rev)   = $git->rev_parse({short => 1}, 'HEAD');
+            my $url_root    = $branch_config->{url_root};
+            my $prefix      = $branch_config->{prefix};
+            my $index_file  = $branch_config->{index_file};
+
             my $license_text = sprintf <<'END_TEXT', (localtime)[5] + 1900, $new_rev;
 /*
 Copyright (c) %s, Lacuna Expanse Corp. All rights reserved.
@@ -97,73 +99,28 @@ http://github.com/plainblack/Lacuna-Web-Client/blob/master/LICENSE
 Built from: http://github.com/plainblack/Lacuna-Web-Client/commit/%s
 */
 END_TEXT
-            if (-f $dir->file('package.json'))
-            {
-                # new gulp-based client.
-                chdir($repo_config->{path});
-                system("npm install");
-                system("node_modules/bower/bin/bower","install","--config.interactive=false","--allow-root")
-                    if -e "node_modules/bower/bin/bower";
-                system("gulp");
+            # new gulp-based client.
+            chdir($repo_config->{path});
+            system("npm install");
+            system("node_modules/bower/bin/bower","install","--config.interactive=false","--allow-root")
+                if -e "node_modules/bower/bin/bower";
+            system("gulp");
 
-                my $lacuna_dir = $dir->subdir('lacuna');
-                $lacuna_dir->recurse(
-                    callback => sub {
-                        my $file = shift;
-                        return unless -f $file;
-                        my ($ext) = $file =~ /\.(css|js)$/;
-                        my $type = $types{$ext} || 'text/plain';
-                        my $s3path = "code/$new_rev/" . $file->relative($dir);
-
-                        my $content = $license_text . $file->slurp;
-                        $content = cmd_pipe($content, 'gzip', '-9');
-
-                        $s3bucket->add_key(
-                            $s3path,
-                            $content,
-                            {
-                                'Content-Type'      => $type,
-                                'Content-Encoding'  => 'gzip',
-                                'Expires'           => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years=>5)),
-                                'Cache-Control'     => CACHECONTROL(180),
-                                acl_short           => 'public-read',
-                            },
-                            ) or die $s3->err . ": " . $s3->errstr;
-                    });
-            }
-            else
-            {
-                # older YUI-based client.
-
-                $dir->recurse(callback => sub {
+            my $lacuna_dir = $dir->subdir('lacuna');
+            $lacuna_dir->recurse(
+                callback => sub {
                     my $file = shift;
-                    return
-                        unless -f $file;
+                    return unless -f $file;
                     my ($ext) = $file =~ /\.(css|js)$/;
-                    return
-                        unless $ext;
-
                     my $type = $types{$ext} || 'text/plain';
-                    my $s3path = "code/$new_rev/" . $file->relative($dir);
+                    my $s3path = "$prefix/$new_rev/" . $file->relative($dir);
 
-                    my $content = $file->slurp;
-
-                    $content =~ s{^/\*\*\s*BUILD.*?^(.*?)^/\*\*\s*END.*?^}{$1}msxg;
-                    $content =~ s{^/\*\*\s*DEBUG.*?^(.*?)^/\*\*\s*END.*?^}{}msxg;
-                    $content =~ s{\*\*\s*CODEROOT}{$url_root/code/$new_rev/}msxg;
-                    #if ($ext eq 'css') {
-                    #    $content =~ s{\b(assets/)}{$url_root/$1}msxg;
-                    #}
-
-                    my $min = cmd_pipe($content, 'java', '-jar', $config->get('yuicompressor'), '--type', $ext);
-
-                    my $final = $license_text . $min;
-
-                    $final = cmd_pipe($final, 'gzip', '-9');
+                    my $content = $license_text . $file->slurp;
+                    $content = cmd_pipe($content, 'gzip', '-9');
 
                     $s3bucket->add_key(
                         $s3path,
-                        $final,
+                        $content,
                         {
                             'Content-Type'      => $type,
                             'Content-Encoding'  => 'gzip',
@@ -171,35 +128,35 @@ END_TEXT
                             'Cache-Control'     => CACHECONTROL(180),
                             acl_short           => 'public-read',
                         },
-                    ) or die $s3->err . ": " . $s3->errstr;
-                });
-            }
+                        ) or die $s3->err . ": " . $s3->errstr;
+                }
+            );
 
-#            my $server_git = Git::Wrapper->new('/data/Lacuna-Server/');
-#            $server_git->pull;
-            my $index_file = '/data/Lacuna-Server/var/www/public/index.html';
+            # Update the index file to point to the new store.
+            my $index_file = $index_file;
             my $index = do {
                 open my $fh, '<', $index_file;
                 local $/;
                 <$fh>;
             };
-            $index =~ s{((?:href|src)=")[^"]+(/(?:load\.(?:min\.)?js|styles\.(?:min\.)?css)")}{$1$url_root/code/$new_rev/lacuna$2}msxg;
+            $index =~ s{((?:href|src)=")[^"]+(/(?:load\.(?:min\.)?js|styles\.(?:min\.)?css)")}{$1$url_root/$prefix/$new_rev/lacuna$2}msxg;
             open my $fh, '>', $index_file;
             print {$fh} $index;
             close $fh;
-#            $server_git->commit({all => 1, message => 'updating for new ui code'});
-#            $server_git->push('origin', $branch);
 
-            my $allfiles = $s3bucket->list_all({prefix => 'code/'});
+            my $allfiles = $s3bucket->list_all({prefix => $prefix.'/'});
             for my $key (@{ $allfiles->{keys} }) {
                 my $file = $key->{key};
-                if ($file =~ m{^code/$new_rev/}) {
+                if ($file =~ m{^$prefix/$new_rev/}) {
                     next;
                 }
                 $s3bucket->delete_key($file);
             }
         }
         when ('Lacuna-Server') {
+            # pull already done locally
+        }
+        when ('Lacuna-Server-Open') {
             # pull already done locally
         }
         when ('Lacuna-Assets') {
