@@ -563,7 +563,7 @@ sub inc_rpc_count {
 # circumstances, or for testing purposes.  In that case, this can
 # encapsulate the arcane magic somewhat.  This should not be exposed via
 # the admin UI, but can be called on the server for example as:
-# perl -I/data/Lacuna-Server/lib -ML -e 'LD->empire(shift)->reset_rpc' 'Jandor Trading'
+# perl -I/data/Lacuna-Server-Open/lib -ML -e 'LD->empire(shift)->reset_rpc' 'Jandor Trading'
 sub reset_rpc {
     my ($self) = @_;
     my $cache  = Lacuna->cache;
@@ -1052,7 +1052,7 @@ sub check_for_repeat_message {
 
 sub send_predefined_message {
     my ($self, %options) = @_;
-    my $path = '/data/Lacuna-Server/var/messages/'.$options{filename};
+    my $path = '/data/Lacuna-Server-Open/var/messages/'.$options{filename};
     if (open my $file, "<", $path) {
         my $message;
         {

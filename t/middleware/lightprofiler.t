@@ -1,4 +1,4 @@
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 
 use Test::More;
 use Log::Any::Test;

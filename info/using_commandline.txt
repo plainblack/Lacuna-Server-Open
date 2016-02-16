@@ -40,7 +40,7 @@ connect_tle_server.sh):
 
   a) Run (inside docker) the following command:
 
-    perl -I/data/Lacuna-Server_Open/lib -ML -E 'LD->empire(shift)->reset_rpcs' 'Your Account'
+    perl -I/data/Lacuna-Server-Open_Open/lib -ML -E 'LD->empire(shift)->reset_rpcs' 'Your Account'
 
 
 5. How to call a web API from the command line

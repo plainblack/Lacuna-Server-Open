@@ -25,12 +25,12 @@ any!)
 You need to checkout the code from github into a local directory as normal, I
 will assume you are checking out to 
 
-    ~/Lacuna-Server-Open
+    ~/Lacuna-Server-Open-Open
     ~/Lacuna-Web-Client
 
 You need to create some config files for the docker config,
 
-    $ cd ~/Lacuna-Server-Open/etc
+    $ cd ~/Lacuna-Server-Open-Open/etc
     $ cp lacuna.conf.docker lacuna.conf
     $ cp log4perl.conf.docker log4perl.conf
     $ cp nginx.conf.docker nginx.conf
@@ -40,7 +40,7 @@ defaults.
 
 ### Starting up the docker containers.
 
-In Lacuna-Server-Open there is a sub-directory 'docker'
+In Lacuna-Server-Open-Open there is a sub-directory 'docker'
 
 Setting up a server is as simple as running the following scripts, in this
 order
@@ -115,7 +115,7 @@ If you have just created your tle-mysql-data container then it will be empty.
 
 The first time you run up the tle-server you need to run a few commands.
 
-    $ cd /data/Lacuna-Server/bin
+    $ cd /data/Lacuna-Server-Open/bin
     $ mysql --host=tle-mysql-server -uroot -placuna
     mysql> source docker.sql
     mysql> exit
@@ -126,7 +126,7 @@ This sets up the mysql user account 'lacuna' which is used by the web applicatio
 
 You now need to initialize the database. (this will take a few minutes).
 
-    $ cd /data/Lacuna-Server-Open/bin/setup
+    $ cd /data/Lacuna-Server-Open-Open/bin/setup
     $ perl init_lacuna.pl
 
 
@@ -140,7 +140,7 @@ daemon is running.
 You may want to generate the html version of the documentation so you
 can view it in your web browser.
 
-    $ cd /data/Lacuna-Server-Open/bin
+    $ cd /data/Lacuna-Server-Open-Open/bin
     $ perl generate_docs.pl
 
 
