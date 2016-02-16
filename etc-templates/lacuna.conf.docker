@@ -1,6 +1,6 @@
 # config-file-type: JSON 1
 {
-   "develop_mode" : 1,
+   "develop_mode" : 0,
 
    "access_key" : "XXXX",
     "bhg_param" : {
@@ -19,9 +19,14 @@
    },
    "captcha" : {
       # path to the fonts being used.
-      "fontpath" : "/usr/share/fonts",
+      "fontpath" : "/Library/Fonts",
       # .ttf fonts in above path
-      "fonts" : ["dejavu/DejaVuSans"],
+      "fonts" : [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ],
+   },
+   "db-reboot" : {
+      "dsn" : "DBI:mysql:host=tle-mysql-server;database=reboot",
+      "password" : "lacuna",
+      "username" : "lacuna"
    },
    "db" : {
       "dsn" : "DBI:mysql:host=tle-mysql-server;database=lacuna",
@@ -60,11 +65,11 @@
    "map_size" : {
       "x" : [
          -500,
-         499
+         500
       ],
       "y" : [
          -500,
-         499
+         500
       ]
    },
    "memcached" : [
@@ -86,12 +91,12 @@
       ],
       "coord" : 0,
       "x" : [
-         -500,
-         -249
+         -1000,
+         -750
       ],
       "y" : [
          -250,
-         -1
+         250
       ]
    },
    "offline" : 0,
@@ -109,7 +114,7 @@
    "server_keys" : [
       "XXXX"
    ],
-   "server_url" : "http://localhost:8000/",
+   "server_url" : "http://192.168.99.100:8000/",
    "starter_zone" : {
 # If zone is set to a valid zone, x & y are confined to within that zone.
 # Coord set to 1 will further narrow area.

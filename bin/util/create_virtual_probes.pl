@@ -1,6 +1,6 @@
 use strict;
 use 5.010;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna;
 
 $|=1;

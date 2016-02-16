@@ -38,7 +38,7 @@ sub out {
     say DateTime->now, " ", $message;
 }
 
-my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
 my $s3 = Net::Amazon::S3->new(
     aws_access_key_id     => $config->get('access_key'),
     aws_secret_access_key => $config->get('secret_key'),
@@ -143,8 +143,8 @@ END_TEXT
             print {$fh} $index;
             close $fh;
 
-            unlink('/data/Lacuna-Server/var/www/public/index.html');
-            symlink($index, '/data/Lacuna-Server/var/www/public/index.html');
+            unlink('/data/Lacuna-Server-Open/var/www/public/index.html');
+            symlink($index, '/data/Lacuna-Server-Open/var/www/public/index.html');
 
             my $allfiles = $s3bucket->list_all({prefix => $prefix.'/'});
             for my $key (@{ $allfiles->{keys} }) {
@@ -155,10 +155,10 @@ END_TEXT
                 $s3bucket->delete_key($file);
             }
         }
-        when ('Lacuna-Server') {
+        when ('Lacuna-Server-Open') {
             # pull already done locally
         }
-        when ('Lacuna-Server-Open') {
+        when ('Lacuna-Server-Open-Open') {
             # pull already done locally
         }
         when ('Lacuna-Assets') {

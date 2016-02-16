@@ -3,8 +3,8 @@ use 5.010;
 use Pod::Simple::HTML;
 use File::Copy;
 
-my $poddir = '/data/Lacuna-Server/docs/';
-my $htmldir = '/data/Lacuna-Server/var/www/public/api/';
+my $poddir = '/data/Lacuna-Server-Open/docs/';
+my $htmldir = '/data/Lacuna-Server-Open/var/www/public/api/';
 
 opendir(my $dir, $poddir);
 my @docs = readdir($dir);

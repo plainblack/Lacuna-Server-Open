@@ -1,7 +1,7 @@
 use strict;
 use File::Find;
 use 5.010;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use DateTime;

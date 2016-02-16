@@ -1,7 +1,7 @@
 use 5.010;
 use strict;
 use feature "switch";
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use List::Util qw(shuffle);
@@ -20,7 +20,7 @@ out('Started');
 my $start = DateTime->now;
 
 out('Checking server status');
-my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 my $status = $cache->get('server','status');
 unless ( $status eq 'Game Over' ) {

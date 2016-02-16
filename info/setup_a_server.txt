@@ -108,7 +108,7 @@ Starting MySQL will depend on the system and how you installed it.
 Step 3: Config Files
 
 You'll need to create lacuna.conf, nginx.conf, and log4perl.conf
-in your Lacuna-Server/etc folder. Templates exist in the etc
+in your Lacuna-Server-Open/etc folder. Templates exist in the etc
 directory.
 
 Things you must change in lacuna.conf

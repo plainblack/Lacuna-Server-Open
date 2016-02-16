@@ -1,7 +1,7 @@
 use 5.10.0;
 use strict;
 use warnings;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Getopt::Long;
 
 use L;

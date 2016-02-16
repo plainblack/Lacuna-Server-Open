@@ -30,7 +30,7 @@ http {
         location = / {
             add_header Cache-Control must-revalidate;
             add_header Cache-Control public;
-            root   /data/Lacuna-Server/var/www/public;
+            root   /data/Lacuna-Server-Open/var/www/public;
             add_header Access-Control-Allow-Origin *;
             index  index.html;
         }
@@ -38,11 +38,11 @@ http {
         location ~ \.(html|xml|txt|json) {
             add_header Cache-Control must-revalidate;
             add_header Cache-Control public;
-            root   /data/Lacuna-Server/var/www/public;
+            root   /data/Lacuna-Server-Open/var/www/public;
             add_header Access-Control-Allow-Origin *;
         }
         location ^~ /api/ {
-            root   /data/Lacuna-Server/var/www/public;
+            root   /data/Lacuna-Server-Open/var/www/public;
             index  Intro.html;
         }
         location ^~ /assets/ {
@@ -50,7 +50,7 @@ http {
             index  README.txt;
         }
         location ^~ /starmap/ {
-            root   /data/Lacuna-Server/var/www/public;
+            root   /data/Lacuna-Server-Open/var/www/public;
             index  index.html;
         }
 

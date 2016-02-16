@@ -1,6 +1,6 @@
 use 5.010;
 use strict;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date);
@@ -184,14 +184,14 @@ sub generate_overview {
     {
         my $read;
 
-        if (-e '/data/Lacuna-Server/var/www/public/server_overview.json')
+        if (-e '/data/Lacuna-Server-Open/var/www/public/server_overview.json')
         {
-            open my $read, '<', '/data/Lacuna-Server/var/www/public/server_overview.json';
+            open my $read, '<', '/data/Lacuna-Server-Open/var/www/public/server_overview.json';
             my $old_stats = from_json(do { local $/; <$read> });
             $out{spies} = $old_stats->{spies};
         }
 
-        open my $fh, '>', '/data/Lacuna-Server/var/www/public/server_overview.json';
+        open my $fh, '>', '/data/Lacuna-Server-Open/var/www/public/server_overview.json';
         print $fh to_json(\%out);
         close $fh;
     }
@@ -545,7 +545,7 @@ sub output_map {
   }
     else
     {
-        open my $fh, '>', '/data/Lacuna-Server/var/www/public/starmap.json';
+        open my $fh, '>', '/data/Lacuna-Server-Open/var/www/public/starmap.json';
         print $fh $json_txt;
         close $fh;
     }

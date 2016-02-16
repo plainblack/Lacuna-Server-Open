@@ -1,7 +1,7 @@
 #!/bin/bash
 export PATH=/data/apps/bin:$PATH
 touch /tmp/daily.log
-cd /data/Lacuna-Server/bin
+cd /data/Lacuna-Server-Open/bin
 
 # redirect everything.
 exec >> /tmp/daily.log

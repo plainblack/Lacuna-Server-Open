@@ -2,7 +2,7 @@ use 5.010;
 use strict;
 use warnings;
 
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
@@ -32,9 +32,9 @@ $App::Daemon::logfile  = '/tmp/schedule_captcha.log';
 $App::Daemon::as_user  = 'root';
 $App::Daemon::as_group = 'root';
 
-chdir '/data/Lacuna-Server/bin';
+chdir '/data/Lacuna-Server-Open/bin';
 
-my $pid_file        = '/data/Lacuna-Server/bin/schedule_captcha.pid';
+my $pid_file        = '/data/Lacuna-Server-Open/bin/schedule_captcha.pid';
 
 my $start = time;
 

@@ -1,7 +1,7 @@
 use 5.010;
 use strict;
 use feature "switch";
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(format_date);

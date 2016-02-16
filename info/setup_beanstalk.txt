@@ -7,7 +7,7 @@ App::Daemon
 
 To install beanstalk
 
-$ cd /data/Lacuna-Server/
+$ cd /data/Lacuna-Server-Open/
 $ mkdir third_party
 $ cd third_party
 $ git clone git://github.com/kr/beanstalkd.git
@@ -31,6 +31,6 @@ $ beanstalkd >/tmp/beanstalk 2>/tmp/beanstalk < /dev/null & disown
 
 To run the scheduler
 
-$ cd /data/Lacuna-Server/bin
+$ cd /data/Lacuna-Server-Open/bin
 $ perl schedule_daemon.pl
 

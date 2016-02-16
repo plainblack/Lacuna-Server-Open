@@ -7,7 +7,7 @@ Using the release # of 3.0552
  4. git pull --ff-only pb-ls-open develop
  5. git checkout -b rel-3.0552 (release number in Lacuna.pm)
  6. git push pb-ls-open rel-3.0552
- 7. cd ../Lacuna-Server
+ 7. cd ../Lacuna-Server-Open
  8. Same routine with master
  9. git checkout develop
 10. git pull --ff-only pb-ls develop
@@ -26,7 +26,7 @@ Using the release # of 3.0552
 23. git merge rel-3.0552
 24. ssh to us1.lacunaexpanse.com, us1-db1, us1-util1, us1-web1, us1-web2
 25. scp var/upgrades/3.0552.sql to us1-db1 and run it.
-26. On other four, go to /data/Lacuna-Server as root.  (sudo su - should put you in /data/Lacuna-Server/bin)
+26. On other four, go to /data/Lacuna-Server-Open as root.  (sudo su - should put you in /data/Lacuna-Server-Open/bin)
 27. Run close to simultanous git pull origin us1
     There should be no merge conflicts.
 28. On us1-web1 and us1-web2 cd into bin and run ./restart_starman.sh (must be done at same time)

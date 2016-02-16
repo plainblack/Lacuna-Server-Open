@@ -16,7 +16,7 @@ through the web client.
 (inside the docker container if you're using docker, using
 connect_tle_server.sh):
 
-    perl -I/data/Lacuna-Server/lib -ML -E '$e = LD->empire(shift)->is_admin(1); $e->update' 'Your Account'
+    perl -I/data/Lacuna-Server-Open/lib -ML -E '$e = LD->empire(shift)->is_admin(1); $e->update' 'Your Account'
 
   You can obviously create extra admin accounts, but that's not usually
   going to be too useful.
@@ -33,21 +33,21 @@ connect_tle_server.sh):
 
   a) Run (inside docker) the following command:
 
-    perl -I/data/Lacuna-Server/lib -ML -E 'LD->empire(shift)->set_password(shift)' 'Your Account' 'newpassword'
+    perl -I/data/Lacuna-Server-Open/lib -ML -E 'LD->empire(shift)->set_password(shift)' 'Your Account' 'newpassword'
 
 
 4. How to reset your RPCs
 
   a) Run (inside docker) the following command:
 
-    perl -I/data/Lacuna-Server/lib -ML -E 'LD->empire(shift)->reset_rpcs' 'Your Account'
+    perl -I/data/Lacuna-Server_Open/lib -ML -E 'LD->empire(shift)->reset_rpcs' 'Your Account'
 
 
 5. How to call a web API from the command line
 
   a) Run (inside docker) the following command:
 
-    perl -I/data/Lacuna-Server/lib -ML -E 'LR->call(Type => method => <params>)'
+    perl -I/data/Lacuna-Server-Open/lib -ML -E 'LR->call(Type => method => <params>)'
 
   where Type is, for example, "Empire" or "SpacePort", method is the name
   of the API, and then the parameters.  Most APIs require a session ID, but
@@ -72,7 +72,7 @@ connect_tle_server.sh):
   the LR module will automatically fake a captcha for testing purposes.
   For example:
 
-    captcha=1 perl -I/data/Lacuna-Server/lib ...
+    captcha=1 perl -I/data/Lacuna-Server-Open/lib ...
 
   This faked captcha will only be valid for this one run of the code,
   and will not impact the captcha of multiple runs, making it easy to

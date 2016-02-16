@@ -1,6 +1,6 @@
 use 5.010;
 use strict;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Getopt::Long;
 use Lacuna::Cache;
 use Config::JSON;
@@ -14,7 +14,7 @@ GetOptions(
     'gameover'      => \$gameover,
 );
 
-my $config = Config::JSON->new('/data/Lacuna-Server/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 
 if ($online) {

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use L;
 use List::Util qw(sum);
 use Getopt::Long;

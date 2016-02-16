@@ -1,7 +1,7 @@
 use 5.010;
 use strict;
 use feature "switch";
-use lib '/data/Lacuna-Server/lib';
+use lib '/data/Lacuna-Server-Open/lib';
 use Lacuna::DB;
 use Lacuna;
 use Lacuna::Util qw(randint format_date);
@@ -29,9 +29,9 @@ GetOptions(
 $App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
 $App::Daemon::logfile  = '/tmp/schedule_ship_arrival.log';
 
-chdir '/data/Lacuna-Server/bin';
+chdir '/data/Lacuna-Server-Open/bin';
 
-my $pid_file        = '/data/Lacuna-Server/bin/schedule_ship_arrival.pid';
+my $pid_file        = '/data/Lacuna-Server-Open/bin/schedule_ship_arrival.pid';
 
 my $start = time;
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 export PATH=/data/apps/bin:$PATH
-cd /data/Lacuna-Server/bin
+cd /data/Lacuna-Server-Open/bin
 perl clean_up_empires.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl sanitize_ss.pl >>/tmp/hourly.log 2>>/tmp/hourly.log
 perl summarize_economy.pl >>/tmp/hourly.log 2>>/tmp/hourly.log

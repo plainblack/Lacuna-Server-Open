@@ -64,7 +64,7 @@ create_database();
 
 # to test create db only, set env var, useful for testing db changes without
 # rebuilding full star map, don't forget to change
-# /data/Lacuna-Server/etc/lacuna.conf's db->dsn field to a new db first.
+# /data/Lacuna-Server-Open/etc/lacuna.conf's db->dsn field to a new db first.
 exit 0 if $ENV{CREATE_DB_ONLY};
 
 setup();
