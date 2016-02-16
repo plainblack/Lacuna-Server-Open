@@ -143,8 +143,11 @@ END_TEXT
             print {$fh} $index;
             close $fh;
 
+            out('Deleting file: /data/Lacuna-Server-Open/var/www/public/index.html');
+            out("Link: [$index_file] to /data/Lacuna-Server-Open/var/www/public/index.html");
+
             unlink('/data/Lacuna-Server-Open/var/www/public/index.html');
-            symlink($index, '/data/Lacuna-Server-Open/var/www/public/index.html');
+            symlink($index_file, '/data/Lacuna-Server-Open/var/www/public/index.html');
 
             my $allfiles = $s3bucket->list_all({prefix => $prefix.'/'});
             for my $key (@{ $allfiles->{keys} }) {
@@ -158,7 +161,7 @@ END_TEXT
         when ('Lacuna-Server-Open') {
             # pull already done locally
         }
-        when ('Lacuna-Server-Open-Open') {
+        when ('Lacuna-Server-Open') {
             # pull already done locally
         }
         when ('Lacuna-Assets') {
