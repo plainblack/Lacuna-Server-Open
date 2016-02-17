@@ -104,7 +104,7 @@ END_TEXT
             system("npm install");
             system("node_modules/bower/bin/bower","install","--config.interactive=false","--allow-root")
                 if -e "node_modules/bower/bin/bower";
-            system("gulp");
+            system("gulp build-no-lint");
 
             my $lacuna_dir = $dir->subdir('lacuna');
             $lacuna_dir->recurse(
