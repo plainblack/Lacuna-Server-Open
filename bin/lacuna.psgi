@@ -12,7 +12,7 @@ use JSON qw(encode_json);
 
 $|=1;
 
-my $config = Config::JSON->new("/data/Lacuna-Server-Open/etc/lacuna.conf");
+my $config = Config::JSON->new("/data/Lacuna-Server-Open/etc/reboot.conf");
 
 use Log::Log4perl;
 Log::Log4perl::init('/data/Lacuna-Server-Open/etc/log4perl.conf');

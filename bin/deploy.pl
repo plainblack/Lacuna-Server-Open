@@ -38,7 +38,7 @@ sub out {
     say DateTime->now, " ", $message;
 }
 
-my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/reboot.conf');
 my $s3 = Net::Amazon::S3->new(
     aws_access_key_id     => $config->get('access_key'),
     aws_secret_access_key => $config->get('secret_key'),

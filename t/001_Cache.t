@@ -8,7 +8,7 @@ use Config::JSON;
 
 use_ok('Lacuna::Cache');
 
-my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/reboot.conf');
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 
 $cache->set('foo','bar',3);

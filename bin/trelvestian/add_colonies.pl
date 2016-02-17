@@ -51,7 +51,7 @@ if ($tournament) {
         push @colonies, $viable->search( $search, {rows=>4});
 
         if (@colonies) {
-            say 'You need to add the colonies to ../etc/lacuna.conf before the tournament begins.';
+            say 'You need to add the colonies to ../etc/reboot.conf before the tournament begins.';
             my $list = join ',', map { $_->id } @colonies;
             say '"win" : { "alliance_control" : [' . $list . '] },'; # "win" : { "alliance_control" : [441,19093,47,19293] },
         }

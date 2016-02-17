@@ -14,7 +14,7 @@ GetOptions(
     'gameover'      => \$gameover,
 );
 
-my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/lacuna.conf');
+my $config = Config::JSON->new('/data/Lacuna-Server-Open/etc/reboot.conf');
 my $cache = Lacuna::Cache->new(servers => $config->get('memcached'));
 
 if ($online) {
