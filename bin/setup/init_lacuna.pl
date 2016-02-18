@@ -83,7 +83,7 @@ update_database();
 
 close $star_names;
 
-say "Time Elapsed: ".Time::HiRes::tv_interval($t);
+say "Time Elapsed: ".int(Time::HiRes::tv_interval($t));
 exit;
 
 
