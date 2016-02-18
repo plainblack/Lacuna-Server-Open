@@ -682,8 +682,8 @@ sub generate_ores_png() {
         my $grey        = $im->colorAllocate(72,72,72);
         my $black       = $im->colorAllocate(0,0,0);
         my $star_colour = $im->colorAllocate(127,255,212);
-        my $ore_colour  = $im->colorAllocate(@$colour);
         my $colour      = generate_colour();
+        my $ore_colour  = $im->colorAllocate(@$colour);
 
         $im->filledRectangle(0,0,$map_width,$map_height,$grey);
         # draw the zone boundaries

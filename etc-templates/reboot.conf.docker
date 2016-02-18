@@ -1,0 +1,127 @@
+# config-file-type: JSON 1
+{
+   "develop_mode" : 0,
+
+   "access_key" : "XXXX",
+    "bhg_param" : {
+# If any are set to 0, use default.
+        "success" : 0,
+        "waste_cost" : 0,
+        "recovery" : 0,
+        "side_chance" : 0,
+    },
+   "beanstalk" : {
+      "debug" : 0,
+      "server" : "tle-beanstalkd",
+      "ttr" : 120,
+      "max_timeouts" : 10,
+      "max_reserves" : 10
+   },
+   "captcha" : {
+      # path to the fonts being used.
+      "fontpath" : "/Library/Fonts",
+      # .ttf fonts in above path
+      "fonts" : [ "Ayuthaya", "Chalkduster", "HeadlineA", "Kai" ],
+   },
+   "db-reboot" : {
+      "dsn" : "DBI:mysql:host=tle-mysql-server;database=reboot",
+      "password" : "lacuna",
+      "username" : "lacuna"
+   },
+   "envolve" : {
+      "Sn" : 0,
+      "api_key" : "XXXX"
+   },
+   "essentia_code_server_url" : "",
+   "facebook" : {
+      "api_key" : "XXXX",
+      "app_id" : "XXXX",
+      "secret" : "XXXX"
+   },
+   "feeds" : {
+      "bucket" : "XXXX",
+      "surl" : "https://xxxx/",
+      "url" : "http://xxxx/"
+   },
+   "itransact" : {
+      "APIKey" : "XXXX",
+      "APIUsername" : "XXXX",
+      "Gateway" : "XXXX",
+      "OrderFormUID" : "XXXX",
+      "SendCustomerEmail" : "TRUE",
+      "SendMerchantEmail" : "TRUE",
+      "TestMode" : "FALSE"
+   },
+   "jambool" : {
+      "api_url" : "XXXX",
+      "offer_id" : "XXXX",
+      "secret_key" : "XXXX"
+   },
+   "map_size" : {
+      "x" : [-500,499],
+      "y" : [-500,499]
+   },
+   "memcached" : [
+      {
+         "host" : "tle-memcached",
+         "port" : "11211"
+      }
+   ],
+   "neutral_area" : {
+# If zone is set to a valid zone, x & y are confined to within that zone.
+# Coord set to 1 will further narrow Neutral area.
+# Setting zone to 0 will only use x & y.
+# Setting x & y outside of the zone, will result in nothing be within the NZ.
+# If only coord is set, then zone boundries are ignored.
+      "active" : 1,
+      "zone" : 1,
+      "zone_list" : [
+         "-1|0"
+      ],
+      "coord" : 0,
+      "x" : [-250,0],
+      "y" : [-250,0]
+      ]
+   },
+   "offline" : 0,
+   "paypal" : {
+      "APIPassword" : "XXXX",
+      "APIUsername" : "XXXX",
+      "Sandbox" : "0",
+      "Signature" : "XXXX"
+   },
+   "rpc_limit" : 2500,
+   "rpc_throttle" : 200,
+   "secret_key" : "XXXX",
+   "self_destruct_after_inactive_days" : 9999999,
+   "server_key" : "XXXX",
+   "server_keys" : [
+      "XXXX"
+   ],
+   "server_url" : "http://192.168.99.100:8000/",
+   "starter_zone" : {
+# If zone is set to a valid zone, x & y are confined to within that zone.
+# Coord set to 1 will further narrow area.
+# Setting zone to 0 will only use x & y.
+# Setting x & y outside of the zone, will result in nothing be within the NZ.
+# If only coord is set, then zone boundries are ignored.
+      "active" : 1,
+      "max_colonies" : 2,
+      "zone" : 1,
+      "zone_list" : [
+         "-1|-1",
+         "-1|1",
+         "1|-1",
+         "1|1"
+      ],
+      "coord" : 0,
+      "x" : [ -50, 50 ],
+      "y" : [ -50, 50 ]
+   },
+   "voting_sites" : [
+      {
+         "name" : "XXXX",
+         "url" : "http://xxxx/"
+      }
+   ]
+}

@@ -11,6 +11,7 @@ __PACKAGE__->add_columns(
     riddle                  => { data_type => 'varchar', size => 12, is_nullable => 0 },
     solution                => { data_type => 'varchar', size => 5, is_nullable => 0 },
     guid                    => { data_type => 'varchar', size => 36, is_nullable => 0 },
+    created                 => { data_type => 'datetime', is_nullable => 0, set_on_create => 1 },
 );
 
 sub uri {

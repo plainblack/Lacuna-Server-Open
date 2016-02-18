@@ -7,6 +7,7 @@ no warnings qw(uninitialized);
 use UUID::Tiny ':std';
 use GD::SecurityImage;
 use Data::Dumper;
+use DateTime;
 
 use Lacuna;
 use Lacuna::Util qw(random_element);
@@ -265,9 +266,10 @@ sub construct {
     print {$file} $image;
     close $file;
     $captchas->create({
-        guid    => $self->guid,
-        riddle  => $self->riddle->[0],
-        solution=> $self->riddle->[1],
+        guid        => $self->guid,
+        riddle      => $self->riddle->[0],
+        solution    => $self->riddle->[1],
+        created     => DateTime->now,
     });
 }
     

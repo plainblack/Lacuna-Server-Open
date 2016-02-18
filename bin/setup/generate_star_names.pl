@@ -4,6 +4,8 @@ use String::Random;
 use List::MoreUtils qw(uniq part);
 use List::Util qw(shuffle);
 
+srand(314159);
+
 say "Loading real...";
 my @real;
 open my $file, "<", "../../var/real_starnames.txt";

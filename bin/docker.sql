@@ -1,6 +1,6 @@
-create database lacuna;
+create database reboot;
 create user 'lacuna'@'%' identified by 'lacuna';
-grant all privileges on lacuna.* to 'lacuna'@'%';
+grant all privileges on reboot.* to 'lacuna'@'%';
 flush privileges;
 
 
