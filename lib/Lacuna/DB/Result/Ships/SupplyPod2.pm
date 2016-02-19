@@ -17,6 +17,7 @@ use constant base_stealth           => 0;
 use constant base_hold_size         => 900;
 use constant pilotable              => 0;
 use constant build_tags             => [qw(Colonization)];
+use constant image_subdir => 'v2';
 use constant supply_pod_level       => 10;
 use constant type_formatted         => 'Supply Pod II';
 
