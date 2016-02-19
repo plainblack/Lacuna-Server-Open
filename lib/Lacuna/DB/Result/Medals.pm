@@ -26,18 +26,23 @@ sub format_datestamp {
 use constant MEDALS => {
     supply_pod => {
         name => 'Built Supply Pod',
+        image => 'v2/supply_pod'
     },
     supply_pod2 => {
         name => 'Built Supply Pod II',
+        image => 'v2/supply_pod2'
     },
     supply_pod3 => {
         name => 'Built Supply Pod III',
+        image => 'v2/supply_pod3'
     },
     supply_pod4 => {
         name => 'Built Supply Pod IV',
+        image => 'v2/supply_pod4'
     },
     supply_pod5 => {
         name => 'Built Supply Pod V',
+        image => 'v2/supply_pod5'
     },
     probe => {
         name => 'Built Probe',
@@ -75,15 +80,15 @@ use constant MEDALS => {
     },
     scow_large => {
         name => 'Built Large Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_large',
     },
     scow_mega => {
         name => 'Built Mega Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_mega',
     },
     scow_fast => {
         name => 'Built Fast Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_fast',
     },
     dory => {
         name => 'Built Dory',
