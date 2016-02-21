@@ -1,9 +1,9 @@
 package Lacuna::RPC::Body;
 
-use Moose;
 use utf8;
 no warnings qw(uninitialized);
-extends 'Lacuna::RPC';
+
+use Moose;
 use Lacuna::Verify;
 use Lacuna::Constants qw(BUILDABLE_CLASSES);
 use DateTime;
@@ -11,7 +11,11 @@ use Lacuna::Util qw(randint);
 use List::Util qw(all);
 use List::MoreUtils qw(uniq);
 use Carp;
+use Data::Dumper;
+
 use feature 'switch';
+
+extends 'Lacuna::RPC';
 
 
 sub get_status {
@@ -110,14 +114,11 @@ sub rename {
 }
 
 sub get_buildings {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    confess [1019, 'Use of positional arguments is illegal.'] if ! ref $args;
-
-    my $session = $self->get_session($args);
+    my $session = $self->get_session(\%args);
     my $empire  = $session->current_empire;
     my $body    = $session->current_body;
-
 
     if ($body->needs_surface_refresh) {
         $body->needs_surface_refresh(0);
@@ -126,8 +127,8 @@ sub get_buildings {
     my $out;
     my @buildings = @{$body->building_cache};
     foreach my $building (@buildings) {
+        
         my $row = {
-            id      => $building->id,
             url     => $building->controller_class->app_url,
             image   => $building->image_level,
             name    => $building->name,
@@ -147,10 +148,11 @@ sub get_buildings {
             };
         }
         if ($building->efficiency < 100) {
-            $out->{$building->id}{repair_costs} = $building->get_repair_costs;
+            $row->{repair_costs} = $building->get_repair_costs;
         }
+        $out->{$building->id} = $row;
     }
-    
+
     return {buildings=>$out, body=>{surface_image => $body->surface}, status=>$self->format_status($session, $body)};
 }
 

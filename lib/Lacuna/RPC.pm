@@ -238,6 +238,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
     return $building;
 }
 
+
 sub format_status {
     my ($self, $empire, $body) = @_;
     my %out = (
@@ -251,15 +252,13 @@ sub format_status {
 
     # can just pass in the session, we'll extract the body and empire from it
     my $real_empire;
-    if ($empire->isa('Lacuna::Session'))
-    {
-        $real_empire = $empire->empire;
-        $body   = $empire->current_body;
-        $empire = $empire->current_empire;
+    if ($empire->isa('Lacuna::Session')) {
+        $real_empire    = $empire->empire;
+        $body           = $empire->current_body;
+        $empire         = $empire->current_empire;
     }
-    else
-    {
-        $real_empire = $empire->current_session->empire;
+    else {
+        $real_empire    = $empire->current_session->empire;
     }
 
     if (defined $real_empire) {
@@ -270,8 +269,7 @@ sub format_status {
         }
         $out{empire} = $real_empire->get_status;
 
-        if (my @promos = Lacuna->db->resultset('Promotion')->current_promotions)
-        {
+        if (my @promos = Lacuna->db->resultset('Promotion')->current_promotions) {
             $out{server}{promotions} = [ map $_->ui_details, @promos ];
         }
     }

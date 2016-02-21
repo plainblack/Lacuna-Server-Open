@@ -20,6 +20,29 @@ use Data::Dumper;
 # logging features are new in this level.
 use JSON::RPC::Dispatcher 0.0508;
 
+
+# Is the empire name available?
+# 
+sub is_name_available {
+    my ($self, %args) = @_;
+
+    $self->is_name_valid($args{name});
+    $self->is_name_unique($args{name});
+    return { available => 1 }; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 sub find {
     my ($self, $session_id, $name) = @_;
     unless (length($name) >= 3) {
@@ -39,13 +62,6 @@ sub find {
         last unless $limit;
     }
     return { empires => \@list_of_empires, status => $self->format_status($session) };
-}
-
-sub is_name_available {
-    my ($self, $name) = @_;
-    $self->is_name_valid($name);
-    $self->is_name_unique($name);
-    return 1; 
 }
 
 sub is_name_valid {
@@ -70,10 +86,14 @@ sub is_name_unique {
 }
 
 sub logout {
-    my ($self, $session_id) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+    
     $self->get_session($session_id)->end;
-    return 1;
+    return { logout => 1 };
 }
+
 
 sub login {
     my ($self, $plack_request, %args) = @_;
@@ -87,12 +107,10 @@ sub login {
         confess [1002, 'You need an API Key.'];
     }
     my $empire;
-    if ($name =~ /^#(-?\d+)$/)
-    {
+    if ($name =~ /^#(-?\d+)$/) {
         $empire = Lacuna->db->resultset('Empire')->find({id=>$1});
     }
-    else
-    {
+    else {
         $empire = Lacuna->db->resultset('Empire')->find({name=>$name});
     }
     unless (defined $empire) {
@@ -100,10 +118,10 @@ sub login {
     }
 
     my %session_params = (
-                          api_key => $api_key,
-                          request => $plack_request,
-                          browser => $browser,
-                         );
+        api_key => $api_key,
+        request => $plack_request,
+        browser => $browser,
+    );
 
     if ($empire->is_password_valid($password)) {
         if ($empire->stage eq 'new') {
@@ -121,11 +139,11 @@ sub login {
         unless (Lacuna->cache->get('invalid_login_attempt_' . $ip, $empire->id)) {
             Lacuna->cache->set('invalid_login_attempt_' . $ip, $empire->id, 1, 12 * 60 * 60);
             $empire->send_predefined_message(
-                                             filename => 'invalid_login_attempt.txt',
-                                             params   => [ $ip ],
-                                             from     => $empire->lacuna_expanse_corp,
-                                             tags     => [ 'Alert' ],
-                                            );
+                filename    => 'invalid_login_attempt.txt',
+                params      => [ $ip ],
+                from        => $empire->lacuna_expanse_corp,
+                tags        => [ 'Alert' ],
+            );
         }
 
         confess [1004, 'Password incorrect (' . $ip . ')', $password];
@@ -142,14 +160,13 @@ sub login {
         confess [1010, $empire->name.' has already made the maximum number of requests ('.$max.') you can make for one day.'];
     }
     my $firebase_config = $config->get('firebase');
-    if ($firebase_config)
-    {
+    if ($firebase_config) {
         my $auth_code = Firebase::Auth->new( 
             secret  => $firebase_config->{auth}{secret}, 
             data    => {
                 uid         => $empire->id,
-                isModerator => $empire->chat_admin ? \1 : \0,
-                isStaff     => $empire->is_admin ? \1 : \0,
+                isModerator => $empire->chat_admin  ? \1 : \0,
+                isStaff     => $empire->is_admin    ? \1 : \0,
             }
         )->create_token;
     }
@@ -160,7 +177,6 @@ sub login {
         session_id  => $session->id,
         status      => $self->format_status($session),
     };
-
 }
 
 
@@ -417,7 +433,11 @@ sub validate_captcha {
 }
 
 sub found {
-    my ($self, $plack_request, $empire_id, $api_key, $invite_code) = @_;
+    my ($self, $plack_request, %args) = @_;
+
+    my $empire_id   = $args{empire_id};
+    my $api_key     = $args{api_key};
+
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
@@ -432,9 +452,6 @@ sub found {
         confess [1010, "This empire cannot be founded again.", $empire_id];
     }
 
-    # handle invitation
-    $empire->attach_invite_code($invite_code);
-    
     my $welcome = $empire->found;
     my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
     return {
@@ -444,17 +461,28 @@ sub found {
     };
 }
 
+# Get the current empire status
+#
 sub get_status {
-    my ($self, $session_id) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     return $self->format_status($session);
 }
 
-sub view_profile {
-    my ($self, $session_id) = @_;
+
+
+sub get_own_profile {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
+  
         confess [1015, 'Sitters cannot modify preferences.'];
     }
     my $medals = $empire->medals;
@@ -898,7 +926,10 @@ sub redeem_essentia_code {
 }
 
 sub get_invite_friend_url {
-    my ($self, $session_id) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id  = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     return {
@@ -907,8 +938,14 @@ sub get_invite_friend_url {
     };
 }
 
+
 sub invite_friend {
-    my ($self, $session_id, $addresses, $custom_message) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id      = $args{session_id};
+    my $addresses       = $args{email};
+    my $custom_message  = $args{custom_message};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     unless ($empire->email) {
@@ -1057,7 +1094,9 @@ sub update_species {
 
     $log->debug(Dumper($empire->{_column_data}));
 
-    return 1;
+    return {
+        update_species => 1
+    };
 }
 
 sub view_species_stats {

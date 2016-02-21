@@ -602,10 +602,12 @@ sub get_status {
 
     my $planet_rs = $real_empire->planets;
     if ($self->alliance_id) {
-        $planet_rs = Lacuna->db->resultset('Map::Body')->
-            search(
-                   { -or => { 'me.empire_id' => $real_empire->id, 'me.alliance_id' => $real_empire->alliance_id } },
-                  );
+        $planet_rs = Lacuna->db->resultset('Map::Body')->search({ 
+            -or => { 
+                'me.empire_id'      => $real_empire->id, 
+                'me.alliance_id'    => $real_empire->alliance_id,
+            }
+        });
     }
     $planet_rs = $planet_rs->search({},{ prefetch => ['empire','star'], order_by => 'me.name' });
     my %planets;
@@ -617,16 +619,16 @@ sub get_status {
         my $planet = shift;
 
         return {
-            id => $planet->id,
-            name => $planet->name,
-            zone => $planet->zone,
-            star_id => $planet->star_id,
-            star_name => $planet->star->name,
-            orbit => $planet->orbit,
-            x => $planet->x,
-            y => $planet->y, #,,,
+            id          => $planet->id,
+            name        => $planet->name,
+            zone        => $planet->zone,
+            star_id     => $planet->star_id,
+            star_name   => $planet->star->name,
+            orbit       => $planet->orbit,
+            x           => $planet->x,
+            y           => $planet->y, #,,,
             empire_name => $planet->empire->name,
-            empire_id => $planet->empire_id,
+            empire_id   => $planet->empire_id,
         }
     };
 
@@ -645,23 +647,18 @@ sub get_status {
     }
 
     # shouldn't have to check this once sitter_password goes away.
-    if ($self->current_session() &&
-        !$self->current_session()->_is_sitter())
-    {
-        $planet_rs =
-            Lacuna->db->resultset('Map::Body')->
-            search(
-                   {
-                       'sitterauths.sitter_id' => $real_empire->id,
-                       'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
-                   },
-                   {
-                       prefetch => [ 'star', { 'empire', 'sitterauths' } ],
-                       order_by => ['me.name', 'me.id'],
-                   });
+    if ($self->current_session && !$self->current_session()->_is_sitter) {
+        $planet_rs = Lacuna->db->resultset('Map::Body')->search({
+            'sitterauths.sitter_id' => $real_empire->id,
+            'me.class' => { 
+                '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' 
+            },
+        },{
+            prefetch => [ 'star', { 'empire', 'sitterauths' } ],
+            order_by => ['me.name', 'me.id'],
+        });
 
-        while (my $planet = $planet_rs->next)
-        {
+        while (my $planet = $planet_rs->next) {
             my $empire = $planet->empire;
 
             # I'm not sure if we can get more than one, but getting an error message
@@ -672,10 +669,10 @@ sub get_status {
 
             # if we haven't seen this empire yet, put in its basic stats.
             $bodies{babies}{$empire->name} ||= {
-                id                => $empire->id,
-                has_new_messages  => $empire->has_new_messages,
-                sitter_expiry     => format_date($empire->sitterauths->first->expiry),
-                maybe alliance_id => $empire->alliance_id,
+                id                      => $empire->id,
+                has_new_messages        => $empire->has_new_messages,
+                sitter_expiry           => format_date($empire->sitterauths->first->expiry),
+                maybe alliance_id       => $empire->alliance_id,
                 maybe primary_embassy_id => $empire->highest_embassy && $empire->highest_embassy->id,
             };
 

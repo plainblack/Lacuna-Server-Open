@@ -8,43 +8,57 @@ The list of playable servers can be read from L<http://www.lacunaexpanse.com/ser
 
  [
    {
-     "name"     : "NA1",
-     "uri"      : "https://na1.lacunaexpanse.com/",
-     "status"   : "Open",
-     "location" : "United States"
+     "name"         : "US1",
+     "uri"          : "https://us1.lacunaexpanse.com/",
+     "status"       : "Open",
+     "location"     : "Texas, United States",
+     "type"         : "Empire Server",
+     "description"  : "Long term empire building, with focus on exploration, trade and malevolent AI."
    }
-   ...
  ]
 
-Each server in this list is an instance of the game, an individual universe separated from the others. Your app will need to allow users to select which server they want to interact with form this list.
+Each server in this list is an instance of the game, an individual universe 
+separated from the others. Your app will need to allow users to select which 
+server they want to interact with from this list.
+
 
 =head1 JSON-RPC
 
-The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about JSON-RPC 2.0 at L<http://www.jsonrpc.org/specification>.
+The Lacuna Expanse uses a JSON-RPC 2.0 based API. You can read more about 
+JSON-RPC 2.0 at L<http://www.jsonrpc.org/specification>.
 
 You can access these methods either as HTTP POSTs or GETs. 
 
 =head2 HTTP GET
 
-Many of the methods can be accessed using an HTTP GET request. Here's an example URL:
+Many of the methods can be accessed using an HTTP GET request. Here's an 
+example URL:
 
  https://game.lacunaexpanse.com/empire?jsonrpc=2.0&id=1&method=is_name_available&params=["Lacuna Expanse Corp"]
 
 The C<https://game.lacunaexpanse.com/> part gets you to the server.
 
-Then C</empire> lets you interact with the L<Empire> module. See below for a complete list.
+Then C</empire> lets you interact with the L<Empire> module. See below for a 
+complete list.
 
-To make it JSON-RPC 2.0 compatible, you must include the C<jsonrpc=2.0&id=1> part.
+To make it JSON-RPC 2.0 compatible, you must include the C<jsonrpc=2.0&id=1> 
+part.
 
 Then specify the method you wish to call with C<method=is_name_available>. 
 
-And finally pass in whatever parameters you need like C<params=["Lacuna Expanse Corp"]>. Parameters need to be encoded in JSON. By default all methods require an array of parameters. However, some will specifically request a hash reference of parameters; that would look like C<params={"this":"that","foo":"bar"}>
+And finally pass in whatever parameters you need like 
+C<params=["Lacuna Expanse Corp"]>. Parameters need to be encoded in JSON. 
+Most requests now require a hash reference of parameters, this would look
+like C<params={"this":"that","foo":"bar"}>
 
-B<NOTE:> You must URL encode the params. If you don't, you'll get a parse error from the server.
+B<NOTE:> You must URL encode the params. If you don't, you'll get a parse 
+error from the server.
 
 =head2 HTTP POST
 
-Most programming languages will have a JSON-RPC 2.0 client you can either use directly, or download from the internet. These will use HTTP POST. If you need to manually create a POST, it would look like:
+Most programming languages will have a JSON-RPC 2.0 client you can either use 
+directly, or download from the internet. These will use HTTP POST. If you 
+need to manually create a POST, it would look like:
 
   POST,https://game.lacunaexpanse.com/species
   {
@@ -54,7 +68,10 @@ Most programming languages will have a JSON-RPC 2.0 client you can either use di
     "params"    :["Human"]
   }
 
-B<NOTE:> It's important to make the distinction here that when you're sending a POST, you're not sending URL parameters. You're sending a full POST body. If you format it with parameters like a GET request you'll get a parse error in response.
+B<NOTE:> It's important to make the distinction here that when you're sending 
+a POST, you're not sending URL parameters. You're sending a full POST body. 
+If you format it with parameters like a GET request you'll get a parse error 
+in response.
 
 =head3 Use Post When Possible
 
@@ -64,15 +81,18 @@ HTTP POST is the preferred method of execution. The reasons for this are:
 
 =item *
 
-You can make multiple method calls in the same request, per the JSON-RPC 2.0 specification.
+You can make multiple method calls in the same request, per the JSON-RPC 2.0 
+specification.
 
 =item *
 
-Depending upon the HTTP Client, you'll have somewhere between 512 and 2048 bytes to send the request on a GET, but it can be unlimited on a POST. 
+Depending upon the HTTP Client, you'll have somewhere between 512 and 2048 
+bytes to send the request on a GET, but it can be unlimited on a POST. 
 
 =item * 
 
-If you use an HTTP GET, you'll need to URL Encode the params, but with POST you don't need to do that.
+If you use an HTTP GET, you'll need to URL Encode the params, but with POST 
+you don't need to do that.
 
 =back
 
@@ -92,7 +112,8 @@ If you make a successful request you'll get a response like:
 
 =head3 Error
 
-If an exception is thrown you'll get an error response. It's a hash containing a code, message, and data section.
+If an exception is thrown you'll get an error response. It's a hash containing 
+a code, message, and data section.
 
   { 
     "jsonrpc"   : "2.0", 
@@ -104,15 +125,17 @@ If an exception is thrown you'll get an error response. It's a hash containing a
     } 
   }
 
-B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 500 HTTP error code. 
+B<NOTE:> If you get a JSON-RPC error, then the web server will also give you a 
+500 HTTP error code. 
 
 =head2 Named parameter requests
 
-Starting in Version 4.000 of the server code, named arguments have been introduced. The use of positional
-arguments is no longer supported.
+Starting in Version 4.000 of the server code, named arguments have been 
+introduced. The use of positional arguments is no longer supported.
 
-As an example, the following is a call to the shipyard API to find out what fleets are buildable
-using both the original positional arguments and the new named argument calling conventions.
+As an example, the following is a call to the shipyard API to find out what 
+fleets are buildable using both the original positional arguments and the 
+new named argument calling conventions.
 
 =head3 original positional calling convention (no longer supported)
 
@@ -127,8 +150,8 @@ using both the original positional arguments and the new named argument calling 
     ]
   }
 
-This method is no longer supported. It is shown in case you have any scripts which need
-to be modified and for comparison with the following.
+This method is no longer supported. It is shown in case you have any scripts 
+which need to be modified and for comparison with the following.
 
 =head3 new named argument calling convention
 
@@ -136,17 +159,17 @@ to be modified and for comparison with the following.
     "jsonrpc"   : "2.0",
     "id"        : 1,
     "method"    : "get_buildable",
-    "params"    : [{
+    "params"    : {
       "session_id"  : "329da49c-7e88-4897-9d8c-3e5f6309d9b7",
       "tag"         : "Trade",
       "building_id" : "127894"
-    }]
+    }
   }
 
-Parameters are named and can be in any order,
-if a parameter is optional, then just don't include it. This convention allows future
-enhancements to methods without breaking backwards compatibility or having long lists
-of fixed place arguments.
+Parameters are named and can be in any order, if a parameter is optional, then 
+just don't include it. This convention allows future enhancements to methods 
+without breaking backwards compatibility or having long lists of fixed place 
+arguments.
 
 =head2 Date Format
 
@@ -158,8 +181,9 @@ As of Version 4.00 the date format has changed.
   e.g.
   "01 31 2013 13:15:59 +0000"
 
-This has been discontinued due to ambiguity of dates such as 7th Apr 2013 which was previously "04 07 2013" and in most parts of
-the world would be interpreted as 4th July 2013.
+This has been discontinued due to ambiguity of dates such as 7th Apr 2013 which 
+was previously "04 07 2013" and in most parts of the world would be interpreted 
+as 4th July 2013.
 
 =head3 New date format
 
@@ -171,16 +195,25 @@ This format is unambiguous in all parts of the world.
 
 =head2 RPC Limit
 
-You may only make a number of calls up to the RPC Limit in a given 24 hour period. The current limit is 10,000 on us1. They are also rate limited to 60 calls per minute on us1. The counter resets roughly (give or take 60 minutes) at midnight GMT. Your RPC calls are counted across all clients you use and your own programs.
+You may only make a number of calls up to the RPC Limit in a given 24 hour 
+period. The current limit is 10,000 on us1. They are also rate limited to 60 
+calls per minute on us1. The counter resets roughly (give or take 60 minutes) 
+at midnight GMT. Your RPC calls are counted across all clients you use and 
+your own programs.
 
-If you find yourself needing more RPC calls than the limit allows then you are likely making a lot of redundant requests. For example body.get_buildings() returns the entire list of buildings, and a time as to when their stats will change. So instead of calling every building on every planet every time your program looks something up, cache it until it changes.
+If you find yourself needing more RPC calls than the limit allows then you are 
+likely making a lot of redundant requests. For example body.get_buildings() 
+returns the entire list of buildings, and a time as to when their stats will 
+change. So instead of calling every building on every planet every time your 
+program looks something up, cache it until it changes.
 
 
 
 =head1 Status
 
-Most methods will provide a status block as part of the response. This is used to update 
-the user interface and alert the user to things. The status block looks like this:
+Most methods will provide a status block as part of the response. This is used 
+to update the user interface and alert the user to things. The status block 
+looks like this:
 
   {
     ...
@@ -205,9 +238,11 @@ the user interface and alert the user to things. The status block looks like thi
     }
   }
 
-Methods using the 'hash of named parameters' method can specify a 'no_status : 1' argument
-which will inhibit the return of a status block. This can be slightly more efficient for those
-cases where you don't care to check the status.
+Methods using the 'hash of named parameters' method can specify a 'no_status : 1' 
+argument which will inhibit the return of a status block. This can be slightly 
+more efficient for those cases where you don't care to check the status so often.
+
+
 
 =head1 Modules
 
