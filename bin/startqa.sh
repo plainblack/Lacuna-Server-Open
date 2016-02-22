@@ -1,1 +1,0 @@
-../../Lacuna-Server-Private/bin/startqa.sh
