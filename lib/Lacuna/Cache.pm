@@ -12,6 +12,12 @@ has 'servers' => (
     required    => 1,
 );
 
+has 'root_namespace' => (
+    is          => 'rw',
+    isa         => 'Str',
+    default     => 'reboot-',
+);
+
 has 'memcached' => (
     is  => 'ro',
     lazy    => 1,
@@ -33,14 +39,14 @@ has 'memcached' => (
 
 sub fix_key {
     my ($self, $namespace, $id) = @_;
-    my $key = $namespace.":".$id;
+    my $key = $self->root_namespace.$namespace.":".$id;
     $key =~ s/\s+/_/g;
     return $key;
 }
 
 sub delete {
     my ($self, $namespace, $id, $retry) = @_;
-    my $key = $self->fix_key($namespace, $id);
+    my $key = $self->fix_key($self->root_namespace.$namespace, $id);
     my $memcached = $self->memcached;
     Memcached::libmemcached::memcached_delete($memcached, $key);
     if ($memcached->errstr eq 'SYSTEM ERROR Unknown error: 0') {
@@ -90,7 +96,7 @@ sub flush {
 
 sub get {
     my ($self, $namespace, $id, $retry) = @_;
-    my $key = $self->fix_key($namespace, $id);
+    my $key = $self->fix_key($self->root_namespace.$namespace, $id);
     my $memcached = $self->memcached;
     my $content = Memcached::libmemcached::memcached_get($memcached, $key);
     if ($memcached->errstr eq 'SUCCESS') {
@@ -154,7 +160,7 @@ sub add {
 
 sub set {
     my ($self, $namespace, $id, $value, $ttl, $retry) = @_;
-    my $key = $self->fix_key($namespace, $id);
+    my $key = $self->fix_key($self->root_namespace.$namespace, $id);
     $ttl ||= 60;
     my $frozenValue = (ref $value) ? JSON::to_json($value) : $value; 
     my $memcached = $self->memcached;
