@@ -5,7 +5,6 @@ bin/setup/server/*.gz
 bin/setup/server/*.rpm
 bin/setup/server/*/
 etc
-var/www/public/index.html
 var/www/public/local.html
 var/www/public/server_overview.json
 var/www/public/starmap.json
