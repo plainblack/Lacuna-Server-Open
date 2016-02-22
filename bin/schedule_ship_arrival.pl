@@ -71,7 +71,7 @@ if ($initialize) {
         # add to queue
         my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $fleet->date_available,
-            queue           => 'arrive_queue',
+            queue           => 'reboot-arrive',
             parent_table    => 'Fleet',
             parent_id       => $fleet->id,
             task            => 'arrive',
@@ -110,7 +110,7 @@ out('Started');
 eval {
     
     LOOP: do {
-        my $job     = $queue->consume('arrive_queue');
+        my $job     = $queue->consume('reboot-arrive');
         my $args    = $job->args;
         $job->delete, next unless ref $args eq 'HASH';
         my $task    = $args->{task};

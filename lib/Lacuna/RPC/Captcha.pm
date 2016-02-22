@@ -27,7 +27,7 @@ sub fetch {
     $cache->delete('captcha_valid', $session_id);
 
     # Now trigger a new captcha generation
-    my $job = Lacuna->queue->publish('captcha');
+    my $job = Lacuna->queue->publish('reboot-captcha');
     
     return {
         guid    => $captcha->guid,

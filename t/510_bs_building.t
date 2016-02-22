@@ -31,7 +31,7 @@ my $thing = $db->resultset('ApiKey')->create({
 });
 
 my $schedule = $db->resultset('Schedule')->create({
-    queue           => 'default',
+    queue           => 'reboot-build',
     delivery        => $later,
     parent_table    => 'ApiKey',
     parent_id       => $thing->id,

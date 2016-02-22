@@ -930,6 +930,7 @@ sub start_upgrade {
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $upgrade_ends,
+        queue           => 'reboot-build',
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_upgrade',
@@ -1051,6 +1052,7 @@ sub reschedule_queue {
 
             $schedule = Lacuna->db->resultset('Schedule')->create({
                 delivery        => $upgrade_ends,
+                queue           => 'reboot-build',
                 parent_table    => 'Building',
                 parent_id       => $build->id,
                 task            => 'finish_upgrade',
@@ -1099,6 +1101,7 @@ sub reschedule_work {
 
     my $new_sched = Lacuna->db->resultset('Lacuna::DB::Result::Schedule')->create({
         delivery        => $new_work_ends,
+        queue           => 'reboot-build',
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',
@@ -1120,6 +1123,7 @@ sub start_work {
     # add to queue
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $self->work_ends,
+        queue           => 'reboot-build',
         parent_table    => 'Building',
         parent_id       => $self->id,
         task            => 'finish_work',

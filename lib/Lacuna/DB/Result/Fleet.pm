@@ -550,7 +550,7 @@ sub turn_around {
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         parent_table    => 'Fleet',
-        queue           => 'arrive_queue',
+        queue           => 'reboot-arrive',
         parent_id       => $self->id,
         task            => 'arrive',
         delivery        => $arrival,
@@ -602,7 +602,7 @@ sub send {
     $self->update;
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $arrival,
-        queue           => 'arrive_queue',
+        queue           => 'reboot-arrive',
         parent_table    => 'Fleet',
         parent_id       => $self->id,
         task            => 'arrive',

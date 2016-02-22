@@ -82,7 +82,7 @@ out('Started');
 eval {
     
     LOOP: do {
-        my $job     	= $queue->consume('captcha');
+        my $job     	= $queue->consume('reboot-captcha');
     
         out('job received ['.$job->id.']');
 

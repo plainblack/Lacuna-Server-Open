@@ -71,6 +71,7 @@ if ($initialize) {
         out('Building - finish_work at '.$building->work_ends);
         Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->work_ends,
+            queue           => 'reboot-build',
             parent_table    => 'Building',
             parent_id       => $building->id,
             task            => 'finish_work',
@@ -86,6 +87,7 @@ if ($initialize) {
         out('Building - finish_upgrade at '.$building->upgrade_ends);
         Lacuna->db->resultset('Schedule')->create({
             delivery        => $building->upgrade_ends,
+            queue           => 'reboot-build',
             parent_table    => 'Building',
             parent_id       => $building->id,
             task            => 'finish_upgrade',
@@ -100,6 +102,7 @@ if ($initialize) {
         # add to queue
         my $schedule = Lacuna->db->resultset('Schedule')->create({
             delivery        => $ship->date_available,
+            queue           => 'reboot-build',
             parent_table    => 'Fleet',
             parent_id       => $ship->id,
             task            => 'finish_construction',
@@ -137,7 +140,7 @@ out('Started');
 eval {
     
     LOOP: do {
-        my $job     = $queue->consume('default');
+        my $job     = $queue->consume('reboot-build');
         my $args    = $job->args;
         $job->delete, next unless ref $args eq 'HASH';
         my $task    = $args->{task};
