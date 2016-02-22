@@ -16,7 +16,8 @@ sub check_star_for_incoming_probe {
     my $session_id  = $args->{session_id};
     my $star_id     = $args->{star_id};
 
-    my $empire = $self->get_empire_by_session($session_id);
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
     my $date = 0;
     my @bodies = $empire->planets->get_column('id')->all;
     my $incoming = Lacuna->db->resultset('Ships')->search({
@@ -72,8 +73,11 @@ sub get_star_map {
     if ($width * $height > 3001) {
         confess [1003, 'Requested area larger than 3001.'];
     }
+    my $session_id  = $args->{session_id};
 
-    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+
     my $alliance_id = $empire->alliance_id || 0;
 
     # Normalize the co-ordinates
@@ -139,7 +143,8 @@ sub get_star {
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
     my $session_id  = $args->{session_id};
     my $session     = $self->get_session({ session_id => $session_id });
-    my $empire      = $self->get_empire_by_session($session_id);
+    my $empire      = $session->current_empire;
+
     my $stars = Lacuna->db->resultset('Map::Star')->search();
     if ($args->{star_id}) {
         $stars = $stars->seach({id => $args->{star_id}});
@@ -172,7 +177,7 @@ sub find_star {
     }
     my $session_id  = $args->{session_id};
     my $session     = $self->get_session({ session_id => $session_id });
-    my $empire      = $self->get_empire_by_session($session_id);
+    my $empire      = $session->current_empire;
     my $stars       = Lacuna->db->resultset('Map::Star')->search({name => { like => $args->{name}.'%' }},{rows => 25});
 
     my @out;
@@ -190,8 +195,10 @@ sub probe_summary_fissures {
     my ($self, $args) = @_;
 
     confess [1019, 'You must call using named arguments.'] if ref($args) ne "HASH";
+    my $session_id  = $args->{session_id};
 
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
 
     my ($x,$y);
 
