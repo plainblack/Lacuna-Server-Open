@@ -26,23 +26,23 @@ sub format_datestamp {
 use constant MEDALS => {
     supply_pod => {
         name => 'Built Supply Pod',
-        image => 'v2/supply_pod'
+        image => 'v2/supply_pod',
     },
     supply_pod2 => {
         name => 'Built Supply Pod II',
-        image => 'v2/supply_pod2'
+        image => 'v2/supply_pod2',
     },
     supply_pod3 => {
         name => 'Built Supply Pod III',
-        image => 'v2/supply_pod3'
+        image => 'v2/supply_pod3',
     },
     supply_pod4 => {
         name => 'Built Supply Pod IV',
-        image => 'v2/supply_pod4'
+        image => 'v2/supply_pod4',
     },
     supply_pod5 => {
         name => 'Built Supply Pod V',
-        image => 'v2/supply_pod5'
+        image => 'v2/supply_pod5',
     },
     probe => {
         name => 'Built Probe',
