@@ -28,7 +28,7 @@ GetOptions(
 );
 
 $App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
-$App::Daemon::logfile  = '/tmp/schedule_captcha.log';
+$App::Daemon::logfile  = '/tmp/reboot_schedule_captcha.log';
 $App::Daemon::as_user  = 'root';
 $App::Daemon::as_group = 'root';
 

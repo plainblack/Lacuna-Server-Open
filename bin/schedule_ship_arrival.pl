@@ -27,7 +27,7 @@ GetOptions(
 );
 
 $App::Daemon::loglevel = $quiet ? $WARN : $DEBUG;
-$App::Daemon::logfile  = '/tmp/schedule_ship_arrival.log';
+$App::Daemon::logfile  = '/tmp/reboot_schedule_ship_arrival.log';
 
 chdir '/data/Lacuna-Server-Open/bin';
 
