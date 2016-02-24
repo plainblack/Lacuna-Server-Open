@@ -788,7 +788,6 @@ Your client's unique API key, identifiying it from all other clients. See L<ApiK
 
  {
    "session_id"         : "9eea6721-3326-4c1f-817d-a4e82b54818e",
-   "current_password"   : "simples",
    "password1"          : "topSecret",
    "password2"          : "topSecret",
  }
@@ -796,10 +795,6 @@ Your client's unique API key, identifiying it from all other clients. See L<ApiK
 =head3 session_id (required)
 
 A session id.
-
-=head3 current_password (required)
-
-The current empire password.
 
 =head3 password1 (required)
 
@@ -868,23 +863,62 @@ A session id.
 
 A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
 
-=head2 boost_food ( session_id [, weeks] )
 
-Spends 5 essentia, and boosts food production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
+=head2 set_boost
 
- {
-    "status" : { ... },
-    "food_boost" : "01 31 2010 13:09:05 +0600"
- }
+Spend 5 essentia, and increase one type of boost on all planets for 7 days.
+If a boost is already underway, calling it again will 7 more days.
+
+  {
+    "type"        : "food",
+    "weeks"       : 1,
+  }
+
+=head3 type (required)
+
+The type of boost, this is one of the following
+
+=over
+
+=item C<ore>
+
+=item C<water>
+
+=item C<energy>
+
+=item C<food>
+
+=item C<happiness>
+
+=item C<storage>
+
+=item C<building>
+
+=item C<ship_build>
+
+=item C<ship_speed>
+
+=item C<spy_training>
+
+=back
+
+=head2 weeks (optional)
+
+If specified, the number of weeks of boost to apply.
+
+If not specified it defaults to 1
+
+
+=head2 RESPONSE
+
+  {
+    "food_boost" : "01 31 2010 13:09:05 +0600",
+    "status"     : { ... }
+  }
 
 Throws 1011.
 
-=head3 session_id
 
-A session id.
-
-
-=head2 boost_water ( session_id [, weeks] )
 
 =head2 get_boosts
 
@@ -898,92 +932,25 @@ A session id.
 
 =head3 RESPONSE
 
-=head2 boost_energy ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts energy production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
-Shows the dates at which boosts have expired or will expire. Boosts are subsidies applied to various resources using essentia.
+Shows the dates at which boosts have expired or will expire. 
+Boosts are subsidies applied to various resources using essentia.
 
  {
-    "status" : { ... },
     "boosts" : {
-        "food"      : "2013 01 31 12:34:45 +0600",
-        "ore"       : "2013 01 31 12:34:45 +0600",
-        "energy"    : "2013 01 31 12:34:45 +0600",
-        "water"     : "2013 01 31 12:34:45 +0600",
-        "happiness" : "2013 01 31 12:34:45 +0600",
-        "storage"   : "2013 01 31 12:34:45 +0600",
-        "building"  : "2013 01 31 12:34:45 +0600",
-        "ship_build" : "2013 01 31 12:34:45 +0600",
-        "ship_speed" : "2013 01 31 12:34:45 +0600",
-    }
+        "food"          : "2013 01 31 12:34:45 +0600",
+        "ore"           : "2013 01 31 12:34:45 +0600",
+        "energy"        : "2013 01 31 12:34:45 +0600",
+        "water"         : "2013 01 31 12:34:45 +0600",
+        "happiness"     : "2013 01 31 12:34:45 +0600",
+        "storage"       : "2013 01 31 12:34:45 +0600",
+        "building"      : "2013 01 31 12:34:45 +0600",
+        "ship_build"    : "2013 01 31 12:34:45 +0600",
+        "ship_speed"    : "2013 01 31 12:34:45 +0600",
+        "spy_training"  : "2013 01 31 12:34:45 +0600",
+    },
+    "status" : { ... }
  }
 
-
-
-=head2 boost_ore ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts ore production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
-   "type"       : "storage",
- }
-
-Spend 5 essentia and boost the specified type on all planets for and additional 7 days.
-
-=head3 session_id (required)
-
-A session id.
-
-=head3 type (required)
-
-=head2 boost_happiness ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts happiness production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "happiness_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-Should be one of 'storage', 'food', 'water', 'energy', 'ore', 'happiness', 'building', 'ship_build', 'ship_speed'
-
-=head3 RESPONSE.
-
-It responds with the same as C<get_boosts>
-
-
-=head2 boost_building ( session_id [, weeks] )
-
-=head2 enable_self_destruct
-
- {
-   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
- }
-
-Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
-
-=head3 session_id (required)
-
-A session id.
-
-=head2 boost_spy_training ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts spy training speed on all planets 50% for 7 days. If a boost is already underway, calling again will add 7 more days. Unlike other boosts, this one will boost spies currently in specialist training.
-
- {
-    "status" : { ... },
-    "spy_training_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
 
 
 =head2 enable_self_destruct ( session_id )
@@ -1045,7 +1012,7 @@ A 36 character string that was sent to the user via email.
 
 
 
-=head2 redefine_species_limits
+=head2 get_redefine_species_limits
 
  {
    "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
@@ -1074,22 +1041,22 @@ A session id.
 =head2 redefine_species
 
   {
-    "session_id"             : "9eea6721-3326-4c1f-817d-a4e82b54818e",
-    "species_name"          : "Average",
-    "species_description"   : "Not specializing in any area, but without any particular weaknesses.",
-    "species_min_orbit"     : 3,
-    "species_max_orbit"     : 3,
-    "species_manufacturing" : 4,
-    "species_deception"     : 4,
-    "species_research"      : 4,
-    "species_management"    : 4,
-    "species_farming"       : 4,
-    "species_mining"        : 4,
-    "species_science"       : 4,
-    "species_environmental" : 4,
-    "species_political"     : 4,
-    "species_trade"         : 4,
-    "species_growth"        : 4
+    "session_id"     : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+    "name"           : "Average",
+    "description"    : "Not specializing in any area, but without any particular weaknesses.",
+    "min_orbit"      : 3,
+    "max_orbit"      : 3,
+    "manufacturing"  : 4,
+    "deception"      : 4,
+    "research"       : 4,
+    "management"     : 4,
+    "farming"        : 4,
+    "mining"         : 4,
+    "science"        : 4,
+    "environmental"  : 4,
+    "political"      : 4,
+    "trade"          : 4,
+    "growth"         : 4
   }
 
 

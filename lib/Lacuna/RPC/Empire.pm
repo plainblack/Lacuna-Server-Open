@@ -22,7 +22,8 @@ use JSON::RPC::Dispatcher 0.0508;
 
 
 # Is the empire name available?
-# 
+# (it has to be valid and unique)
+#
 sub is_name_available {
     my ($self, %args) = @_;
 
@@ -31,25 +32,20 @@ sub is_name_available {
     return { available => 1 }; 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+# Find empires based on their name
+#
 sub find {
-    my ($self, $session_id, $name) = @_;
-    unless (length($name) >= 3) {
+    my ($self, %args) = @_;
+
+    my $session_id  = $args{session_id};
+    my $name        = $args{name};
+
+    if (length($name) < 3) {
         confess [1009, 'Empire name too short. Your search must be at least 3 characters.'];
     }
-    my $session  = $self->get_session({session_id => $session_id});
-    my $empire   = $session->current_empire;
+    my $session	= $self->get_session({session_id => $session_id});
+    my $empire  = $session->current_empire;
+
     my $empires = Lacuna->db->resultset('Empire')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_empires;
     my $limit = 100;
@@ -57,15 +53,20 @@ sub find {
         push @list_of_empires, {
             id      => $empire->id,
             name    => $empire->name,
-            };
+        };
         $limit--;
         last unless $limit;
     }
     return { empires => \@list_of_empires, status => $self->format_status($session) };
 }
 
+# Is an empire name valid?
+#
 sub is_name_valid {
-    my ($self, $name) = @_;
+    my ($self, %args) = @_;
+
+    my $name = $args{name};
+
     Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name is invalid.', 'name'])
         ->length_lt(31)
         ->length_gt(2)
@@ -77,8 +78,11 @@ sub is_name_valid {
     return 1; 
 }
 
+# Is it unique
 sub is_name_unique {
-    my ($self, $name) = @_;
+    my ($self, %args) = @_;
+
+    my $name = $args{name};
     if (Lacuna->db->resultset('Empire')->search({name=>$name})->count) {
         confess [1000, 'Empire name is in use by another player.', 'name'];
     }
@@ -181,7 +185,12 @@ sub login {
 
 
 sub benchmark {
-    my ($self, $plack_request, $name, $password, $api_key) = @_;
+    my ($self, $plack_request, %args) = @_;
+
+    my $name        = $args{name};
+    my $password    = $args{password};
+    my $api_key     = $args{api_key};
+
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
@@ -261,16 +270,12 @@ sub fetch_captcha {
 }
 
 sub change_password {
-    #my ($self, $session_id, $password, $password1, $password2) = @_;
-    my $self = shift;
-    my $session_id = shift;
-    my ($current_password, $password1, $password2);
-    if (scalar(@_) == 2) {
-        ($password1, $password2) = @_;
-    }
-    else { # backward compatibility mode
-        ($current_password, $password1, $password2) = @_;
-    }
+    my ($self, %args) = @_;
+
+    my $session_id  = $args{session_id};
+    my $password1   = $args{password1};
+    my $password2   = $args{password2};
+
     Lacuna::Verify->new(content=>\$password1, throws=>[1001,'Invalid password.', $password1])
         ->length_gt(5)
         ->eq($password2);
@@ -278,7 +283,7 @@ sub change_password {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
-        confess [1015, 'Sitters cannot modify the main account password.'];
+        confess [1015, 'Sitters cannot modify the main args password.'];
     }
     
     $empire->password($empire->encrypt_password($password1));
@@ -288,17 +293,18 @@ sub change_password {
 
 
 sub send_password_reset_message {
-    my ($self, %options) = @_;
+    my ($self, %args) = @_;
+
     my $empire;
     my $empires = Lacuna->db->resultset('Empire');
-    if (exists $options{empire_id} && $options{empire_id} ne '') {
-        $empire = $empires->find($options{empire_id});
+    if (exists $args{empire_id} && $args{empire_id} ne '') {
+        $empire = $empires->find($args{empire_id});
     }
-    elsif (exists $options{empire_name}) {
-        $empire = $empires->search({ name => $options{empire_name} })->first;
+    elsif (exists $args{empire_name}) {
+        $empire = $empires->search({ name => $args{empire_name} })->first;
     }
-    elsif (exists $options{email}) {
-        $empire = $empires->search({ email => $options{email} })->first;
+    elsif (exists $args{email}) {
+        $empire = $empires->search({ email => $args{email} })->first;
     }
     unless (defined $empire) {
         confess [1002, 'Empire not found.'];
@@ -319,7 +325,13 @@ sub send_password_reset_message {
 
 
 sub reset_password {
-    my ($self, $plack_request, $key, $password1, $password2, $api_key) = @_;
+    my ($self, $plack_request, %args) = @_;
+
+    my $key         = $args{reset_key};
+    my $password1   = $args{password1};
+    my $password2   = $args{password2};
+    my $api_key     = $args{api_key};
+
     unless ($api_key) {
         confess [1002, 'You need an API Key.'];
     }
@@ -346,39 +358,39 @@ sub reset_password {
 }
 
 sub create {
-    my ($self, $plack_request, %account) = @_;    
+    my ($self, $plack_request, %args) = @_;
     my %params = (
         status_message      => 'Making Lacuna a better Expanse.',
         sitter_password     => random_string('CC.c!ccn'),
     );
 
     # check facebook    
-    my $has_facebook = (exists $account{facebook_uid} && $account{facebook_uid} =~ m/^\d+$/ && exists $account{facebook_token} && length($account{facebook_token}) > 60);
+    my $has_facebook = (exists $args{facebook_uid} && $args{facebook_uid} =~ m/^\d+$/ && exists $args{facebook_token} && length($args{facebook_token}) > 60);
     if ($has_facebook) {
-        $params{facebook_uid}   = $account{facebook_uid};
-        $params{facebook_token} = $account{facebook_token};
+        $params{facebook_uid}   = $args{facebook_uid};
+        $params{facebook_token} = $args{facebook_token};
     }
 
     # verify captcha
     unless ($has_facebook) {
-        $self->validate_captcha($plack_request, $account{captcha_guid}, $account{captcha_solution});
+        $self->validate_captcha($plack_request, \%args);
     }
 
     # verify password
-    if (exists $account{password} || !$has_facebook) {
-        Lacuna::Verify->new(content=>\$account{password}, throws=>[1001,'Invalid password. It must be at least 6 characters and both passwords must match.', 'password'])
+    if (exists $args{password} || !$has_facebook) {
+        Lacuna::Verify->new(content=>\$args{password}, throws=>[1001,'Invalid password. It must be at least 6 characters and both passwords must match.', 'password'])
             ->length_gt(5)
-            ->eq($account{password1});
-        $params{password} = Lacuna::DB::Result::Empire->encrypt_password($account{password});
+            ->eq($args{password1});
+        $params{password} = Lacuna::DB::Result::Empire->encrypt_password($args{password});
     }
     
     # verify username
-    eval { $self->is_name_unique($account{name}) };
+    eval { $self->is_name_unique($args{name}) };
     if ($@) { # maybe they're trying to finish an incomplete empire
-        my $empire = Lacuna->db->resultset('Empire')->search({name=>$account{name}})->next;
+        my $empire = Lacuna->db->resultset('Empire')->search({name=>$args{name}})->next;
         if (defined $empire) {
             if ($empire->stage eq 'new') {
-                if ($empire->is_password_valid($account{password})) {
+                if ($empire->is_password_valid($args{password})) {
                     confess [1100, "Your empire has not been completely created. You must complete it in order to play the game.", { empire_id => $empire->id } ];
                 }
                 else {
@@ -393,31 +405,35 @@ sub create {
             confess [1002, 'Empire has gone away.'];
         }
     }    
-    $self->is_name_valid($account{name});
-    $params{name} = $account{name};
+    $self->is_name_valid($args{name});
+    $params{name} = $args{name};
 
     # verify email
-    if (exists $account{email} && $account{email} ne '') {
-        Lacuna::Verify->new(content=>\$account{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+    if (exists $args{email} && $args{email} ne '') {
+        Lacuna::Verify->new(content=>\$args{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
             ->is_email;
-        if (Lacuna->db->resultset('Empire')->search({email=>$account{email}})->count > 0) {
+        if (Lacuna->db->resultset('Empire')->search({email=>$args{email}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
-        $params{email} = $account{email};
+        $params{email} = $args{email};
     }
 
-    # create account
+    # create args
     my $empire = Lacuna->db->resultset('Empire')->new(\%params)->insert;
     Lacuna->cache->increment('empires_created', format_date(undef,'%F'), 1, 60 * 60 * 26);
 
     # handle invitation
-    $empire->attach_invite_code($account{invite_code});
+    $empire->attach_invite_code($args{invite_code});
     
     return { empire_id => $empire->id };
 }
 
 sub validate_captcha {
-    my ($self, $plack_request, $guid, $solution) = @_;
+    my ($self, $plack_request, %args) = @_;
+
+    my $guid        = $args{captcha_guid};
+    my $solution    = $args{captcha_solution};
+
     my $ip = $plack_request->address;
     if (defined $guid && defined $solution) {                                               # offered a solution
         my $captcha = Lacuna->cache->get_and_deserialize('create_empire_captcha', $ip);
@@ -530,7 +546,11 @@ sub get_own_profile {
 }
 
 sub edit_profile {
-    my ($self, $session_id, $profile) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+    my $args    = $args{profile};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     
@@ -538,187 +558,187 @@ sub edit_profile {
     if ($empire->has_current_session && $empire->current_session->is_sitter) {
         confess [1015, 'Sitters cannot modify preferences.'];
     }
-    if (exists $profile->{description}) {
-        Lacuna::Verify->new(content=>\$profile->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
+    if (exists $args->{description}) {
+        Lacuna::Verify->new(content=>\$args->{description}, throws=>[1005,'Description must be less than 1024 characters and cannot contain special characters or profanity.', 'description'])
             ->length_lt(1025)
             ->no_restricted_chars
             ->no_profanity;  
-        $empire->description($profile->{description});
+        $empire->description($args->{description});
         if ($empire->tutorial_stage ne 'turing') {
             Lacuna::Tutorial->new(empire=>$empire)->finish;
         }
     }
-    if (exists $profile->{notes}) {
-        Lacuna::Verify->new(content=>\$profile->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
+    if (exists $args->{notes}) {
+        Lacuna::Verify->new(content=>\$args->{notes}, throws=>[1005,'Notes must be less than 1024 characters and cannot contain special characters or profanity.', 'notes'])
             ->length_lt(1025)
             ->no_restricted_chars
             ->no_profanity;  
-        $empire->notes($profile->{notes});
+        $empire->notes($args->{notes});
     }
-    if (exists $profile->{status_message}) {
-        Lacuna::Verify->new(content=>\$profile->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
+    if (exists $args->{status_message}) {
+        Lacuna::Verify->new(content=>\$args->{status_message}, throws=>[1005,'Status cannot be empty, must be no longer than 100 characters, and cannot contain special characters or profanity.', 'status_message'])
             ->length_lt(101)
             ->not_empty
             ->no_restricted_chars
             ->no_profanity;
-        $empire->status_message($profile->{status_message});
+        $empire->status_message($args->{status_message});
     }
-    if (exists $profile->{sitter_password}) {
-        Lacuna::Verify->new(content=>\$profile->{sitter_password}, throws=>[1005,'Sitter password must be between 6 and 30 characters.', 'sitter_password'])
+    if (exists $args->{sitter_password}) {
+        Lacuna::Verify->new(content=>\$args->{sitter_password}, throws=>[1005,'Sitter password must be between 6 and 30 characters.', 'sitter_password'])
             ->length_lt(31)
             ->length_gt(5);
-        $empire->sitter_password($profile->{sitter_password});
+        $empire->sitter_password($args->{sitter_password});
     }
-    if (exists $profile->{city}) {
-        Lacuna::Verify->new(content=>\$profile->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
+    if (exists $args->{city}) {
+        Lacuna::Verify->new(content=>\$args->{city}, throws=>[1005,'City must be no longer than 100 characters, and cannot contain special characters or profanity.', 'city'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity;
-        $empire->city($profile->{city});
+        $empire->city($args->{city});
     }
-    if (exists $profile->{country}) {
-        Lacuna::Verify->new(content=>\$profile->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
+    if (exists $args->{country}) {
+        Lacuna::Verify->new(content=>\$args->{country}, throws=>[1005,'Country must be no longer than 100 characters, and cannot contain special characters or profanity.', 'country'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity;
-        $empire->country($profile->{country});
+        $empire->country($args->{country});
     }
-    if (exists $profile->{player_name}) {
-        Lacuna::Verify->new(content=>\$profile->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
+    if (exists $args->{player_name}) {
+        Lacuna::Verify->new(content=>\$args->{player_name}, throws=>[1005,'Player name must be no longer than 100 characters, and cannot contain special characters or profanity.', 'player_name'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity;
-        $empire->player_name($profile->{player_name});
+        $empire->player_name($args->{player_name});
     }
-    if (exists $profile->{skip_medal_messages}) {
-        if ($profile->{skip_medal_messages} < 0 || $profile->{skip_medal_messages} > 1) {
+    if (exists $args->{skip_medal_messages}) {
+        if ($args->{skip_medal_messages} < 0 || $args->{skip_medal_messages} > 1) {
             confess [1009, 'Skip Medal Messages must be a 1 or a 0.', 'skip_medal_messages']
         }
-        $empire->skip_medal_messages($profile->{skip_medal_messages});
+        $empire->skip_medal_messages($args->{skip_medal_messages});
     }
-    if (exists $profile->{skip_happiness_warnings}) {
-        if ($profile->{skip_happiness_warnings} < 0 || $profile->{skip_happiness_warnings} > 1) {
+    if (exists $args->{skip_happiness_warnings}) {
+        if ($args->{skip_happiness_warnings} < 0 || $args->{skip_happiness_warnings} > 1) {
             confess [1009, 'Skip Happiness Warnings must be a 1 or a 0.', 'skip_happiness_warnings']
         }
-        $empire->skip_happiness_warnings($profile->{skip_happiness_warnings});
+        $empire->skip_happiness_warnings($args->{skip_happiness_warnings});
     }
-    if (exists $profile->{skip_facebook_wall_posts}) {
-        if ($profile->{skip_facebook_wall_posts} < 0 || $profile->{skip_facebook_wall_posts} > 1) {
+    if (exists $args->{skip_facebook_wall_posts}) {
+        if ($args->{skip_facebook_wall_posts} < 0 || $args->{skip_facebook_wall_posts} > 1) {
             confess [1009, 'Skip Facebook Wall Posts must be a 1 or a 0.', 'skip_facebook_wall_posts']
         }
-        $empire->skip_facebook_wall_posts($profile->{skip_facebook_wall_posts});
+        $empire->skip_facebook_wall_posts($args->{skip_facebook_wall_posts});
     }
-    if (exists $profile->{skip_resource_warnings}) {
-        if ($profile->{skip_resource_warnings} < 0 || $profile->{skip_resource_warnings} > 1) {
+    if (exists $args->{skip_resource_warnings}) {
+        if ($args->{skip_resource_warnings} < 0 || $args->{skip_resource_warnings} > 1) {
             confess [1009, 'Skip Resource Warnings must be a 1 or a 0.', 'skip_resource_warnings']
         }
-        $empire->skip_resource_warnings($profile->{skip_resource_warnings});
+        $empire->skip_resource_warnings($args->{skip_resource_warnings});
     }
-    if (exists $profile->{skip_pollution_warnings}) {
-        if ($profile->{skip_pollution_warnings} < 0 || $profile->{skip_pollution_warnings} > 1) {
+    if (exists $args->{skip_pollution_warnings}) {
+        if ($args->{skip_pollution_warnings} < 0 || $args->{skip_pollution_warnings} > 1) {
             confess [1009, 'Skip Pollution Warnings must be a 1 or a 0.', 'skip_pollution_warnings']
         }
-        $empire->skip_pollution_warnings($profile->{skip_pollution_warnings});
+        $empire->skip_pollution_warnings($args->{skip_pollution_warnings});
     }
 
-    if (exists $profile->{skip_found_nothing}) {
-        if ($profile->{skip_found_nothing} < 0 || $profile->{skip_found_nothing} > 1) {
+    if (exists $args->{skip_found_nothing}) {
+        if ($args->{skip_found_nothing} < 0 || $args->{skip_found_nothing} > 1) {
             confess [1009, 'Skip Found Nothing must be a 1 or a 0.', 'skip_found_nothing']
         }
-        $empire->skip_found_nothing($profile->{skip_found_nothing});
+        $empire->skip_found_nothing($args->{skip_found_nothing});
     }
-    if (exists $profile->{skip_excavator_replace_msg}) {
-        if ($profile->{skip_excavator_replace_msg} < 0 || $profile->{skip_excavator_replace_msg} > 1) {
+    if (exists $args->{skip_excavator_replace_msg}) {
+        if ($args->{skip_excavator_replace_msg} < 0 || $args->{skip_excavator_replace_msg} > 1) {
             confess [1009, 'Skip Excavator Replacement Message must be a 1 or a 0.', 'skip_excavator_replace_msg']
         }
-        $empire->skip_excavator_replace_msg($profile->{skip_excavator_replace_msg});
+        $empire->skip_excavator_replace_msg($args->{skip_excavator_replace_msg});
     }
-    if (exists $profile->{skip_excavator_resources}) {
-        if ($profile->{skip_excavator_resources} < 0 || $profile->{skip_excavator_resources} > 1) {
+    if (exists $args->{skip_excavator_resources}) {
+        if ($args->{skip_excavator_resources} < 0 || $args->{skip_excavator_resources} > 1) {
             confess [1009, 'Skip Excavator Resources must be a 1 or a 0.', 'skip_excavator_resources']
         }
-        $empire->skip_excavator_resources($profile->{skip_excavator_resources});
+        $empire->skip_excavator_resources($args->{skip_excavator_resources});
     }
-    if (exists $profile->{skip_excavator_glyph}) {
-        if ($profile->{skip_excavator_glyph} < 0 || $profile->{skip_excavator_glyph} > 1) {
+    if (exists $args->{skip_excavator_glyph}) {
+        if ($args->{skip_excavator_glyph} < 0 || $args->{skip_excavator_glyph} > 1) {
             confess [1009, 'Skip Excavator Glyph must be a 1 or a 0.', 'skip_excavator_glyph']
         }
-        $empire->skip_excavator_glyph($profile->{skip_excavator_glyph});
+        $empire->skip_excavator_glyph($args->{skip_excavator_glyph});
     }
-    if (exists $profile->{skip_excavator_plan}) {
-        if ($profile->{skip_excavator_plan} < 0 || $profile->{skip_excavator_plan} > 1) {
+    if (exists $args->{skip_excavator_plan}) {
+        if ($args->{skip_excavator_plan} < 0 || $args->{skip_excavator_plan} > 1) {
             confess [1009, 'Skip Excavator Plan must be a 1 or a 0.', 'skip_excavator_plan']
         }
-        $empire->skip_excavator_plan($profile->{skip_excavator_plan});
+        $empire->skip_excavator_plan($args->{skip_excavator_plan});
     }
-    if (exists $profile->{skip_excavator_artifact}) {
-        if ($profile->{skip_excavator_artifact} < 0 || $profile->{skip_excavator_artifact} > 1) {
+    if (exists $args->{skip_excavator_artifact}) {
+        if ($args->{skip_excavator_artifact} < 0 || $args->{skip_excavator_artifact} > 1) {
             confess [1009, 'Skip Excavator Artifact must be a 1 or a 0.', 'skip_excavator_artifact']
         }
-        $empire->skip_excavator_artifact($profile->{skip_excavator_artifact});
+        $empire->skip_excavator_artifact($args->{skip_excavator_artifact});
     }
-    if (exists $profile->{skip_excavator_destroyed}) {
-        if ($profile->{skip_excavator_destroyed} < 0 || $profile->{skip_excavator_destroyed} > 1) {
+    if (exists $args->{skip_excavator_destroyed}) {
+        if ($args->{skip_excavator_destroyed} < 0 || $args->{skip_excavator_destroyed} > 1) {
             confess [1009, 'Skip Excavator Destroyed must be a 1 or a 0.', 'skip_excavator_destroyed']
         }
-        $empire->skip_excavator_destroyed($profile->{skip_excavator_destroyed});
+        $empire->skip_excavator_destroyed($args->{skip_excavator_destroyed});
     }
-    if (exists $profile->{dont_replace_excavator}) {
-        if ($profile->{dont_replace_excavator} < 0 || $profile->{dont_replace_excavator} > 1) {
+    if (exists $args->{dont_replace_excavator}) {
+        if ($args->{dont_replace_excavator} < 0 || $args->{dont_replace_excavator} > 1) {
             confess [1009, 'Do not replace excavator must be a 1 or a 0.', 'dont_replace_excavator']
         }
-        $empire->dont_replace_excavator($profile->{dont_replace_excavator});
+        $empire->dont_replace_excavator($args->{dont_replace_excavator});
     }
-    if (exists $profile->{skip_spy_recovery}) {
-        if ($profile->{skip_spy_recovery} < 0 || $profile->{skip_spy_recovery} > 1) {
+    if (exists $args->{skip_spy_recovery}) {
+        if ($args->{skip_spy_recovery} < 0 || $args->{skip_spy_recovery} > 1) {
             confess [1009, 'Skip Spy Recovery must be a 1 or a 0.', 'skip_spy_recovery']
         }
-        $empire->skip_spy_recovery($profile->{skip_spy_recovery});
+        $empire->skip_spy_recovery($args->{skip_spy_recovery});
     }
-    if (exists $profile->{skip_probe_detected}) {
-        if ($profile->{skip_probe_detected} < 0 || $profile->{skip_probe_detected} > 1) {
+    if (exists $args->{skip_probe_detected}) {
+        if ($args->{skip_probe_detected} < 0 || $args->{skip_probe_detected} > 1) {
             confess [1009, 'Skip Probe Detected must be a 1 or a 0.', 'skip_probe_detected']
         }
-        $empire->skip_probe_detected($profile->{skip_probe_detected});
+        $empire->skip_probe_detected($args->{skip_probe_detected});
     }
-    if (exists $profile->{skip_attack_messages}) {
-        if ($profile->{skip_attack_messages} < 0 || $profile->{skip_attack_messages} > 1) {
+    if (exists $args->{skip_attack_messages}) {
+        if ($args->{skip_attack_messages} < 0 || $args->{skip_attack_messages} > 1) {
             confess [1009, 'Skip Attack Messages must be a 1 or a 0.', 'skip_attack_messages']
         }
-        $empire->skip_attack_messages($profile->{skip_attack_messages});
+        $empire->skip_attack_messages($args->{skip_attack_messages});
     }
-    if (exists $profile->{skip_incoming_ships}) {
-        if ($profile->{skip_incoming_ships} != 0 && $profile->{skip_incoming_ships} != 1) {
+    if (exists $args->{skip_incoming_ships}) {
+        if ($args->{skip_incoming_ships} != 0 && $args->{skip_incoming_ships} != 1) {
             confess [1009, 'Skip Incoming Ships must be a 1 or a 0.', 'skip_incoming_ships']
         }
-        $empire->skip_incoming_ships($profile->{skip_incoming_ships});
+        $empire->skip_incoming_ships($args->{skip_incoming_ships});
     }
 
-    if (exists $profile->{skype}) {
-        Lacuna::Verify->new(content=>\$profile->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
+    if (exists $args->{skype}) {
+        Lacuna::Verify->new(content=>\$args->{skype}, throws=>[1005,'Skype must be no longer than 100 characters, and cannot contain special characters or profanity.', 'skype'])
             ->length_lt(101)
             ->no_restricted_chars
             ->no_profanity;
-        $empire->skype($profile->{skype});
+        $empire->skype($args->{skype});
     }
-    if (exists $profile->{email} && $profile->{email} ne '') {
-        Lacuna::Verify->new(content=>\$profile->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
-            ->is_email if ($profile->{email});
-        if (Lacuna->db->resultset('Empire')->search({email=>$profile->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
+    if (exists $args->{email} && $args->{email} ne '') {
+        Lacuna::Verify->new(content=>\$args->{email}, throws=>[1005,'The email address specified does not look valid.', 'email'])
+            ->is_email if ($args->{email});
+        if (Lacuna->db->resultset('Empire')->search({email=>$args->{email}, id=>{ '!=' => $empire->id}})->count > 0) {
             confess [1005, 'That email address is already in use by another empire.', 'email'];
         }
-        $empire->email($profile->{email});
+        $empire->email($args->{email});
     }
     $empire->update;    
 
     # medals
-    if (exists $profile->{public_medals}) {
-        unless (ref $profile->{public_medals} eq  'ARRAY') {
+    if (exists $args->{public_medals}) {
+        unless (ref $args->{public_medals} eq  'ARRAY') {
             confess [1009, 'Medals list needs to be an array reference.', 'public_medals'];
         }    
         my $medals = $empire->medals;
         while (my $medal = $medals->next) {
-            if ($medal->id ~~ $profile->{public_medals}) {
+            if ($medal->id ~~ $args->{public_medals}) {
                 $medal->public(1);
                 $medal->update;
             }
@@ -729,11 +749,15 @@ sub edit_profile {
         }
     }
     
-    return $self->view_profile($empire);
+    return $self->get_profile($empire);
 }
 
 sub set_status_message {
-    my ($self, $session_id, $message) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+    my $message    = $args{message};
+
     Lacuna::Verify->new(content=>\$message, throws=>[1005,'Status message invalid.', 'status_message'])
         ->length_lt(101)
         ->not_empty
@@ -746,9 +770,13 @@ sub set_status_message {
     return $self->format_status($session);
 }
 
-sub view_public_profile {
-    my ($self, $session_id, $empire_id) = @_;
+sub get_public_profile {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+    my $empire_id  = $args{empire_id};
     my $session  = $self->get_session({session_id => $session_id});
+
     my $viewer_empire   = $session->current_empire;
     my $viewed_empire = Lacuna->db->resultset('Empire')->find($empire_id);
     unless (defined $viewed_empire) {
@@ -808,48 +836,13 @@ sub view_public_profile {
     return { profile => \%out, status => $self->format_status($session) };
 }
 
-sub boost_ore {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'ore_boost', $weeks);
-}
+sub set_boost {
+    my ($self, %args) = @_;
 
-sub boost_water {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'water_boost', $weeks);
-}
+    my $session_id = $args{session_id};
+    my $type       = $args{type};
+    my $weeks      = $args{weeks} || 1;
 
-sub boost_energy {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'energy_boost', $weeks);
-}
-
-sub boost_food {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'food_boost', $weeks);
-}
-
-sub boost_happiness {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'happiness_boost', $weeks);
-}
-
-sub boost_storage {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'storage_boost', $weeks);
-}
-
-sub boost_building {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'building_boost', $weeks);
-}
-
-sub boost_spy_training {
-    my ($self, $session_id, $weeks) = @_;
-    return $self->boost($session_id, 'spy_training_boost', $weeks);
-}
-
-sub boost {
-    my ($self, $session_id, $type, $weeks) = @_;
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     $weeks //= 1;
@@ -876,8 +869,11 @@ sub boost {
     };
 }
 
-sub view_boosts {
-    my ($self, $session_id) = @_;
+sub get_boosts {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     return {
@@ -896,7 +892,10 @@ sub view_boosts {
 }
 
 sub enable_self_destruct {
-    my ($self, $session_id) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     if ($empire->current_session->is_sitter) {
@@ -907,7 +906,10 @@ sub enable_self_destruct {
 }
 
 sub disable_self_destruct {
-    my ($self, $session_id) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     if ($empire->current_session->is_sitter) {
@@ -918,7 +920,11 @@ sub disable_self_destruct {
 }
 
 sub redeem_essentia_code {
-    my ($self, $session_id, $code) = @_;
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+    my $code       = $args{code};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $amount = $empire->redeem_essentia_code($code);
@@ -976,10 +982,10 @@ sub invite_friend {
 }
 
 sub vet_species {
-    my ($self, $me) = @_;
+    my ($self, $args) = @_;
     # make sure the name is valid
-    $me->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
-    Lacuna::Verify->new(content=>\$me->{name}, throws=>[1000,'Species name not available.', 'name'])
+    $args->{name} =~ s{^\s+(.*)\s+$}{$1}xms; # remove extra white space
+    Lacuna::Verify->new(content=>\$args->{name}, throws=>[1000,'Species name not available.', 'name'])
         ->length_lt(31)
         ->length_gt(2)
         ->not_empty
@@ -987,30 +993,30 @@ sub vet_species {
         ->no_profanity;
 
     # and the description        
-    Lacuna::Verify->new(content=>\$me->{description}, throws=>[1005,'Description invalid.', 'description'])
+    Lacuna::Verify->new(content=>\$args->{description}, throws=>[1005,'Description invalid.', 'description'])
         ->length_lt(1025)
         ->no_restricted_chars
         ->no_profanity;  
     
     # how about orbits
-    unless ($me->{min_orbit} >= 1 && $me->{min_orbit} <= 7 && $me->{min_orbit} <= $me->{max_orbit}) {
+    unless ($args->{min_orbit} >= 1 && $args->{min_orbit} <= 7 && $args->{min_orbit} <= $args->{max_orbit}) {
         confess [1009, 'Minimum orbit must be between 1 and 7 and less than or equal to maximum orbit.','min_orbit'];
     }
-    unless ($me->{max_orbit} >= 1 && $me->{max_orbit} <= 7 && $me->{max_orbit} >= $me->{min_orbit}) {
+    unless ($args->{max_orbit} >= 1 && $args->{max_orbit} <= 7 && $args->{max_orbit} >= $args->{min_orbit}) {
         confess [1009, 'Maximum orbit must be between 1 and 7 and greater than or equal to minimum orbit.','min_orbit'];
     }
  
     # deal with point allocation
-    my $points = $me->{max_orbit} - $me->{min_orbit} + 1;
+    my $points = $args->{max_orbit} - $args->{min_orbit} + 1;
     foreach my $attr (qw(manufacturing_affinity deception_affinity research_affinity management_affinity farming_affinity mining_affinity science_affinity environmental_affinity political_affinity trade_affinity growth_affinity)) {
-        $me->{$attr} += 0; # ensure it's a number
-        if ($me->{$attr} < 1) {
+        $args->{$attr} += 0; # ensure it's a number
+        if ($args->{$attr} < 1) {
             confess [1008, 'Too little to the '.$attr.' affinity.', $attr];
         }
-        elsif ($me->{$attr} > 7) {
+        elsif ($args->{$attr} > 7) {
             confess [1007, 'Too much to the '.$attr.' affinity.', $attr];
         }
-        $points += $me->{$attr};
+        $points += $args->{$attr};
     }
     if ($points > 45) {
         confess [1007, 'You spent too many points.'];
@@ -1020,8 +1026,11 @@ sub vet_species {
     }
 }
 
-sub redefine_species_limits {
-    my ($self, $session_id) = @_;
+sub get_redefine_species_limits {
+    my ($self, %args) = @_;
+    
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $out = $empire->determine_species_limits($empire);
@@ -1030,27 +1039,27 @@ sub redefine_species_limits {
 }
 
 sub redefine_species {
-    my ($self, $session_id, $me) = @_;
-    my $session  = $self->get_session({session_id => $session_id});
+    my ($self, %args) = @_;
+    my $session  = $self->get_session( {session_id => $args{session_id} });
     my $empire   = $session->current_empire;
 
     unless ($empire->essentia >= 100) {
         confess [1011, 'You need at least 100 essentia to redefine your species.'];
     }
 
-    $self->vet_species($me);
+    $self->vet_species(\%args);
 
     my $limits = $empire->determine_species_limits($empire);
     unless ($limits->{can}) {
         confess [1010, $limits->{reason}];
     }
-    if ($me->{min_orbit} > $limits->{min_orbit}) {
+    if ($args{min_orbit} > $limits->{min_orbit}) {
         confess [1009, 'Your minimum orbit is '.$limits->{min_orbit}.'.'];
     }
-    if ($me->{max_orbit} < $limits->{max_orbit}) {
+    if ($args{max_orbit} < $limits->{max_orbit}) {
         confess [1009, 'Your maximum orbit is '.$limits->{max_orbit}.'.'];
     }
-    if ($me->{growth_affinity} < $limits->{min_growth}) {
+    if ($args{growth_affinity} < $limits->{min_growth}) {
         confess [1009, 'Your minimum growth affinity is '.$limits->{min_growth}.'.'];
     }
     
@@ -1058,7 +1067,7 @@ sub redefine_species {
         amount  => 100, 
         reason  => 'redefine species',
     });
-    $empire->update_species($me);
+    $empire->update_species(%args);
     $empire->update;
     $empire->planets->update({needs_recalc=>1});
     
@@ -1099,8 +1108,10 @@ sub update_species {
     };
 }
 
-sub view_species_stats {
-    my ($self, $session_id) = @_;
+sub get_species_stats {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     return {
@@ -1234,27 +1245,24 @@ sub get_species_templates {
     ]
 }
 
-sub view_authorized_sitters
-{
-    my ($self, $session_id) = @_;
+sub get_authorized_sitters {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire();
 
-    my $rs = $baby->sitters()
-        ->search(
-                 { },
-                 {
-                     '+select' => [ 'me.expiry' ],
-                     '+as'     => [ 'expiry' ],
-                     order_by  => 'sitter.name',
-                 }
-                );
+    my $rs = $baby->sitters()->search({},{
+       '+select' => [ 'me.expiry' ],
+       '+as'     => [ 'expiry' ],
+       order_by  => 'sitter.name',
+    });
 
     my $parser = Lacuna->db->storage->datetime_parser;
 
     my @auths;
-    while (my $e = $rs->next)
-    {
+    while (my $e = $rs->next) {
         push @auths, {
             id     => $e->id,
             name   => $e->name,
@@ -1265,9 +1273,10 @@ sub view_authorized_sitters
     return { status => $self->format_status($session->empire), sitters => \@auths };
 }
 
-sub authorize_sitters
-{
-    my ($self, $session_id, $opts) = @_;
+sub authorize_sitters {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
     my $session  = $self->get_session({session_id => $session_id});
     $session->check_captcha;
 
@@ -1277,49 +1286,37 @@ sub authorize_sitters
     my $auths = Lacuna->db->resultset('SitterAuths');
 
     my @sitters;
-    if ($opts->{allied})
-    {
-        if ($baby->alliance_id)
-        {
+    if ($args{allied}) {
+        if ($baby->alliance_id) {
             push @sitters, $baby->alliance->members->get_column('id')->all;
         }
     }
-    if ($opts->{alliance})
-    {
-        my $alliance =
-            Lacuna->db->resultset('Alliance')->find({name => $opts->{alliance}});
-        if ($alliance)
-        {
+    if ($args{alliance}) {
+        my $alliance = Lacuna->db->resultset('Alliance')->find({name => $args{alliance}});
+        if ($alliance) {
             push @sitters, $alliance->members->all;
         }
     }
-    if ($opts->{alliance_id})
-    {
-        my $alliance =
-            Lacuna->db->resultset('Alliance')->find({id => $opts->{alliance_id}});
-        if ($alliance)
-        {
+    if ($args{alliance_id}) {
+        my $alliance = Lacuna->db->resultset('Alliance')->find({id => $args{alliance_id}});
+        if ($alliance) {
             push @sitters, $alliance->members->all;
         }
     }
-    if ($opts->{empires} and ref $opts->{empires} eq 'ARRAY')
-    {
-        push @sitters, @{$opts->{empires}};
+    if ($args{empires} and ref $args{empires} eq 'ARRAY') {
+        push @sitters, @{$args{empires}};
     }
-    if ($opts->{revalidate_all})
-    {
+    if ($args{revalidate_all}) {
         push @sitters, $rs->get_column('me.sitter_id')->all;
     }
     confess [1009, "No sitters selected"] unless @sitters;
 
     my @bad_ids;
-    for my $sitter (@sitters)
-    {
+    for my $sitter (@sitters) {
         my $sit = eval { ref $sitter && $sitter->isa('Lacuna::DB::Result::Empire') } ?
             $sitter :
             Lacuna->db->empire($sitter);
-        if ($sit)
-        {
+        if ($sit) {
             my $sitter_id = $sit->id;
             next if $sitter_id == $baby_id;
 
@@ -1328,42 +1325,46 @@ sub authorize_sitters
             $auth->reauthorise;
             $auth->update_or_insert;
         }
-        else
-        {
+        else {
             push @bad_ids, $sitter;
         }
     }
 
-    my $rc = $self->view_authorized_sitters($session);
+    my $rc = $self->get_authorized_sitters($session);
     $rc->{rejected_ids} = \@bad_ids;
     return $rc;
 }
 
-sub deauthorize_sitters
-{
-    my ($self, $session_id, $opts) = @_;
+sub deauthorize_sitters {
+    my ($self, %args) = @_;
+
+    my $session_id = $args{session_id};
+
     my $session  = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire;
 
     my $baby_id = $session->empire_id;
 
     confess [1009, "The 'empires' option must be an array of empire IDs"]
-        unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
-        none { /\D/ } @{$opts->{empires}};
+        unless $args{empires} and ref $args{empires} eq 'ARRAY' and
+        none { /\D/ } @{$args{empires}};
 
     my $dtf = Lacuna->db->storage->datetime_parser;
     my $now = $dtf->format_datetime(DateTime->now);
 
     # set expiry to immediate
     my $rs = Lacuna->db->resultset('SitterAuths');
-    $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
-        ->update({expiry => $now});
+    $rs->search({
+        baby_id     => $baby_id, 
+        sitter_id   => { in => $args{empires} }
+    })->update({
+        expiry      => $now
+    });
 
-    return $self->view_authorized_sitters($session);
+    return $self->get_authorized_sitters($session);
 }
 
-sub _rewrite_request_for_logging
-{
+sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
         $params->[1] = 'xxx';
@@ -1399,22 +1400,21 @@ __PACKAGE__->register_rpc_method_names(
     { name => 'change_password', options => { log_request_as => \&_rewrite_request_for_logging } },
     { name => 'edit_profile', options => { log_request_as => \&_rewrite_request_for_logging } },
     qw(
-    redefine_species redefine_species_limits
+    redefine_species get_redefine_species_limits
     get_invite_friend_url
-    get_species_templates update_species view_species_stats
+    get_species_templates update_species get_species_stats
     send_password_reset_message
     invite_friend
     redeem_essentia_code
     enable_self_destruct disable_self_destruct
     set_status_message
     find
-    view_profile view_public_profile
+    get_profile get_public_profile
     is_name_available
     logout
     get_full_status get_status
-    boost_building boost_storage boost_water boost_energy boost_ore
-    boost_food boost_happiness boost_spy_training view_boosts
-    view_authorized_sitters authorize_sitters deauthorize_sitters
+    boost get_boosts    
+    get_authorized_sitters authorize_sitters deauthorize_sitters
     ),
 );
 
