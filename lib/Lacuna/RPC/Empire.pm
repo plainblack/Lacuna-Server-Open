@@ -29,7 +29,7 @@ sub is_name_available {
 
     $self->is_name_valid($args{name});
     $self->is_name_unique($args{name});
-    return { available => 1 }; 
+    return { is_name_available => 1 }; 
 }
 
 # Find empires based on their name
@@ -75,7 +75,7 @@ sub is_name_valid {
         ->no_restricted_chars
         ->no_match(qr/^#/)
         ->no_profanity;
-    return 1; 
+    return { is_name_valid => 1 };
 }
 
 # Is it unique
@@ -86,7 +86,7 @@ sub is_name_unique {
     if (Lacuna->db->resultset('Empire')->search({name=>$name})->count) {
         confess [1000, 'Empire name is in use by another player.', 'name'];
     }
-    return 1;
+    return { is_name_unique => 1 };
 }
 
 sub logout {
