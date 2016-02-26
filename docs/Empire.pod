@@ -1,31 +1,78 @@
 
 =head1 Founding an empire.
 
-When founding an empire the order of operations is first to C<fetch_captcha>. Then C<create> the empire. Then optionally C<update_species> (default is human). Then finally call the C<found> method to set up the empire on it's new home planet.
-
+Founding an empire is done in one step using the C<create> method.
 
 =head1 Empire Methods
 
 The following methods are available from C</empire>.
 
 
+=head2 is_name_available
 
-
-=head2 is_name_available ( name ) 
-
-Returns a 1 if the name is available, or a throws an exception if it is not.
-
-Throws 1000.
+  {
+    "name"      : "My Empire"
+  }
 
 =head3 name
 
-The name of the empire to search for.
+The name of the empire to check.
+
+=head3 RESPONSE
+
+Throws 1000 (Name not available)
+
+If the name is valid and available it returns
+
+  {
+    "available"    : 1
+  }
+
+
+=head2 login
+
+Accepts a hash of named arguments.
+
+  {
+    "name"      : "my_empire",
+    "password"  : "highly_secret",
+    "api_key"   : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+  }
+
+=head3 name (required)
+
+Either the name of your empire, or the numeric ID of your empire.
+
+=head3 password (required)
+
+The password can either be your main password, or your sitter password. (don't share
+your main password with anyone)
+
+=head3 api_key (required)
+
+Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
+
+=head3 RETURNS
+
+If your credentials are correct, it returns the following.
+
+ {
+    "session_id"    : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+    "status"        : { ... }
+ }
+
+B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. 
+Therefore, you need not login again if you still have a valid session.
+
+Throws 1004 and 1005.
 
 
 
-=head2 logout ( session_id )
+=head2 logout
 
-Ends a session. Returns 1.
+  {
+    "session_id"    : "242d-967f-4fb7-8056-898638f44f7b"
+  }
 
 Throws 1006.
 
@@ -33,147 +80,286 @@ Throws 1006.
 
 A session id.
 
+=head3 RETURNS
+
+  {
+    "logout"    : "1"
+  }
 
 
-=head2 login ( name, password, api_key )
 
-Returns a hash like the following after confirming the password matches the empire.
+=head2 fetch_captcha
 
-B<NOTE:> Once established, this session will stick around for up to 2 hours of inactivity. Therefore, you need not login again if you still have a valid session.
+Captchas are required for a number of purposes, including the call to the C<create>
+method. Display the resulting captcha in your form and then call C<create> with 
+the user's response.
 
- {
-    "session_id" : "id-goes-here",
-    "status" : { ... }
- }
+=head3 RETURNS
 
-Throws 1004 and 1005.
-
-=head3 name
-
-The name of the empire.
-
-=head3 password
-
-The password to authenticate to the empire.
-
-=head3 api_key
-
-Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
-
-
-=head2 fetch_captcha ( )
-
-Retrieves a captcha that is required in order to call the C<create> method. Display the resulting captcha in your creation form and then call C<create> with the user's response.
-
- {
+  {
     "guid" : "id-goes-here",
     "url" : "'https://extras.lacunaexpanse.com.s3.amazonaws.com/captcha/id/id-goes-here.png" 
- }
+  }
 
 
-=head2 create ( params ) 
+
+=head2 create 
 
 Creates a new empire and then returns an empire_id.
  
-This is not the end of the story though. Now you must either create a C<update_species> for this empire and then C<found> it, or just skip the species part and C<found> the empire.
+This is not the end of the story though. Then you must either create a 
+C<update_species> for this empire and then C<found> it, or just skip the 
+species part and C<found> the empire.
 
 Throws 1000, 1001, 1002, and 1014.
 
-B<NOTE:> If either C<captcha_guid> or C<captcha_solution> don't match what the server is expecting it will throw a 1014 error, and the data portion of the error message will contain new captcha information. You must use this. A captcha cannot be used more than once.
+B<NOTE:> If either C<captcha_guid> or C<captcha_solution> don't match what 
+the server is expecting it will throw a 1014 error, and the data portion 
+of the error message will contain new captcha information. You must use 
+this. A captcha cannot be used more than once.
 
-=head3 params
+Accepts a hash of named arguments
 
-A hash of parameters.
+  {
+    "name"              : "My Empire",
+    "password"          : "Top S3crut",
+    "password1"         : "Top S3crut",
+    "captcha_guid"      : "e54caa40-730c-46d2-b002-244e27b055c6",
+    "captcha_solution"  : "-5",
+    "email"             : "me@mydomain.com",
+    "facebook_uid"      : "",
+    "facebook_token"    : "",
+    "invite_code"       : "aca948e0-1468-3a51-9f2e-c688a484efd7"
+  }
 
-=head4 name
+=head3 name
 
 The name of the empire to create. Required.
 
-=head4 password
+=head3 password
 
-The password to log in to the empire. Must be between 6 and 30 characters. Required unless you have a valid C<facebook_uid> and C<facebook_token>. Still recommended even if you are authenticating using Facebook.
+The password to log in to the empire. Must be between 6 and 30 characters. 
+Required unless you have a valid C<facebook_uid> and C<facebook_token>. 
+Still recommended even if you are authenticating using Facebook.
 
-=head4 password1
+=head3 password1
 
 Retyping the password again. This must match C<password> to succeed.
 
-=head4 captcha_guid
+=head3 captcha_guid
 
-This must match the C<guid> field returned by the C<fetch_captcha> method. Required.
+This must match the C<guid> field returned by the C<fetch_captcha> method. 
+Required.
 
-=head4 captcha_solution
+=head3 captcha_solution
 
-This is the text typed in by the user as the solution of the captcha. Required.
+This is the text typed in by the user as the solution of the captcha. 
+Required.
 
-=head4 email
+=head3 email
 
-The user's email address. It is not required, but is used for system vital functions like password recovery.
+The user's email address. It is not required, but is used for system vital 
+functions like password recovery.
 
-=head4 facebook_uid
+=head3 facebook_uid
 
-A Facebook user id passed in through Lacuna's Facebook integration system. Optional, but required with the use of C<facebook_token>.
+A Facebook user id passed in through Lacuna's Facebook integration system. 
+Optional, but required with the use of C<facebook_token>.
 
-=head4 facebook_token
+=head3 facebook_token
 
-A Facebook access token passed in through Lacuna's Facebook integration system. Optional, but required with the use of C<facebook_uid>.
-
-=head4 invite_code
-
-A 36 character code that was sent to the user by a friend. It is usable only once, and will ensure that their friend gets a home planet that is in relatively close proximity to their home planet. 
-
-
-
-
-=head2 found ( empire_id, api_key, [ invite_code ] )
-
-Set up an empire on it's new home world. Once this method is called, the species can no longer be modified. Returns:
-
- {
-    "session_id" : "id-goes-here",
-    "welcome_message_id" : "id-goes-here",
-    "status" : { ... }
- }
-
-The C<welcome_message_id> is a message id for a message in the inbox, that starts the tutorial. This is provided so the user can be prompted to read that message right away.
-
-=head3 empire_id
-
-The empire to found.
-
-=head3 api_key
-
-Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
+A Facebook access token passed in through Lacuna's Facebook integration 
+system. Optional, but required with the use of C<facebook_uid>.
 
 =head3 invite_code
 
-Use of the invite code here is deprecated. Please pass in the invite_code in C<create> instead.
+A 36 character code that was sent to the user by a friend. It is usable once
+only and will ensure that the friend gets a home planet that is relatively
+close to their home planet.
+
+=head3 RETURNS
+
+  {
+    empire_id => 123
+  }
+
+
+=head2 found
+
+Set up an empire on it's new home world. Once founded the species can no longer be
+modified.
+
+  {
+    "empire_id" : "123",
+    "api_key"   : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+  }
+
+=head3 empire_id (required)
+
+The empire ID returned from the C<create> call.
+
+=head3 api_key (required)
+
+The client's unique API key, identifying it from all other clients. See 
+L<ApiKeys> for details.
+
+=head3 RETURNS
+
+  {
+    "session_id"            : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+    "welcome_message_id"    : "1234",
+    "status"                : { ... }
+  }
+
+The C<welcome_message_id> is a message ID for a message in the inbox that starts
+the tutorial. This is provided so that the user can be prompted to read the
+message right away.
+
+
+=head2 update_species
+
+Update the empire's species, Can only be called after C<create> and before 
+C<found>. Before or after that will throw an exception. If you have already
+founded your empire then use C<redefine_species>. See also 
+C<get_species_templates>
+
+  {
+    "name"                      : "Average",
+    "description"               : "A race of average intellect, and weak constitution.',
+    "min_orbit"                 : 3,
+    "max_orbit"                 : 3,
+    "manufacturing_affinity"    : 4,
+    "deception_affinity"        : 4,
+    "research_affinity"         : 4,
+    "management_affinity"       : 4,
+    "farming_affinity"          : 4,
+    "mining_affinity"           : 4,
+    "science_affinity"          : 4,
+    "environmental_affinity"    : 4,
+    "political_affinity"        : 4,
+    "trade_affinity"            : 4,
+    "growth_affinity"           : 4
+  }
+
+=head3 name (required)
+
+The name of the species. Limited to 30 characters, cannot be blank, and cannot contain @, &, <, >, or ;. Required. 
+
+=head3 description (required)
+
+The species description. Limited to 1024 characters and cannot contain < or >.
+
+=head3 min_orbit (required)
+
+An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<species_min_orbit> and C<species_max_orbit>, inclusive, count as a point toward the max of 45. C<species_min_orbit> must be less than or equal to C<species_max_orbit>.
+
+=head3 max_orbit (required)
+
+An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<min_orbit> and C<max_orbit>, inclusive, count as a point toward the max of 45. C<max_orbit> must be greater than or equal to C<min_orbit>.
+
+=head3 manufacturing_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages manufactured goods, such as ships.
+
+=head3 deception_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in spying.
+
+=head3 research_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading buildings.
+
+=head3 management_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in the speed of building.
+
+=head3 farming_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in food production.
+
+=head3 mining_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in mineral production.
+
+=head3 science_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in energy, propultion, and other technologies.
+
+=head3 environmental_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in waste and water management.
+
+=head3 political_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in managing population happiness.
+
+=head3 trade_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in freight handling.
+
+=head3 growth_affinity (required)
+
+An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
+
+=head3 RESPONSE
+
+  {
+    "update_species" : 1
+  }
 
 
 
-=head2 get_invite_friend_url ( session_id )
+=head2 get_invite_friend_url
 
-Returns a URL that can be pasted into a blog, forum, or whatever to invite friends.
-
- {
-    "status" : { ... },
-    "referral_url" : "http://servername.lacunaexpanse.com/#referral=XXXX"
- }
+  {
+    "session_id"    : "9eea6721-3326-4c1f-817d-a4e82b54818e"
+  }
 
 =head3 session_id
 
 A session id.
 
+=head3 RESPONSE
+
+Returns a URL that can be pasted into a blog, forum, or whatever to invite friends.
+
+  {
+    "status"        : { ... },
+    "referral_url"  : "http://servername.lacunaexpanse.com/#referral=XXXX"
+  }
 
 
 
-=head2 invite_friend ( session_id, email, [ custom_message ] )
+=head2 invite_friend
 
-Send an invitation code to a friend so that they can start in the same zone as your empire.
+  {
+    "session_id"        : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+    "email"             : "friend1@example.com,friend2@somewhere.com",
+    "custom_message"    : "Hi, come join me on this great game I found!"
+  }
 
- {
+=head3 session_id (required)
+
+A session id.
+
+=head3 email (required)
+
+The email address of your friend, or a comma separated string of email addresses.
+
+=head3 custom_message (optional)
+
+An optional text message that the user can type to invite their friend. This is the default message that will get sent if none is specified:
+
+ I'm having a great time with this new game called Lacuna Expanse. Come play with me.
+
+After the message, the user's empire name in the game, the friend code, and URI to the server will be attached.
+
+=head3 RESPONSE
+
+  {
     "status" : { ... },
     "sent" : [
-      "you@there.com",
+      "you@example.com",
       ...
     ],
     "not_sent" : [
@@ -183,317 +369,299 @@ Send an invitation code to a friend so that they can start in the same zone as y
         },
        ...
     ]
- }
-
-=head3 session_id
-
-A session id.
-
-=head3 email
-
-The email address of your friend, or a comma separated string of email addresses.
-
-=head3 custom_message
-
-An optional text message that the user can type to invite their friend. This is the default message that will get sent if none is specified:
-
- I'm having a great time with this new game called Lacuna Expanse. Come play with me.
- 
-After the message, the user's empire name in the game, the friend code, and URI to the server will be attached.
+  }
 
 
+=head2 get_status
 
-=head2 get_status ( session_id )
+  {
+    "session_id"        : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+  }
 
 Returns information about the current state of the empire.
 
 B<NOTE:> You should probably B<never> call this method directly, as it is a wasted call since the data it returns comes back in the status block of every relevant request. See L<Intro/"Status"> for details.
 
+=head3 session_id (required)
 
- {
+A session id.
+
+=head3 RESPONSE
+
+  {
     "server" : { ... },
     "empire" : {
-        "id" : "xxxx",
-        "bodies" : {
-            "colonies" : [
-                # bodies are provided sorted by name already.
-                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "your name", "empire_id": 12345 },
-                ...
+      "id" : "xxxx",
+      "bodies" : {
+        "colonies" : [
+          # bodies are provided sorted by name already.
+          { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "your name", "empire_id": 12345 },
+          ...
+        ],
+        "mystations" : [
+          { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "your name", "empire_id": 12345 },
+          ...
+        ],
+        "ourstations" : [
+          { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name", "empire_id": 12346 },
+          ...
+        ],
+        "babies" : {
+          "baby name" : {
+            "alliance_id" : 3, # key doesn't exist if not in alliance
+            "id" : 12355, # empire ID
+            "has_new_messages" : 30,
+            "bodies" : [
+              { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name", "empire_id": 12346 },
+              ...
             ],
-            "mystations" : [
-                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "your name", "empire_id": 12345 },
-                ...
-            ],
-            "ourstations" : [
-                { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name", "empire_id": 12346 },
-                ...
-            ],
-            "babies" : {
-                "baby name" : {
-                    "alliance_id" : 3, # key doesn't exist if not in alliance
-                    "id" : 12355, # empire ID
-                    "has_new_messages" : 30,
-                    "bodies" : [
-                        { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name", "empire_id": 12346 },
-                        ...
-                    ],
-                },
-                "another baby name" : {
-                    "has_new_messages" : 30,
-                    "id" : 12884,
-                    "bodies" : [
-                        { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name too", "empire_id": 12347 },
-                        ...
-                    ],
-                }
-            }
         },
-        "colonies" : {
-            "id-goes-here" : "Earth",
-            "id-goes-here" : "Mars"
-        },
-        "rpc_count" : 321, # the number of calls made to the server
-        "insurrect_value" : 100000,
-        "is_isolationist" : 1, # hasn't sent out probes or colony ships
-        "name" : "The Syndicate",
-        "status_message" : "A spy's work is never done.",
-        "home_planet_id" : "id-goes-here",
-        "has_new_messages" : 4,
-        "latest_message_id" : 1234,
-        "essentia" : 0,
-        "next_colony_cost" : 100000,
-        "next_station_cost" : 1000000,
-        "planets" : {
-            "id-goes-here" : "Earth",
-            "id-goes-here" : "Mars",
-            "id-goes-here" : "Death Star"
-        },
-        "tech_level"           : 20,  # Highests level university has gotten to.
-        "self_destruct_active" : 0,
-        "self_destruct_date" : "",
-        "stations" : {
-            "id-goes-here" : "Death Star"
-        },
-        "primary_embassy_id" : 234567
-    }
+        "another baby name" : {
+          "has_new_messages" : 30,
+          "id" : 12884,
+          "bodies" : [
+            { "id" : "xxxx", "name" : "...", "x": "#", "y": "#", "orbit": #, "empire_name": "their name too", "empire_id": 12347 },
+            ...
+          ],
+        }
+      }
+    },
+    "colonies" : {
+      "id-goes-here" : "Earth",
+      "id-goes-here" : "Mars"
+    },
+    "rpc_count" : 321, # the number of calls made to the server
+    "insurrect_value" : 100000,
+    "is_isolationist" : 1, # hasn't sent out probes or colony ships
+    "name" : "The Syndicate",
+    "status_message" : "A spy's work is never done.",
+    "home_planet_id" : "id-goes-here",
+    "has_new_messages" : 4,
+    "latest_message_id" : 1234,
+    "essentia" : 0,
+    "next_colony_cost" : 100000,
+    "next_station_cost" : 1000000,
+    "planets" : {
+      "id-goes-here" : "Earth",
+      "id-goes-here" : "Mars",
+      "id-goes-here" : "Death Star"
+    },
+    "tech_level"           : 20,  # Highests level university has gotten to.
+    "self_destruct_active" : 0,
+    "self_destruct_date" : "",
+    "stations" : {
+      "id-goes-here" : "Death Star"
+    },
+    "primary_embassy_id" : 234567
+  }
  }
 
 Throws 1002.
 
-=head3 session_id
+
+
+=head2 get_own_profile
+
+  {
+    "session_id"        : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+  }
+
+View your own profile, which includes some things not shown on the C<get_public_profile> method.
+
+=head3 session_id (required)
 
 A session id.
 
+=head3 RESPONSE
 
-
-
-=head2 view_profile ( session_id )
-
-Provides a list of the editable properties of the current empire's profile. See also the C<edit_profile> and C<view_public_profile> methods.
-
- {
-    "profile" : {
-       "description" : "description goes here",
-       "status_message" : "status message goes here",
-       "medals" : {
-           "id-goes-here" : {
-               "name" : "Built Level 1 Building",
-               "image" : "building1",
-               "date" : "01 31 2010 13:09:05 +0600",
-               "public" : 1,
-               "times_earned" : 4
-           },
-           ...
-       },
-       "city" : "Madison",
-       "country" : "USA",
-       "notes" : "notes go here",
-       "skype" : "joeuser47",
-       "player_name" : "Joe User",
-       "skip_happiness_warnings" : 0,
-       "skip_resource_warnings" : 0,
-       "skip_pollution_warnings" : 0,
-       "skip_medal_messages" : 0,
-       "skip_facebook_wall_posts" : 0,
-       "skip_found_nothing
-       "skip_excavator_resources" : 0,
-       "skip_excavator_glyph" : 0,
-       "skip_excavator_plan" : 0,
-       "skip_spy_recovery" : 0,
-       "skip_probe_detected" : 0,
-       "skip_attack_messages" : 0,
-       "skip_incoming_ships" : 0,
-       "email" : "joe@example.com",
-       "sitter_password" : "abcdefgh"                   # never give out your real password, use the sitter password
+  {
+    "private_profile" : {
+      "id"               : 1234,
+      "name"             : "My Empire",
+      "description"      : "description goes here",
+      "status_message"   : "status message goes here",
+      "medals" : [
+        {
+          "id"           : 1234,
+          "name"         : "Built Level 1 Building",
+          "image"        : "building1",
+          "date"         : "2013 01 31 12:34:45 +0600",
+          "public" : 1,
+          "times_earned" : 4
+        },
+            ...
+      },
+      "city"             : "Madison",
+      "country"          : "USA",
+      "notes"            : "notes go here",
+      "skype"            : "joeuser47",
+      "player_name"      : "Joe User",
+      "skip_happiness_warnings"  : 0,
+      "skip_resource_warnings"   : 0,
+      "skip_pollution_warnings"  : 0,
+      "skip_medal_messages"      : 0,
+      "skip_facebook_wall_posts" : 0,
+      "skip_found_nothing"       : 0,
+      "skip_excavator_resources" : 0,
+      "skip_excavator_glyph"     : 0,
+      "skip_excavator_plan"      : 0,
+      "skip_spy_recovery"        : 0,
+      "skip_probe_detected"      : 0,
+      "skip_attack_messages"     : 0,
+      "email"            : "joe@example.com",
+      "sitter_password"  : "abcdefgh"                   # never give out your real password, use the sitter password
     },
     "status" : { ... }
+  }
+
+
+
+=head2 edit_profile
+
+ {
+   "session_id"        : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "description"       : "mostly harmless",
+   "email"             : "me@example.com",
+   "sitter_password"   : "topSecret",
+   "status_message"    : "On Tour",
+   "city"              : "London",
+   "country"           : "England",
+   "notes"             : "this is a reminder",
+   "skype"             : "",
+   "player_name"       : "Joe Bloggs",
+   "public_medals"     : [
+      233,
+      455,
+      ...
+   ],
+   "skip_happiness_warnings"  : 0,
+   "skip_resource_warnings"   : 0,
+   "skip_pollution_warnings"  : 0,
+   "skip_medal_messages"      : 0,
+   "skip_facebook_wall_posts" : 0,
+   "skip_found_nothing"       : 0,
+   "skip_excavator_resources" : 0,
+   "skip_excavator_glyph"     : 0,
+   "skip_excavator_plan"      : 0,
+   "skip_spy_recovery"        : 0,
+   "skip_probe_detected"      : 0,
+   "skip_attack_messages"     : 0,
  }
 
-=head3 session_id
+This will set one or more of your profile settings. For optional settings if you don't specify them
+then the value will remain unchanged.
+
+=head3 session_id (required)
 
 A session id.
 
-
-
-
-=head2 edit_profile ( session_id, profile )
-
-Edits properties of an empire. Returns the C<view_profile> method. See also the C<view_profile> and C<view_public_profile> methods.
-
-Throws 1005, 1009.
-
-=head3 session_id
-
-A session id.
-
-=head3 profile
-
-A hash reference of properties to be edited. You may set one or all of the profile properties in this hash reference. Only those set will be updated.
-
-=head4 description
+=head3 description (optional)
 
 A description of the empire. Limited to 1024 characters and cannot contain < or >.
 
-=head4 email
+=head3 email (optional)
 
 An email address that can be used for system functions like password recovery. Must either resemble an email address or be empty.
 
-=head4 sitter_password
+=head3 sitter_password (optional)
 
 A password that can be safely given to account sitters and alliance members. Must be between 6 and 30 characters.
 
-=head4 status_message
+=head3 status_message (optional)
 
 A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
 
-=head4 city
+=head3 city (optional
 
 An optional text string of the city in which the player resides. Limited to 100 characters and cannot contain @, &, <, >, or ;
 
-=head4 country
+=head3 country (optional
 
 An optional text string of the country in which the player resides. Limited to 100 characters and cannot contain @, &, <, >, or ;
 
-=head4 notes
+=head3 notes (optional
 
 A text blob where the user can write down whatever they want to store in their account.  Limited to 1024 characters and cannot contain @, &, <, >, or ;
 
-=head4 skype
+=head3 skype (optional
 
 An optional text string of the username this player uses on skype. Limited to 100 characters and cannot contain @, &, <, >, or ;
 
-=head4 player_name
+=head3 player_name (optional
 
 An optional text string of the real name or online identity of this player. Limited to 100 characters and cannot contain @, &, <, >, or ;
 
-=head4 public_medals
+=head3 public_medals (optional
 
 An array reference of medal ids that the user wishes to display in the public profile.
 
-=head4 skip_happiness_warnings
+=head3 skip_happiness_warnings (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages about unhappy citizens.
 
 B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
 
-=head4 skip_resource_warnings
+=head3 skip_resource_warnings (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages about a lack of resources to keep their buildings running.
 
 B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
 
-=head4 skip_pollution_warnings
+=head3 skip_pollution_warnings (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages about excess waste causing pollution.
 
 B<WARNING>: These messages are there for your own protection. Turn off at your own risk.
 
-=head4 skip_medal_messages
+=head3 skip_medal_messages (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages about the medals they've earned.
 
-=head4 skip_facebook_wall_posts
+=head3 skip_facebook_wall_posts (optional
 
 Defaults to 0. Set to 1 if the user no longer wants messages to be posted to their Facebook wall.
 
-=head4 skip_found_nothing
+=head3 skip_found_nothing (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find nothing.
 
-=head4 skip_excavator_resources
+=head3 skip_excavator_resources  (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find resources.
 
-=head4 skip_excavator_glyph
+=head3 skip_excavator_glyph  (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find glyphs.
 
-=head4 skip_excavator_plan
+=head3 skip_excavator_plan  (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive messages when excavators find plans.
 
-=head4 skip_spy_recovery
+=head3 skip_spy_recovery  (optional
 
 Defaults to 0. Set to 1 if the user no longer wants to receive spy recovery messages. ("I'm ready to work. What do you need from me?")
 
-=head4 skip_probe_detected
+=head3 skip_probe_detected (optional
 
 Defaults to 0. Set to 1 if the user no longers wants to receive messages when a probe is detected.
 
-=head4 skip_attack_messages
+=head3 skip_attack_messages (optional
 
 Defaults to 0. Set to 1 if the user no longers wants to receive messages about attacks.
 
-=head4 skip_incoming_ships
+=head3 RESPONSE
 
-Controls the display of incoming ships (Own, Allied, Foreign) on your map display. Defaults to 0 (shows ships). Set to 1 if you want to hide incoming ships (can improve response of browser).
+Edits properties of an empire. Returns the C<get_own_profile> method. See also the C<get_own_profile> and C<get_public_profile> methods.
 
-=head2 view_public_profile (session_id, empire_id)
+Throws 1005, 1009.
 
-Provides a list of the data that's publicly known about this empire.
+
+=head2 get_public_profile
 
  {
-    "profile" : {
-        "id" : "empire-id-goes-here",
-        "name" : "Lacuna Expanse Corp",
-        "colony_count" : 1,
-        "status_message" : "Looking for Essentia."
-        "description" : "We are the original inhabitants of the Lacuna Expanse.",
-        "city" : "Madison",
-        "country" : "USA",
-        "skype" : "joeuser47",
-        "player_name" : "Joe User",
-        "medals" : {
-            "id-goes-here" : {
-                "name" : "Built Level 1 Building",
-                "image" : "building1",
-                "date" : "01 31 2010 13:09:05 +0600",
-               "times_earned" : 4
-            },
-            ...
-        },
-        "last_login" : "01 31 2010 13:09:05 +0600",
-        "date_founded" : "01 31 2010 13:09:05 +0600",
-        "species" : "Lacunan",
-        "alliance" : {
-            "id" : "id-goes-here",
-            "name" : "The Confederacy"
-        },
-        "known_colonies" : [
-            {
-                "id" : "id-goes-here",
-                "x" : "1",
-                "y" : "-543",
-                "name" : "Earth",
-                "image" : "p12-3"
-            },
-            ...
-        ]
-    },
-    "status" : { ... }
+   "session_id"     : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "empire_id"      : 345
  }
- 
-Throws 1002.
 
 =head3 session_id
 
@@ -503,34 +671,111 @@ A session id.
 
 The id of the empire for which you'd like to retrieve the public profile.
 
+=head3 RESPONSE
+
+ {
+   "public_profile" : {
+     "id"               : 1,
+     "name"             : "Lacuna Expanse Corp",
+     "description"      : "We are the original inhabitants of the Lacuna Expanse.",
+     "status_message"   : "Looking for Essentia.",
+     "colony_count"     : 1,
+     "medals" : [
+       {
+         "id"           : 1234,
+         "name"         : "Built Level 1 Building",
+         "image"        : "building1",
+         "date"         : "2013 01 31 12:34:45 +0600",
+         "public" : 1,
+         "times_earned" : 4
+       },
+           ...
+     },
+     "city"             : "Madison",
+     "country"          : "USA",
+     "skype"            : "joeuser47",
+     "player_name"      : "Joe User",
+     "last_login"       : "2013 01 31 12:34:45 +0600",
+     "date_founded"     : "2013 01 31 12:34:45 +0600",
+     "species"          : "Lacunan",
+     "alliance" : {
+       "id"             : "2",
+       "name"           : "The Confederacy"
+     },
+     "known_colonies" : [
+       {
+         "id"           : "3434",
+         "x"            : "1",
+         "y"            : "-543",
+         "name"         : "Earth",
+         "image"        : "p12-3"
+       },
+       ...
+     ]
+   },
+   "status" : { ... }
+ }
+
+Throws 1002.
 
 
-=head2 send_password_reset_message ( params )
 
-Starts a password recovery process by sending an email with a recovery key.
+=head2 send_password_reset_message
 
-=head3 params
+ {
+   "empire_id"      : 213,
+   "empire_name"    : "My Empire",
+   "email"          : "me@example.com"
+ }
 
-A hash of options to recover a password. Choose one.
+Parameters are all optional, select one of the three.
 
-=head4 empire_id
+=head3 empire_id (optional)
 
 The unique id of the empire to recover.
 
-=head4 empire_name
+=head3 empire_name (optional)
 
 The full name of the empire.
 
-=head4 email
+=head3 email (optional)
 
 The email address associated with an empire.
 
+=head3 RESPONSE
+
+Starts a password recovery process by sending an email with a recovery key.
 
 
 
-=head2 reset_password ( reset_key, password1, password2, api_key ) 
+=head2 reset_password
+
+ {
+   "reset_key"  : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "password1"  : "topSecret",
+   "password2"  : "topSecret",
+   "api_key"    : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+ }
 
 Change the empire password that has been forgotten.
+ 
+=head3 reset_key (required)
+
+A key that was emailed to the user via the C<send_password_reset_message> method.
+
+=head3 password1 (required)
+
+The password to log in to the empire. Required. Must be between 6 and 30 characters.
+
+=head3 password2 (required)
+
+Retyping the password again. This must match C<password1> to succeed.
+
+=head3 api_key (required)
+
+Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
+
+=head3 RESPONSE
 
  {
    "session_id" : "id-goes-here",
@@ -538,392 +783,292 @@ Change the empire password that has been forgotten.
  }
 
 
-=head3 reset_key
 
-A key that was emailed to the user via the C<send_password_reset_message> method.
-
-=head3 password1
-
-The password to log in to the empire. Required. Must be between 6 and 30 characters.
-
-=head3 password2
-
-Retyping the password again. This must match C<password1> to succeed.
-
-=head3 api_key
-
-Your client's unique API key, identifiying it from all other clients. See L<ApiKeys> for details.
-
-
-
-
-
-
-
-=head2 change_password ( session_id, password1, password2 ) 
-
-Change the empire password.
-
-=head3 session_id
-
-A session id.
-
-=head3 password1
-
-The password to log in to the empire. Required. Must be between 6 and 30 characters.
-
-=head3 password2
-
-Retyping the password again. This must match C<password1> to succeed.
-
-
-
-
-=head2 find ( session_id, name )
-
-Find an empire by name. Returns a hash reference containing empire ids and empire names. So if you searched for "Lacuna" you might get back a result set that looks like this:
+=head2 change_password
 
  {
-    "empires" : [
-        {
-            "id" : "id-goes-here",
-            "name" : "Lacuna Expanse Corp"
-        },
-        {    
-            "id" : "id-goes-here2",
-            "name" : "Lacuna Pirates"
-        }
-    ],
-    "status" : { ... }
+   "session_id"         : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "password1"          : "topSecret",
+   "password2"          : "topSecret",
+ }
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 password1 (required)
+
+The password to log in to the empire. Required. Must be between 6 and 30 characters.
+
+=head3 password2 (required)
+
+Retyping the password again. This must match C<password1> to succeed.
+
+=head3 RESPONSE
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "status" : { ... }
+ }
+
+
+=head2 find
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "name"       : "Lacuna"
+ }
+
+Search for all empires that start with C<name>
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 name (required)
+
+The name you are searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
+
+=head3 RESPONSE
+
+Returns a hash reference containing empire ids and empire names. So if you searched for "Lacuna" you might get back a result set that looks like this:
+
+ {
+   "empires" : [
+     {
+       "id" : "1",
+       "name" : "Lacuna Expanse Corp"
+     },
+     {    
+       "id" : "365",
+       "name" : "Lacuna Pirates"
+     }
+   ],
+   "status" : { ... }
  }
  
-=head3 session_id
+
+=head2 set_status_message
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "message"    : "Searching for glyphs."
+ }
+
+=head3 session_id (required)
 
 A session id.
 
-=head3 name
-
-The name your searching for. It's case insensitive, and partial names work fine. Must be at least 3 characters.
-
-
-
-=head2 set_status_message ( session_id, message )
-
-Sets the empire status message. Similar to what you might put on your Facebook wall, or in a tweet, but about your empire.
-
-=head3 session_id
-
-A session id.
-
-=head3 message
+=head3 message (required)
 
 A message to indicate what you're doing, how you're feeling, or other status indicator. Limited to 100 characters, cannot be blank, and cannot contain @, &, <, >, or ;.
 
 
+=head2 set_boost
 
-=head2 view_boosts ( session_id )
+Spend 5 essentia, and increase one type of boost on all planets for 7 days.
+If a boost is already underway, calling it again will 7 more days.
 
-Shows the dates at which boosts have expired or will expire. Boosts are subsidies applied to various resources using essentia.
+  {
+    "type"        : "food",
+    "weeks"       : 1,
+  }
+
+=head3 type (required)
+
+The type of boost, this is one of the following
+
+=over
+
+=item C<ore>
+
+=item C<water>
+
+=item C<energy>
+
+=item C<food>
+
+=item C<happiness>
+
+=item C<storage>
+
+=item C<building>
+
+=item C<ship_build>
+
+=item C<ship_speed>
+
+=item C<spy_training>
+
+=back
+
+=head2 weeks (optional)
+
+If specified, the number of weeks of boost to apply.
+
+If not specified it defaults to 1
+
+
+=head2 RESPONSE
+
+  {
+    "food_boost" : "01 31 2010 13:09:05 +0600",
+    "status"     : { ... }
+  }
+
+Throws 1011.
+
+
+
+=head2 get_boosts
 
  {
-    "status" : { ... },
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+ }
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 RESPONSE
+
+Shows the dates at which boosts have expired or will expire. 
+Boosts are subsidies applied to various resources using essentia.
+
+ {
     "boosts" : {
-        "food" : "01 31 2010 13:09:05 +0600",
-        "ore" : "01 31 2010 13:09:05 +0600",
-        "energy" : "01 31 2010 13:09:05 +0600",
-        "water" : "01 31 2010 13:09:05 +0600",
-        "happiness" : "01 31 2010 13:09:05 +0600",
-        "storage" : "01 31 2010 13:09:05 +0600",
-        "building" : ""01 31 2010 13:09:05 +0600"
-        "spy_training_boost" : ""01 31 2010 13:09:05 +0600"
-    }
+        "food"          : "2013 01 31 12:34:45 +0600",
+        "ore"           : "2013 01 31 12:34:45 +0600",
+        "energy"        : "2013 01 31 12:34:45 +0600",
+        "water"         : "2013 01 31 12:34:45 +0600",
+        "happiness"     : "2013 01 31 12:34:45 +0600",
+        "storage"       : "2013 01 31 12:34:45 +0600",
+        "building"      : "2013 01 31 12:34:45 +0600",
+        "ship_build"    : "2013 01 31 12:34:45 +0600",
+        "ship_speed"    : "2013 01 31 12:34:45 +0600",
+        "spy_training"  : "2013 01 31 12:34:45 +0600",
+    },
+    "status" : { ... }
  }
 
-=head3 session_id
-
-A session id.
-
-
-
-=head2 boost_storage ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts storage (all 5 types) on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "storage_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-
-=head2 boost_food ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts food production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "food_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_water ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts water production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "water_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_energy ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts energy production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "energy_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_ore ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts ore production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "ore_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_happiness ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts happiness production on all planets for 7 days. If a boost is already underway, calling again will add 7 more days.
-
- {
-    "status" : { ... },
-    "happiness_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_building ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts build queues on all planets for 7 days. If a boost is already underway, calling again will add 7 more days. It will not boost builds currently under way, only new builds added to a build queue.
-
- {
-    "status" : { ... },
-    "building_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
-
-
-=head2 boost_spy_training ( session_id [, weeks] )
-
-Spends 5 essentia, and boosts spy training speed on all planets 50% for 7 days. If a boost is already underway, calling again will add 7 more days. Unlike other boosts, this one will boost spies currently in specialist training.
-
- {
-    "status" : { ... },
-    "spy_training_boost" : "01 31 2010 13:09:05 +0600"
- }
-
-Throws 1011.
-
-=head3 session_id
-
-A session id.
 
 
 =head2 enable_self_destruct ( session_id )
 
 Enables a destruction countdown of 24 hours. Sometime after the timer runs out, the empire will vaporize.
 
+
+=head3 RESPONSE
+
  {
     "status" : { ... }
  }
 
-=head3 session_id
-
-A session id.
 
 
+=head2 disable_self_destruct)
 
-=head2 disable_self_destruct ( session_id )
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+ }
 
 Disables the self distruction countdown. 
 
- {
-    "status" : { ... }
- }
-
-=head3 session_id
+=head3 session_id (required)
 
 A session id.
 
-
-=head2 redeem_essentia_code ( session_id, code ) 
-
-Redeems an essentia code and applies the essentia to the empire's balance.
+=head3 RESPONSE
 
  {
     "amount" : ...,
     "status" : { ... }
  }
 
-=head3 session_id
+
+
+=head2 redeem_essentia_code
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+   "code"       : "3564d04f-8c36-4717-aa8d-e680502e0ed5",
+ }
+
+Redeems an essentia code and applies the essentia to the empire's balance.
+
+=head3 session_id (required)
 
 A session id.
 
-=head3 code
+=head3 code (required)
 
 A 36 character string that was sent to the user via email.
 
-
-
-
-=head2 update_species ( empire_id, params ) 
-
-Updates the empire's species and returns 1. Can only be called after C<create> has been called and before C<found> has been called. Before or after that will throw an exception. If you have already founded your empire then use C<redefine_species>.
-
-See also: C<get_species_templates>
-
-Throws 1000, 1002, 1005, 1007, 1008, 1009, and 1010. The C<data> parameter will contain the field name that needs to be adjusted, if it can be attributed to a single field.
-
-=head3 empire_id
-
-The id of the empire you wish to update a species for.
-
-=head3 params
-
-A hash reference of parameters. With the exception of name and description, the parameters are all integers. When added together they must equal 45. 
-
-=head4 name
-
-The name of the species. Limited to 30 characters, cannot be blank, and cannot contain @, &, <, >, or ;. Required. 
-
-=head4 description
-
-The species description. Limited to 1024 characters and cannot contain < or >.
-
-=head4 min_orbit
-
-An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<min_orbit> and C<max_orbit>, inclusive, count as a point toward the max of 45. C<min_orbit> must be less than or equal to C<max_orbit>.
-
-=head4 max_orbit
-
-An integer between  between 1 and 7, inclusive, where 1 is closest to the star. Each value between C<min_orbit> and C<max_orbit>, inclusive, count as a point toward the max of 45. C<max_orbit> must be greater than or equal to C<min_orbit>.
-
-=head4 manufacturing_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages manufactured goods, such as ships.
-
-=head4 deception_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in spying.
-
-=head4 research_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in upgrading buildings.
-
-=head4 management_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in the speed of building.
-
-=head4 farming_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in food production.
-
-=head4 mining_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in mineral production.
-
-=head4 science_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in energy, propultion, and other technologies.
-
-=head4 environmental_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in waste and water management.
-
-=head4 political_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in managing population happiness.
-
-=head4 trade_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in freight handling.
-
-=head4 growth_affinity
-
-An integer between 1 and 7 inclusive, where 7 is best. Determines species advantages in colonization.
-
-
-
-=head2 redefine_species_limits ( session_id )
-
-Defines the extra limits placed upon a user that want's to redefine their species.
+=head3 RESPONSE
 
  {
-    "status" : { ... },
-    "essentia_cost" : 100,   # cost to redefine the species
-    "max_orbit" : 2,         # maximum settable orbit
-    "min_orbit" : 5,         # minimum settable orbit
-    "min_growth" : 4,        # minimum for growth affinity
-    "can" : 0,               # whether or not they can redefine their species
-    "reason" : "You have already redefined your species in the past 30 days."
+    "status" : { ... }
  }
 
 
-=head3 session_id
+
+=head2 get_redefine_species_limits
+
+ {
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+ }
+
+Defines the extra limits placed upon a user that want's to redefine their species.
+
+=head3 session_id (required)
 
 A session id.
 
+=head3 RESPONSE
+
+ {
+    "status"                : { ... },
+    "essentia_cost"         : 100,      # cost to redefine the species
+    "species_max_orbit"     : 2,        # maximum settable orbit
+    "species_min_orbit"     : 5,        # minimum settable orbit
+    "species_min_growth"    : 4,        # minimum for growth affinity
+    "can"                   : 0,        # whether or not they can redefine their species
+    "reason"                : "You have already redefined your species in the past 30 days."
+ }
 
 
 
-=head2 redefine_species ( session_id, params )
+=head2 redefine_species
 
-Allows a user to spend essentia and redefine their species affinities, name, and description. This can only be used after the empire has been founded. If you want to redefine the species during empire creation then see C<update_species>.
+  {
+    "session_id"     : "9eea6721-3326-4c1f-817d-a4e82b54818e",
+    "name"           : "Average",
+    "description"    : "Not specializing in any area, but without any particular weaknesses.",
+    "min_orbit"      : 3,
+    "max_orbit"      : 3,
+    "manufacturing"  : 4,
+    "deception"      : 4,
+    "research"       : 4,
+    "management"     : 4,
+    "farming"        : 4,
+    "mining"         : 4,
+    "science"        : 4,
+    "environmental"  : 4,
+    "political"      : 4,
+    "trade"          : 4,
+    "growth"         : 4
+  }
+
+
+Allows a user to spend essentia and redefine their species affinities, name, and description. 
+
+=head3 session_id (required)
+
+A session id.
+
+=head3 For all other parameters, see C<create> method.
+
+=head3 RESPONSE
 
 See also C<redefine_species_limits>.
 
@@ -939,40 +1084,23 @@ A session id.
 
 =head3 params
 
-See the C<params> list in the C<update_species> method.
 
-
-
-
-
-=head2 view_species_stats ( session_id )
+=head2 get_species_stats
 
 Returns a list of the stats associated with an empire's species as it was originally created. An empire can only view it's own species stats through this method.
 
  {
-    "species" : {
-       "name" : "Human",
-       "description" : "The descendants of Earth.",
-       "min_orbit" : 3,
-       "max_orbit" : 3,
-       "manufacturing_affinity" : 4,
-       "deception_affinity" : 4,
-       "research_affinity" : 4,
-       "management_affinity" : 4,
-       "farming_affinity" : 4,
-       "mining_affinity" : 4,
-       "science_affinity" : 4,
-       "environmental_affinity" : 4,
-       "political_affinity" : 4,
-       "trade_affinity" : 4,
-       "growth_affinity" : 4
-    },
-    "status" : { ... }
+   "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e"
  }
 
+=head3 session_id (required)
 
-=head2 get_species_templates ( )
+A session id.
 
+=head3 RESPONSE
+
+ {
+   "species" : {
 Returns an array ref of species templates that can be used to help the user populate the form for C<update_species>.
 
  [
