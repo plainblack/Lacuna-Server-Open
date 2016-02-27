@@ -812,7 +812,7 @@ Retyping the password again. This must match C<password1> to succeed.
  }
 
 
-=head2 find_empire
+=head2 find
 
  {
    "session_id" : "9eea6721-3326-4c1f-817d-a4e82b54818e",
