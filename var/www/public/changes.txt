@@ -117,6 +117,10 @@
  - KNOWN BUGS:
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
+3.0921:
+ - Mod: Added new supply pod images (Thanks Husky)
+ - Mod: Added new empire medals (Thanks Husky)
+ - Fix: Minor changes to fix lag issues caused by sitters
 
 3.0920:
  - Mod: Security Sweep reports give number of found spies in subject line.
