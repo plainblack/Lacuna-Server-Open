@@ -15,24 +15,32 @@ out("Started.");
 
 my $rs = Lacuna->db->resultset("SitterAuths");
 
-# we do not warn about expired auths since we've already warned them for the
-# previous AUTH_WARNING_DAYS days.
-out("Checking for messages to send.");
-
 my $soon = DateTime->now()->add(days => $rs->AUTH_WARNING_DAYS);
 my $dtf = Lacuna->db->storage->datetime_parser;
 
+out("Checking for sitter_auths to delete.");
+# Delete any that have already expired
+#
+$rs->search({
+    expiry => {
+        '<' => $dtf->format_datetime(DateTime->now),
+    }
+})->delete;
+
+# we do not warn about expired auths since we've already warned them for the
+# previous AUTH_WARNING_DAYS days.
+
+out("Checking for messages to send.");
 my $warnings = $rs->search({
     expiry => {
         '<' => $dtf->format_datetime($soon),
         '>' => $dtf->format_datetime(DateTime->now),
     }, 
-    },{
-        join => ['sitter', 'baby'],
-        '+select' => [ 'sitter.name', 'baby.name' ],
-        '+as'     => [ 'sitter_name', 'baby_name' ],
-    },
-);
+},{
+    join        => [ 'sitter', 'baby' ],
+    '+select'   => [ 'sitter.name', 'baby.name' ],
+    '+as'       => [ 'sitter_name', 'baby_name' ],
+});
 
 my %expiring_sitters;
 my %expiring_babies;
@@ -91,7 +99,6 @@ for my $sitter_name (keys %expiring_babies) {
 
 out("Done.");
 
-our $quiet;
 sub out {
     unless ($quiet) {
         say DateTime->now, " ", @_;
