@@ -651,12 +651,13 @@ sub get_status {
                 unless $empire->sitterauths->count == 1;
 
             # if we haven't seen this empire yet, put in its basic stats.
+            # NOTE: comment out some expensive operations for now
             $bodies{babies}{$empire->name} ||= {
                 id                          => $empire->id,
-                has_new_messages            => $empire->has_new_messages,
+#                has_new_messages            => $empire->has_new_messages,
                 sitter_expiry               => format_date($empire->sitterauths->first->expiry),
                 maybe alliance_id           => $empire->alliance_id,
-                maybe primary_embassy_id    => $empire->highest_embassy && $empire->highest_embassy->id,
+#                maybe primary_embassy_id    => $empire->highest_embassy && $empire->highest_embassy->id,
             };
             
             push @{$bodies{babies}{$empire->name}{planets}}, $gen_body_info->($planet);
