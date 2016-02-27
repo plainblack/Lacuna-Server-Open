@@ -588,10 +588,11 @@ sub get_status {
 
     my $planet_rs = $real_empire->planets;
     if ($self->alliance_id) {
-        $planet_rs = Lacuna->db->resultset('Map::Body')->
-            search(
-                   { -or => { 'me.empire_id' => $real_empire->id, 'me.alliance_id' => $real_empire->alliance_id } },
-                  );
+        $planet_rs = Lacuna->db->resultset('Map::Body')->search({ 
+            -or => { 
+                'me.empire_id'      => $real_empire->id, 
+                'me.alliance_id'    => $real_empire->alliance_id, } 
+        });
     }
     $planet_rs = $planet_rs->search({},{ prefetch => ['empire','star'], order_by => 'me.name' });
     my %planets;
@@ -603,16 +604,16 @@ sub get_status {
         my $planet = shift;
 
         return {
-            id => $planet->id,
-            name => $planet->name,
-            zone => $planet->zone,
-            star_id => $planet->star_id,
-            star_name => $planet->star->name,
-            orbit => $planet->orbit,
-            x => $planet->x,
-            y => $planet->y, #,,,
+            id          => $planet->id,
+            name        => $planet->name,
+            zone        => $planet->zone,
+            star_id     => $planet->star_id,
+            star_name   => $planet->star->name,
+            orbit       => $planet->orbit,
+            x           => $planet->x,
+            y           => $planet->y, #,,,
             empire_name => $planet->empire->name,
-            empire_id => $planet->empire_id,
+            empire_id   => $planet->empire_id,
         }
     };
 
@@ -631,25 +632,18 @@ sub get_status {
     }
 
     # shouldn't have to check this once sitter_password goes away.
-    if ($self->current_session() &&
-        !$self->current_session()->_is_sitter())
-    {
-        $planet_rs =
-            Lacuna->db->resultset('Map::Body')->
-            search(
-                   {
-                       'sitterauths.sitter_id' => $real_empire->id,
-                       'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
-                   },
-                   {
-                       prefetch => [ 'star', { 'empire', 'sitterauths' } ],
-                       order_by => ['me.name', 'me.id'],
-                   });
+    if ($self->current_session && !$self->current_session->_is_sitter) {
+        $planet_rs = Lacuna->db->resultset('Map::Body')->search({
+            'sitterauths.sitter_id' => $real_empire->id,
+            'me.class'              => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
+        },{
+            prefetch => [ 'star', { 'empire', 'sitterauths' } ],
+            order_by => ['me.name', 'me.id'],
+        });
 
-        while (my $planet = $planet_rs->next)
-        {
+        while (my $planet = $planet_rs->next) {
             my $empire = $planet->empire;
-
+           
             # I'm not sure if we can get more than one, but getting an error message
             # if that happens will aid in debugging.  If this seems to work consistently,
             # we should remove this block.
@@ -658,16 +652,24 @@ sub get_status {
 
             # if we haven't seen this empire yet, put in its basic stats.
             $bodies{babies}{$empire->name} ||= {
-                id                => $empire->id,
-                has_new_messages  => $empire->has_new_messages,
-                sitter_expiry     => format_date($empire->sitterauths->first->expiry),
-                maybe alliance_id => $empire->alliance_id,
-                maybe primary_embassy_id => $empire->highest_embassy && $empire->highest_embassy->id,
+                id                          => $empire->id,
+                has_new_messages            => $empire->has_new_messages,
+                sitter_expiry               => format_date($empire->sitterauths->first->expiry),
+                maybe alliance_id           => $empire->alliance_id,
+                maybe primary_embassy_id    => $empire->highest_embassy && $empire->highest_embassy->id,
             };
-
+            
             push @{$bodies{babies}{$empire->name}{planets}}, $gen_body_info->($planet);
         }
     }
+    my $travelling_ships = Lacuna->db->resultset('Ships')->search({ 
+        type                => { in => [qw(colony_ship short_range_colony_ship)]}, 
+        task                => 'travelling', 
+        direction           => 'out', 
+        'body.empire_id'    => $self->id,
+    },{ 
+        join => 'body',
+    })->count;
 
     my $status = {
         rpc_count           => 0+$self->rpc_count,
@@ -684,10 +686,10 @@ sub get_status {
         stations            => \%stations,
         colonies            => \%colonies,
         bodies              => \%bodies,
-        next_colony_cost    => 0+$self->next_colony_cost("colony_ship"),
-        next_colony_srcs    => 0+$self->next_colony_cost("short_range_colony_ship"),
-        next_station_cost   => 0+$self->next_colony_cost("space_station"),
-        insurrect_value     => 0+$self->next_colony_cost("spy"),
+        next_colony_cost    => 0+$self->next_colony_cost("colony_ship",0,$travelling_ships),
+        next_colony_srcs    => 0+$self->next_colony_cost("short_range_colony_ship",0,$travelling_ships),
+        next_station_cost   => 0+$self->next_colony_cost("space_station",0,$travelling_ships),
+        insurrect_value     => 0+$self->next_colony_cost("spy",0,$travelling_ships),
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
         maybe alliance_id   => $self->alliance_id && 0+$self->alliance_id,
@@ -1113,16 +1115,20 @@ sub add_observatory_probe {
 }
 
 sub next_colony_cost {
-    my ($self, $type, $adjustment) = @_;
+    my ($self, $type, $adjustment, $travelling_ships) = @_;
 
     $adjustment = 0 unless defined $adjustment;
     my $tally;
     if ($type eq "colony_ship" or $type eq "short_range_colony_ship" or $type eq "spy") {
         my $count = $self->planets->search({ class => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' }})->count;
-        $count += Lacuna->db->resultset('Ships')->search(
-            { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
-            { join => 'body' }
-        )->count;
+
+        if (not defined $travelling_ships) {
+        $count += $travelling_ships;
+            $travelling_ships = Lacuna->db->resultset('Ships')->search(
+                { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
+                { join => 'body' }
+            )->count;
+        }
         $count += $adjustment;
         my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
         my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
@@ -1337,10 +1343,10 @@ sub pay_taxes {
 
 # was being called repeatedly, so move it over to a cached value.
 has highest_embassy => (
-                        is => 'ro',
-                        isa => 'Maybe[Lacuna::DB::Result::Building::Embassy]',
-                        lazy_build => 1,
-                       );
+    is          => 'ro',
+    isa         => 'Maybe[Lacuna::DB::Result::Building::Embassy]',
+    lazy_build  => 1,
+);
 
 sub _build_highest_embassy {
     my ($self) = @_;

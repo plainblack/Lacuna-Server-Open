@@ -1,5 +1,6 @@
 docker run                                      \
   --rm -it --name=tle-server                    \
+  -p 0.0.0.0:5000:5000                          \
   --net=tle-network                             \
   -v ${PWD}/../bin:/data/Lacuna-Server/bin      \
   -v ${PWD}/../docs:/data/Lacuna-Server/docs    \
