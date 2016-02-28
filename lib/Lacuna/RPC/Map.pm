@@ -8,6 +8,26 @@ use Lacuna::Verify;
 use Lacuna::Constants qw(ORE_TYPES);
 use List::Util qw(max min);
 
+# Add status to the return value
+# (currently it always returns status, we can change this to optionally send this
+# back or not later)
+sub append_status {
+    my ($self, $out, $args) = @_;
+
+    my $session = $args->{session};
+
+    # First, only send out once a minute.
+    my $cache_empire = Lacuna->cache->get('empire_status_rpc', $session->empire->id);
+    if (not $cache_empire or $args->{send_status}) {
+        $out->{status} = $self->format_status($session, $args->{body});
+#        Lacuna->cache->set('empire_status_rpc', $session->empire->id,  1, 1 * 60);
+    }
+    return $out;
+}
+
+
+
+
 sub check_star_for_incoming_probe {
     my ($self, $args) = @_;
 
@@ -32,10 +52,12 @@ sub check_star_for_incoming_probe {
     if (defined $incoming) {
         $date = $incoming->date_available_formatted;
     }
-    return {
-        status          => $self->format_status($empire),
-        incoming_probe  => $date,
-    };
+    return $self->append_status({
+        incoming_probe  => $date
+    },{
+        session         => $session,
+        send_status     => $args->{send_status},
+    });
 }
 
 
@@ -127,12 +149,12 @@ sub get_star_map {
         push @stars, @{$out->{stars}};
     }
 
-    $out = {
-        stars   => \@stars,
-        status  => $self->format_status($empire),
-    };
-
-    return $out;
+    return $self->append_status({
+        stars       => \@stars,
+    },{
+        session     => $session,
+        send_status => $args->{send_status},
+    });
 }
 
 # Get a star by it's ID, by it's name, or it's x/y co-ordinate
@@ -162,7 +184,13 @@ sub get_star {
     unless (defined $star) {
         confess [1002, "Couldn't find a star."];
     }
-    return { star=>$star->get_status($empire), status=>$self->format_status($session) };
+
+    return $self->append_status({
+        star        => $star->get_status($empire),
+    },{
+        session     => $session,
+        send_status => $args->{send_status},
+    });
 }
 
 # Find a star based on it's (partial) name
@@ -184,7 +212,12 @@ sub find_star {
     while (my $star = $stars->next) {
         push @out, $star->get_status; # planet data left out on purpose
     }
-    return { stars => \@out , status => $self->format_status($session) };
+    return $self->append_status({
+        stars       => \@out,
+    },{
+        session     => $session,
+        send_status => $args->{send_status},
+    });
 }
 
 
@@ -299,25 +332,28 @@ sub view_laws {
                 push @out, $law->get_status($empire);
             }
         }
-        return {
-            star            => $star->get_status($empire),
-            status          => $self->format_status($session, $station),
-            laws            => \@out,
-        };
+        return $self->append_status({
+            star        => $star->get_status($empire),
+            laws        => \@out,
+        },{
+            session     => $session,
+            body        => $station,
+            send_status => 1,
+        });
+
     }
-    else {
-        my $output;
-        if ($star) {
-            $output->{star} = $star->get_status($empire);
-        }
-        $output->{status} = $self->format_status($session);
-        $output->{laws} = [ { name => "Not controlled by a station",
-                              descripition => "Not controlled by a station",
-                              date_enacted => "00 00 0000 00:00:00 +0000",
-                              id => 0
-                            } ];
-        return $output;
-    }
+    return $self->append_status({
+        star        => $star->get_status($empire),
+        laws        => [{
+            name            => "Not controlled by a station",
+            description     => "Not controlled by a station",
+            date_enacted    => "00 00 0000 00:00:00 +0000",
+            id              => 0
+        }],
+    },{
+        session     => $session,
+        send_status => 1,
+    });
 }
 
 __PACKAGE__->register_rpc_method_names(qw(

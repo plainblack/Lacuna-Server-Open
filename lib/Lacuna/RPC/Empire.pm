@@ -30,7 +30,7 @@ sub append_status {
     my $cache_empire = Lacuna->cache->get('empire_status_rpc', $session->empire->id);
     if (not $cache_empire or $args->{send_status}) {
         $out->{status} = $self->format_status($session);
-        Lacuna->cache->set('empire_status_rpc', $session->empire->id,  1, 1 * 60);
+#        Lacuna->cache->set('empire_status_rpc', $session->empire->id,  1, 1 * 60);
     }
     return $out;
 }
@@ -79,9 +79,7 @@ sub find {
 # Is an empire name valid?
 #
 sub is_name_valid {
-    my ($self, %args) = @_;
-
-    my $name = $args{name};
+    my ($self, $name) = @_;
 
     Lacuna::Verify->new(content=>\$name, throws=>[1000,'Empire name is invalid.', 'name'])
         ->length_lt(31)
@@ -91,18 +89,17 @@ sub is_name_valid {
         ->no_restricted_chars
         ->no_match(qr/^#/)
         ->no_profanity;
-    return { is_name_valid => 1 };
+    return 1;
 }
 
 # Is it unique
 sub is_name_unique {
-    my ($self, %args) = @_;
+    my ($self, $name) = @_;
 
-    my $name = $args{name};
     if (Lacuna->db->resultset('Empire')->search({name=>$name})->count) {
         confess [1000, 'Empire name is in use by another player.', 'name'];
     }
-    return { is_name_unique => 1 };
+    return 1;
 }
 
 sub logout {
@@ -448,10 +445,10 @@ sub create {
 }
 
 sub validate_captcha {
-    my ($self, $plack_request, %args) = @_;
+    my ($self, $plack_request, $args) = @_;
 
-    my $guid        = $args{captcha_guid};
-    my $solution    = $args{captcha_solution};
+    my $guid        = $args->{captcha_guid};
+    my $solution    = $args->{captcha_solution};
 
     my $ip = $plack_request->address;
     if (defined $guid && defined $solution) {                                               # offered a solution
