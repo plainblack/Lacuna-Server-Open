@@ -1390,13 +1390,24 @@ sub deauthorize_sitters {
 sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
-        $params->[1] = 'xxx';
+        $params = {
+            @$params,
+            password => 'xxx',
+        };
     }
     elsif ($method eq 'change_password') {
-        $params->[$_] = 'xxx' for 0..2;
+        $params = {
+            @$params,
+            password1 => 'xxx',
+            password2 => 'xxx',
+        };
     }
     elsif ($method eq 'reset_password') {
-        $params->[$_] = 'xxx' for 1..2;
+        $params = {
+            @$params,
+            password1 => 'xxx',
+            password2 => 'xxx',
+        };
     }
     elsif ($method eq 'create') {
         $params = {
@@ -1405,9 +1416,9 @@ sub _rewrite_request_for_logging {
         };
     }
     elsif ($method eq 'edit_profile') {
-        $params->[1] = {
-            %{$params->[1]},
-            provided $params->[1]->{sitter_password}, sitter_password => 'xxx',
+        $params = {
+            @$params,
+            provided $params->{sitter_password}, sitter_password => 'xxx',
         }
     }
     return $params;
