@@ -20,6 +20,21 @@ use Data::Dumper;
 # logging features are new in this level.
 use JSON::RPC::Dispatcher 0.0508;
 
+# Add status to the return value
+# (currently it always returns status, we can change this to optionally send this
+# back or not later)
+sub append_status {
+    my ($self, $session, $out, $args) = @_;
+
+    # First, only send out once a minute.
+    my $cache_empire = Lacuna->cache->get('empire_status_rpc', $session->empire->id);
+    if (not $cache_empire or $args->{send_status}) {
+        $out->{status} = $self->format_status($session);
+        Lacuna->cache->set('empire_status_rpc', $session->empire->id,  1, 1 * 60);
+    }
+    return $out;
+}
+
 
 # Is the empire name available?
 # (it has to be valid and unique)
@@ -57,7 +72,8 @@ sub find {
         $limit--;
         last unless $limit;
     }
-    return { empires => \@list_of_empires, status => $self->format_status($session) };
+    my $out = { empires => \@list_of_empires };
+    return $self->append_status($session, $out, \%args);
 }
 
 # Is an empire name valid?
@@ -177,10 +193,8 @@ sub login {
 
     my $session = $empire->start_session(\%session_params);
 
-    return {
-        session_id  => $session->id,
-        status      => $self->format_status($session),
-    };
+    my $out = { session_id  => $session->id };
+    return $self->append_status($session, $out, \%args);
 }
 
 
@@ -288,7 +302,9 @@ sub change_password {
     
     $empire->password($empire->encrypt_password($password1));
     $empire->update;
-    return { status => $self->format_status($session) };
+
+    my $out = { change_password => 1 };
+    return $self->append_status($session, $out, \%args);
 }
 
 
@@ -354,7 +370,10 @@ sub reset_password {
     
     # authenticate
     my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
-    return { session_id => $session->id, status => $self->format_status($session) };
+
+    my $out = { session_id  => $session->id };
+    return $self->append_status($session, $out, \%args);
+
 }
 
 sub create {
@@ -470,11 +489,12 @@ sub found {
 
     my $welcome = $empire->found;
     my $session = $empire->start_session({ api_key => $api_key, request => $plack_request });
-    return {
+    my $out = {
         session_id          => $session->id,
-        status              => $self->format_status($session),
         welcome_message_id  => $welcome->id,
     };
+
+    return $self->append_status($session, $out, \%args);
 }
 
 # Get the current empire status
@@ -485,7 +505,8 @@ sub get_status {
     my $session_id = $args{session_id};
 
     my $session  = $self->get_session({session_id => $session_id});
-    return $self->format_status($session);
+
+    return $self->append_status($session, {}, \%args);
 }
 
 
@@ -512,37 +533,39 @@ sub get_own_profile {
             times_earned => $medal->times_earned,
         };
     }
-    my %out = (
-        description             => $empire->description,
-        notes                   => $empire->notes,
-        status_message          => $empire->status_message,
-        sitter_password         => $empire->sitter_password,
-        email                   => $empire->email,
-        city                    => $empire->city,
-        country                 => $empire->country,
-        skype                   => $empire->skype,
-        player_name             => $empire->player_name,
-        skip_medal_messages     => $empire->skip_medal_messages,
-        skip_pollution_warnings => $empire->skip_pollution_warnings,
-        skip_resource_warnings  => $empire->skip_resource_warnings,
-        skip_happiness_warnings => $empire->skip_happiness_warnings,
-        skip_facebook_wall_posts=> $empire->skip_facebook_wall_posts,
-        medals                  => \%my_medals,
-        skip_found_nothing      => $empire->skip_found_nothing,
-        skip_excavator_resources => $empire->skip_excavator_resources,
-        skip_excavator_glyph    => $empire->skip_excavator_glyph,
-        skip_excavator_plan     => $empire->skip_excavator_plan,
-        skip_excavator_artifact => $empire->skip_excavator_artifact,
-        skip_excavator_destroyed => $empire->skip_excavator_destroyed,
-        skip_excavator_replace_msg => $empire->skip_excavator_replace_msg,
-        dont_replace_excavator  => $empire->dont_replace_excavator,
-        skip_spy_recovery       => $empire->skip_spy_recovery,
-        skip_probe_detected     => $empire->skip_probe_detected,
-        skip_attack_messages    => $empire->skip_attack_messages,
-        skip_incoming_ships     => $empire->skip_incoming_ships,
-    );
+    my $out = {
+        profile => {
+            description                 => $empire->description,
+            notes                       => $empire->notes,
+            status_message              => $empire->status_message,
+            sitter_password             => $empire->sitter_password,
+            email                       => $empire->email,
+            city                        => $empire->city,
+            country                     => $empire->country,
+            skype                       => $empire->skype,
+            player_name                 => $empire->player_name,
+            skip_medal_messages         => $empire->skip_medal_messages,
+            skip_pollution_warnings     => $empire->skip_pollution_warnings,
+            skip_resource_warnings      => $empire->skip_resource_warnings,
+            skip_happiness_warnings     => $empire->skip_happiness_warnings,
+            skip_facebook_wall_posts    => $empire->skip_facebook_wall_posts,
+            medals                      => \%my_medals,
+            skip_found_nothing          => $empire->skip_found_nothing,
+            skip_excavator_resources    => $empire->skip_excavator_resources,
+            skip_excavator_glyph        => $empire->skip_excavator_glyph,
+            skip_excavator_plan         => $empire->skip_excavator_plan,
+            skip_excavator_artifact     => $empire->skip_excavator_artifact,
+            skip_excavator_destroyed    => $empire->skip_excavator_destroyed,
+            skip_excavator_replace_msg  => $empire->skip_excavator_replace_msg,
+            dont_replace_excavator      => $empire->dont_replace_excavator,
+            skip_spy_recovery           => $empire->skip_spy_recovery,
+            skip_probe_detected         => $empire->skip_probe_detected,
+            skip_attack_messages        => $empire->skip_attack_messages,
+            skip_incoming_ships         => $empire->skip_incoming_ships,
+        }
+    };
 
-    return { profile => \%out, status => $self->format_status($session) };    
+    return $self->append_status($session, $out, \%args);
 }
 
 sub edit_profile {
@@ -767,7 +790,8 @@ sub set_status_message {
     my $empire   = $session->current_empire;
     $empire->status_message($message);
     $empire->update;
-    return $self->format_status($session);
+
+    return $self->append_status($session, { set_status_message => 1 }, \%args);
 }
 
 sub get_public_profile {
@@ -792,7 +816,7 @@ sub get_public_profile {
             times_earned => $medal->times_earned,
         };
     }
-    my %out = (
+    my $out = {
         id              => $viewed_empire->id,
         name            => $viewed_empire->name,
         description     => $viewed_empire->description,
@@ -806,10 +830,10 @@ sub get_public_profile {
         player_name     => $viewed_empire->player_name,
         colony_count    => $viewed_empire->planets->count,
         medals          => \%public_medals,
-    );
+    };
     if ($viewed_empire->alliance_id) {
         my $alliance = $viewed_empire->alliance;
-        $out{alliance} = {
+        $out->{alliance} = {
             id      => $alliance->id,
             name    => $alliance->name,
         };
@@ -831,9 +855,8 @@ sub get_public_profile {
             push @colonies, $colony->get_status;
         }
     }
-    $out{known_colonies} = \@colonies;
-
-    return { profile => \%out, status => $self->format_status($session) };
+    $out->{known_colonies} = \@colonies;
+    return $self->append_status($session, $out, \%args);
 }
 
 sub set_boost {
@@ -863,10 +886,8 @@ sub set_boost {
     $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
-    return {
-        status => $self->format_status($session),
-        $type => format_date($empire->$type),
-    };
+    my $out = { $type => format_date($empire->$type) };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub get_boosts {
@@ -876,8 +897,7 @@ sub get_boosts {
 
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
-    return {
-        status  => $self->format_status($session),
+    my $out = {
         boosts  => {
             food         => format_date($empire->food_boost),
             happiness    => format_date($empire->happiness_boost),
@@ -889,6 +909,7 @@ sub get_boosts {
             spy_training => format_date($empire->spy_training_boost),
         }
     };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub enable_self_destruct {
@@ -902,7 +923,8 @@ sub enable_self_destruct {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
     $empire->enable_self_destruct;
-    return { status => $self->format_status($session) };
+    my $out = { enable_self_destruct => 1 };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub disable_self_destruct {
@@ -916,7 +938,8 @@ sub disable_self_destruct {
         confess [1015, 'Sitters cannot enable or disable self destruct.'];
     }
     $empire->disable_self_destruct;
-    return { status => $self->format_status($session) };
+    my $out = { disable_self_destruct => 1 };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub redeem_essentia_code {
@@ -928,7 +951,9 @@ sub redeem_essentia_code {
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
     my $amount = $empire->redeem_essentia_code($code);
-    return { amount => $amount, status => $self->format_status($session) };
+
+    my $out = { amount => $amount };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub get_invite_friend_url {
@@ -938,10 +963,8 @@ sub get_invite_friend_url {
 
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
-    return {
-        referral_url    => $empire->get_invite_friend_url,
-        status          => $self->format_status($session),
-    };
+    my $out = { referral_url => $empire->get_invite_friend_url };
+    return $self->append_status($session, $out, \%args);
 }
 
 
@@ -978,7 +1001,11 @@ sub invite_friend {
     else {
         confess [1009, 'Could not read the address(es) entered. Perhaps you formatted something incorrectly?', $addresses];
     }
-    return { status => $self->format_status($session), sent => \@sent, not_sent => \@not_sent };
+    my $out = { 
+        sent        => \@sent,
+        not_sent    => \@not_sent,
+    };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub vet_species {
@@ -1031,11 +1058,11 @@ sub get_redefine_species_limits {
     
     my $session_id = $args{session_id};
 
-    my $session  = $self->get_session({session_id => $session_id});
-    my $empire   = $session->current_empire;
-    my $out = $empire->determine_species_limits($empire);
-    $out->{status} = $self->format_status($session);
-    return $out;
+    my $session = $self->get_session({session_id => $session_id});
+    my $empire  = $session->current_empire;
+
+    my $out     = $empire->determine_species_limits($empire);
+    return $self->append_status($session, $out, \%args);
 }
 
 sub redefine_species {
@@ -1071,9 +1098,8 @@ sub redefine_species {
     $empire->update;
     $empire->planets->update({needs_recalc=>1});
     
-    return {
-        status  => $self->format_status($session),
-    };
+    my $out = { redefine_species => 1 };
+    return $self->append_status($session, $out, \%args);
 }
 
 
@@ -1114,10 +1140,9 @@ sub get_species_stats {
     my $session_id = $args{session_id};
     my $session  = $self->get_session({session_id => $session_id});
     my $empire   = $session->current_empire;
-    return {
-        species => $empire->get_species_stats,
-        status  => $self->format_status($session),
-    };
+    
+    my $out = { species => $empire->get_species_stats };
+    return $self->append_status($session, $out, \%args);
 }
 
 
@@ -1270,7 +1295,8 @@ sub get_authorized_sitters {
         };
     }
 
-    return { status => $self->format_status($session->empire), sitters => \@auths };
+    my $out = { sitters => \@auths };
+    return $self->append_status($session, $out, \%args);
 }
 
 sub authorize_sitters {

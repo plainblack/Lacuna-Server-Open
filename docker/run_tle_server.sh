@@ -10,5 +10,6 @@ docker run                                          \
   -v ${PWD}/../var:/data/Lacuna-Server-Open/var     \
   --volumes-from tle-captcha-data                   \
   -v ${PWD}/../var/www/public/api/api.css:/data/Lacuna-Server-Open/var/www/public/api/api.css \
-  -e TLE_NO_MIDDLEWARE=1 \
+  -e TLE_NO_MIDDLEWARE=1                            \
+  lacuna/tle-server
 
