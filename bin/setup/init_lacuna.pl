@@ -24,7 +24,7 @@ my $config  = Lacuna->config;
 my $db      = Lacuna->db;
 
 # These might need adjusting to get optimum results
-my $fudge_factor    = 1.8;              # Can be used to adjust the number of stars/size of voids.
+my $fudge_factor    = 1.8;              # Increase to increase the number of stars and decrease the size of voids.
 my $seed            = 3.14159;          # So we can reproduce the starmap.
 my $ore_stamps      = 4;                # How many pockets of high ore concentration are there for each ore type.
 srand($seed);
@@ -247,18 +247,6 @@ sub update_database {
 sub update_database_chunk {
     my ($p,$q) = @_;
 
-    my @star_colors = (qw(magenta red green blue yellow white));
-    my $orbit_deltas = {
-        1   => [1,  2],
-        2   => [2,  1],
-        3   => [2,  -1],
-        4   => [1,  -2],
-        5   => [-1, -2],
-        6   => [-2, -1],
-        7   => [-2, 1],
-        8   => [-1, 2],
-    };
-    
     # Relative numbers of planets for this chunk.
     my $body_numbers = planets_for_chunk($p,$q);
     my $total_bodies = 0;
@@ -276,77 +264,108 @@ sub update_database_chunk {
         my $y = $star_xy->{y};
         my $name = get_star_name();
 
-        say "Adding star $name to $x:$y";
-
-        my $star = $db->resultset('Map::Star')->new({
-            name        => $name,
-            color       => $star_colors[rand(scalar(@star_colors))],
-            x           => $x,
-            y           => $y,
+        add_star_system({
+            x       => $x, 
+            y       => $y,
+            name    => $name,
+            body_numbers    => $body_numbers,
+            total_bodies    => $total_bodies,
         });
-        $star->set_zone_from_xy;
-        $star->insert;
+    }
+}
 
-        # Add bodies to this star
-        #
-        for my $orbit (1..8) {
-            my $name = $star->name." ".$orbit;
-            if (randint(1,100) <= 10) {
-                # 10% chance of no body in this orbit
-                say "\tNo body at $name!";
+# Add a single star system
+#
+sub add_star_system {
+    my ($args) = @_;
+
+    my $x = $args->{x};
+    my $y = $args->{y};
+    my $name = $args->{name};
+    my $total_bodies    = $args->{total_bodies};
+    my $body_numbers    = $args->{body_numbers};
+
+    my @star_colors = (qw(magenta red green blue yellow white));
+    my $orbit_deltas = {
+        1   => [1,  2],
+        2   => [2,  1],
+        3   => [2,  -1],
+        4   => [1,  -2],
+        5   => [-1, -2],
+        6   => [-2, -1],
+        7   => [-2, 1],
+        8   => [-1, 2],
+    };
+    say "Adding star $name to $x:$y";
+
+    my $star = $db->resultset('Map::Star')->new({
+        name        => $name,
+        color       => $star_colors[rand(scalar(@star_colors))],
+        x           => $x,
+        y           => $y,
+    });
+    $star->set_zone_from_xy;
+    $star->insert;
+
+    # Add bodies to this star
+    #
+    for my $orbit (1..8) {
+        my $name = $star->name." ".$orbit;
+        if (randint(1,100) <= 10) {
+            # 10% chance of no body in this orbit
+            say "\tNo body at $name!";
+        }
+        else {
+            my ($x_delta, $y_delta) = @{$orbit_deltas->{$orbit}};
+            my $x_body = $x + $x_delta;
+            my $y_body = $y + $y_delta;
+
+            my $body_i = randint(0, $total_bodies - 1);
+            my $i = 0;
+            my $body_name = 'A1';
+            BODY:
+            foreach my $bn (sort keys %$body_numbers) {
+                $body_name = $bn;
+                last BODY if $i >= $body_i;
+                $i += $body_numbers->{$body_name};
             }
-            else {
-                my ($x_delta, $y_delta) = @{$orbit_deltas->{$orbit}};
-                my $x_body = $x + $x_delta;
-                my $y_body = $y + $y_delta;
 
-                my $body_i = randint(0, $total_bodies - 1);
-                my $i = 0;
-                my $body_name = 'A1';
-                BODY:
-                foreach my $bn (sort keys %$body_numbers) {
-                    $body_name = $bn;
-                    last BODY if $i >= $body_i;
-                    $i += $body_numbers->{$body_name};
-                }
-
-                # convert body_name into a Class
-                my $add_features;
-                my $class = 'Lacuna::DB::Result::Map::Body::';
-                my $size = 0;
-                if ($body_name =~ m/^A/) {
-                    $class .= "Asteroid::$body_name";
-                    $size = randint(1,10);
-                }
-                if ($body_name =~ m/^P/) {
-                    $class .= "Planet::$body_name";
-                    $size = randint(30,65);
-                    $add_features = 1;
-                }
-                if ($body_name =~ m/^G/) {
-                    $class .= "Planet::GasGiant::$body_name";
-                    $size = randint(70,121);
-                }
-                say "\t\tAdding body type $body_name named $name";
-                my $body = $db->resultset('Map::Body')->create({
-                    name        => $name,
-                    orbit       => $orbit,
-                    x           => $x_body,
-                    y           => $y_body,
-                    zone        => $star->zone,
-                    star_id     => $star->id,
-                    class       => $class,
-                    size        => $size,
-                });
-                if ($add_features) {
-                    add_features($body);
-                }
+            # convert body_name into a Class
+            my $add_features;
+            my $class = 'Lacuna::DB::Result::Map::Body::';
+            my $size = 0;
+            if ($body_name =~ m/^A/) {
+                $class .= "Asteroid::$body_name";
+                $size = randint(1,10);
+            }
+            if ($body_name =~ m/^P/) {
+                $class .= "Planet::$body_name";
+                $size = randint(30,65);
+                $add_features = 1;
+            }
+            if ($body_name =~ m/^G/) {
+                $class .= "Planet::GasGiant::$body_name";
+                $size = randint(70,121);
+            }
+            say "\t\tAdding body type $body_name named $name";
+            my $body = $db->resultset('Map::Body')->create({
+                name        => $name,
+                orbit       => $orbit,
+                x           => $x_body,
+                y           => $y_body,
+                zone        => $star->zone,
+                star_id     => $star->id,
+                class       => $class,
+                size        => $size,
+            });
+            if ($add_features) {
+                add_features($body);
             }
         }
     }
 }
 
-sub create_lacunan_home_world {
+ sub create_lacunan_home_world {
     my $body = shift;
     $body->update({name=>'Lacuna'});
     say "\t\t\tMaking this the Lacunans home world.";
