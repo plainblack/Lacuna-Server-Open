@@ -163,10 +163,10 @@ sub get_body { # makes for uniform error handling, and prevents staleness
                    'me.id' => $body_id,
                    -or => [
                            { 'me.empire_id'        => $session->empire->id },
-                           $session->empire->alliance_id ? () : {
+                           $session->empire->alliance_id ? {
                                'me.alliance_id'      => $session->empire->alliance_id,
                                'me.class'            => 'Lacuna::DB::Result::Map::Body::Planet::Station'
-                           },
+                           } : () ,
                            $session->_is_sitter ? () : {
                                'sitterauths.sitter_id' => $session->empire->id,
                                'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
@@ -205,10 +205,10 @@ sub get_building { # makes for uniform error handling, and prevents staleness
                    'me.id' => $building_id,
                    -or => [
                            { 'body.empire_id'        => $session->empire->id },
-                           $session->empire->alliance_id ? () : {
+                           $session->empire->alliance_id ? {
                                'body.alliance_id'      => $session->empire->alliance_id,
                                'body.class'            => 'Lacuna::DB::Result::Map::Body::Planet::Station'
-                           },
+                           } : (),
                            $session->_is_sitter ? () : {
                                'sitterauths.sitter_id' => $session->empire->id,
                                'body.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
