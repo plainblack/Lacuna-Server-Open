@@ -5,7 +5,6 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use Lacuna::Constants qw(ORE_TYPES);
-use Lacuna::DB::Result::Building::Waste;
 
 use DateTime;
 use Time::HiRes;
@@ -279,7 +278,7 @@ sub update_database_chunk {
 
         say "Adding star $name to $x:$y";
 
-        my $star = $db->resultset('Lacuna::DB::Result::Map::Star')->new({
+        my $star = $db->resultset('Map::Star')->new({
             name        => $name,
             color       => $star_colors[rand(scalar(@star_colors))],
             x           => $x,
@@ -329,7 +328,7 @@ sub update_database_chunk {
                     $size = randint(70,121);
                 }
                 say "\t\tAdding body type $body_name named $name";
-                my $body = $db->resultset('Lacuna::DB::Result::Map::Body')->create({
+                my $body = $db->resultset('Map::Body')->create({
                     name        => $name,
                     orbit       => $orbit,
                     x           => $x_body,
@@ -340,12 +339,7 @@ sub update_database_chunk {
                     size        => $size,
                 });
                 if ($add_features) {
-                    if ($star->name eq 'Lacuna' && ! $lacunans_have_been_placed) {
-                        create_lacunan_home_world($body);
-                    }
-                    else {
-                        add_features($body);
-                    }
+                    add_features($body);
                 }
             }
         }
@@ -356,13 +350,13 @@ sub create_lacunan_home_world {
     my $body = shift;
     $body->update({name=>'Lacuna'});
     say "\t\t\tMaking this the Lacunans home world.";
-    my $empire = Lacuna->db->resultset('Lacuna::DB::Result::Empire')->new({
+    my $empire = Lacuna->db->resultset('Empire')->new({
         id                  => 1,
         name                => 'Lacuna Expanse Corp',
         date_created        => DateTime->now,
         stage               => 'founded',
         status_message      => 'Will trade for Essentia.',
-        password            => Lacuna::DB::Result::Empire->encrypt_password('secret56'),
+        password            => Empire->encrypt_password('secret56'),
         species_name            => 'Lacunan',
         species_description     => 'The economic deities that control the Lacuna Expanse.',
         min_orbit               => 1,
@@ -394,34 +388,34 @@ sub add_features {
         my $y = randint(-5,5);
         if ($chance <= 5) {
             say "\t\t\tAdding lake.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
+            $db->resultset('Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
                 y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::Lake',
+                class           => 'Building::Permanent::Lake',
                 body_id         => $body->id,
             })->insert;
         }
         elsif ($chance > 45 && $chance <= 50) {
             say "\t\t\tAdding rocky outcropping.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
+            $db->resultset('Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
                 y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::RockyOutcrop',
+                class           => 'Building::Permanent::RockyOutcrop',
                 body_id         => $body->id,
             })->insert;
         }
         elsif ($chance > 95) {
             say "\t\t\tAdding crater.";
-            $db->resultset('Lacuna::DB::Result::Building')->new({
+            $db->resultset('Building')->new({
                 date_created    => $now,
                 level           => 1,
                 x               => $x,
                 y               => $y,
-                class           => 'Lacuna::DB::Result::Building::Permanent::Crater',
+                class           => 'Building::Permanent::Crater',
                 body_id         => $body->id,
             })->insert;
         }
@@ -429,9 +423,18 @@ sub add_features {
 }
 
 sub get_star_name {
-    my $name = <$star_names>;
-    chomp $name;
-    return $name;
+
+    # Get the next available starname
+    STARNAME:
+    while (my $name = <$star_names>) {
+        chomp $name;
+        next STARNAME if $name eq 'Lacuna';
+
+        if ($db->resultset('Map::Star')->search({ name => $name })->count == 0 ) {
+            return $name
+        }
+    }
+    die "No more starnames!\n";
 }
 
 
@@ -554,6 +557,16 @@ sub generate_stars {
             my $rand_y = randint($y_chunk_min, $y_chunk_max);
             # Is this location suitable?
             #
+            # Leave a 'void' for the Lacuna Expanse Corp home worlds
+            # at least 30 units of 0|0
+            
+            my $dist = sqrt($rand_x * $rand_x + $rand_y * $rand_y);
+            if ($dist < 30) {
+                say "Omitting star at $rand_x | $rand_y";
+                $stars_in_chunk++;
+                next STAR;
+            }
+
             # Find all stars 'close' to this one
             if (room_for_star($p, $q, $rand_x, $rand_y)) {
                 $stars_in_chunk++;
@@ -581,7 +594,7 @@ sub generate_stars {
 }
 
 # Check if this location is good for a star
-# The linear distance between stars must be at least 6 units othewise the
+# The linear distance between stars must be at least 6 units otherwise the
 # planets will overlap.
 # Ensure that this star does not conflict with any other stars
 # 
