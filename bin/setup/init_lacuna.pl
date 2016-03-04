@@ -68,6 +68,17 @@ create_database();
 exit 0 if $ENV{CREATE_DB_ONLY};
 
 setup();
+
+# Create Lacuna Expanse Corp systems
+#
+push @{$ds_stars->{"0:0"}}, {x => 0, y => 0};
+push @{$ds_stars->{"0:0"}}, {x => 0, y => 6};
+push @{$ds_stars->{"0:0"}}, {x => 6, y => 3};
+push @{$ds_stars->{"0:0"}}, {x => 6, y => -3};
+push @{$ds_stars->{"0:0"}}, {x => 0, y => -6};
+push @{$ds_stars->{"0:0"}}, {x => -6, y => -3};
+push @{$ds_stars->{"0:0"}}, {x => -6, y => 3};
+
 generate_stars();
 generate_stars_png();
 generate_ores_png();
@@ -232,36 +243,23 @@ sub update_database {
 
     if ($quick_test) {
         say "WARNING: Only doing a small test. Not for production!";
-        update_database_chunk(0,0,0);
+        update_database_chunk(0,0);
     }
     else {
         for (my $p=0; $p<$chunks; $p++) {
             for (my $q=0; $q<$chunks; $q++) {
-                update_database_chunk($p,$q,0);
+                update_database_chunk($p,$q);
             }
         }
     }
-    # Create Lacuna Expanse Corp systems
-    # Re-use chunk 0:0, it is not significant
-    #
-    $ds_stars->{'0:0'} = [];
-    push @{$ds_stars->{"0:0"}}, {x => 0, y => 0};
-    push @{$ds_stars->{"0:0"}}, {x => 0, y => 6};
-    push @{$ds_stars->{"0:0"}}, {x => 6, y => 3};
-    push @{$ds_stars->{"0:0"}}, {x => 6, y => -3};
-    push @{$ds_stars->{"0:0"}}, {x => 0, y => -6};
-    push @{$ds_stars->{"0:0"}}, {x => -6, y => -3};
-    push @{$ds_stars->{"0:0"}}, {x => -6, y => 3};
-
-    # Create the lacunans somewhere in this system
-    update_database_chunk(0,0,1);
-
 }
 
 # Put the stars and bodies for a single chunk
 #
 sub update_database_chunk {
-    my ($p,$q, $create_lacunan) = @_;
+    my ($p,$q) = @_;
+
+    my $create_lacunan = 1 if ($p == 0 and $q == 0);
 
     # Relative numbers of planets for this chunk.
     my $body_numbers = planets_for_chunk($p,$q);
