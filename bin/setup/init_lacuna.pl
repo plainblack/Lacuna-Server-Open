@@ -5,6 +5,7 @@ use List::Util::WeightedChoice qw( choose_weighted );
 use Lacuna;
 use Lacuna::Util qw(randint);
 use Lacuna::Constants qw(ORE_TYPES);
+use Lacuna::DB::Result::Empire;
 
 use DateTime;
 use Time::HiRes;
@@ -399,7 +400,7 @@ sub create_lacunan_home_world {
         date_created            => DateTime->now,
         stage                   => 'founded',
         status_message          => 'Will trade for Essentia.',
-        password                => Empire->encrypt_password('secret56'),
+        password                => Lacuna::DB::Result::Empire->encrypt_password('secret56'),
         species_name            => 'Lacunan',
         species_description     => 'The economic deities that control the Lacuna Expanse.',
         min_orbit               => 1,
@@ -601,10 +602,10 @@ sub generate_stars {
             # Is this location suitable?
             #
             # Leave a 'void' for the Lacuna Expanse Corp home worlds
-            # at least 30 units of 0|0
+            # at least 60 units of 0|0
             
             my $dist = sqrt($rand_x * $rand_x + $rand_y * $rand_y);
-            if ($dist < 30) {
+            if ($dist < 60) {
                 say "Omitting star at $rand_x | $rand_y";
                 $stars_in_chunk++;
                 next STAR;
