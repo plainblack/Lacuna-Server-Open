@@ -20,20 +20,41 @@ any!)
     $ docker-machine create --driver virtualbox --virtualbox-memory 8096 default
     $ eval "$(docker-machine env default)"
 
+### Installing on Windows
+
+To install on Windows follow the instructions at ![Docker Toolbox](https://www.docker.com/products/docker-toolbox)
+
+It is all explained on the above link, but because Docker runs in Linux, it will
+install a small Linux Virtual Machine on your windows computer. This VM then hosts 
+Docker Engine for you on your Windows system.
+
+Once completed you will have a terminal displaying the $ symbol, this is where
+most of the following commands will be run.
+
+Note, by default on Windows the directory that is shown in the console will be
+referred to as /c/Users/micro, this is your 'home' directory or ~/
+
+Mostly, you will run the commands in the Linux VM but you can edit the files in
+your Windows environment using a suitable editor (notepad for example), the
+home directory is at C:\\Users\micro
+
 ## Setting up your dev environment
 
 You need to checkout the code from github into a local directory as normal, I
 will assume you are checking out to 
 
     ~/Lacuna-Server-Open
-    ~/Lacuna-Web-Client
+
+using the commands
+
+    git clone https://github.com/plainblack/Lacuna-Server-Open.git
 
 You need to create some config files for the docker config,
 
-    $ cd ~/Lacuna-Server-Open/etc
-    $ cp lacuna.conf.docker lacuna.conf
-    $ cp log4perl.conf.docker log4perl.conf
-    $ cp nginx.conf.docker nginx.conf
+    $ cd ~/Lacuna-Server-Open/etc-templates
+    $ cp lacuna.conf.docker ../etc/lacuna.conf
+    $ cp log4perl.conf.docker ../etc/log4perl.conf
+    $ cp nginx.conf.docker ../etc/nginx.conf
 
 It is unlikely that you will need to change these config files from their
 defaults.
@@ -50,7 +71,6 @@ order
     $ ./run_tle_beanstalk.sh
     $ ./run_tle_memcached.sh
     $ ./run_tle_mysql_server.sh
-    $ ./run_tle_server.sh (leave this running in a terminal session for now, otherwise nginx will not work!)
     $ ./run_tle_nginx.sh
 
 If this has worked, you can now do the following to see what is running.
@@ -98,14 +118,31 @@ be configured).
 
 ### tle-server
 
-This is the Server Code. You can start and restart your development server
-from within this container. This will put you into the Docker container in the 
-bash shell. Normally you will just run the command
+This is slightly different to the above, when it runs it puts you into
+a bash shell to allow you to run commands.
 
-    $ ./startdev
+    $ ./run_tle_server.sh
 
-But there are a few things you need to do first (see below, Initial Configuration).
+This puts you into the container, at directory
 
+    /data/Lacuna-Server/bin
+
+You can start and restart your development web server from within this container. 
+There are a number of commands you have to run the first time (see below)
+but normally to start and stop your server code you just do the following.
+
+    $ ./startdev.sh
+
+NOTE: On a Windows environment, this can give the following error
+
+    : syntax error at (eval 11) line 1, near "package Plack::Sandbox::2fdata_2fLacuna_2dServer_2fbin_2flacuna_2epsgi
+
+I have no idea why! If so then just type the contents of the startdev.sh script
+and run it directly from the command line. e.g.
+
+    plackup --env development --server Plack::Handler::Standalone --app lacuna.psgi
+
+But, as I said, the first time there are some setup things to do first. (see below)
 
 ## Initial configuration
 
@@ -133,9 +170,10 @@ You now need to initialize the database. (this will take a few minutes).
 Captchas no longer need to be generated up-front. They will be generated
 on demand (so long as the schedule_captcha.pl script is running).
 
-Note however, the first request for a captcha will fail, subsequent
-requests will however succeed, so long as the schedule_captcha.pl 
-daemon is running.
+However, if you don't bother running this script then, although no captcha
+will be displayed, the answer is always 1. So there is no need to run the
+schedule_captcha.pl script unless you are doing something with the captcha
+code itself (unlikely).
 
 You may want to generate the html version of the documentation so you
 can view it in your web browser.
@@ -168,6 +206,7 @@ which you can choose to tail in another terminal session.
 
 You can now run the development server
 
+    $ cd /data/Lacuna-Server/bin
     $ ./startdev.sh
 
 This will run in the current terminal session, type ctrl-c to terminate
