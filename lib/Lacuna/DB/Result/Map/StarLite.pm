@@ -39,6 +39,7 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->result_source_instance->is_virtual(1);
 
+#For now, during testing, return all bodies around all stars
 __PACKAGE__->result_source_instance->view_definition(q[
     select 
         distinct(star.id) AS star_id,
@@ -65,7 +66,7 @@ __PACKAGE__->result_source_instance->view_definition(q[
     LEFT JOIN probes
       ON star.id = probes.star_id AND (probes.alliance_id=? OR probes.empire_id=?)
     LEFT JOIN body
-      ON star.id = body.star_id AND probes.id is not null
+      ON star.id = body.star_id
     LEFT JOIN empire
       ON body.empire_id = empire.id 
     LEFT JOIN building
