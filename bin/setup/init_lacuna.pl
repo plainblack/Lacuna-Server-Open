@@ -231,21 +231,36 @@ sub update_database {
 
     if ($quick_test) {
         say "WARNING: Only doing a small test. Not for production!";
-        update_database_chunk(0,0);
+        update_database_chunk(0,0,0);
     }
     else {
         for (my $p=0; $p<$chunks; $p++) {
             for (my $q=0; $q<$chunks; $q++) {
-                update_database_chunk($p,$q);
+                update_database_chunk($p,$q,0);
             }
         }
     }
+    # Create Lacuna Expanse Corp systems
+    # Re-use chunk 0:0, it is not significant
+    #
+    $ds_stars->{'0:0'} = [];
+    push @{$ds_stars->{"0:0"}}, {x => 0, y => 0};
+    push @{$ds_stars->{"0:0"}}, {x => 0, y => 6};
+    push @{$ds_stars->{"0:0"}}, {x => 6, y => 3};
+    push @{$ds_stars->{"0:0"}}, {x => 6, y => -3};
+    push @{$ds_stars->{"0:0"}}, {x => 0, y => -6};
+    push @{$ds_stars->{"0:0"}}, {x => -6, y => -3};
+    push @{$ds_stars->{"0:0"}}, {x => -6, y => 3};
+
+    # Create the lacunans somewhere in this system
+    update_database_chunk(0,0,1);
+
 }
 
 # Put the stars and bodies for a single chunk
 #
 sub update_database_chunk {
-    my ($p,$q) = @_;
+    my ($p,$q, $create_lacunan) = @_;
 
     # Relative numbers of planets for this chunk.
     my $body_numbers = planets_for_chunk($p,$q);
@@ -265,11 +280,12 @@ sub update_database_chunk {
         my $name = get_star_name();
 
         add_star_system({
-            x       => $x, 
-            y       => $y,
-            name    => $name,
+            x               => $x, 
+            y               => $y,
+            name            => $name,
             body_numbers    => $body_numbers,
             total_bodies    => $total_bodies,
+            create_lacunan  => $create_lacunan,
         });
     }
 }
@@ -284,6 +300,7 @@ sub add_star_system {
     my $name = $args->{name};
     my $total_bodies    = $args->{total_bodies};
     my $body_numbers    = $args->{body_numbers};
+    my $create_lacunan  = $args->{create_lacunan};
 
     my @star_colors = (qw(magenta red green blue yellow white));
     my $orbit_deltas = {
@@ -339,7 +356,7 @@ sub add_star_system {
                 $size = randint(1,10);
             }
             if ($body_name =~ m/^P/) {
-                $class .= "Planet::$body_name";
+                $class  .= "Planet::$body_name";
                 $size = randint(30,65);
                 $add_features = 1;
             }
@@ -361,21 +378,28 @@ sub add_star_system {
             if ($add_features) {
                 add_features($body);
             }
+            if ($body_name =~ m/^P/ and $create_lacunan) {
+                # create Lacunan home world (unless already done)
+                create_lacunan_home_world($body);
+            }
         }
     }
 }
 
- sub create_lacunan_home_world {
-    my $body = shift;
+sub create_lacunan_home_world {
+    my ($body) = @_;
+
+    return if $lacunans_have_been_placed;
+
     $body->update({name=>'Lacuna'});
     say "\t\t\tMaking this the Lacunans home world.";
     my $empire = Lacuna->db->resultset('Empire')->new({
-        id                  => 1,
-        name                => 'Lacuna Expanse Corp',
-        date_created        => DateTime->now,
-        stage               => 'founded',
-        status_message      => 'Will trade for Essentia.',
-        password            => Empire->encrypt_password('secret56'),
+        id                      => 1,
+        name                    => 'Lacuna Expanse Corp',
+        date_created            => DateTime->now,
+        stage                   => 'founded',
+        status_message          => 'Will trade for Essentia.',
+        password                => Empire->encrypt_password('secret56'),
         species_name            => 'Lacunan',
         species_description     => 'The economic deities that control the Lacuna Expanse.',
         min_orbit               => 1,
