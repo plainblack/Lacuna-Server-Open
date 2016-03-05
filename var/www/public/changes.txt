@@ -118,6 +118,9 @@
    - bug: Fleet format currently shows 'Foreign' for all fleets
 
 3.0921:
+ - Mod: Re-org to make code deployment easier and to support Docker
+ - Fix: Some minor efficiency changes for sitter auths
+ - Fix: Squashed a smelly evil looking bug
  - Mod: Added new supply pod images (Thanks Husky)
  - Mod: Added new empire medals (Thanks Husky)
  - Fix: Minor changes to fix lag issues caused by sitters
