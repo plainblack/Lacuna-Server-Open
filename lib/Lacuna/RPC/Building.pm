@@ -80,6 +80,8 @@ sub view {
     my $image_after_upgrade = $building->image_level($building->level + 1);
     my $image_after_downgrade = $building->image_level($building->level > 0 ? $building->level - 1 : 0);
 
+    my $status = $self->format_status($session);
+
     my %out = ( 
         building    => {
             id                  => 0+$building->id,
@@ -115,7 +117,7 @@ sub view {
             },
             pending_build       => $building->upgrade_status,
         },
-        status      => $self->format_status($session),
+        status      => $status,
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -124,6 +126,7 @@ sub view {
             end                 => $building->work_ends_formatted,
         };
     }
+
     return \%out;
 }
 

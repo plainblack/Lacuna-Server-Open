@@ -1,5 +1,6 @@
 docker run                                      \
   --rm -it --name=tle-server                    \
+  -p 0.0.0.0:5000:5000                          \
   --net=tle-network                             \
   -v ${PWD}/../bin:/data/Lacuna-Server/bin      \
   -v ${PWD}/../docs:/data/Lacuna-Server/docs    \
@@ -8,5 +9,6 @@ docker run                                      \
   -v ${PWD}/../t:/data/Lacuna-Server/t          \
   -v ${PWD}/../var:/data/Lacuna-Server/var      \
   --volumes-from tle-captcha-data               \
+  -e TLE_NO_MIDDLEWARE=1 \
   lacuna/tle-server /bin/bash
 

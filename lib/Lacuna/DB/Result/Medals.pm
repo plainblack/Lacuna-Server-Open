@@ -26,18 +26,23 @@ sub format_datestamp {
 use constant MEDALS => {
     supply_pod => {
         name => 'Built Supply Pod',
+        image => 'v2/supply_pod',
     },
     supply_pod2 => {
         name => 'Built Supply Pod II',
+        image => 'v2/supply_pod2',
     },
     supply_pod3 => {
         name => 'Built Supply Pod III',
+        image => 'v2/supply_pod3',
     },
     supply_pod4 => {
         name => 'Built Supply Pod IV',
+        image => 'v2/supply_pod4',
     },
     supply_pod5 => {
         name => 'Built Supply Pod V',
+        image => 'v2/supply_pod5',
     },
     probe => {
         name => 'Built Probe',
@@ -75,15 +80,15 @@ use constant MEDALS => {
     },
     scow_large => {
         name => 'Built Large Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_large',
     },
     scow_mega => {
         name => 'Built Mega Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_mega',
     },
     scow_fast => {
         name => 'Built Fast Scow',
-        image => 'v2/scow',
+        image => 'v2/scow_fast',
     },
     dory => {
         name => 'Built Dory',
@@ -243,60 +248,79 @@ use constant MEDALS => {
     },
     largest_colony => {
         name => 'Largest Colony',
+        image => 'v2/largest_colony',
     },
     fastest_growing_colony => {
         name => 'Fastest Growing Colony',
+        image => 'v2/fastest_growing_colony',
     },
     largest_empire => {
         name => 'Largest Empire',
+        image => 'v2/largest_empire',
     },
     fastest_growing_empire => {
         name => 'Fastest Growing Empire',
+        image => 'v2/fastest_growing_empire',
     },
     dirtiest_empire_in_the_game => {
         name => 'Dirtiest Empire In The Game',
+        image => 'v2/dirtiest_empire_in_the_game',
     },
     dirtiest_empire_of_the_week => {
         name => 'Dirtiest Empire Of The Week',
+        image => 'v2/dirtiest_empire_of_the_week',
     },
     best_defender_of_the_week => {
         name => 'Best Defender Of The Week',
+        image => 'v2/best_defender_of_the_week',
     },
     best_defender_in_the_game => {
         name => 'Best Defender In The Game',
+        image => 'v2/best_defender_in_the_game',
     },
     best_attacker_of_the_week => {
         name => 'Best Attacker Of The Week',
+        image => 'v2/best_attacker_of_the_week',
     },
     best_attacker_in_the_game => {
         name => 'Best Attacker In The Game',
+        image => 'v2/best_attacker_in_the_game',
     },
     most_improved_spy_of_the_week => {
         name => 'Most Improved Spy Of The Week',
+        image => 'v2/most_improved_spy_of_the_week',
     },
     dirtiest_spy_in_the_game => {
         name => 'Dirtiest Spy In The Game',
+        image => 'v2/dirtiest_spy_in_the_game',
     },
     dirtiest_spy_of_the_week => {
         name => 'Dirtiest Spy Of The Week',
+        image => 'v2/dirtiest_spy_of_the_week',
     },
     best_defensive_spy_of_the_week => {
         name => 'Best Defensive Spy Of The Week',
+        image => 'v2/best_defensive_spy_of_the_week',
     },
     best_defensive_spy_in_the_game => {
         name => 'Best Defensive Spy In The Game',
+        image => 'v2/best_defensive_spy_in_the_game',
     },
     best_offensive_spy_of_the_week => {
         name => 'Best Offensive Spy Of The Week',
+        image => 'v2/best_offensive_spy_of_the_week',
     },
     best_offensive_spy_in_the_game => {
         name => 'Best Offensive Spy In The Game',
+        image => 'v2/best_offensive_spy_in_the_game',
     },
     best_spy_of_the_week => {
         name => 'Best Spy Of The Week',
+        image => 'v2/best_spy_of_the_week',
     },
     best_spy_in_the_game => {
         name => 'Best Spy In The Game',
+        image => 'v2/best_spy_in_the_game',
     },
     pleased_to_meet_you => {
         name => 'Meeting the Lacunans',
