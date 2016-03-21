@@ -116,6 +116,7 @@ sub view {
                 image           => $image_after_downgrade,
             },
             pending_build       => $building->upgrade_status,
+            url                 => $self->app_url,
         },
         status      => $status,
     );
