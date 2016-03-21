@@ -122,12 +122,15 @@ use constant MEDALS => {
     },
     hulk => {
         name => 'Built Hulk',
+        image => 'v2/hulk',
     },
     hulk_huge => {
         name => 'Built Huge Hulk',
+        image => 'v2/hulk_huge',
     },
     hulk_fast => {
         name => 'Built Fast Hulk',
+        image => 'v2/hulk_fast',
     },
     freighter => {
         name => 'Built Freighter',
