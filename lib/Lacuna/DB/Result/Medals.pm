@@ -327,6 +327,7 @@ use constant MEDALS => {
     },
     pleased_to_meet_you => {
         name => 'Meeting the Lacunans',
+        image => 'v2/pleased_to_meet_you',
     },
     P1 => {
         name => 'Settled P1 Type Planet',
@@ -1125,6 +1126,7 @@ use constant MEDALS => {
     },
     'flipped' => {
         name => 'Ran a successful insurrection',
+        image => 'v2/flipped',
     },
     abandoned_colony => {
         name => 'Abandoned a Colony',
