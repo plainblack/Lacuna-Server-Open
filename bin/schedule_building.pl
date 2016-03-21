@@ -75,6 +75,7 @@ if ($initialize) {
             parent_table    => 'Building',
             parent_id       => $building->id,
             task            => 'finish_work',
+            queue           => 'default',
         });
     }
 
@@ -91,6 +92,7 @@ if ($initialize) {
             parent_table    => 'Building',
             parent_id       => $building->id,
             task            => 'finish_upgrade',
+            queue           => 'default',
         });
     }
 
@@ -106,6 +108,7 @@ if ($initialize) {
             parent_table    => 'Fleet',
             parent_id       => $ship->id,
             task            => 'finish_construction',
+            queue           => 'default',
         });
     }
 }

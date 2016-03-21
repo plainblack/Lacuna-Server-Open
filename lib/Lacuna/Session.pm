@@ -132,7 +132,7 @@ sub update {
             is_from_admin   => $self->is_from_admin,
             ip_address      => $self->ip_address,
         },
-        60 * 60 * 2,
+        60 * 60 * 4,
     );
 }
 

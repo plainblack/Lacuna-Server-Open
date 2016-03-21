@@ -19,7 +19,6 @@ sub payload {
     if (defined $args && $args->{parent_table}) {
         my $class   = $args->{parent_table};
         my $id      = $args->{parent_id};
-        print STDERR "class = [$class] id = [$id]\n";
         my $thing   = Lacuna->db->resultset($class)->find($id);
         return $thing;
     }
