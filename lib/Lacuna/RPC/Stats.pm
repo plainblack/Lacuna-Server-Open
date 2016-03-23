@@ -13,7 +13,7 @@ sub credits {
             { 'Web Client redesign' => ['Nathan McCallum (1vasari)', 'Iain C Docherty (icydee)']},
             { 'iPhone Client'       => ['Kevin Runde','RedOrion']},
             { 'Game Server'         => ['JT Smith','Graham Knop','Matthew Musgrove','Iain C Docherty (icydee)', 'Mark Lemming (Norway)', '(fireartist)', '(Winton-Akagane)', '(Ysthane)', 'Darin McBride (The Tower)', 'RedOrion' ]},
-            { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde']},
+            { 'Art and Icons'       => ['Ryan Knope','JT Smith','Joseph Wain / glyphish.com','Keegan Runde', 'Christoph Thierbach (Husky)']},
             { 'Geology Consultant'  => ['Geofuels, LLC / geofuelsllc.com']},
             { 'Play Testers'        => ['John Oettinger','Jamie Vrbsky','Mike Kastern','Chris Burr','Eric Patterson','Frank Dillon','Kristi McCombs','Ryan McCombs','Mike Helfman','Tavis Parker','Sarah Bownds','Rob Dicke','Gemma Blair','Bev Smith','Mike Vrbsky']},
             { 'Game Support'        => ['Plain Black Corporation / plainblack.com','Mary Hoerr', 'Daniel Collins (United Federation)', 'RedOrion', 'Infinate Ones']},
