@@ -883,8 +883,7 @@ sub set_boost {
     $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
-    my $out = { $type => format_date($empire->$type) };
-    return $self->append_status($session, $out, \%args);
+    return $self->view_boosts($session_id);
 }
 
 sub get_boosts {
