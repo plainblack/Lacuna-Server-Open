@@ -1286,31 +1286,39 @@ sub authorize_sitters
     return $rc;
 }
 
-sub deauthorize_sitters
-{
+sub deauthorize_sitters {
     my ($self, $session_id, $opts) = @_;
+
     my $session  = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire;
 
     my $baby_id = $session->empire_id;
 
-    confess [1009, "The 'empires' option must be an array of empire IDs"]
-        unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
-        none { /\D/ } @{$opts->{empires}};
-
     my $dtf = Lacuna->db->storage->datetime_parser;
     my $now = $dtf->format_datetime(DateTime->now);
-
-    # set expiry to immediate
     my $rs = Lacuna->db->resultset('SitterAuths');
-    $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
-        ->update({expiry => $now});
+    
+    if (defined $opts->{empires}) {
+        confess [1009, "The 'empires' option must be an array of empire IDs"]
+            unless ref $opts->{empires} eq 'ARRAY'
+            and none { /\D/ } @{$opts->{empires}};
+
+        # set expiry to immediate
+        $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
+            ->update({expiry => $now});
+    }
+    elsif (defined $opts->{deauthorize_all}) {
+        # set expiry to immediate
+        $rs->search({baby_id => $baby_id })->update({expiry => $now});
+    }
+    else {
+        confess [1009, "You must specify either an 'empires' or a 'deauthorize_all' option"];
+    }
 
     return $self->view_authorized_sitters($session);
 }
 
-sub _rewrite_request_for_logging
-{
+sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
         $params->[1] = 'xxx';
