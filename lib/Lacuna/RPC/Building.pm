@@ -75,6 +75,8 @@ sub view {
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
+    my $body     = $building->body;
+
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $upgrade_reason = $@;
