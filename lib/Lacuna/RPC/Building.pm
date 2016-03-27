@@ -122,6 +122,7 @@ sub view {
             url                 => $self->app_url,
         },
         status      => $status,
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -203,6 +204,7 @@ sub build {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -245,6 +247,7 @@ sub demolish {
     $body->tick;
     return {
         status      => $self->format_status($session, $body),
+        buildings   => $self->out_buildings($body),
     };
 }
 
