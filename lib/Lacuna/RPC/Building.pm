@@ -5,6 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
+with "Lacuna::RPC::Role::Building";
+
 sub model_class {
     confess "you need to override me";
 }
@@ -64,6 +66,7 @@ sub upgrade {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     };
 }
 
