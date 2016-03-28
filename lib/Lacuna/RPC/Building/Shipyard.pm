@@ -32,9 +32,10 @@ sub view_build_queue {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
 
     my @constructing;
     my $fleets = $building->fleets_under_construction;
@@ -88,9 +89,11 @@ sub subsidize_build_queue {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
+    
     my $fleets      = $building->fleets_under_construction;
     my $ships       = 0;
     while (my $fleet = $fleets->next) {
@@ -122,11 +125,21 @@ sub subsidize_build_queue {
 }
 
 sub delete_build {
-    my ($self, $session_id, $building_id, $ship_id) = @_;
+    my $self = shift;
+    my $args = shift;
 
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+            ship_id         => shift,
+        };
+    }
+    my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
+
+    my $ship_id = $args->{ship_id};
 
     if (!ref $ship_id)
     {
@@ -166,7 +179,7 @@ sub subsidize_fleet {
     if (ref($args) ne "HASH") {
         confess [1000, "You have not supplied a hash reference"];
     }
-    my $session  = $self->get_session({session_id => $args->{session_id}, building_id => $args->{building_id} });
+    my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
     unless ($building->effective_level > 0 and $building->efficiency == 100) {
@@ -212,9 +225,10 @@ sub build_fleet {
             quantity    => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
 
     my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
     if ($quantity <= 0 or int($quantity) != $quantity) {
@@ -244,9 +258,11 @@ sub build_fleet {
 sub repair_fleet {
     my ($self, $args) = @_;
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
+
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
 
     if (not $fleet) {
@@ -265,11 +281,21 @@ sub repair_fleet {
 
 
 sub get_repairable {
-    my ($self, $args) = @_;
+    my $self = shift;
+    my $args = shift;
+        
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+            tag         => shift,
+        };
+    }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
 
     my %repairable;
     my $fleet_rs = Lacuna->db->resultset('Fleet')->search({
@@ -279,7 +305,7 @@ sub get_repairable {
     # Find all fleets with fractional quantity
     my $fleets;
     FLEET:
-    foreach my $fleet ($fleet_rs->next) {
+    while (my $fleet = $fleet_rs->next) {
         next FLEET if $fleet->quantity == int($fleet->quantity);
         my $item = {
             attributes => {
@@ -328,9 +354,10 @@ sub get_buildable {
             tag         => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $body        = $building->body;
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $body     = $building->body;
 
     my %buildable;
     foreach my $type (SHIP_TYPES) {
