@@ -17,6 +17,7 @@ use feature 'switch';
 
 extends 'Lacuna::RPC';
 
+with "Lacuna::RPC::Role::Building";
 
 sub get_status {
     my $self        = shift;
@@ -124,36 +125,14 @@ sub get_buildings {
         $body->needs_surface_refresh(0);
         $body->update;
     }
-    my $out;
-    my @buildings = @{$body->building_cache};
-    foreach my $building (@buildings) {
-        
-        my $row = {
-            url     => $building->controller_class->app_url,
-            image   => $building->image_level,
-            name    => $building->name,
-            x       => $building->x,
-            y       => $building->y,
-            level   => $building->level,
-            efficiency => $building->efficiency,
-        };
-        if ($building->is_upgrading) {
-            $row->{pending_build} = $building->upgrade_status;
-        }
-        if ($building->is_working) {
-            $row->{work} = {
-                seconds_remaining   => $building->work_seconds_remaining,
-                start               => $building->work_started_formatted,
-                end                 => $building->work_ends_formatted,
-            };
-        }
-        if ($building->efficiency < 100) {
-            $row->{repair_costs} = $building->get_repair_costs;
-        }
-        $out->{$building->id} = $row;
-    }
 
-    return {buildings=>$out, body=>{surface_image => $body->surface}, status=>$self->format_status($session, $body)};
+    return {
+        buildings   => $self->out_buildings($body),
+        body        => {
+            surface_image   => $body->surface,
+        },
+        status      => $self->format_status($session, $body),
+    };
 }
 
 sub repair_list {

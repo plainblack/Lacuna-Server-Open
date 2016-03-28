@@ -7,6 +7,8 @@ use Data::Dumper;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
+with "Lacuna::RPC::Role::Building";
+
 sub model_class {
     confess "you need to override me";
 }
@@ -88,6 +90,7 @@ sub upgrade {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     };
 }
 
@@ -114,6 +117,7 @@ sub view {
     my $upgrade_reason  = $@;
 
     my $can_downgrade   = eval{$building->can_downgrade};
+
     my $downgrade_reason = $@;
 
     my $image_after_upgrade = $building->image_level($building->level + 1);
@@ -159,6 +163,7 @@ sub view {
             url                 => $self->app_url,
         },
         status      => $status,
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -261,6 +266,7 @@ sub build {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -313,6 +319,7 @@ sub demolish {
     $body->tick;
     return {
         status      => $self->format_status($session, $body),
+        buildings   => $self->out_buildings($body),
     };
 }
 

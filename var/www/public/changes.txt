@@ -61,69 +61,16 @@
    - TODO: Make sure 'soonest' rounds up to the nearest 15 seconds.
    - TODO: Allow for a timestring to specify the arrival time as well as the individual arguments
    - TODO: N19 messages when ships in flight are detonated (suspect faulty engines or human error)
- 
-
-- Mod: 'own' and 'ally' on the incoming report for a Space Station now are in relation to your own empire.
-
- - Fix: Stars now list in alphabetic order in Parliament, rename stars.
-
- - Battle Logs
-   - TODO: Major makeover of battle logs to show summaries.
-
-
- - Mining ministry
-   - TODO: Convert from using ships to using fleets
-
- - Trade Ministry
-   - Fix: It is not now possible to set up a supply chain so that sender/receiver are the same planet.
-   - TODO: Ships set to 'stay' in push should stay under the control of the sender until they arrive, if there are no spare docks when they arrive, they return
-   - TODO: Ships sent as a trade to a planet are 'owned' by the sender until ship arrival. If no spare docks when they arrive, they are returned to sender.
-   - TODO: Building/Trade.pm - trade_fleets should order by hold_size * quantity
-   - TODO: Convert Supply-Chain-Ships to use fleets.
-   - TODO: Convert Waste-Chain_ships to use fleets.
-   - TODO: Supply chains can be cancelled either from the supplying or the receiving body.
-   - TODO: When removing a scow from a waste chain, it removes waste equivalent to the size of the scow.
-
- - Sub Space Transport
-   - TODO: Convert trade in ships to use trade in fleets
-
- - Missions
-   - TODO: Convert from using/creating ships to using fleets
-
- - Spies
-   - TODO: Convert from using/stealing ships to using fleets
-
- - MercenaryMarket
-   - TODO: Convert from using ships to using fleets
- 
- - Medals
-   - TODO: Convert from ships to fleets
-
- - Space Station
-   - TODO: Convert from using ships to using fleets
-   - TODO: remove view_ships_orbiting from Police Station module
-
- - AI CHANGES:
-   - TODO: Give the Del both offensive and defensive spies.
-
- - UI: Changes
-   - Mod: Most changes in the API are reflected in the UI.
-   - Fix: Number of docks available now decrements correctly when building multiple ships in Shipyard
-
- - POSSIBLE CHANGES (subject to council approval):
-   - TODO: Allow resources/ships/glyphs/plans to be pushed to any other empires planets
-     - Add a 'confirm' that the receiver needs to click to accept them.
-
-   - TODO: Allow supply chains to be set up to other planets (not allied)
-     - Add: a 'confirm' that the receiver needs to click to accept them and any changes.
-     - Add: allow the receiver to cancel any such supply chains
-     - Add: an email if a supply chain stalls.
-
-   - TODO: Send fighters to orbit stars, so that they can destroy incoming detonators.
-   
-   - TODO: Allow ships to 'stay' at allied planets during a push, they are then owned by that empire.
- 
-   - TODO: Should we treat probes as combat, so that we can destroy them with orbiting fighters?
-
+ - UI : Fix screen scrolling.
+ - UI : Automatically load new captcha on failure (thanks, vortigon)
+ - UI : New buildings have level visible immediately if user wants levels always displayed.
+ - Mod: Limit shipyards to 30 days' queue.
+ - Add: Constructing added to resource bar.
+ - UI : Stop the "Trade Ministry is offline" message when repairing TM
+ - UI : Added self-destruct button back.
+ - Fix: Modify sanitize to do initialize of stored values last.
+ - UI : New buildings will get level showing if user has asked for it.
+ - UI : Fix announcement window for users as logging in.
+ - UI : Fix planet jumping from links
 
 
