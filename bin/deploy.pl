@@ -152,7 +152,7 @@ END_TEXT
                 $s3bucket->delete_key($file);
             }
         }
-        when ('Lacuna-Server-Open') {
+        when ('Lacuna-Server') {
             # pull already done locally
         }
         when ('Lacuna-Server-Open') {
