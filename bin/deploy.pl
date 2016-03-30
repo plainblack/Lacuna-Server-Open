@@ -159,14 +159,14 @@ END_TEXT
             my $restart_server = 0;
             # Reboot code
             if ($branch eq "pt-reboot") {
-                chdir('/data/Lacuna-Server'');
+                chdir('/data/Lacuna-Server');
                 system("git", "pull", "origin", "pt-reboot");
                 $restart_server = 1;
             }
 
             # Legacy code
             elsif ($branch eq "pt") {
-                chdir('/data/Lacuna-Server-Open'');
+                chdir('/data/Lacuna-Server-Open');
                 system("git", "pull", "origin", "pt");
                 $restart_server = 1;
             }
