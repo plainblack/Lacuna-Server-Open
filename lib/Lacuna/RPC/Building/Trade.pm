@@ -826,17 +826,17 @@ sub withdraw_from_market {
 }
 
 __PACKAGE__->register_rpc_method_names(qw(
-    get_supply_ships 
+    get_supply_fleetss 
     view_supply_chains 
-    add_supply_ship_to_fleet 
-    remove_supply_ship_from_fleet 
+    add_supply_fleet 
+    remove_supply_fleet 
     create_supply_chain 
     delete_supply_chain 
     update_supply_chain 
-    get_waste_ships 
+    get_waste_fleets 
     view_waste_chains 
-    add_waste_ship_to_fleet 
-    remove_waste_ship_from_fleet 
+    add_waste_fleet 
+    remove_waste_fleet 
     update_waste_chain 
     report_abuse 
     view_my_market 
@@ -845,10 +845,10 @@ __PACKAGE__->register_rpc_method_names(qw(
     withdraw_from_market 
     add_to_market 
     push_items 
-    get_trade_ships 
+    get_trade_fleets 
     get_stored_resources 
-    get_ships 
-    get_ship_summary
+    get_fleets 
+    get_fleet_summary
     get_prisoners 
     get_plan_summary 
     get_glyph_summary
