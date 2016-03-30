@@ -166,7 +166,7 @@ END_TEXT
 
             # Legacy code
             elsif ($branch eq "pt") {
-                chdir('/data/Lacuna-Server-Open'');
+                chdir('/data/Lacuna-Server-Open');
                 system("git", "pull", "origin", "pt");
                 $restart_server = 1;
             }
