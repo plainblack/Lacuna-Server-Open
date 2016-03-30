@@ -164,7 +164,7 @@ END_TEXT
                 $restart_server = 1;
             }
 
-            # Legacy code
+            # Legacy code.
             elsif ($branch eq "pt") {
                 chdir('/data/Lacuna-Server-Open');
                 system("git", "pull", "origin", "pt");
