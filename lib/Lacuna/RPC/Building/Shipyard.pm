@@ -213,42 +213,98 @@ sub subsidize_fleet {
 }
 
 
+# Required
+#   session_id
+#   type        - 'snark','sweeper', etc
+#   body_id OR building_id
+#   building_id should be an array of shipyards
+#   autoselect
+#       this            - only use shipyards specified in the building_id array
+#       these           - only use shipyards specified in the building_id array
+#       all             - use all shipyards on the body
+#       equal_or_higher - use all shipyards equal to or higher than the first building
+#       equal           - use all shipyards equal to the first building
+#
 sub build_fleet {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            building_id => shift,
-            type        => shift,
-            quantity    => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body     = $building->body;
+    my ($self, %args) = @_;
 
-    my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+
+    my $building_ids    = $args{building_ids};
+    my $type            = $args{type};
+    my $quantity        = $args{quantity} || 1;
+    my $autoselect      = lc $args{autoselect};
+
     if ($quantity <= 0 or int($quantity) != $quantity) {
         confess [1001, "Quantity must be a positive integer"];
     }
-    my $body_id     = $building->body_id;
+
+    if (ref($building_ids) ne 'ARRAY') {
+        confess [1001, "building_ids must be an array"];
+    }
+    if (scalar(@$building_ids) < 1) {
+        confess [1001, "you must specify at least one building_id"];
+    }
+
+
+    my @buildings;
+    push @buildings, map { $self->get_building($session, $_) } @$building_ids;
+    
+    # All buildings must be on the same body
+    foreach my $building (@buildings) {
+        if ($building->body_id != $buildings[0]->body_id) {
+            confess [1001, "All buildings must be on the same planet"];
+        }
+    }
+    my $body = $self->get_body($session, $buildings[0]->body_id);
+
+    my @all_shipyards = grep {
+        $_->class eq 'Lacuna::DB::Result::Building::Shipyard' &&
+        $_->level > 0 &&
+        $_->efficiency >= 100
+    } @{$body->building_cache};
+
+    if ($autoselect eq 'this' or $autoselect eq 'these') {
+        # just use the shipyards specified
+    }
+    elsif ($autoselect eq 'all') {
+        @buildings = @all_shipyards;
+    }
+    elsif ($autoselect eq 'equal_or_higher') {
+        confess [1011, 'Too many building_ids'] if @buildings > 1;
+        @buildings = grep {
+            $_->level >= $buildings[0]->level
+        } @all_shipyards;
+    }
+    elsif ($autoselect eq 'equal') {
+        confess [1011, 'Too many building_ids'] if @buildings > 1;
+        @buildings = grep {
+            $_->level == $buildings[0]->level
+        } @all_shipyards;
+    }
+    else {
+        confess [1011, "Unknown autoselect option: $autoselect"];
+    }
+
+    # TODO Split the fleet between different shipyards
+    # but for now just build at the current one...
+
+    my $building = $buildings[0];
 
     my $fleet = Lacuna->db->resultset('Fleet')->new({
-        type        => $args->{type}, 
-        quantity    => $args->{quantity},
+        type        => $type, 
+        quantity    => $quantity,
     });
     my $costs = $building->get_fleet_costs($fleet);
     $building->can_build_fleet($fleet, $costs);
     $building->spend_resources_to_build_fleet($costs);
     $building->build_fleet($fleet, $costs->{seconds});
-    $fleet->body_id($body_id);
+    $fleet->body_id($body->id);
     $fleet->insert;
 
     return $self->view_build_queue({ 
-        no_status   => $args->{no_status}, 
+        no_status   => $args{no_status}, 
         session_id  => $empire, 
         building_id => $building },
     );
