@@ -49,6 +49,14 @@ sub view_build_queue {
             type_human      => $fleet->type_formatted,
             date_completed  => $fleet->date_available_formatted,
             quantity        => $fleet->quantity,
+            attributes      => {
+                speed           => $fleet->speed,
+                berth_level     => $fleet->berth_level,
+                hold_size       => $fleet->hold_size,
+                max_occupants   => $fleet->max_occupants,
+                combat          => $fleet->combat,
+                stealth         => $fleet->stealth,
+            },
         }
     }
 
@@ -107,11 +115,11 @@ sub subsidize_build_queue {
     }
     $building->finish_work->update;
  
-    return $self->view_build_queue({
+    return $self->view_build_queue(
         session_id  => $empire, 
         building_id => $building, 
         no_status   => $args->{no_status},
-    });
+    );
 }
 
 sub delete_build {
@@ -293,10 +301,10 @@ sub build_fleet {
     $fleet->body_id($body->id);
     $fleet->insert;
 
-    return $self->view_build_queue({ 
+    return $self->view_build_queue( 
         no_status   => $args{no_status}, 
         session_id  => $empire, 
-        building_id => $building },
+        building_id => $building,
     );
 }
 
