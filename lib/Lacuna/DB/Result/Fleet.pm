@@ -214,7 +214,7 @@ foreach my $method (qw(insert update)) {
 
 # Schedule a future call to handle a fleet action
 #
-sub schedule {
+sub delete_me_schedule {
     my ($self, $args) = @_;
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
@@ -616,6 +616,7 @@ sub start_construction {
 
     my $schedule = Lacuna->db->resultset('Schedule')->create({
         delivery        => $self->date_available,
+        queue           => 'reboot-build',
         parent_table    => 'Fleet',
         parent_id       => $self->id,
         task            => 'finish_construction',
@@ -691,6 +692,7 @@ sub reschedule_queue {
                 $fleet->update;
                 Lacuna->db->resultset('Schedule')->reschedule({
                     parent_table    => 'Fleet',
+                    queue           => 'reboot-build',
                     parent_id       => $fleet->id,
                     task            => 'finish_construction',
                     delivery        => $construction_ends,
