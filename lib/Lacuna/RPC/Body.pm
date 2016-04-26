@@ -37,11 +37,10 @@ sub get_status {
 }
 
 sub get_body_status {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    my $session = $self->get_session({session_id => $args->{session_id}});
-    my $empire = $session->current_empire;
-    my $body = Lacuna->db->resultset('Map::Body')->find($args->{body_id});
+    my $session = $self->get_session({session_id => $args{session_id}});
+    my $body    = Lacuna->db->resultset('Map::Body')->find($args{body_id});
     confess [1000, 'Cannot find that body.'] unless $body;
 
     return {
