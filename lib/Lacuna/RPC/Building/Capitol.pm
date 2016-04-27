@@ -24,8 +24,9 @@ around 'view' => sub {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my $out = $orig->($self, $empire, $building);
     $out->{rename_empire_cost} = $building->rename_empire_cost;
@@ -44,9 +45,10 @@ sub rename_empire {
             name            => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $name        = $args->{name};
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
+    my $name     = $args->{name};
 
     if ($empire->essentia < $building->rename_empire_cost) {
         confess [1011, "You don't have enough essentia. You need ".$building->rename_empire_cost."."];

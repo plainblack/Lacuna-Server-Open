@@ -6,12 +6,20 @@ use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
 use Lacuna::Util qw(randint);
 
 sub view_my_market {
-    my ($self, $session_id, $building_id, $page_number) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $self = shift;
+    my $args = shift;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+            page_number => shift,
+        };
+    }
+    my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
-    $page_number ||=1;
-    my $my_trades = $building->my_market->search(undef, { rows => 25, page => $page_number });
+    $args->{page_number} ||=1;
+    my $my_trades = $building->my_market->search(undef, { rows => 25, page => $args->{page_number} });
     my @trades;
     while (my $trade = $my_trades->next) {
         push @trades, {
@@ -24,7 +32,7 @@ sub view_my_market {
     return {
         trades      => \@trades,
         trade_count => $my_trades->pager->total_entries,
-        page_number => $page_number,
+        page_number => $args->{page_number},
         status      => $self->format_status($empire, $building->body),
     };
 }
@@ -32,21 +40,30 @@ sub view_my_market {
 
 
 sub view_market {
-    my ($self, $session_id, $building_id, $page_number, $filter) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
+    my $self = shift;
+    my $args = shift;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+            page_number => shift,
+            filter      => shift,
+        };
+    }
+    my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
-    $page_number ||=1;
+    $args->{page_number} ||=1;
     my $all_trades = $building->available_market->search(
         undef,{
             rows        => 25, 
-            page        => $page_number, 
+            page        => $args->{page_number}, 
             join        => 'body', 
             order_by    => 'ask',
         }
     );
-    if ($filter && $filter ~~ [qw(food ore water waste energy glyph prisoner ship plan)]) {
-        $all_trades = $all_trades->search({ 'has_'.$filter => 1 });
+    if ($args->{filter} && $args->{filter} ~~ [qw(food ore water waste energy glyph prisoner ship plan)]) {
+        $all_trades = $all_trades->search({ 'has_'.$args->{filter} => 1 });
     }
     my @trades;
     while (my $trade = $all_trades->next) {
@@ -79,7 +96,7 @@ sub view_market {
     return {
         trades      => \@trades,
         trade_count => $all_trades->pager->total_entries,
-        page_number => $page_number,
+        page_number => $args->{page_number},
         status      => $self->format_status($empire, $building->body),
     };
 }
@@ -189,10 +206,17 @@ sub get_plan_summary {
 
 
 sub get_plans {
-    my ($self, $session_id, $building_id) = @_;
-
-    my $empire      = $self->get_empire_by_session($session_id);
-    my $building    = $self->get_building($empire, $building_id);
+    my $self = shift;
+    my $args = shift;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id  => $args,
+            building_id => shift,
+        };
+    }
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my @out;
     my $sorted_plans = $building->body->sorted_plans;

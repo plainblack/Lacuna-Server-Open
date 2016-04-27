@@ -23,7 +23,8 @@ my $config = Lacuna->config;
 my $empires = $db->resultset('Lacuna::DB::Result::Empire');
 my $ai = Lacuna::AI::Jackpot->new;
 my $viable_colonies = $db->resultset('Lacuna::DB::Result::Map::Body')->search(
-                { zone => '0|0', empire_id => undef, size => { between => [40,60]}},
+                { zone => '0|0', empire_id => undef, size => { between => [40,60]},
+                  x => { between => [-50,50]}, y => {between => [-50,50]}},
                 { rows => 1, order_by => 'rand()' }
                 );
 my $jackpot = $empires->find(-4);

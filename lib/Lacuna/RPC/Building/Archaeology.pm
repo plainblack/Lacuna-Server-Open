@@ -28,8 +28,12 @@ around 'view' => sub {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id}, skip_offline => 1);
+    if ($args->{no_status}) {
+        return {};
+    }
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     my $out = $orig->($self, $empire, $building);
     if ($building->is_working) {
@@ -49,9 +53,12 @@ sub get_glyphs {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
     my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     my @out;
     my $glyphs = $building->body->glyph;
@@ -86,9 +93,12 @@ sub get_ores_available_for_processing {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
     my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     return {
         ore                 => $building->get_ores_available_for_processing,
@@ -108,8 +118,12 @@ sub search_for_glyph {
             ore             => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     $building->search_for_glyph($args->{ore});
     return $self->view($empire, $building);
@@ -128,10 +142,13 @@ sub assemble_glyphs {
             quantity        => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
+    if ($args->{no_status}) {
+        return {};
+    }
     my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $quantity    = defined $args->{quantity} ? $args->{quantity} : 1;
 
     if ($quantity > 50) {
         confess [1011, "You can only assemble up to 50 plans at a time"];
@@ -160,9 +177,12 @@ sub subsidize_search {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
     my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     unless ($building->is_working) {
         confess [1010, "No one is searching."];
@@ -192,8 +212,12 @@ sub view_excavators {
             building_id     => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
 
     my @sites;
     my $level = $building->effective_level;
@@ -256,11 +280,14 @@ sub abandon_excavator {
             site_id         => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    if ($args->{no_status}) {
+        return {};
+    }
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
     my $site_id     = $args->{site_id};
     my $site        = Lacuna->db->resultset('Lacuna::DB::Result::Excavators')->find($site_id);
-    my $session     = $self->get_session($args);
 
     unless (defined $site) {
         confess [1002, "Excavator Site :".$site_id.": not found."];
@@ -275,10 +302,21 @@ sub abandon_excavator {
 }
 
 sub mass_abandon_excavator {
-    my ($self, $session_id, $building_id) = @_;
-    my $session  = $self->get_session({session_id => $session_id, building_id => $building_id });
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $self = shift;
+    my $args = shift;
+    if (ref($args) ne "HASH") {
+        $args = {
+            session_id      => $args,
+            building_id     => shift,
+        };
+    }
+    if ($args->{no_status}) {
+        return {};
+    }
+
+    my $session     = $self->get_session($args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
     $building->excavators->delete;
 	return {
         status  => $self->format_status($session, $building->body),

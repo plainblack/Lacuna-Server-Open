@@ -25,8 +25,8 @@ sub find {
     unless (length($name) >= 3) {
         confess [1009, 'Alliance name too short. Your search must be at least 3 characters.'];
     }
-    my $empire = $self->get_empire_by_session($args->{session_id});
-    my $session     = $self->get_session({ session_id => $args->{session_id} });
+    my $session = $self->get_session($args);
+    my $empire = $session->current_empire;
     my $alliances = Lacuna->db->resultset('Alliance')->search({name => {'like' => $name.'%'}}, {rows=>100});
     my @list_of_alliances;
     my $limit = 100;
@@ -54,8 +54,8 @@ sub view_profile {
     }
 
     my $alliance_id = $args->{alliance_id};
-    my $empire = $self->get_empire_by_session($args->{session_id});
-    my $session     = $self->get_session({ session_id => $args->{session_id} });
+    my $session = $self->get_session($args);
+    my $empire = $session->current_empire;
     unless (defined $alliance_id && length $alliance_id) {
         confess [1002, "You must specify an alliance ID."];
     }

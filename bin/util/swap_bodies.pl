@@ -6,7 +6,7 @@ use Lacuna;
 use Lacuna::Util qw(format_date);
 use Getopt::Long;
 use JSON;
-use SOAP::Amazon::S3;
+# use SOAP::Amazon::S3;
 use Lacuna::Constants qw(SHIP_TYPES ORE_TYPES);
 use utf8;
 

@@ -17,7 +17,7 @@ around 'build_tags' => sub {
 use constant max_instances_per_planet => 1;
 use constant controller_class => 'Lacuna::RPC::Building::Archaeology';
 
-use constant university_prereq => 11;
+use constant university_prereq => 15;
 
 use constant image => 'archaeology';
 
@@ -72,8 +72,8 @@ sub get_ores_available_for_processing {
 sub max_excavators {
   my $self = shift;
   my $level = $self->effective_level;
-  return 0 if ($level < 11);
-  return ($level - 10);
+  return 0 if $level < 15;
+  return (int(($level - 14)/2) + 1);
 }
 
 sub run_excavators {
@@ -86,7 +86,7 @@ sub run_excavators {
   my $result = $self->dig_it($self->body, $level, 1);
   $result->{id} = $self->id;
   push @{$results}, $result;
-  if ($level > 10) {
+  if ($level > 14) {
     my $excavators = $self->excavators;
     while (my $excav = $excavators->next) {
       my $body = $excav->body;
@@ -211,7 +211,7 @@ sub dig_it {
   given ($outcome) {
     when ("resource") {
       my $type = random_element([ORE_TYPES, FOOD_TYPES, qw(water energy)]);
-      my $amount = randint(10 * $level, 200 * $level);
+      my $amount = randint(10 * $level, 500 * $level);
       $self->body->add_type($type, $amount)->update;
       $result = {
         message => "Found $amount of $type.",
@@ -330,7 +330,7 @@ sub found_plan {
   my $rand_cat = randint(0,99);
   my $lvl = 1;
   my $plus = 0;
-  if ($rand_cat < 3) {
+  if ($rand_cat < 2) {
     $class = random_element($plan_types->{special});
     if (randint(0,100) < int($level/3)) {
       $plus = randint(0, int($level/8));
@@ -339,7 +339,7 @@ sub found_plan {
       }
     }
   }
-  elsif ($rand_cat < 80) {
+  elsif ($rand_cat < 40) {
     $class = random_element($plan_types->{natural});
     if (randint(0,100) < int($level/2)) {
       $plus = randint(0, int($level/6));
@@ -351,6 +351,9 @@ sub found_plan {
   else {
     $class = random_element($plan_types->{decor});
     $plus = randint(1, int($level/5)+1) if (randint(0,100) < $level);
+    if ($level == 30 && $plus > 0) {
+        $plus++;
+    }
   }
   my $plan = $self->body->add_plan($class, $lvl, $plus);
 
@@ -370,10 +373,11 @@ sub found_artifact {
     return (0,0,"Nothing") unless (defined($artifacts));
     my $select = random_element($artifacts);
     my $class; my $plan_level; my $plus = 0; my $name; my $bld_destroy;
-    if ($amlevel > $select->level and randint(1, int(3 * $amlevel/2)) >= $select->level) {
+    if ( ($amlevel == 30 or $amlevel >= $select->level) and randint(1, int(2 * $amlevel)) >= $select->level) {
         $class = $select->class;
         $plan_level   = 1;
-        $plus  = int( ($select->level - 1) * 3/5); #Max doable would be 1+17
+        $plus  = int(($select->level * 4/5)); #Max doable would be 1+24
+        $plus++ if ($select->level >= 30);
         $name  = $select->name;
         $bld_destroy = 100;
     }
@@ -443,17 +447,17 @@ sub can_you_dig_it {
   my ($self, $body, $level, $arch) = @_;
 
   my $mult = $arch + 1;
-  my $plan  = int($level/4 + 1);
+  my $plan  = int($level/10 + 1);
   my $ore_total = 0;
   for my $ore (ORE_TYPES) {
      $ore_total += $body->$ore;
   }
-  $ore_total = 10_000 if $ore_total > 10_000;
-  my $glyph = int($mult * $level * $ore_total/20_000)+1; 
-  my $resource = int(5/2 * $level);
+  $ore_total = 20_000 if $ore_total > 20_000;
+  my $glyph = int($mult * $level * $ore_total/50_000)+1; 
+  my $resource = int(7/2 * $level);
   my $artifact = 0;
   if (!$arch && (scalar @{$body->building_cache})) {
-    $artifact = 15;
+    $artifact = 20;
   }
   my $destroy = $arch ? 0 : 5;
   $destroy += $artifact;
@@ -726,11 +730,12 @@ before delete => sub {
 before 'can_downgrade' => sub {
   my $self = shift;
   my $ecount = $self->excavators->count;
-  if ($ecount > 0 and $ecount > ($self->level - 11)) {
+  my $max_e  = $self->max_excavators;
+  if ($max_e == $ecount) {
     confess [1013, 'You must abandon one of your Excavator Sites before you can downgrade the Archaeology Ministry.'];
   }
-  if ($ecount > 0 && ($self->level -1) < 11 ) {
-    confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 11.'];
+  if ($ecount > 0 && ($self->level -1) < 15 ) {
+    confess [1013, 'You can not have any Excavator Sites if you are to downgrade your Archaeology Ministry below 15.'];
   }
 };
 

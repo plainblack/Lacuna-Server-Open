@@ -43,8 +43,9 @@ sub view_available_fleets {
 sub _view_available_fleets {
     my ($self, $args, $option) = @_;
 
-    my $empire  = $self->get_empire_by_session($args->{session_id});
-    my $body    = $self->get_body($empire, $args->{body_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $body     = $session->current_body;
     my $target  = $self->find_target($args->{target});
 
     my $filter  = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
@@ -107,7 +108,8 @@ sub send_fleet {
     }
     $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
     
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $target  = $self->find_target($args->{target});
     my $qty     = $args->{quantity};
     my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
@@ -202,7 +204,8 @@ sub recall_fleet {
             quantity    => shift,
         };
     }
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $qty     = $args->{quantity};
     my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
     if (! defined $fleet) {
@@ -236,7 +239,8 @@ sub prepare_send_spies {
             to_body_id  => shift,
         };
     }
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     if ($args->{to_body_id}) {
         $args->{to_body} = { body_id => $args->{to_body_id}};
     }
@@ -314,8 +318,8 @@ sub send_spies {
     }
     $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
  
-    my $empire  = $self->get_empire_by_session($args->{session_id});
-    my $session = $self->get_session({ session_id => $args->{session_id} });
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
 
     if ($args->{to_body_id}) {
         $args->{to_body} = { body_id => $args->{to_body_id}};
@@ -415,7 +419,8 @@ sub prepare_fetch_spies {
             to_body_id  => shift,
         };
     }
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     if ($args->{on_body_id}) {
         $args->{on_body} = { body_id => $args->{on_body_id}};
     }
@@ -490,7 +495,8 @@ sub fetch_spies {
             spy_ids     => shift,
         };
     }
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     if ($args->{on_body_id}) {
         $args->{on_body} = { body_id => $args->{on_body_id}};
     }
@@ -572,8 +578,9 @@ sub view_travelling_fleets {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $self->get_building($empire, $args->{building_id});
                                                                     
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
     my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
@@ -707,7 +714,8 @@ sub view_all_fleets {
             sort            => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
                                                                     
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
@@ -785,7 +793,8 @@ sub view_mining_platforms {
             target          => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $target = $self->find_target($args->{target});
     my $platform_rs = Lacuna->db->resultset('MiningPlatforms');
     if (not $target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
@@ -820,7 +829,8 @@ sub view_excavators {
             target     => shift,
         };
     }
-    my $empire = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $target = $self->find_target($args->{target});
     my $excavator_rs = Lacuna->db->resultset('Excavators');
     $excavator_rs = $excavator_rs->search({
@@ -845,7 +855,8 @@ sub view_excavators {
 sub _view_fleets {
     my ($self, $args) = @_;
 
-    my $empire  = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     # see all incoming ships from own empire, or from any alliance member
     # if the target is an allied colony, see all incoming ships dependent upon the highest
     # level of space-port on the target
@@ -940,7 +951,8 @@ sub rename_fleet {
             confess [1009, "Quantity must be a positive integer."];
         }
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
     if (not defined $fleet) {
@@ -982,7 +994,8 @@ sub scuttle_fleet {
             quantity        => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
 
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
@@ -1019,9 +1032,9 @@ sub view_battle_logs {
             sort            => shift,
         };
     }
-    my $empire      = $self->get_empire_by_session($args->{session_id});
-    my $building    = $self->get_building($empire, $args->{building_id});
-    my $session     = $self->get_session({ session_id => $args->{session_id} });
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
+    my $building = $session->current_building;
 
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
 

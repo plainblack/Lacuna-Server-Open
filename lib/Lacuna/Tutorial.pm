@@ -237,8 +237,8 @@ sub observatory {
             my $shipyard = $home->get_building_of_class('Lacuna::DB::Result::Building::Shipyard');
             if (defined $shipyard) {
                 $shipyard->body($home);
-                my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Ships')->new({body=>$home, type=>'probe'});
-                $shipyard->build_ship($probe);
+                my $probe = Lacuna->db->resultset('Lacuna::DB::Result::Fleet')->new({body=>$home, type=>'probe', quantity => 1,});
+                $shipyard->build_fleet($probe);
                 $probe->date_available(DateTime->now->add(seconds=>60));
                 $probe->update;
                 $shipyard->finish_work->update;

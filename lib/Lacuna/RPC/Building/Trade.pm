@@ -77,7 +77,8 @@ sub accept_from_market {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     my $trade_id    = $args->{trade_id};
 
@@ -150,10 +151,10 @@ sub add_fleet_to_supply_duty {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     my $fleet_id    = $args->{fleet_id};
-    my $session     = $self->get_session($args);
 
     if (not defined $building) {
         confess [1002, "Building not found."];
@@ -201,9 +202,9 @@ sub add_fleet_to_waste_duty {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
-    my $session      = $self->get_session($args);
 
     my $fleet_id    = $args->{fleet_id};
 
@@ -254,7 +255,8 @@ sub add_to_market {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if ($building->level < 1) {
         confess [1013, 'You cannot use a trade ministry that has not yet been built.'];
@@ -361,7 +363,8 @@ sub get_trade_fleets {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -393,7 +396,8 @@ sub get_waste_fleets {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -426,7 +430,8 @@ sub get_supply_fleets {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -457,9 +462,9 @@ sub view_supply_chains {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
-    my $session      = $self->get_session($args);
 
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -492,9 +497,9 @@ sub view_waste_chains {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
-    my $session      = $self->get_session($args);
 
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -526,7 +531,8 @@ sub delete_supply_chain {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -556,7 +562,8 @@ sub update_supply_chain {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     my $supply_chain_id = $args->{supply_chain_id};
     my $chain       = $building->supply_chains->find($supply_chain_id);
@@ -602,7 +609,8 @@ sub update_waste_chain {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -646,7 +654,8 @@ sub remove_supply_fleet {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -695,7 +704,8 @@ sub remove_waste_fleet {
         };
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     if (not defined $building) {
         confess [1002, "You must specify a building."];
@@ -746,7 +756,8 @@ sub push_items {
         confess [1000,"Must call push_items with a hash ref"];
     }
 
-    my $empire      = $self->get_empire_by_session($args->{session_id});
+    my $session  = $self->get_session($args);
+    my $empire   = $session->current_empire;
     my $building    = $self->get_building($empire, $args->{building_id});
     my $building_id = $building->id;
     my $items       = $args->{items};
