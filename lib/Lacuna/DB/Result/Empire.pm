@@ -124,6 +124,8 @@ __PACKAGE__->has_many('medals',             'Lacuna::DB::Result::Medals',       
 __PACKAGE__->has_many('all_probes',         'Lacuna::DB::Result::Probes',       'empire_id');
 __PACKAGE__->has_many('bodies',             'Lacuna::DB::Result::Map::Body',    'empire_id');
 
+__PACKAGE__->might_have(survey =>           'Lacuna::DB::Result::Survey',       'empire_id');
+
 has has_new_messages => (
                          is => 'ro',
                          isa => 'Int',

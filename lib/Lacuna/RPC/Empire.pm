@@ -714,6 +714,51 @@ sub set_status_message {
     return $self->format_status($session);
 }
 
+sub set_survey {
+    my ($self, $session_id, $choice, $comment) = @_;
+    
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+    
+    my $survey = $empire->survey;
+    if (defined $survey) {
+        $survey->choice($choice);
+        $survey->comment($comment);
+        $survey->update;
+    }
+    else {
+        $empire->create_related('survey', {
+            choice  => $choice,
+            comment => $comment,
+        });
+    }
+        
+    return $self->format_status($session);
+}
+
+sub get_survey {
+    my ($self, $session_id) = @_;
+    
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+
+    my $survey = $empire->survey;
+    my $out = {
+        choice  => 0,
+        comment => "No Comment",
+    };
+
+    if (defined $survey) {
+        $out = {
+            choice  => $survey->choice,
+            comment => $survey->comment,
+        };
+    }
+    return { survey => $out, status => $self->format_status($session) };
+}
+
+
+
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -1370,6 +1415,7 @@ __PACKAGE__->register_rpc_method_names(
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
     view_authorized_sitters authorize_sitters deauthorize_sitters
+    get_survey set_survey
     ),
 );
 
