@@ -5,8 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
-with "Lacuna::Role::Building::UpgradeWithHalls";
-
+with "Lacuna::Role::Building::UpgradeWithHalls"; 
 use constant controller_class => 'Lacuna::RPC::Building::SpaceJunkPark';
 
 around 'build_tags' => sub {
@@ -24,7 +23,7 @@ sub image_level {
 use constant name => 'Space Junk Park';
 use constant time_to_build => 60 * 60 * 40;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 40_000;
+use constant happiness_production => 900;
 use constant university_prereq => 27;
 use constant waste_to_build => -8_000_000;
 

@@ -13,7 +13,7 @@ use List::MoreUtils qw(uniq);
 use Email::Stuff;
 use Email::Valid;
 use UUID::Tiny ':std';
-use Lacuna::Constants qw(INFLATION);
+use Lacuna::Constants qw(INFLATION_S INFLATION_F);
 use PerlX::Maybe qw(provided maybe);
 use Log::Any qw($log);
 use Data::Dumper;
@@ -1147,9 +1147,9 @@ sub next_colony_cost {
         }
         $count += $adjustment;
         my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
-        my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
+        my $inflation = 1 + INFLATION_F - (($srcs + $self->effective_growth_affinity * 5) / 100);
         $tally = 100_000 * ($inflation**($count-1));
-        my $max = 2_700_000_000_000_000 / (1 + (($srcs + $self->effective_growth_affinity * 5) / 100));
+        my $max = 1_350_000_000_000_000 / (1 + (($srcs + $self->effective_growth_affinity * 5) / 100));
         $max *= 200 if $type eq "spy";
         $tally = $max if $tally > $max;
     }
@@ -1169,9 +1169,9 @@ sub next_colony_cost {
             { join => 'body' }
         )->count;
         $count += $adjustment;
-        my $inflation = 1 + INFLATION - (($self->effective_growth_affinity * 15) / 100);
+        my $inflation = 1 + INFLATION_S - (($self->effective_growth_affinity * 15) / 100);
         $tally = 250_000 * ($inflation**($count-1));
-        my $max = 405_000_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
+        my $max = 300_000_000_000_000 / (1 + ($self->effective_growth_affinity * 5 / 100));
         $tally = $max if $tally > $max;
     }
     else {

@@ -3,13 +3,19 @@ package Lacuna::DB::Result::Building::DistributionCenter;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES);
+use Lacuna::Constants qw(ORE_TYPES FOOD_TYPES GROWTH_F INFLATION_F CONSUME_N WASTE_S TINFLATE_F);
 extends 'Lacuna::DB::Result::Building';
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Storage));
 };
+
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_N;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_S;
+use constant time_inflation => TINFLATE_F;
 
 use constant controller_class => 'Lacuna::RPC::Building::DistributionCenter';
 
@@ -41,19 +47,19 @@ use constant water_consumption => 2;
 
 use constant waste_production => 2;
 
-use constant water_storage => 750;
+use constant water_storage => 1200;
 
-use constant ore_storage => 750;
+use constant ore_storage => 1200;
 
-use constant energy_storage => 750;
+use constant energy_storage => 1200;
 
-use constant food_storage => 750;
+use constant food_storage => 1200;
 
 use constant max_instances_per_planet => 2;
 
 sub max_reserve_size {
     my $self = shift;
-    return int($self->effective_level * 10000 * (10 ** ($self->effective_level/10+1)));
+    return int($self->effective_level * 1000 * (10 ** ($self->effective_level/10+1)));
 }
 sub reserve_duration {
     my $self = shift;

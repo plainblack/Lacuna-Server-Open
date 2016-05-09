@@ -656,7 +656,11 @@ sub room_for_star {
     # checking every other star is too computationally expensive
     # however we can just look at the adjacent chunks.
     CHUNK:
-    foreach my $delta_chunk ([-1,1],[0,1],[1,1],[-1,0],[0,0],[1,0],[-1,-1],[0,-1],[1,-1]) {
+    foreach my $delta_chunk ([-2, 2],[-2, 1],[-2, 0],[-2,-1],[-2,-2],
+                             [-1, 2],[-1, 1],[-1, 0],[-1,-1],[-1,-2], 
+                             [ 0, 2],[ 0, 1],[ 0, 0],[ 0,-1],[ 0,-2], 
+                             [ 1, 2],[ 1, 1],[ 1, 0],[ 1,-1],[ 1,-2], 
+                             [ 2, 2],[ 2, 1],[ 2, 0],[ 2,-1],[ 2,-2]) {
         my $chunk_p = $p + $delta_chunk->[0];
         my $chunk_q = $q + $delta_chunk->[1];
         $chunk_p += $chunks if $chunk_p < 0;

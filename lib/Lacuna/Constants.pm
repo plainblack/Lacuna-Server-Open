@@ -3,9 +3,39 @@ package Lacuna::Constants;
 use strict;
 use base 'Exporter';
 
-use constant INFLATION => 1.75;
+use constant SLUG        => 1.30;
+use constant SLOW        => 1.35;
+use constant MED         => 1.40;
+use constant FAST        => 1.45;
+use constant EXTREME     => 1.50;
+use constant GROWTH      => MED;
+use constant GROWTH_N    => MED;
+use constant GROWTH_S    => SLOW;
+use constant GROWTH_F    => FAST;
+use constant INFLATION   => FAST;
+use constant INFLATION_N => FAST;
+use constant INFLATION_S => MED;
+use constant INFLATION_F => EXTREME;
+use constant CONSUME     => MED;
+use constant CONSUME_N   => MED;
+use constant CONSUME_S   => SLOW;
+use constant CONSUME_F   => FAST;
+use constant WASTE       => MED;
+use constant WASTE_N     => MED;
+use constant WASTE_S     => SLOW;
+use constant WASTE_F     => FAST;
+use constant HAPPY       => MED;
+use constant HAPPY_N     => MED;
+use constant HAPPY_S     => SLOW;
+use constant HAPPY_F     => FAST;
+
+# A greater time dilator for each level
+use constant TINFLATE    => 1.75;
+use constant TINFLATE_N  => 1.75;
+use constant TINFLATE_S  => 1.7;
+use constant TINFLATE_F  => 1.8;
+
 use constant SECONDS_IN_A_DAY => 60 * 60 * 24;
-use constant GROWTH => 1.55;
 use constant MINIMUM_EXERTABLE_INFLUENCE => 10;
 use constant FOOD_TYPES => (qw(cheese bean lapis potato apple root corn cider wheat bread soup chip pie pancake milk meal algae syrup fungus burger shake beetle));
 use constant ORE_TYPES => (qw(rutile chromite chalcopyrite galena gold uraninite bauxite goethite halite gypsum trona kerogen methane anthracite sulfur zircon monazite fluorite beryl magnetite));
@@ -132,9 +162,31 @@ use constant SHIP_SINGLE_USE_TYPES => (qw( probe short_range_colony_ship colony_
                                         placebo placebo2 placebo3 placebo4 placebo5 placebo6 bleeder fissure_sealer
                                         ));
 our @EXPORT_OK = qw(
-    INFLATION
-    SECONDS_IN_A_DAY
     GROWTH
+    GROWTH_N
+    GROWTH_S
+    GROWTH_F
+    INFLATION
+    INFLATION_N
+    INFLATION_S
+    INFLATION_F
+    CONSUME
+    CONSUME_N
+    CONSUME_S
+    CONSUME_F
+    WASTE
+    WASTE_N
+    WASTE_S
+    WASTE_F
+    HAPPY
+    HAPPY_N
+    HAPPY_S
+    HAPPY_F
+    TINFLATE
+    TINFLATE_N
+    TINFLATE_S
+    TINFLATE_F
+    SECONDS_IN_A_DAY
     MINIMUM_EXERTABLE_INFLUENCE
     FOOD_TYPES
     ORE_TYPES
@@ -148,9 +200,31 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
     all =>  [qw(
-        INFLATION
-        SECONDS_IN_A_DAY
         GROWTH
+        GROWTH_N
+        GROWTH_S
+        GROWTH_F
+        INFLATION
+        INFLATION_N
+        INFLATION_S
+        INFLATION_F
+        CONSUME
+        CONSUME_N
+        CONSUME_S
+        CONSUME_F
+        WASTE
+        WASTE_N
+        WASTE_S
+        WASTE_F
+        HAPPY
+        HAPPY_N
+        HAPPY_S
+        HAPPY_F
+        TINFLATE
+        TINFLATE_N
+        TINFLATE_S
+        TINFLATE_F
+        SECONDS_IN_A_DAY
         MINIMUM_EXERTABLE_INFLUENCE
         FOOD_TYPES
         ORE_TYPES

@@ -23,7 +23,7 @@ after finish_upgrade => sub {
 };
 
 use constant name => 'Malcud Field';
-use constant fungus_production => 4000;
+use constant fungus_production => 2000;
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
 

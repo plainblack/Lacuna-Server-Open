@@ -3,11 +3,17 @@ package Lacuna::DB::Result::Building::Permanent::GasGiantPlatform;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna::Constants qw(GROWTH);
+use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_F WASTE_F);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
 with 'Lacuna::Role::Building::IgnoresUniversityLevel';
+
+
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_F;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_F;
 
 around 'build_tags' => sub {
   my ($orig, $class) = @_;
@@ -80,17 +86,17 @@ use constant name => 'Gas Giant Settlement Platform';
 
 use constant food_to_build => 0;
 
-use constant energy_to_build => 1500;
+use constant energy_to_build => 1000;
 
-use constant ore_to_build => 1500;
+use constant ore_to_build => 1000;
 
 use constant water_to_build => 0;
 
-use constant waste_to_build => 300;
+use constant waste_to_build => 500;
 
 use constant time_to_build => 250;
 
-use constant waste_production => 110;
+use constant waste_production => 400;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

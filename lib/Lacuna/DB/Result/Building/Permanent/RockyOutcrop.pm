@@ -14,7 +14,7 @@ sub can_upgrade {
 }
 
 use constant image => 'rockyoutcrop';
-use constant ore_production => 10; 
+use constant ore_production => 50; 
 
 sub image_level {
     my ($self) = @_;

@@ -25,7 +25,7 @@ after finish_upgrade => sub {
 use constant name => 'Ravine';
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
-use constant waste_storage => 100_000;
+use constant waste_storage => 5_000;
 
 
 no Moose;

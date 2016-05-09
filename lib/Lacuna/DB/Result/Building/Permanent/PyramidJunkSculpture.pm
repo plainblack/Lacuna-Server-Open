@@ -24,7 +24,7 @@ sub image_level {
 use constant name => 'Pyramid Junk Sculpture';
 use constant time_to_build => 60 * 60 * 50;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 50_000;
+use constant happiness_production => 1000;
 use constant university_prereq => 29;
 use constant waste_to_build => -10_000_000;
 

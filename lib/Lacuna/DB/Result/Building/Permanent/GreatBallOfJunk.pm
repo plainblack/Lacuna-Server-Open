@@ -24,7 +24,7 @@ sub image_level {
 use constant name => 'Great Ball of Junk';
 use constant time_to_build => 60 * 60 * 20;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 20_000;
+use constant happiness_production => 700;
 use constant university_prereq => 23;
 use constant waste_to_build => -4_000_000;
 

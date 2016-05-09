@@ -24,7 +24,7 @@ sub image_level {
 use constant name => 'Junk Henge Sculpture';
 use constant time_to_build => 60 * 60 * 10;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 10_000;
+use constant happiness_production => 600;
 use constant university_prereq => 21;
 use constant waste_to_build => -2_000_000;
 

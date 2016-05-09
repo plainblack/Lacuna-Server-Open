@@ -4,10 +4,17 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Food';
+use Lacuna::Constants qw(GROWTH_F INFLATION_N CONSUME_S);
 
 use constant controller_class => 'Lacuna::RPC::Building::Beeldeban';
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Root'=>5};
+
+use constant prod_rate => GROWTH_F;
+
+use constant consume_rate => CONSUME_S;
+
+use constant cost_rate => INFLATION_N;
 
 use constant image => 'beeldeban';
 

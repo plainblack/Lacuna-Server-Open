@@ -24,7 +24,7 @@ after finish_upgrade => sub {
 };
 
 use constant name => 'Volcano'; 
-use constant ore_production => 4000;
+use constant ore_production => 2000;
 
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;

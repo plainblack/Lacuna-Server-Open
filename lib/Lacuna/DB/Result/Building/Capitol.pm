@@ -4,11 +4,18 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(INFLATION_F CONSUME_N WASTE_F HAPPY_F TINFLATE_F);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Happiness Intelligence));
 };
+
+use constant consume_rate => CONSUME_N;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_F;
+use constant happy_prod_rate => HAPPY_F;
+use constant time_inflation => TINFLATE_F;
 
 use constant building_prereq => {'Lacuna::DB::Result::Building::PlanetaryCommand'=>10};
 
@@ -42,23 +49,23 @@ use constant water_consumption => 20;
 
 use constant waste_production => 5;
 
-use constant happiness_production => 15;
+use constant happiness_production => 100;
 
-before 'can_demolish' => sub {
-    my $self = shift;
-    my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-    if (defined $stockpile) {
-        confess [1013, 'You have to demolish your Stockpile before you can demolish your Capitol.'];
-    }
-};
+# before 'can_demolish' => sub {
+#     my $self = shift;
+#     my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
+#     if (defined $stockpile) {
+#         confess [1013, 'You have to demolish your Stockpile before you can demolish your Capitol.'];
+#     }
+# };
 
-before 'can_downgrade' => sub {
-    my $self = shift;
-    my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-    if (defined $stockpile and $self->level < 11) {
-        confess [1013, 'You have to demolish your Stockpile before you can downgrade your Capitol lower than level 10.'];
-    }
-};
+# before 'can_downgrade' => sub {
+#     my $self = shift;
+#     my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
+#     if (defined $stockpile and $self->level < 11) {
+#         confess [1013, 'You have to demolish your Stockpile before you can downgrade your Capitol lower than level 10.'];
+#     }
+# };
 
 before can_build => sub {
     my $self = shift;

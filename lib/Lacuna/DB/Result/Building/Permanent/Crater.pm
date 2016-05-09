@@ -45,7 +45,7 @@ sub name {
 }
 
 use constant time_to_build => 0;
-use constant waste_storage => 10;
+use constant waste_storage => 500;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

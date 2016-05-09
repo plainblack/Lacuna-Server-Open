@@ -4,8 +4,13 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Ore';
-use Lacuna::Constants qw(ORE_TYPES);
+use Lacuna::Constants qw(ORE_TYPES GROWTH_F INFLATION_N CONSUME_S WASTE_F);
 use POSIX qw(ceil);
+
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_S;
+use constant cost_rate => INFLATION_N;
+use constant waste_prod_rate => WASTE_F;
 
 sub platforms {
     my $self = shift;

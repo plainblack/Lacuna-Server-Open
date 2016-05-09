@@ -16,7 +16,7 @@ while (my $name = <$file>) {
 close $file;
 
 say "Loading us...";
-my @us = qw(Dillon Knope Vrbsky Smith Runde Rozeske Parker Icydee Norway Vasari Rhutenia Lemming Icd);
+my @us = qw(Lacuna Dillon Knope Vrbsky Smith Runde Rozeske Parker Icydee Norway Vasari Rhutenia Lemming Icd);
 
 say "Generating new...";
 my $rs = String::Random->new;

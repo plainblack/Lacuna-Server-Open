@@ -23,7 +23,7 @@ sub image_level {
 }
 
 use constant name => 'Geo Thermal Vent';
-use constant energy_production => 4000;
+use constant energy_production => 2000;
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
 

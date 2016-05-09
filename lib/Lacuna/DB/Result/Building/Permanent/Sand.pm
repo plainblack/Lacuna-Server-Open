@@ -16,6 +16,6 @@ use constant max_instances_per_planet => 9;
 
 use constant ore_to_build => 1;
 use constant time_to_build => 1;
-use constant ore_production => 0.1; 
+use constant ore_production => 10; 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

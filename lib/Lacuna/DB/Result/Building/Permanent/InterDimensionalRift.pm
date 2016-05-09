@@ -26,11 +26,11 @@ use constant name => 'Interdimensional Rift';
 
 use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
-use constant energy_storage => 50_000;
-use constant water_storage => 50_000;
-use constant food_storage => 50_000;
-use constant ore_storage => 50_000;
-use constant waste_storage => 50_000;
+use constant energy_storage => 5000;
+use constant water_storage => 5000;
+use constant food_storage => 5000;
+use constant ore_storage => 5000;
+use constant waste_storage => 2500;
 
 
 no Moose;

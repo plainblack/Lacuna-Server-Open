@@ -27,7 +27,7 @@ use constant time_to_build => 0;
 use constant max_instances_per_planet => 1;
 use constant min_orbit => 2;
 use constant max_orbit => 2;
-use constant lapis_production => 4000; 
+use constant lapis_production => 2000; 
 
 around produces_food_items => sub {
     my ($orig, $class) = @_;

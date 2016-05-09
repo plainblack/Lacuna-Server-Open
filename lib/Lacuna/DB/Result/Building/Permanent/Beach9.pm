@@ -21,15 +21,15 @@ sub image_level {
 }
 
 use constant name => 'Beach [9]';
-use constant algae_production => 10; 
+use constant algae_production => 25; 
 around produces_food_items => sub {
     my ($orig, $class) = @_;
     my $foods = $orig->($class);
     push @{$foods}, qw(algae);
     return $foods;
 };
-use constant ore_production => 10; 
-use constant water_production => 10; 
+use constant ore_production => 25; 
+use constant water_production => 25; 
 
 use constant time_to_build => 0;
 

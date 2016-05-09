@@ -24,7 +24,7 @@ sub image_level {
 use constant name => 'Metal Junk Arches';
 use constant time_to_build => 60 * 60 * 30;
 use constant max_instances_per_planet => 1;
-use constant happiness_production => 30_000;
+use constant happiness_production => 800;
 use constant university_prereq => 25;
 use constant waste_to_build => -6_000_000;
 

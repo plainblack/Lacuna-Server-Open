@@ -3,7 +3,7 @@ package Lacuna::DB::Result::Building::Permanent::TerraformingPlatform;
 use Moose;
 use utf8;
 no warnings qw(uninitialized);
-use Lacuna::Constants qw(GROWTH);
+use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_F WASTE_F);
 extends 'Lacuna::DB::Result::Building::Permanent';
 
 with "Lacuna::Role::Building::CantBuildWithoutPlan";
@@ -13,6 +13,11 @@ around 'build_tags' => sub {
   my ($orig, $class) = @_;
   return ($orig->($class), qw(Infrastructure Construction));
 };
+
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_F;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_F;
 
 use constant controller_class => 'Lacuna::RPC::Building::TerraformingPlatform';
 
@@ -88,7 +93,7 @@ use constant waste_to_build => 250;
 
 use constant time_to_build => 180;
 
-use constant waste_production => 60;
+use constant waste_production => 200;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

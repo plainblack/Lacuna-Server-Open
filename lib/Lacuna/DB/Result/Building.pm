@@ -46,7 +46,7 @@ sub controller_class {
     confess "you need to override me";
 }
 
-use constant max_instances_per_planet => 99;
+use constant max_instances_per_planet => 50;
 
 use constant university_prereq => 0;
 
@@ -78,6 +78,15 @@ sub image_level {
 }
 
 sub produces_food_items { [] };
+
+use constant prod_rate              => GROWTH;
+use constant consume_rate           => CONSUME;
+use constant cost_rate              => INFLATION;
+use constant waste_consume_rate     => WASTE;
+use constant waste_prod_rate        => WASTE;
+use constant happy_prod_rate        => HAPPY;
+use constant happy_consume_rate     => HAPPY;
+use constant time_inflation         => TINFLATE;
 
 use constant time_to_build          => 60;
 
@@ -171,24 +180,76 @@ sub production_hour {
     my $self = shift;
     return 0 unless  $self->effective_level;
     my $prod_level = $self->effective_level;
-    my $production = (GROWTH ** (  $prod_level - 1));
+    my $production = ($self->prod_rate ** (  $prod_level - 1));
     $production = ($production * $self->effective_efficiency) / 100;
     return $production;
 }
 
 sub current_level_cost {
-    return (INFLATION ** ($_[0]->level -1));
+    my $self = shift;
+
+    return ($self->cost_rate ** ($self->level -1));
 }
 
 sub upgrade_cost {
     my ($self, $level) = @_;
     $level ||= $self->level;
-    return (INFLATION ** $level);
+    return ($self->cost_rate ** $level);
 }
 
 sub consumption_hour {
-    return $_[0]->production_hour;
+    my $self = shift;
+    return 0 unless  $self->effective_level;
+    my $consume_level = $self->effective_level;
+    my $consumption = ($self->consume_rate ** (  $consume_level - 1));
+    $consumption = ($consumption * $self->effective_efficiency) / 100;
+    return $consumption;
 }
+
+sub happy_production_hour {
+    my $self = shift;
+    return 0 unless  $self->effective_level;
+    my $prod_level = $self->effective_level;
+    my $production = ($self->happy_prod_rate ** (  $prod_level - 1));
+    $production = ($production * $self->effective_efficiency) / 100;
+    return $production;
+}
+
+sub happy_consumption_hour {
+    my $self = shift;
+    return 0 unless  $self->effective_level;
+    my $consume_level = $self->effective_level;
+    my $consumption = ($self->happy_consume_rate ** (  $consume_level - 1));
+    $consumption = ($consumption * $self->effective_efficiency) / 100;
+    return $consumption;
+}
+
+sub waste_production_hour {
+    my $self = shift;
+    return 0 unless  $self->effective_level;
+    my $wprod_level = $self->effective_level;
+    my $wproduction = ($self->waste_prod_rate ** (  $wprod_level - 1));
+    $wproduction = $self->waste_production * ($wproduction * $self->effective_efficiency) / 100;
+    return sprintf('%.0f',$wproduction);
+}
+
+sub waste_consumption_bonus {
+    my ($self) = @_;
+    my $empire = $self->body->empire;
+    return 1 unless defined $empire;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 50 : 0;
+    return (100 + $gg_bonus + $empire->effective_environmental_affinity * 5) / 100;
+}
+
+sub waste_consumption_hour {
+    my $self = shift;
+    return 0 unless  $self->effective_level;
+    my $wprod_level = $self->effective_level;
+    my $wproduction = ($self->waste_consume_rate ** (  $wprod_level - 1));
+    $wproduction = $self->waste_consumption_bonus * $self->waste_consumption * ($wproduction * $self->effective_efficiency) / 100;
+    return sprintf('%.0f',$wproduction);
+}
+
 
 # PRODUCTION
 
@@ -469,26 +530,6 @@ sub water_hour {
     return sprintf('%.0f',$self->water_production_hour - $self->water_consumption_hour);
 }
 
-sub waste_consumption_bonus {
-    my ($self) = @_;
-    my $empire = $self->body->empire;
-    return 1 unless defined $empire;
-    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
-    return (100 + $gg_bonus + $empire->effective_environmental_affinity * 4) / 100;
-}
-
-sub waste_production_hour {
-    my ($self) = @_;
-    return sprintf('%.0f',$self->waste_production * $self->production_hour);
-}
-
-sub waste_consumption_hour {
-    my ($self) = @_;
-    my $base = $self->waste_consumption * $self->consumption_hour;
-    return 0 if $base == 0;
-    return sprintf('%.0f', $base * $self->waste_consumption_bonus);
-}
-
 sub waste_hour {
     my ($self) = @_;
     return sprintf('%.0f',$self->waste_production_hour - $self->waste_consumption_hour);
@@ -505,13 +546,17 @@ sub happiness_production_bonus {
         $sboost = $max_b;
     }
     $boost += $sboost;
-    return (100 + $boost) * (100 + $empire->effective_political_affinity * 10)/10000;
-#    return (100 + $boost + ($empire->effective_political_affinity * 10)) / 100; #Old Way
+    my $capitol_bonus = 0;
+    if (defined $self->body->capitol and $self->class !~ /Permanent|LCOT/) {
+        my $capitol_level = $self->body->capitol->effective_level;
+        $capitol_bonus = $capitol_level * 3;
+    }
+    return (100 + $capitol_bonus) * (100 + $boost) * (100 + $empire->effective_political_affinity * 10)/1000000;
 }
 
 sub happiness_production_hour {
     my ($self) = @_;
-    my $base = $self->happiness_production * $self->production_hour;
+    my $base = $self->happiness_production * $self->happy_production_hour;
     return 0 unless $self->body->empire;
     return 0 if Lacuna->cache->get('sz_exceeded', $self->body->id);
     return 0 if $base == 0;
@@ -520,7 +565,7 @@ sub happiness_production_hour {
 
 sub happiness_consumption_hour {
     my ($self) = @_;
-    return sprintf('%.0f',$self->happiness_consumption * $self->consumption_hour);
+    return sprintf('%.0f',$self->happiness_consumption * $self->happy_consumption_hour);
 }
 
 sub happiness_hour {
@@ -537,8 +582,13 @@ has storage_bonus => (
         my ($self) = @_;
         my $empire = $self->body->empire;
         return 1 unless defined $empire;
+        my $stockpile_bonus = 0;
+        if (defined $self->body->stockpile and $self->class !~ /Permanent|LCOT/) {
+            my $stock_level = $self->body->stockpile->effective_level;
+            $stockpile_bonus = $stock_level * 3;
+        }
         my $boost = (time < $empire->storage_boost->epoch) ? 25 : 0;
-        return (100 + $boost) / 100;
+        return ((100 + $stockpile_bonus)/100) * ((100 + $boost) / 100);
     },
 );
 
@@ -584,7 +634,7 @@ sub waste_capacity {
     return 0 if $base == 0;
     my $empire = $self->body->empire;
     return 1 unless defined $empire;
-    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 25 : 0;
+    my $gg_bonus = ($self->body->get_type eq 'gas giant') ? 50 : 0;
     return sprintf('%.0f', $base * ($self->storage_bonus + ($gg_bonus + $empire->effective_environmental_affinity * 4) / 100) );
 }
 
@@ -762,28 +812,28 @@ sub is_not_max_level {
     if ($self->level >= 30) {
         confess [1009, 'This building is already at its maximum level.'];
     }
-    my $max_level = 15;
-    if ($self->body->empire->university_level > 25) {
-      $max_level += ($self->body->empire->university_level - 25);
-    }
-    if ($self->level >= $max_level &&
-        'Resources' ~~ [ $self->build_tags] && (!('Storage' ~~ [$self->build_tags])
-                                                || $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
-        # resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
-        my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-        if (defined $stockpile) {
-            if ($max_level + $stockpile->extra_resource_levels > $self->level) {
-                return 1;
-            }
-            else {
-                confess [1013,
-                    sprintf("The maximum level of this building is %d with your University level and stockpile.",
-                    $max_level + $stockpile->extra_resource_levels),
-                ];
-            }
-        }
-        confess [1013, 'Resource buildings cannot upgrade above level '.$max_level.' without a Stockpile.'];
-    }
+#     my $max_level = 15;
+#     if ($self->body->empire->university_level > 25) {
+#       $max_level += ($self->body->empire->university_level - 25);
+#     }
+#     if ($self->level >= $max_level &&
+#         'Resources' ~~ [ $self->build_tags] && (!('Storage' ~~ [$self->build_tags])
+#                                                 || $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
+#         # resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
+#         my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
+#         if (defined $stockpile) {
+#             if ($max_level + $stockpile->extra_resource_levels > $self->level) {
+#                 return 1;
+#             }
+#             else {
+#                 confess [1013,
+#                     sprintf("The maximum level of this building is %d with your University level and stockpile.",
+#                     $max_level + $stockpile->extra_resource_levels),
+#                 ];
+#             }
+#         }
+#         confess [1013, 'Resource buildings cannot upgrade above level '.$max_level.' without a Stockpile.'];
+#     }
     return 1;
 }
 
@@ -857,7 +907,7 @@ sub cost_to_upgrade {
     my $time_inflator = ($self->level * 2) - 1;
     $time_inflator = 1 if ($time_inflator < 1);
     my $throttle = Lacuna->config->get('building_build_speed') || 6;
-    my $time_cost = (( $self->level+1)/$throttle * $self->time_to_build * $time_inflator ** INFLATION) *
+    my $time_cost = (( $self->level+1)/$throttle * $self->time_to_build * $time_inflator ** $self->time_inflation) *
                        $self->building_reduction_bonus * $self->time_cost_reduction_bonus *
                        $oversight_reduction * $time_with_plan;
     $time_cost = 5184000 if ($time_cost > 5184000); # 60 Days

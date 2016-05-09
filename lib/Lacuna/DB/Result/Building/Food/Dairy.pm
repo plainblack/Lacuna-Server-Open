@@ -6,8 +6,9 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Food';
 
 use constant controller_class => 'Lacuna::RPC::Building::Dairy';
-
 use constant building_prereq => {'Lacuna::DB::Result::Building::Food::Corn'=>5};
+
+use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_F WASTE_N TINFLATE_F);
 
 before has_special_resources => sub {
     my $self = shift;
@@ -18,6 +19,11 @@ before has_special_resources => sub {
     }
 };
 
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_F;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_N;
+use constant time_inflation => TINFLATE_F;
 
 use constant min_orbit => 3;
 

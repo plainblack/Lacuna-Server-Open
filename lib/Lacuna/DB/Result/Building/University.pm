@@ -4,11 +4,20 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
+use Lacuna::Constants qw(INFLATION_F CONSUME_F WASTE_F HAPPY_F TINFLATE_F);
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
     return ($orig->($class), qw(Infrastructure Happiness Construction));
 };
+
+
+use constant consume_rate => CONSUME_F;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_F;
+use constant happy_prod_rate => HAPPY_F;
+use constant time_inflation => TINFLATE_F;
+
 
 use constant controller_class => 'Lacuna::RPC::Building::University';
 

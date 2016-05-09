@@ -687,6 +687,8 @@ foreach my $arg (
     [qw(development Development)],
     ['refinery', 'Ore::Refinery'],
     [qw(spaceport SpacePort)],
+    [qw(stockpile Stockpile)],
+    [qw(capitol Capitol)],
     [qw(embassy Embassy)],
     ) {
     my $method = $arg->[0];

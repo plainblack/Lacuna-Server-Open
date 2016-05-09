@@ -14,14 +14,14 @@ sub can_upgrade {
 }
 
 use constant image => 'lake';
-use constant algae_production => 10; 
+use constant algae_production => 20; 
 around produces_food_items => sub {
     my ($orig, $class) = @_;
     my $foods = $orig->($class);
     push @{$foods}, qw(algae);
     return $foods;
 };
-use constant water_production => 10;
+use constant water_production => 20;
 
 sub image_level {
     my ($self) = @_;
