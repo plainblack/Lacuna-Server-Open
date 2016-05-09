@@ -812,28 +812,6 @@ sub is_not_max_level {
     if ($self->level >= 30) {
         confess [1009, 'This building is already at its maximum level.'];
     }
-#     my $max_level = 15;
-#     if ($self->body->empire->university_level > 25) {
-#       $max_level += ($self->body->empire->university_level - 25);
-#     }
-#     if ($self->level >= $max_level &&
-#         'Resources' ~~ [ $self->build_tags] && (!('Storage' ~~ [$self->build_tags])
-#                                                 || $self->isa('Lacuna::DB::Result::Building::Waste::Exchanger'))) {
-#         # resource buildings except storage buildings (treat a Waste Exchanger as if it were not a storage building)
-#         my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-#         if (defined $stockpile) {
-#             if ($max_level + $stockpile->extra_resource_levels > $self->level) {
-#                 return 1;
-#             }
-#             else {
-#                 confess [1013,
-#                     sprintf("The maximum level of this building is %d with your University level and stockpile.",
-#                     $max_level + $stockpile->extra_resource_levels),
-#                 ];
-#             }
-#         }
-#         confess [1013, 'Resource buildings cannot upgrade above level '.$max_level.' without a Stockpile.'];
-#     }
     return 1;
 }
 

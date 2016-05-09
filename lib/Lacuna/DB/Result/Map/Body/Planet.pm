@@ -685,6 +685,7 @@ foreach my $arg (
     ['mining_ministry','Ore::Ministry'],
     [qw(network19 Network19)],
     [qw(development Development)],
+    ['oracle', 'Permanent::OracleOfAnid'],
     ['refinery', 'Ore::Refinery'],
     [qw(spaceport SpacePort)],
     [qw(stockpile Stockpile)],
@@ -703,16 +704,6 @@ foreach my $arg (
         },
     );
 }
-
-has oracle => (
-    is      => 'rw',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        my $building = $self->get_building_of_class('Lacuna::DB::Result::Building::Permanent::OracleOfAnid');
-        return $building;
-    },
-);
 
 has build_boost => (
     is      => 'rw',

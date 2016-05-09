@@ -51,22 +51,6 @@ use constant waste_production => 5;
 
 use constant happiness_production => 100;
 
-# before 'can_demolish' => sub {
-#     my $self = shift;
-#     my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-#     if (defined $stockpile) {
-#         confess [1013, 'You have to demolish your Stockpile before you can demolish your Capitol.'];
-#     }
-# };
-
-# before 'can_downgrade' => sub {
-#     my $self = shift;
-#     my $stockpile = $self->body->get_building_of_class('Lacuna::DB::Result::Building::Stockpile');
-#     if (defined $stockpile and $self->level < 11) {
-#         confess [1013, 'You have to demolish your Stockpile before you can downgrade your Capitol lower than level 10.'];
-#     }
-# };
-
 before can_build => sub {
     my $self = shift;
     my @ids = $self->body->empire->planets->get_column('id')->all;
