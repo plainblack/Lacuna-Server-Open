@@ -10,6 +10,16 @@
 
  - MAJOR REWORK
 
+ - Resource Balance
+   - Mod: Flattening of all growth rates between levels.
+   - Mod: Different growth rates for different buildings. Perms get less of a bonus per level for example.
+   - Mod: Glyph Buildings nerfed.
+   - Mod: Archeology rate reduced.
+   - Mod: Resource Level Limit removed.
+   - Mod: Stockpile now available on all planets and gives bonus to storage of normal buildings.
+   - Mod: Capitol Building gives a bonus to Happiness generation of normal buildings.
+   - Mod: Max happiness for colonies and space station reduced to reflect lower generation values.
+
  - Major reworking of ships into fleets.
    - Mod: Most API calls involving ships have changed, if you use external scripts these will most likely need to be modified.
    - Mod: Most API calls now have the option of named arguments as well as supporting the existing scheme for backwards compatibility
