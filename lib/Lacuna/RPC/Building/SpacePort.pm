@@ -580,7 +580,7 @@ sub view_travelling_fleets {
 
     my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
-    my $building = $self->get_building($empire, $args->{building_id});
+    my $building = $self->get_building($session, $args->{building_id});
                                                                     
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
     my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
@@ -716,7 +716,7 @@ sub view_all_fleets {
     }
     my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $building    = $self->get_building($session, $args->{building_id});
                                                                     
     my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
     my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
@@ -953,7 +953,7 @@ sub rename_fleet {
     }
     my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $building    = $self->get_building($session, $args->{building_id});
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
     if (not defined $fleet) {
         confess [1002, "Fleet not found."];
@@ -996,7 +996,7 @@ sub scuttle_fleet {
     }
     my $session  = $self->get_session($args);
     my $empire   = $session->current_empire;
-    my $building    = $self->get_building($empire, $args->{building_id});
+    my $building    = $self->get_building($session, $args->{building_id});
 
     my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
     if (not defined $fleet) {

@@ -166,7 +166,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
         return $body_id;
     }
 
-    my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
+    my $join = $session->is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
 
     my $body = Lacuna->db->resultset('Map::Body')->
         search(
@@ -178,7 +178,7 @@ sub get_body { # makes for uniform error handling, and prevents staleness
                                'me.alliance_id'      => $session->empire->alliance_id,
                                'me.class'            => 'Lacuna::DB::Result::Map::Body::Planet::Station'
                            } : () ,
-                           $session->_is_sitter ? () : {
+                           $session->is_sitter ? () : {
                                'sitterauths.sitter_id' => $session->empire->id,
                                'me.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
                            },
@@ -207,7 +207,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
         confess [ 552, "Internal Error [get_building]" ];
     }
 
-    my $join = $session->_is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
+    my $join = $session->is_sitter ? 'empire' : { 'empire' => 'sitterauths' };
 
     my $building =
         Lacuna->db->resultset('Building')->
@@ -220,7 +220,7 @@ sub get_building { # makes for uniform error handling, and prevents staleness
                                'body.alliance_id'      => $session->empire->alliance_id,
                                'body.class'            => 'Lacuna::DB::Result::Map::Body::Planet::Station'
                            } : (),
-                           $session->_is_sitter ? () : {
+                           $session->is_sitter ? () : {
                                'sitterauths.sitter_id' => $session->empire->id,
                                'body.class' => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' },
                            },
