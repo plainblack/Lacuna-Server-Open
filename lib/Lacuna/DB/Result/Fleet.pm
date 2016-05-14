@@ -484,6 +484,7 @@ sub get_status {
             payload         => $self->format_description_of_payload,
             can_scuttle     => eval {$self->can_scuttle} ? 1 : 0,
             can_recall      => eval {$self->can_recall} ? 1 : 0,
+            build_tags      => $self->build_tags,
         };
     }
     

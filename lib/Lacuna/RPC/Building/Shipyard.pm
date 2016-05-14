@@ -78,20 +78,13 @@ sub view_build_queue {
 
 
 sub subsidize_build_queue {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body     = $building->body;
-    
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
     my $fleets      = $building->fleets_under_construction;
     my $ships       = 0;
     while (my $fleet = $fleets->next) {
@@ -123,44 +116,37 @@ sub subsidize_build_queue {
 }
 
 sub delete_build {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-            ship_id         => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+    my $fleet_id    = $args{fleet_id};
 
-    my $ship_id = $args->{ship_id};
-
-    if (!ref $ship_id)
-    {
-        $ship_id = [ $ship_id ];
-    }
-    elsif (ref $ship_id eq 'ARRAY' )
-    {
-        confess [1000, 'Invalid ship ID.' ]
-            unless none { ref $_ } @$ship_id;
-    }
-    else
-    {
-        confess [1000, 'Invalid ship ID reference.' ];
+    unless ($building->effective_level > 0 and $building->efficiency == 100) {
+        confess [1003, "You must have a functional Space Port!"];
     }
 
-    my $ships = Lacuna->db->resultset('Ships')->search({
-            id => $ship_id,
-            task => 'Building',
+    if (!ref $fleet_id) {
+        $fleet_id = [ $fleet_id ];
+    }
+    elsif (ref $fleet_id eq 'ARRAY' ) {
+        confess [1000, 'Invalid fleet ID.' ]
+            unless none { ref $_ } @$fleet_id;
+    }
+    else {
+        confess [1000, 'Invalid fleet ID reference.' ];
+    }
+
+    my $fleets = Lacuna->db->resultset('Fleet')->search({
+        id      => $fleet_id,
+        task    => 'Building',
     });
+
     my $cancelled_count = 0;
-    while (my $ship = $ships->next)
-    {
-        $ship->cancel_build;
+    while (my $fleet = $fleets->next) {
+        $fleet->cancel_build;
         ++$cancelled_count;
     }
 
@@ -172,19 +158,19 @@ sub delete_build {
 
 
 sub subsidize_fleet {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        confess [1000, "You have not supplied a hash reference"];
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+    my $fleet_id    = $args{fleet_id};
+
     unless ($building->effective_level > 0 and $building->efficiency == 100) {
         confess [1003, "You must have a functional Space Port!"];
     }
     my $fleet = Lacuna->db->resultset('Fleet')->search({
-        id          => $args->{fleet_id},
+        id          => $fleet_id,
         shipyard_id => $building->id,
         task        => 'Building',
     })->single;
@@ -207,7 +193,7 @@ sub subsidize_fleet {
     });
     $empire->update;
 
-    return $self->view({session => $empire, building => $building, no_status => $args->{no_status}});
+    return $self->view({session => $empire, building => $building, no_status => $args{no_status}});
 }
 
 
@@ -249,8 +235,11 @@ sub build_fleet {
     my @buildings;
     push @buildings, map { $self->get_building($session, $_) } @$building_ids;
     
-    # All buildings must be on the same body
+    # All buildings must be on the same body and functional
     foreach my $building (@buildings) {
+        unless ($building->effective_level > 0 and $building->efficiency == 100) {
+            confess [1003, "All SpacePorts must be functional!!"];
+        }
         if ($building->body_id != $buildings[0]->body_id) {
             confess [1001, "All buildings must be on the same planet"];
         }
@@ -310,14 +299,18 @@ sub build_fleet {
 
 
 sub repair_fleet {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body     = $building->body;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    unless ($building->effective_level > 0 and $building->efficiency == 100) {
+        confess [1003, "You must have a functional Space Port!"];
+    }
+
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args{fleet_id});
 
     if (not $fleet) {
         confess [1010, "Fleet cannot be found"];
@@ -335,21 +328,16 @@ sub repair_fleet {
 
 
 sub get_repairable {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            building_id => shift,
-            tag         => shift,
-        };
-    }
+    my ($self, %args) = @_;
 
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body     = $building->body;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
+    unless ($building->effective_level > 0 and $building->efficiency == 100) {
+        confess [1003, "You must have a functional Space Port!"];
+    }
 
     my %repairable;
     my $fleet_rs = Lacuna->db->resultset('Fleet')->search({
@@ -398,27 +386,24 @@ sub get_repairable {
 }
 
 sub get_buildable {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            building_id => shift,
-            tag         => shift,
-        };
+    my ($self, %args) = @_;
+
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+    my $tag         = $args{tag};
+
+    unless ($building->effective_level > 0 and $building->efficiency == 100) {
+        confess [1003, "You must have a functional Space Port!"];
     }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
-    my $body     = $building->body;
 
     my %buildable;
     foreach my $type (SHIP_TYPES) {
         my $fleet = Lacuna->db->resultset('Fleet')->new({ type => $type, quantity => 1 });
         my @tags = @{$fleet->build_tags};
-        if ($args->{tag}) {
-            next unless ($args->{tag} ~~ \@tags);
+        if ($tag) {
+            next unless ($tag ~~ \@tags);
         }
         my $can = eval{$building->can_build_fleet($fleet)};
         my $reason = $@;
@@ -454,7 +439,7 @@ sub get_buildable {
         docks_available => $docks,
         build_queue_max => $max_ships,
         build_queue_used => $total_ships_building,
-        status          => $args->{no_status} ? {} : $self->format_status($empire, $body),
+        status          => $args{no_status} ? {} : $self->format_status($empire, $body),
     };
 }
 
