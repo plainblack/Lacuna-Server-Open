@@ -111,7 +111,7 @@ sub subsidize_build_queue {
     return $self->view_build_queue(
         session_id  => $empire, 
         building_id => $building, 
-        no_status   => $args->{no_status},
+        no_status   => $args{no_status},
     );
 }
 
@@ -379,7 +379,7 @@ sub get_repairable {
     return {
         repairable      => $fleets,
         docks_available => $docks,
-        status          => $args->{no_status} ? {} : $self->format_status($empire, $body),
+        status          => $args{no_status} ? {} : $self->format_status($empire, $body),
         build_queue_max => $max_ships,
         build_queue_used => $total_ships_building,
      };

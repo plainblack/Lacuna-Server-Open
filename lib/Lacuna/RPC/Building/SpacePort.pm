@@ -24,17 +24,17 @@ sub model_class {
 
 # Get fleets not available to send to a target
 sub view_unavailable_fleets {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    return $self->_view_available_fleets($args, 'unavailable');
+    return $self->_view_available_fleets(\%args, 'unavailable');
 }
 
 
 # Get fleets available to send to a target
 sub view_available_fleets {
-    my ($self, $args) = @_;
+    my ($self, %args) = @_;
 
-    return $self->_view_available_fleets($args, 'available');
+    return $self->_view_available_fleets(\%args, 'available');
 }
 
 # Routine to go through all docked ships and determine if they are
@@ -43,9 +43,9 @@ sub view_available_fleets {
 sub _view_available_fleets {
     my ($self, $args, $option) = @_;
 
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $body     = $session->current_body;
+    my $session = $self->get_session($args);
+    my $empire  = $session->current_empire;
+    my $body    = $session->current_body;
     my $target  = $self->find_target($args->{target});
 
     my $filter  = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
@@ -94,25 +94,18 @@ sub _view_available_fleets {
 
 
 sub send_fleet {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            fleet_id    => shift,
-            quantity    => shift,
-            target      => shift,
-            arrival_date=> shift,
-        };
-    }
-    $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
+    my ($self, %args) = @_;
+
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
+    $args{arrival_date} = {soonest => 1} if not defined $args{arrival_date};
     
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $target  = $self->find_target($args->{target});
-    my $qty     = $args->{quantity};
-    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
+    my $target  = $self->find_target($args{target});
+    my $qty     = $args{quantity};
+    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args{fleet_id}},{prefetch => 'body'});
     if (! defined $fleet) {
         confess [1002, 'Could not locate that fleet.'];
     }
@@ -134,11 +127,11 @@ sub send_fleet {
     }
     my $new_fleet = $fleet->split($qty); 
 
-    if ($args->{arrival_date}{soonest}) {
+    if ($args{arrival_date}{soonest}) {
         $new_fleet->send(target => $target);
     }
     else {
-        my $arrival_date = $self->calculate_arrival($fleet, $target, $args->{arrival_date});
+        my $arrival_date = $self->_calculate_arrival($fleet, $target, $args{arrival_date});
         $new_fleet->send(target => $target, arrival => $arrival_date);
     }
     return {
@@ -150,7 +143,7 @@ sub send_fleet {
 
 # calculate arrival time
 #
-sub calculate_arrival {
+sub _calculate_arrival {
     my ($self, $fleet, $target, $args) = @_;
 
     my $month   = $args->{month};
@@ -194,20 +187,15 @@ sub calculate_arrival {
 }
 
 sub recall_fleet {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            fleet_id    => shift,
-            quantity    => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $qty     = $args->{quantity};
-    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args->{fleet_id}},{prefetch => 'body'});
+    my ($self, %args) = @_;
+
+    my $session = $self->get_session(\%args);
+    my $empire  = $session->current_empire;
+
+    # TODO You should not be able to recall a fleet if there are no functional spaceports
+
+    my $qty     = $args{quantity};
+    my $fleet   = Lacuna->db->resultset('Fleet')->find({id => $args{fleet_id}},{prefetch => 'body'});
     if (! defined $fleet) {
         confess [1002, 'Could not locate that fleet.'];
     }
@@ -224,28 +212,21 @@ sub recall_fleet {
     my $body = $new_fleet->body;
     #$body->update;
     # to satisfy 'view' get a Space Port
-    $args->{building_id} = $body->spaceport->id;
-    return $self->view($args);
+    $args{building_id} = $body->spaceport->id;
+    return $self->view(%args);
 }
 
 sub prepare_send_spies {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            on_body_id  => shift,
-            to_body_id  => shift,
-        };
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+
+    if ($args{to_body_id}) {
+        $args{to_body} = { body_id => $args{to_body_id}};
     }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    if ($args->{to_body_id}) {
-        $args->{to_body} = { body_id => $args->{to_body_id}};
-    }
-    my $on_body = $self->get_body($empire, $args->{on_body_id});
-    my $to_body = $self->find_target($args->{to_body});
+    my $on_body = $self->get_body($empire, $args{on_body_id});
+    my $to_body = $self->find_target($args{to_body});
     if (not $to_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, "Can only send spies to a planet."];
     }
@@ -253,7 +234,7 @@ sub prepare_send_spies {
         confess [1009, "Cannot send spies to an uninhabited body."];
     }
     if ($to_body->empire->is_isolationist) {
-        confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone.',$to_body->empire->name)];
+        confess [ 1013, sprintf('%s is an isolationist empire, and must be left alone according to the Prime Directive.',$to_body->empire->name)];
     }
 
     unless ($on_body->empire_id == $to_body->empire_id) {
@@ -270,7 +251,7 @@ sub prepare_send_spies {
         task        => 'Docked', 
         body_id     => $on_body->id,
         berth_level => {'<=' => $max_berth },
-        },{
+    },{
         order_by    => 'name', 
         rows        => 100,
     });
@@ -282,7 +263,7 @@ sub prepare_send_spies {
     my $spies = Lacuna->db->resultset('Spies')->search({
         on_body_id  => $on_body->id, 
         empire_id   => $empire->id,
-        },{
+    },{
         order_by    => 'name', 
         rows        => 100,
     });
@@ -304,28 +285,18 @@ sub prepare_send_spies {
 }
 
 sub send_spies {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            on_body_id  => shift,
-            to_body_id  => shift,
-            fleet_id    => shift,
-            spy_ids     => shift,
-        };
-    }
-    $args->{arrival_date} = {soonest => 1} if not defined $args->{arrival_date};
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+
+    $args{arrival_date} = {soonest => 1} if not defined $args{arrival_date};
  
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-
-    if ($args->{to_body_id}) {
-        $args->{to_body} = { body_id => $args->{to_body_id}};
+    if ($args{to_body_id}) {
+        $args{to_body} = { body_id => $args{to_body_id}};
     }
-    my $on_body = $self->get_body($empire, $args->{on_body_id});
-    my $to_body = $self->find_target($args->{to_body});
+    my $on_body = $self->get_body($empire, $args{on_body_id});
+    my $to_body = $self->find_target($args{to_body});
     if (not $to_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, "Can only send spies to a planet."];
     }
@@ -341,20 +312,23 @@ sub send_spies {
     }
 
     # get the fleet
-    my $fleet = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    my $fleet = Lacuna->db->resultset('Fleet')->find($args{fleet_id});
     if (not defined $fleet) {
         confess [1002, "Fleet not found."];
     }
     if (not $fleet->is_available) {
         confess [1010, "That fleet is not available."];
     }
+
+    # TODO Should not be able to send a ship if the spaceports are not functional
+
     my $max_berth = $on_body->max_berth;
     if ($fleet->berth_level > $max_berth) {
         confess [1010, "Your spaceport level is not high enough to support a fleet with a Berth Level of ".$fleet->berth_level."."];
     }
 
     # check size
-    my $spies_to_send = scalar(@{$args->{spy_ids}});
+    my $spies_to_send = scalar(@{$args{spy_ids}});
 
     if ($spies_to_send < 1) {
         confess [1013, "You can't send a fleet with no spies."];
@@ -366,14 +340,14 @@ sub send_spies {
     my $spies = Lacuna->db->resultset('Spies');
     my $arrives;
     
-    if ($args->{arrival_date}{soonest}) {
+    if ($args{arrival_date}{soonest}) {
         $arrives = DateTime->now->add(seconds => $fleet->calculate_travel_time($to_body));
     }
     else {
-        $arrives = $self->calculate_arrival($fleet, $to_body, $args->{arrival_date});
+        $arrives = $self->_calculate_arrival($fleet, $to_body, $args{arrival_date});
     }
 
-    foreach my $id (@{$args->{spy_ids}}) {
+    foreach my $id (@{$args{spy_ids}}) {
         my $spy = $spies->find($id);
         if ($spy->is_available and $spy->on_body_id == $on_body->id) {
             if ($spy->empire_id == $empire->id) {
@@ -409,23 +383,16 @@ sub send_spies {
 }
 
 sub prepare_fetch_spies {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            on_body_id  => shift,
-            to_body_id  => shift,
-        };
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+
+    if ($args{on_body_id}) {
+        $args{on_body} = { body_id => $args{on_body_id}};
     }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    if ($args->{on_body_id}) {
-        $args->{on_body} = { body_id => $args->{on_body_id}};
-    }
-    my $to_body = $self->get_body($empire, $args->{to_body_id});
-    my $on_body = $self->find_target($args->{on_body});
+    my $to_body = $self->get_body($empire, $args{to_body_id});
+    my $on_body = $self->find_target($args{on_body});
     if (not $on_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, "Can only fetch spies from a planet."];
     }
@@ -435,12 +402,14 @@ sub prepare_fetch_spies {
 
     my $max_berth = $to_body->max_berth || 1;
 
+    # TODO Should not be able to fetch spies unless there is a functional spaceport
+
     my $fleets_rs = Lacuna->db->resultset('Fleet')->search({
         type        => { in => [qw(spy_pod cargo_ship smuggler_ship dory spy_shuttle barge)]},
         task        => 'Docked', 
         body_id     => $to_body->id,
         berth_level => {'<=' => $max_berth },
-        },{
+    },{
         order_by    => 'name', 
         rows        => 100,
     });
@@ -483,25 +452,16 @@ sub prepare_fetch_spies {
 }
 
 sub fetch_spies {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id  => $args,
-            on_body_id  => shift,
-            to_body_id  => shift,
-            fleet_id    => shift,
-            spy_ids     => shift,
-        };
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+
+    if ($args{on_body_id}) {
+        $args{on_body} = { body_id => $args{on_body_id}};
     }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    if ($args->{on_body_id}) {
-        $args->{on_body} = { body_id => $args->{on_body_id}};
-    }
-    my $to_body = $self->get_body($empire, $args->{to_body_id});
-    my $on_body = $self->find_target($args->{on_body});
+    my $to_body = $self->get_body($empire, $args{to_body_id});
+    my $on_body = $self->find_target($args{on_body});
     if (not $on_body->isa('Lacuna::DB::Result::Map::Body::Planet')) {
         confess [1009, "Can only fetch spies from a planet."];
     }
@@ -514,9 +474,9 @@ sub fetch_spies {
     my @ids_fetched;
     my @ids_not_fetched;
     my $spies = Lacuna->db->resultset('Lacuna::DB::Result::Spies');
-    foreach my $id (@{$args->{spy_ids}}) {
+    foreach my $id (@{$args{spy_ids}}) {
         my $spy = $spies->find($id);
-        if ($spy->on_body_id == $args->{on_body_id}) {
+        if ($spy->on_body_id == $args{on_body_id}) {
             push @ids_fetched, $id;
         }
         else {
@@ -525,7 +485,7 @@ sub fetch_spies {
     }
 
     # get the fleet
-    my $fleet = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    my $fleet = Lacuna->db->resultset('Fleet')->find($args{fleet_id});
     unless (defined $fleet) {
         confess [1002, "Fleet not found."];
     }
@@ -541,12 +501,12 @@ sub fetch_spies {
         confess [1013, "Cannot fetch spies from an uninhabited planet."];
     }
 
-    if (not scalar(@{$args->{spy_ids}})) {
+    if (not scalar(@{$args{spy_ids}})) {
         confess [1013, "You can't send a fleet to collect no spies."];
     }
     
     # check size
-    my $no_of_ships = ceil(scalar(@{$args->{spy_ids}}) / $fleet->max_occupants);
+    my $no_of_ships = ceil(scalar(@{$args{spy_ids}}) / $fleet->max_occupants);
     if ($fleet->quantity < $no_of_ships) {
         confess [1013, "The fleet cannot hold the spies selected."];
     }
@@ -568,23 +528,16 @@ sub fetch_spies {
 
 
 sub view_travelling_fleets {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-        };
-    }
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $self->get_building($session, $args->{building_id});
-                                                                    
-    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
-    my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
-    my $sort = $self->_fleet_sort_options( $args->{sort} // 'date_available' );
+    my $paging = $self->_fleet_paging_options( (defined $args{paging} && ref $args{paging} eq 'HASH') ? $args{paging} : {} );
+    my $filter = $self->_fleet_filter_options( (defined $args{filter} && ref $args{filter} eq 'HASH') ? $args{filter} : {} );
+    my $sort = $self->_fleet_sort_options( $args{sort} // 'date_available' );
 
     my $attrs = {
         order_by => $sort,
@@ -592,7 +545,7 @@ sub view_travelling_fleets {
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
 
-    my $body = $building->body;
+    # TODO Should not be able to see travelling fleets if you don't have a functional spaceport
 
     my @travelling;
     my $fleets = $body->fleets_travelling->search($filter, $attrs);
@@ -702,25 +655,16 @@ sub _fleet_sort_options {
 # View all of your fleets whatever they are doing
 # 
 sub view_all_fleets {
-    my $self = shift;
-    my $args = shift;
-            
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-            paging          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building    = $self->get_building($session, $args->{building_id});
-                                                                    
-    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
-    my $filter = $self->_fleet_filter_options( (defined $args->{filter} && ref $args->{filter} eq 'HASH') ? $args->{filter} : {} );
-    my $sort = $self->_fleet_sort_options( $args->{sort} // 'type' );
+    my ($self, %args) = @_;
+
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
+    my $paging      = $self->_fleet_paging_options( (defined $args{paging} && ref $args{paging} eq 'HASH') ? $args{paging} : {} );
+    my $filter      = $self->_fleet_filter_options( (defined $args{filter} && ref $args{filter} eq 'HASH') ? $args{filter} : {} );
+    my $sort        = $self->_fleet_sort_options( $args{sort} // 'type' );
 
     my $attrs = {
         order_by => $sort,
@@ -728,7 +672,7 @@ sub view_all_fleets {
     $attrs->{rows} = $paging->{items_per_page} if ( defined $paging->{items_per_page} );
     $attrs->{page} = $paging->{page_number} if ( defined $paging->{page_number} );
 
-    my $body = $building->body;
+    # TODO Should not be able to view fleets without a functional spaceport
 
     my @fleet;
     my $fleets = $body->fleets->search( $filter, $attrs );
@@ -737,7 +681,7 @@ sub view_all_fleets {
     }
 
     return {
-        status              => $args->{no_status} ? {} : $self->format_status($empire, $body),
+        status              => $args{no_status} ? {} : $self->format_status($empire, $body),
         number_of_fleets    => defined $paging->{page_number} ? $fleets->pager->total_entries : $fleets->count,
         fleets              => \@fleet,
     };
@@ -746,63 +690,47 @@ sub view_all_fleets {
 
 # View incoming fleets (not own returning fleets)
 sub view_incoming_fleets {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            target          => shift,
-            paging          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    $args->{task} = 'travelling';
-    $args->{task_title} = 'incoming';
-    return $self->_view_fleets($args);
+    $args{task}     = 'travelling';
+    $args{task_title} = 'incoming';
+    return $self->_view_fleets(\%args);
 }
 
 sub view_orbiting_fleets {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            target          => shift,
-            paging          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    $args->{task} = 'orbiting';
-    $args->{task_title} = 'orbiting';
-    return $self->_view_fleets($args);
+    $args{task}     = 'orbiting';
+    $args{task_title} = 'orbiting';
+    return $self->_view_fleets(\%args);
 }
 
 sub view_mining_platforms {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            target          => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $target = $self->find_target($args->{target});
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
+    my $target      = $self->find_target($args{target});
     my $platform_rs = Lacuna->db->resultset('MiningPlatforms');
     if (not $target->isa('Lacuna::DB::Result::Map::Body::Asteroid')) {
         confess [1002, 'Target is not an Asteroid.'];
     }
     $platform_rs = $platform_rs->search({
         asteroid_id     => $target->id,
-        },{
+    },{
         prefetch        => {planet => 'empire'},
     });
     my @platforms;
@@ -820,22 +748,18 @@ sub view_mining_platforms {
 }
 
 sub view_excavators {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id => $args,
-            target     => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $target = $self->find_target($args->{target});
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+    
+    my $target      = $self->find_target($args{target});
     my $excavator_rs = Lacuna->db->resultset('Excavators');
     $excavator_rs = $excavator_rs->search({
         body_id => $target->id,
-        },{
+    },{
         prefetch => {planet => 'empire'},
     });
     my @excavators;
@@ -868,7 +792,7 @@ sub _view_fleets {
         $fleet_rs = $fleet_rs->search({
             task            => 'Travelling',
             direction       => 'out',
-            },{
+        },{
             prefetch        => 'body',
         });
     }
@@ -923,38 +847,30 @@ sub _view_fleets {
 # rename some, or all, ships in a fleet
 #
 sub rename_fleet {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-            fleet_id        => shift,
-            name            => shift,
-        };
-    }
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    Lacuna::Verify->new(content=>\$args->{name}, throws=>[1005, 'Invalid name for a fleet.'])
+    Lacuna::Verify->new(content => \$args{name}, throws => [1005, 'Invalid name for a fleet.'])
         ->not_empty
         ->no_profanity
         ->length_lt(31)
         ->only_ascii
         ->no_restricted_chars;
 
-    my $name    = $args->{name};
+    my $name    = $args{name};
     $name       =~ s/^\s+//;
     $name       =~ s/\s+$//;
-    my $quantity = $args->{quantity};
+    my $quantity = $args{quantity};
     if (defined $quantity) {
         if ($quantity <= 0 or $quantity != int($quantity)) {
             confess [1009, "Quantity must be a positive integer."];
         }
     }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building    = $self->get_building($session, $args->{building_id});
-    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args{fleet_id});
     if (not defined $fleet) {
         confess [1002, "Fleet not found."];
     }
@@ -979,33 +895,26 @@ sub rename_fleet {
         $new_fleet->name($name);
         $new_fleet->update;
     }
-    return $self->view($args);
+    return $self->view(\%args);
 }
 
 sub scuttle_fleet {
-    my $self = shift;
-    my $args = shift;
-        
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-            fleet_id        => shift,
-            quantity        => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building    = $self->get_building($session, $args->{building_id});
+    my ($self, %args) = @_;
 
-    my $fleet       = Lacuna->db->resultset('Fleet')->find($args->{fleet_id});
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
+
+    my $fleet       = Lacuna->db->resultset('Fleet')->find($args{fleet_id});
     if (not defined $fleet) {
         confess [1002, "Fleet not found."];
     }
-    my $qty = $args->{quantity};
+    my $qty = $args{quantity};
     $fleet->has_that_quantity($qty);
     $fleet->can_scuttle;
 
+    # TODO Should not be able to scuttle a fleet which does not have a functional spaceport
     if ($fleet->body_id != $building->body_id) {
         confess [1013, "You can't manage a fleet that is not yours."];
     }
@@ -1016,33 +925,26 @@ sub scuttle_fleet {
         $fleet->quantity($fleet->quantity - $qty);
         $fleet->update;
     }
-    return $self->view($args);
+    return $self->view(\%args);
 }
 
 sub view_battle_logs {
-    my $self = shift;
-    my $args = shift;
+    my ($self, %args) = @_;
 
-    if (ref($args) ne "HASH") {
-        $args = {
-            session_id      => $args,
-            building_id     => shift,
-            paging          => shift,
-            filter          => shift,
-            sort            => shift,
-        };
-    }
-    my $session  = $self->get_session($args);
-    my $empire   = $session->current_empire;
-    my $building = $session->current_building;
+    my $session     = $self->get_session(\%args);
+    my $empire      = $session->current_empire;
+    my $building    = $session->current_building;
+    my $body        = $building->body;
 
-    my $paging = $self->_fleet_paging_options( (defined $args->{paging} && ref $args->{paging} eq 'HASH') ? $args->{paging} : {} );
+    my $paging = $self->_fleet_paging_options( (defined $args{paging} && ref $args{paging} eq 'HASH') ? $args{paging} : {} );
 
     my $attrs = {
         order_by => { -desc => 'date_stamp' },
     };
     $attrs->{rows} = defined $paging->{items_per_page} ? $paging->{items_per_page} : 25;
     $attrs->{page} = defined $paging->{page_number} ? $paging->{page_number} : 1;
+
+    # TODO Should not be able to view battle logs unless there is a functional spaceport?
 
     my @logs;
     my $battle_logs = $building->battle_logs->search({}, $attrs);
