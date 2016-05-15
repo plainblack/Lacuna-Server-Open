@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Waste';
 
-use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_N WASTE_S WASTE_F);
+use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_N WASTE_S WASTE_F TINFLATE_F);
 
 use constant controller_class => 'Lacuna::RPC::Building::WasteExchanger';
 
@@ -18,6 +18,7 @@ use constant consume_rate => CONSUME_N;
 use constant cost_rate => INFLATION_F;
 use constant waste_prod_rate => WASTE_S;
 use constant waste_consume_rate => WASTE_F;
+use constant time_inflation => TINFLATE_F;
 
 use constant energy_production => 100;
 use constant ore_production => 100;
@@ -33,7 +34,7 @@ use constant time_to_build => 670;
 use constant food_consumption => 8;
 use constant waste_consumption => 300;
 
-use constant waste_storage => 1000;
+use constant waste_storage => 1500;
 
 use constant max_instances_per_planet => 2;
 

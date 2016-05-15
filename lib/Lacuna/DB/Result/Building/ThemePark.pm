@@ -5,7 +5,15 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use DateTime;
-use Lacuna::Constants qw(FOOD_TYPES);
+use Lacuna::Constants qw(FOOD_TYPES GROWTH_F INFLATION_F CONSUME_F WASTE_F HAPPY_F TINFLATE_F);
+
+use constant prod_rate => GROWTH_F;
+use constant consume_rate => CONSUME_F;
+use constant cost_rate => INFLATION_F;
+use constant waste_prod_rate => WASTE_F;
+use constant happy_prod_rate => HAPPY_F;
+use constant time_inflation => TINFLATE_F;
+
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -37,33 +45,36 @@ use constant max_instances_per_planet => 2;
 
 sub food_consumption {
     my $self = shift;
-    return ($self->is_working) ? 125 : 5;
+    return ($self->is_working) ? 300 : 5;
 }
 
 sub energy_consumption {
     my $self = shift;
-    return ($self->is_working) ? 130 : 5;
+    return ($self->is_working) ? 500 : 5;
 }
 
 sub ore_consumption {
     my $self = shift;
-    return ($self->is_working) ? 15 : 5;
+    return ($self->is_working) ? 100 : 5;
 }
 
 sub water_consumption {
     my $self = shift;
-    return ($self->is_working) ? 150 : 5;
+    return ($self->is_working) ? 500 : 5;
 }
 
 sub waste_production {
     my $self = shift;
-    return ($self->is_working) ? 115 : 5;
+    if ($self->is_working) {
+        return $self->work->{food_type_count} * 35;
+    }
+    return 2;
 }
 
 sub happiness_production {
     my $self = shift;
     if ($self->is_working) {
-        return $self->work->{food_type_count} * 25;
+        return $self->work->{food_type_count} * 35;
     }
     return 0;
 }
