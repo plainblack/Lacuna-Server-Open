@@ -48,3 +48,5 @@ RUN cpanm Digest::MD4 Bad::Words
 RUN groupadd nogroup
 WORKDIR /data/Lacuna-Server-Open/bin
 
+RUN yum -y install vixie-cron
+RUN chkconfig crond on
