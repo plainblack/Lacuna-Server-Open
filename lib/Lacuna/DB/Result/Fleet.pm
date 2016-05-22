@@ -66,6 +66,13 @@ sub can_scuttle {
     confess [1010, 'That fleet is busy.'];
 }
 
+sub can_rename {
+    my ($self) = @_;
+
+    # For now there is no reason why a fleet can't be renamed
+    return 1;
+}
+
 __PACKAGE__->load_components('DynamicSubclass');
 __PACKAGE__->table('fleet');
 __PACKAGE__->add_columns(
@@ -87,7 +94,8 @@ __PACKAGE__->add_columns(
     foreign_body_id         => { data_type => 'int', is_nullable => 1 },
     foreign_star_id         => { data_type => 'int', is_nullable => 1 },
     berth_level             => { data_type => 'int', is_nullable => 0 },
-    quantity                => { data_type => 'float', size => [11,1], is_nullable => 0}
+    quantity                => { data_type => 'float', size => [11,1], is_nullable => 0},
+    efficiency              => { data_type => 'int', is_nullable => 0, set_on_create => 100 },
 );
 __PACKAGE__->typecast_map(type => {
     'probe'                         => 'Lacuna::DB::Result::Fleet::Probe',
@@ -182,7 +190,7 @@ foreach my $method (qw(insert update)) {
         # Recalculate the ship mark
         my $mark = '';
         for my $arg (qw(body_id shipyard_id date_started date_available type task name speed stealth
-            combat hold_size roundtrip direction foreign_body_id foreign_star_id berth_level
+            combat hold_size payload roundtrip direction foreign_body_id foreign_star_id berth_level
             )) {
             $mark .= $self->$arg || '';
             $mark .= '#';
@@ -484,7 +492,9 @@ sub get_status {
             payload         => $self->format_description_of_payload,
             can_scuttle     => eval {$self->can_scuttle} ? 1 : 0,
             can_recall      => eval {$self->can_recall} ? 1 : 0,
+            can_rename      => eval {$self->can_rename} ? 1 : 0,
             build_tags      => $self->build_tags,
+            efficiency      => $self->efficiency,
         };
     }
     
