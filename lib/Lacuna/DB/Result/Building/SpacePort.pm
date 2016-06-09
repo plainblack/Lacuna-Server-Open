@@ -4,8 +4,10 @@ use Moose;
 use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
-use Lacuna::Constants qw(SHIP_TYPES);
+use Lacuna::Constants qw(SHIP_TYPES WASTE_F);
 use List::Util qw(shuffle);
+
+use constant waste_prod_rate => WASTE_F;
 
 around 'build_tags' => sub {
     my ($orig, $class) = @_;
@@ -167,7 +169,7 @@ use constant food_consumption   => 10;
 use constant energy_consumption => 70;
 use constant ore_consumption    => 20;
 use constant water_consumption  => 12;
-use constant waste_production   => 20;
+use constant waste_production   => 25;
 
 no Moose;
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);

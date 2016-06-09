@@ -6,7 +6,9 @@ no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building';
 use Lacuna::Util qw(format_date);
 use DateTime;
+use Lacuna::Constants qw(WASTE_F);
 
+use constant waste_prod_rate => WASTE_F;
 
 # The maximum number of ships that can be in a ship building queue
 has max_ships => (
@@ -341,7 +343,7 @@ use constant food_consumption               => 4;
 use constant energy_consumption             => 6;
 use constant ore_consumption                => 6;
 use constant water_consumption              => 4;
-use constant waste_production               => 2;
+use constant waste_production               => 5;
 use constant star_to_body_distance_ratio    => 100;
 
 # Get the pilot_training_level
