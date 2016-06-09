@@ -5,7 +5,7 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::DB::Result::Building::Waste';
 
-use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_N WASTE_S WASTE_F TINFLATE_F);
+use Lacuna::Constants qw(GROWTH_F INFLATION_F CONSUME_F WASTE_S WASTE_F TINFLATE_F);
 
 use constant controller_class => 'Lacuna::RPC::Building::WasteExchanger';
 
@@ -14,24 +14,24 @@ use constant name => 'Waste Exchanger';
 use constant university_prereq => 22;
 
 use constant prod_rate => GROWTH_F;
-use constant consume_rate => CONSUME_N;
+use constant consume_rate => CONSUME_F;
 use constant cost_rate => INFLATION_F;
 use constant waste_prod_rate => WASTE_S;
 use constant waste_consume_rate => WASTE_F;
 use constant time_inflation => TINFLATE_F;
 
-use constant energy_production => 100;
-use constant ore_production => 100;
-use constant water_production => 100;
+use constant energy_production => 140;
+use constant ore_production => 140;
+use constant water_production => 140;
 
-use constant food_to_build => 320;
-use constant energy_to_build => 360;
-use constant ore_to_build => 326;
-use constant water_to_build => 410;
-use constant waste_to_build => 190;
+use constant food_to_build => 420;
+use constant energy_to_build => 460;
+use constant ore_to_build => 526;
+use constant water_to_build => 610;
+use constant waste_to_build => 390;
 use constant time_to_build => 670;
 
-use constant food_consumption => 8;
+use constant food_consumption => 35;
 use constant waste_consumption => 300;
 
 use constant waste_storage => 1500;

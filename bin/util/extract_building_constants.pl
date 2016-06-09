@@ -1,8 +1,35 @@
 use strict;
 use lib ('/data/Lacuna-Server-Open/lib');
 use Data::Dumper;
+use Lacuna::DB;
+use Lacuna;
+use Getopt::Long;
 
-print "Building,food_to_build,energy_to_build,ore_to_build,water_to_build,waste_to_build,time_to_build,food_consumption,energy_consumption,ore_consumption,water_consumpion,waste_production\n";
+our $quiet;
+our $db = Lacuna->db;
+my $empire_id;
+my $bid;
+  GetOptions(
+    'quiet'    => \$quiet,  
+    'empire_id=s' => \$empire_id,
+    'bid=s'   => \$bid,
+  );
+
+  my $empires = $db->resultset('Lacuna::DB::Result::Empire');
+  my $empire = $empires->find($empire_id);
+  die "Could not find Empire!\n" unless $empire;
+  print "Setting up for empire: ".$empire->name." : ".$empire_id."\n";
+  my $ehash;
+  my $body;
+  if ($bid) {
+      $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($bid);
+  }
+  else {
+      $body = $db->resultset('Lacuna::DB::Result::Map::Body')->find($empire->home_planet_id);
+  }
+
+print "Building, lvl, food_hour, ore_hour, water_hour, energy_hour, waste_hour, happiness_hour, food_capacity, ore_capacity, water_capacity, energy_capacity, waste_capacity, food cost, ore cost, water cost, energy cost, waste cost, time cost\n";
+
 for my $building (qw(
     Lacuna::DB::Result::Building::Shipyard
     Lacuna::DB::Result::Building::SpacePort
@@ -161,19 +188,34 @@ for my $building (qw(
     Lacuna::DB::Result::Building::LCOTh
     Lacuna::DB::Result::Building::LCOTi
     )) {
-    eval "require $building";
-    my $obj = $building->new;
+    my $lvl = 1;
+    for my $lvl (1..30) {
+      my $obj = Lacuna->db->resultset('Lacuna::DB::Result::Building')->new({
+          body_id  => $bid,
+          class    => $building,
+          level    => $lvl,
+          body     => $body,
+        });
+      my $cost = $obj->cost_to_upgrade;
+      print join(",", $obj->name, $lvl,
+                      $obj->food_hour,
+                      $obj->ore_hour,
+                      $obj->water_hour,
+                      $obj->energy_hour,
+                      $obj->waste_hour,
+                      $obj->happiness_hour,
+                      $obj->food_capacity,
+                      $obj->ore_capacity,
+                      $obj->water_capacity,
+                      $obj->energy_capacity,
+                      $obj->waste_capacity,
+                      $cost->{food},
+                      $cost->{ore},
+                      $cost->{water},
+                      $cost->{energy},
+                      $cost->{waste},
+                      $cost->{time},
+                ),"\n";
+     }
 
-        print $obj->name .","
-            . $obj->food_to_build . ","
-            . $obj->energy_to_build .","
-            . $obj->ore_to_build .","
-            . $obj->water_to_build .","
-            . $obj->waste_to_build .","
-            . $obj->time_to_build .","
-            . $obj->food_consumption .","
-            . $obj->energy_consumption .","
-            . $obj->ore_consumption .","
-            . $obj->water_consumption .","
-            . $obj->waste_production ."\n";
 }
