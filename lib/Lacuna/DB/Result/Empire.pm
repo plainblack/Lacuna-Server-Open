@@ -1126,12 +1126,16 @@ sub next_colony_cost {
         my $count = $self->planets->search({ class => { '!=' => 'Lacuna::DB::Result::Map::Body::Planet::Station' }})->count;
 
         if (not defined $travelling_ships) {
-        $count += $travelling_ships;
             $travelling_ships = Lacuna->db->resultset('Ships')->search(
-                { type=> { in => [qw(colony_ship short_range_colony_ship)]}, task=>'travelling', direction=>'out', 'body.empire_id' => $self->id},
+                {
+                    type => { in => [qw(colony_ship short_range_colony_ship)]},
+                    task => 'travelling',
+                    direction => 'out',
+                    'body.empire_id' => $self->id},
                 { join => 'body' }
             )->count;
         }
+        $count += $travelling_ships;
         $count += $adjustment;
         my $srcs = $type eq "short_range_colony_ship" ? 25 : 0;
         my $inflation = 1 + INFLATION - (($srcs + $self->effective_growth_affinity * 5) / 100);
