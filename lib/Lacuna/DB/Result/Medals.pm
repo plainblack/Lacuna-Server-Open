@@ -122,12 +122,15 @@ use constant MEDALS => {
     },
     hulk => {
         name => 'Built Hulk',
+        image => 'v2/hulk',
     },
     hulk_huge => {
         name => 'Built Huge Hulk',
+        image => 'v2/hulk_huge',
     },
     hulk_fast => {
         name => 'Built Fast Hulk',
+        image => 'v2/hulk_fast',
     },
     freighter => {
         name => 'Built Freighter',
@@ -324,6 +327,7 @@ use constant MEDALS => {
     },
     pleased_to_meet_you => {
         name => 'Meeting the Lacunans',
+        image => 'v2/pleased_to_meet_you',
     },
     P1 => {
         name => 'Settled P1 Type Planet',
@@ -1122,6 +1126,7 @@ use constant MEDALS => {
     },
     'flipped' => {
         name => 'Ran a successful insurrection',
+        image => 'v2/flipped',
     },
     abandoned_colony => {
         name => 'Abandoned a Colony',

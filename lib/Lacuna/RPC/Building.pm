@@ -5,6 +5,8 @@ use utf8;
 no warnings qw(uninitialized);
 extends 'Lacuna::RPC';
 
+with "Lacuna::RPC::Role::Building";
+
 sub model_class {
     confess "you need to override me";
 }
@@ -64,6 +66,7 @@ sub upgrade {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     };
 }
 
@@ -72,6 +75,8 @@ sub view {
     my $session  = $self->get_session({session_id => $session_id, building_id => $building_id, skip_offline => 1});
     my $empire   = $session->current_empire;
     my $building = $session->current_building;
+    my $body     = $building->body;
+
     my $cost = $building->cost_to_upgrade;
     my $can_upgrade = eval{$building->can_upgrade($cost)};
     my $upgrade_reason = $@;
@@ -116,8 +121,10 @@ sub view {
                 image           => $image_after_downgrade,
             },
             pending_build       => $building->upgrade_status,
+            url                 => $self->app_url,
         },
         status      => $status,
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -199,6 +206,7 @@ sub build {
             level           => 0+$building->level,
             pending_build   => $building->upgrade_status,
         },
+        buildings   => $self->out_buildings($body),
     );
     if ($building->is_working) {
         $out{building}{work} = {
@@ -241,6 +249,7 @@ sub demolish {
     $body->tick;
     return {
         status      => $self->format_status($session, $body),
+        buildings   => $self->out_buildings($body),
     };
 }
 

@@ -1,3 +1,12 @@
+3.0922:
+ - UI:  Major reorganize of code ready for Reboot work
+ - Fix: Build queue for Reboot should no longer affect PT build queue
+ - Mod: Session timeout is extended from 2hrs to 4hrs
+ - Mod: New images (thanks Husky) for hulks
+ - Mod: New images for 'Meeting The Lacunans' and 'Ran a successful insurrection'
+ - Fix: Minor fix for Fleet Movement Missons
+ - Mod: Some changes in prep for Reboot work
+
 3.0921:
  - Mod: Re-org to make code deployment easier and to support Docker
  - Fix: Some minor efficiency changes for sitter auths

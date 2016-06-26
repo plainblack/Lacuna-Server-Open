@@ -156,7 +156,25 @@ END_TEXT
             # pull already done locally
         }
         when ('Lacuna-Server-Open') {
-            # pull already done locally
+            my $restart_server = 0;
+            # Reboot code
+            if ($branch eq "pt-reboot") {
+                chdir('/data/Lacuna-Server');
+                system("git", "pull", "origin", "pt-reboot");
+                $restart_server = 1;
+            }
+
+            # Legacy code
+            elsif ($branch eq "pt") {
+                chdir('/data/Lacuna-Server-Open');
+                system("git", "pull", "origin", "pt");
+                $restart_server = 1;
+            }
+
+            if ($restart_server) {
+                chdir('/data/Lacuna-Server-Private/bin');
+                system("./startqa.sh");
+            }
         }
         when ('Lacuna-Assets') {
             my $bucket = $branch_config->{bucket};

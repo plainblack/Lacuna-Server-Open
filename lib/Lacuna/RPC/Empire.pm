@@ -714,6 +714,51 @@ sub set_status_message {
     return $self->format_status($session);
 }
 
+sub set_survey {
+    my ($self, $session_id, $choice, $comment) = @_;
+    
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+    
+    my $survey = $empire->survey;
+    if (defined $survey) {
+        $survey->choice($choice);
+        $survey->comment($comment);
+        $survey->update;
+    }
+    else {
+        $empire->create_related('survey', {
+            choice  => $choice,
+            comment => $comment,
+        });
+    }
+        
+    return $self->format_status($session);
+}
+
+sub get_survey {
+    my ($self, $session_id) = @_;
+    
+    my $session  = $self->get_session({session_id => $session_id});
+    my $empire   = $session->current_empire;
+
+    my $survey = $empire->survey;
+    my $out = {
+        choice  => 0,
+        comment => "No Comment",
+    };
+
+    if (defined $survey) {
+        $out = {
+            choice  => $survey->choice,
+            comment => $survey->comment,
+        };
+    }
+    return { survey => $out, status => $self->format_status($session) };
+}
+
+
+
 sub view_public_profile {
     my ($self, $session_id, $empire_id) = @_;
     my $session  = $self->get_session({session_id => $session_id});
@@ -838,10 +883,7 @@ sub boost {
     $empire->planets->update({needs_recalc=>1, boost_enabled=>1});
     $empire->$type($start);
     $empire->update;
-    return {
-        status => $self->format_status($session),
-        $type => format_date($empire->$type),
-    };
+    return $self->view_boosts($session_id);
 }
 
 sub view_boosts {
@@ -1289,31 +1331,39 @@ sub authorize_sitters
     return $rc;
 }
 
-sub deauthorize_sitters
-{
+sub deauthorize_sitters {
     my ($self, $session_id, $opts) = @_;
+
     my $session  = $self->get_session({session_id => $session_id});
     my $baby = $session->current_empire;
 
     my $baby_id = $session->empire_id;
 
-    confess [1009, "The 'empires' option must be an array of empire IDs"]
-        unless $opts->{empires} and ref $opts->{empires} eq 'ARRAY' and
-        none { /\D/ } @{$opts->{empires}};
-
     my $dtf = Lacuna->db->storage->datetime_parser;
     my $now = $dtf->format_datetime(DateTime->now);
-
-    # set expiry to immediate
     my $rs = Lacuna->db->resultset('SitterAuths');
-    $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
-        ->update({expiry => $now});
+    
+    if (defined $opts->{empires}) {
+        confess [1009, "The 'empires' option must be an array of empire IDs"]
+            unless ref $opts->{empires} eq 'ARRAY'
+            and none { /\D/ } @{$opts->{empires}};
+
+        # set expiry to immediate
+        $rs->search({baby_id => $baby_id, sitter_id => { in => $opts->{empires} }})
+            ->update({expiry => $now});
+    }
+    elsif (defined $opts->{deauthorize_all}) {
+        # set expiry to immediate
+        $rs->search({baby_id => $baby_id })->update({expiry => $now});
+    }
+    else {
+        confess [1009, "You must specify either an 'empires' or a 'deauthorize_all' option"];
+    }
 
     return $self->view_authorized_sitters($session);
 }
 
-sub _rewrite_request_for_logging
-{
+sub _rewrite_request_for_logging {
     my ($method, $params) = @_;
     if ($method eq 'login') {
         $params->[1] = 'xxx';
@@ -1365,6 +1415,7 @@ __PACKAGE__->register_rpc_method_names(
     boost_building boost_storage boost_water boost_energy boost_ore
     boost_food boost_happiness boost_spy_training view_boosts
     view_authorized_sitters authorize_sitters deauthorize_sitters
+    get_survey set_survey
     ),
 );
 
