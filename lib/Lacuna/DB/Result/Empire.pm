@@ -691,7 +691,7 @@ sub get_status {
         bodies              => \%bodies,
         next_colony_cost    => 0+$self->next_colony_cost("colony_ship",0,$travelling_ships),
         next_colony_srcs    => 0+$self->next_colony_cost("short_range_colony_ship",0,$travelling_ships),
-        next_station_cost   => 0+$self->next_colony_cost("space_station",0,$travelling_ships),
+        next_station_cost   => 0+$self->next_colony_cost("space_station"),
         insurrect_value     => 0+$self->next_colony_cost("spy",0,$travelling_ships),
         self_destruct_active=> $self->self_destruct_active,
         self_destruct_date  => $self->self_destruct_date_formatted,
