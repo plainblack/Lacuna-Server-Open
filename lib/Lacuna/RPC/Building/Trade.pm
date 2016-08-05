@@ -304,7 +304,10 @@ sub delete_supply_chain {
 
     my $chain = Lacuna->db->resultset('Lacuna::DB::Result::SupplyChain')->find($supply_chain_id);
     if ($chain) {
+        my $target = $chain->target;
         $building->remove_supply_chain($chain);
+        $target->needs_recalc(1);
+        $target->update;
     }
     return $self->view_supply_chains($session_id, $building_id);    
 }
