@@ -51,7 +51,7 @@ sub complete {
     # of any race condition in case someone is really trying hard to defeat this.
     confess [1002, 'Already completed that mission in another zone.']
         if Lacuna->cache->get($self->mission_file_name, $body->empire_id);
-    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
+    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 3);
     $self->spend_objectives($body);
     $self->add_rewards($body);
     if (randint(0,9) < 5) {
@@ -72,7 +72,7 @@ sub complete {
 
 sub skip {
     my ($self, $body) = @_;
-    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 30);
+    Lacuna->cache->set($self->mission_file_name, $body->empire_id, 1, 60 * 60 * 24 * 1);
     my $log = $self->log;
     $log->update({
         skips           => $log->skips + 1,

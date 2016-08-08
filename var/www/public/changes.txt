@@ -1,3 +1,7 @@
+3.0925:
+ - Mod: Saben made more aggressive.
+ - Mod: Mission cache set at 3 days instead of 30.
+
 3.0922:
  - Fix: Colony Ships in flight counted again
  - UI:  Major reorganize of code ready for Reboot work
